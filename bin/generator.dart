@@ -11,13 +11,13 @@ class Generator {
   Map _json;
   String _name;
   String _version;
-  
+
   Generator(this._data) {
     _json = JSON.parse(_data);
     _name = _json["name"];
     _version = _json["version"];
   }
-  
+
   void generateClient(String outputDirectory) {
     var folderName = "$outputDirectory/${_name}_${_version}_${fileDate(new Date.now())}";
     (new Directory("$folderName/lib/src")).createSync(recursive: true);
@@ -33,7 +33,7 @@ class Generator {
     (new File("$folderName/pubspec.yaml")).writeAsStringSync(tmp.toString());
 
     (new File("$folderName/lib/src/client.dart")).writeAsStringSync(_createClientClass());
-    
+
     tmp.clear();
     tmp.add("library $_name;\n\n");
     tmp.add("import \"dart:html\";\n");
@@ -101,10 +101,10 @@ class Generator {
     }
     tmp.add("  }\n");
     tmp.add("}\n");
-    
+
     return tmp.toString();
   }
-  
+
   String _createSchemaClass(String name, Map data) {
     var tmp = new StringBuffer();
     Map subSchemas = new Map();
@@ -286,13 +286,13 @@ class Generator {
     // ONLY WORKS FOR SIMPLE GET REQUESTS AT THE MOMENT!!!
 
     var tmp = new StringBuffer();
-    
+
     if (data["httpMethod"] == "GET") {
 
       if(data.containsKey("description")) {
         tmp.add("  /** ${data["description"]} */\n");
       }
-  
+
       var params = new StringBuffer();
       if (data.containsKey("parameterOrder") && data.containsKey("parameters")) {
         data["parameterOrder"].forEach((param) {
@@ -313,20 +313,20 @@ class Generator {
       }
       if(!params.isEmpty) params.add(", ");
       params.add("[Map optParams]");
-      
+
       var response = null;
       if (data.containsKey("response")) {
         response = "Future<${data["response"]["\$ref"]}>";
       } else {
-        response = "Future<Map>"; 
+        response = "Future<Map>";
       }
-  
+
       tmp.add("  $response $name($params) {\n");
       tmp.add("    var completer = new Completer();\n");
       tmp.add("    var url = \"\${_client._baseUrl}${data["path"]}\";\n");
       tmp.add("    var urlParams = new Map();\n");
       tmp.add("    if (optParams == null) optParams = new Map();\n\n");
-      
+
       if (data.containsKey("parameterOrder") && data.containsKey("parameters")) {
         data["parameterOrder"].forEach((param) {
           if (data["parameters"].containsKey(param)) {
@@ -339,12 +339,12 @@ class Generator {
         });
         tmp.add("\n");
       }
-      
+
       tmp.add("    _client._getRequest(url, urlParams, optParams).then((data) {\n");
       if (data.containsKey("response")) {
         tmp.add("      completer.complete(new ${data["response"]["\$ref"]}.fromJson(data));\n");
       } else {
-        tmp.add("      completer.complete(data);\n"); 
+        tmp.add("      completer.complete(data);\n");
       }
       tmp.add("    });\n\n");
       tmp.add("    return completer.future;\n");
@@ -368,7 +368,7 @@ class Generator {
         tmp.add("  $subClassName get $key => _$key;\n");
       });
     }
-    
+
     tmp.add("\n  $className._internal(Client client) : super(client) {\n");
     if (data.containsKey("resources")) {
       data["resources"].forEach((key, resource) {
@@ -377,99 +377,111 @@ class Generator {
       });
     }
     tmp.add("  }\n");
-    
+
     if (data.containsKey("methods")) {
       data["methods"].forEach((key, method) {
         tmp.add("\n");
         tmp.add(_createMethod(key, method));
       });
     }
-    
+
     tmp.add("}\n\n");
 
     if (data.containsKey("resources")) {
       data["resources"].forEach((key, resource) {
         tmp.add(_createResourceClass("${capitalize(name)}${capitalize(key)}", resource));
-      }); 
+      });
     }
-    
-    return tmp.toString(); 
+
+    return tmp.toString();
   }
 
   String _createClientClass() {
-    var tmp = new StringBuffer();
-    tmp.add("part of $_name;\n\n");
-    tmp.add("abstract class Client {\n");
-    tmp.add("  String _apiKey;\n");
-    tmp.add("  OAuth2 _auth;\n");
-    tmp.add("  String _baseUrl;\n");
-    tmp.add("  bool makeAuthRequests = false;\n\n");
-    tmp.add("  Client([String this._apiKey, OAuth2 this._auth]);\n\n");
-    tmp.add("  Future _getRequest(String requestUrl, [Map urlParams, Map queryParams]) {\n");
-    tmp.add("    var request = new HttpRequest();\n");
-    tmp.add("    var completer = new Completer();\n\n");
-    tmp.add("    if (urlParams == null) urlParams = {};\n");
-    tmp.add("    if (queryParams == null) queryParams = {};\n\n");
-    tmp.add("    if (_apiKey != null) {\n");
-    tmp.add("      queryParams[\"key\"] = _apiKey;\n");
-    tmp.add("    }\n\n");
-    tmp.add("    final url = new UrlPattern(requestUrl).generate(urlParams, queryParams);\n\n");
-    
-    tmp.add("    request.on.loadEnd.add((Event e) {\n");
-    tmp.add("      if (request.status == 200) {\n");
-    tmp.add("        var data = JSON.parse(request.responseText);\n");
-    tmp.add("        completer.complete(data);\n");
-    tmp.add("      } else {\n");
-    tmp.add("        completer.complete({\"error\": \"Error \${request.status}: \${request.statusText}\"});\n");
-    tmp.add("      }\n");
-    tmp.add("    });\n\n");
-    
-    tmp.add("    request.open(\"GET\", url);\n\n");
+    return """
+part of $_name;
 
-    tmp.add("    if (makeAuthRequests && _auth != null) {\n");
-    tmp.add("      _auth.authenticate(request).then((request) => request.send());\n");
-    tmp.add("    } else {\n");
-    tmp.add("      request.send();\n");
-    tmp.add("    }\n\n");
-    tmp.add("    return completer.future;\n");
-    tmp.add("  }\n\n");
+abstract class Client {
+  String _apiKey;
+  OAuth2 _auth;
+  String _baseUrl;
+  bool makeAuthRequests = false;
 
-    tmp.add("  Future _putRequest(String requestUrl, String body, [Map urlParams, Map queryParams]) {\n");
-    tmp.add("    var request = new HttpRequest();\n");
-    tmp.add("    var completer = new Completer();\n\n");
-    tmp.add("    if (urlParams == null) urlParams = {};\n");
-    tmp.add("    if (queryParams == null) queryParams = {};\n\n");
-    tmp.add("    if (_apiKey != null) {\n");
-    tmp.add("      queryParams[\"key\"] = _apiKey;\n");
-    tmp.add("    }\n\n");
-    tmp.add("    final url = new UrlPattern(requestUrl).generate(urlParams, queryParams);\n\n");
+  Client([String this._apiKey, OAuth2 this._auth]);
 
-    tmp.add("    request.on.loadEnd.add((Event e) {\n");
-    tmp.add("      if (request.status == 200) {\n");
-    tmp.add("        var data = JSON.parse(request.responseText);\n");
-    tmp.add("        completer.complete(data);\n");
-    tmp.add("      } else {\n");
-    tmp.add("        completer.complete({\"error\": \"Error \${request.status}: \${request.statusText}\"});\n");
-    tmp.add("      }\n");
-    tmp.add("    });\n\n");
-    
-    tmp.add("    request.open(\"PUT\", url);\n\n");
-    
-    tmp.add("    if (makeAuthRequests && _auth != null) {\n");
-    tmp.add("      _auth.authenticate(request).then((request) => request.send(body));\n");
-    tmp.add("    } else {\n");
-    tmp.add("      request.send(body);\n");
-    tmp.add("    }\n\n");
-    tmp.add("    return completer.future;\n");
-    tmp.add("  }\n");
-    tmp.add("}\n\n\n");
+  Future _getRequest(String requestUrl, [Map urlParams, Map queryParams]) {
+    var request = new HttpRequest();
+    var completer = new Completer();
 
-    tmp.add("abstract class Resource {\n");
-    tmp.add("  Client _client;\n\n");
-    tmp.add("  Resource(Client this._client);\n");
-    tmp.add("}\n");  
-    
-    return tmp.toString();
+    if (urlParams == null) urlParams = {};
+    if (queryParams == null) queryParams = {};
+
+    if (_apiKey != null) {
+      queryParams["key"] = _apiKey;
+    }
+
+    final url = new UrlPattern(requestUrl).generate(urlParams, queryParams);
+
+    request.on.loadEnd.add((Event e) {
+      if (request.status == 200) {
+        var data = JSON.parse(request.responseText);
+        completer.complete(data);
+      } else {
+        completer.complete({"error": "Error \${request.status}: \${request.statusText}"});
+      }
+    });
+
+    request.open("GET", url);
+
+    if (makeAuthRequests && _auth != null) {
+      _auth.authenticate(request).then((request) => request.send());
+    } else {
+      request.send();
+    }
+
+    return completer.future;
+  }
+
+  Future _putRequest(String requestUrl, String body, [Map urlParams, Map queryParams]) {
+    var request = new HttpRequest();
+    var completer = new Completer();
+
+    if (urlParams == null) urlParams = {};
+    if (queryParams == null) queryParams = {};
+
+    if (_apiKey != null) {
+      queryParams["key"] = _apiKey;
+    }
+
+    final url = new UrlPattern(requestUrl).generate(urlParams, queryParams);
+
+    request.on.loadEnd.add((Event e) {
+      if (request.status == 200) {
+        var data = JSON.parse(request.responseText);
+        completer.complete(data);
+      } else {
+        completer.complete({"error": "Error \${request.status}: \${request.statusText}"});
+      }
+    });
+
+    request.open("PUT", url);
+
+    if (makeAuthRequests && _auth != null) {
+      _auth.authenticate(request).then((request) => request.send(body));
+    } else {
+      request.send(body);
+    }
+
+    return completer.future;
+  }
+}
+
+
+abstract class Resource {
+  Client _client;
+
+  Resource(Client this._client);
+}
+""";
   }
 }
 
@@ -535,12 +547,12 @@ void main() {
     printUsage(parser);
     return;
   }
-  
+
   if (result["help"] != null && result["help"] == true) {
     printUsage(parser);
     return;
   }
-  
+
   if ((result["api"] == null || result["version"] == null) && result["input"] == null && result["url"] == null) {
     print("Missing arguments\n");
     printUsage(parser);
@@ -554,9 +566,9 @@ void main() {
     loader = loadDocumentFromUrl(result["url"]);
   else if (result["input"] != null)
     loader = loadDocumentFromFile(result["input"]);
-  
+
   loader.then((doc) {
     var generator = new Generator(doc);
-    generator.generateClient(result["output"]); 
+    generator.generateClient(result["output"]);
   });
 }
