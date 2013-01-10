@@ -2,6 +2,11 @@ WARNING! STILL IN ACTIVE DEVELOPMENT AND NOT FULLY FUNCTIONAL YET!
 PROCEED AT YOUR OWN RISK
 ------------------------------------------------------------------
 
+So far only methods with GET requests are handled.
+POST requests and Mediauploads are still missing.
+
+------------------------------------------------------------------
+
 Name:  discovery_api_dart_client_generator
 Description:  Dart application to create Dart API Client Libraries based on discovery documents
 
