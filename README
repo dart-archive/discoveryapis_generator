@@ -2,8 +2,10 @@ WARNING! STILL IN ACTIVE DEVELOPMENT AND NOT FULLY FUNCTIONAL YET!
 PROCEED AT YOUR OWN RISK
 ------------------------------------------------------------------
 
-So far only methods with GET requests are handled.
-POST requests and Mediauploads are still missing.
+POST and GET requests should be working.
+Mediauploads are still missing.
+
+Also missing is any proper error handling in case the API doesn't respond as expected...
 
 ------------------------------------------------------------------
 
