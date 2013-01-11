@@ -6,7 +6,7 @@ class ActivitiesResource extends Resource {
   }
 
   /** Get an activity. */
-  Future<Activity> get(String activityId, [Map optParams]) {
+  Future<Activity> get(String activityId, {Map optParams}) {
     var completer = new Completer();
     var url = "activities/{activityId}";
     var urlParams = new Map();
@@ -14,7 +14,9 @@ class ActivitiesResource extends Resource {
 
     urlParams["activityId"] = activityId;
 
-    _client._request(url, "GET", urlParams: urlParams, queryParams: optParams).then((data) {
+    var response;
+    response = _client._request(url, "GET", urlParams: urlParams, queryParams: optParams);
+    response.then((data) {
       completer.complete(new Activity.fromJson(data));
     });
 
@@ -22,7 +24,7 @@ class ActivitiesResource extends Resource {
   }
 
   /** List all of the activities in the specified collection for a particular user. */
-  Future<ActivityFeed> list(String userId, String collection, [Map optParams]) {
+  Future<ActivityFeed> list(String userId, String collection, {Map optParams}) {
     var completer = new Completer();
     var url = "people/{userId}/activities/{collection}";
     var urlParams = new Map();
@@ -31,7 +33,9 @@ class ActivitiesResource extends Resource {
     urlParams["userId"] = userId;
     urlParams["collection"] = collection;
 
-    _client._request(url, "GET", urlParams: urlParams, queryParams: optParams).then((data) {
+    var response;
+    response = _client._request(url, "GET", urlParams: urlParams, queryParams: optParams);
+    response.then((data) {
       completer.complete(new ActivityFeed.fromJson(data));
     });
 
@@ -39,7 +43,7 @@ class ActivitiesResource extends Resource {
   }
 
   /** Search public activities. */
-  Future<ActivityFeed> search(String query, [Map optParams]) {
+  Future<ActivityFeed> search(String query, {Map optParams}) {
     var completer = new Completer();
     var url = "activities";
     var urlParams = new Map();
@@ -47,7 +51,9 @@ class ActivitiesResource extends Resource {
 
     optParams["query"] = query;
 
-    _client._request(url, "GET", urlParams: urlParams, queryParams: optParams).then((data) {
+    var response;
+    response = _client._request(url, "GET", urlParams: urlParams, queryParams: optParams);
+    response.then((data) {
       completer.complete(new ActivityFeed.fromJson(data));
     });
 
@@ -61,7 +67,7 @@ class CommentsResource extends Resource {
   }
 
   /** Get a comment. */
-  Future<Comment> get(String commentId, [Map optParams]) {
+  Future<Comment> get(String commentId, {Map optParams}) {
     var completer = new Completer();
     var url = "comments/{commentId}";
     var urlParams = new Map();
@@ -69,7 +75,9 @@ class CommentsResource extends Resource {
 
     urlParams["commentId"] = commentId;
 
-    _client._request(url, "GET", urlParams: urlParams, queryParams: optParams).then((data) {
+    var response;
+    response = _client._request(url, "GET", urlParams: urlParams, queryParams: optParams);
+    response.then((data) {
       completer.complete(new Comment.fromJson(data));
     });
 
@@ -77,7 +85,7 @@ class CommentsResource extends Resource {
   }
 
   /** List all of the comments for an activity. */
-  Future<CommentFeed> list(String activityId, [Map optParams]) {
+  Future<CommentFeed> list(String activityId, {Map optParams}) {
     var completer = new Completer();
     var url = "activities/{activityId}/comments";
     var urlParams = new Map();
@@ -85,7 +93,9 @@ class CommentsResource extends Resource {
 
     urlParams["activityId"] = activityId;
 
-    _client._request(url, "GET", urlParams: urlParams, queryParams: optParams).then((data) {
+    var response;
+    response = _client._request(url, "GET", urlParams: urlParams, queryParams: optParams);
+    response.then((data) {
       completer.complete(new CommentFeed.fromJson(data));
     });
 
@@ -99,7 +109,7 @@ class PeopleResource extends Resource {
   }
 
   /** Get a person's profile. */
-  Future<Person> get(String userId, [Map optParams]) {
+  Future<Person> get(String userId, {Map optParams}) {
     var completer = new Completer();
     var url = "people/{userId}";
     var urlParams = new Map();
@@ -107,7 +117,9 @@ class PeopleResource extends Resource {
 
     urlParams["userId"] = userId;
 
-    _client._request(url, "GET", urlParams: urlParams, queryParams: optParams).then((data) {
+    var response;
+    response = _client._request(url, "GET", urlParams: urlParams, queryParams: optParams);
+    response.then((data) {
       completer.complete(new Person.fromJson(data));
     });
 
@@ -115,7 +127,7 @@ class PeopleResource extends Resource {
   }
 
   /** List all of the people in the specified collection for a particular activity. */
-  Future<PeopleFeed> listByActivity(String activityId, String collection, [Map optParams]) {
+  Future<PeopleFeed> listByActivity(String activityId, String collection, {Map optParams}) {
     var completer = new Completer();
     var url = "activities/{activityId}/people/{collection}";
     var urlParams = new Map();
@@ -124,7 +136,9 @@ class PeopleResource extends Resource {
     urlParams["activityId"] = activityId;
     urlParams["collection"] = collection;
 
-    _client._request(url, "GET", urlParams: urlParams, queryParams: optParams).then((data) {
+    var response;
+    response = _client._request(url, "GET", urlParams: urlParams, queryParams: optParams);
+    response.then((data) {
       completer.complete(new PeopleFeed.fromJson(data));
     });
 
@@ -132,7 +146,7 @@ class PeopleResource extends Resource {
   }
 
   /** Search all public profiles. */
-  Future<PeopleFeed> search(String query, [Map optParams]) {
+  Future<PeopleFeed> search(String query, {Map optParams}) {
     var completer = new Completer();
     var url = "people";
     var urlParams = new Map();
@@ -140,7 +154,9 @@ class PeopleResource extends Resource {
 
     optParams["query"] = query;
 
-    _client._request(url, "GET", urlParams: urlParams, queryParams: optParams).then((data) {
+    var response;
+    response = _client._request(url, "GET", urlParams: urlParams, queryParams: optParams);
+    response.then((data) {
       completer.complete(new PeopleFeed.fromJson(data));
     });
 

@@ -6,7 +6,7 @@ class UrlResource extends Resource {
   }
 
   /** Expands a short URL or gets creation time and analytics. */
-  Future<Url> get(String shortUrl, [Map optParams]) {
+  Future<Url> get(String shortUrl, {Map optParams}) {
     var completer = new Completer();
     var url = "url";
     var urlParams = new Map();
@@ -14,7 +14,9 @@ class UrlResource extends Resource {
 
     optParams["shortUrl"] = shortUrl;
 
-    _client._request(url, "GET", urlParams: urlParams, queryParams: optParams).then((data) {
+    var response;
+    response = _client._request(url, "GET", urlParams: urlParams, queryParams: optParams);
+    response.then((data) {
       completer.complete(new Url.fromJson(data));
     });
 
@@ -22,13 +24,15 @@ class UrlResource extends Resource {
   }
 
   /** Creates a new short URL. */
-  Future<Url> insert(Url request, [Map optParams]) {
+  Future<Url> insert(Url request, {Map optParams}) {
     var completer = new Completer();
     var url = "url";
     var urlParams = new Map();
     if (optParams == null) optParams = new Map();
 
-    _client._request(url, "POST", body: request.toString(), urlParams: urlParams, queryParams: optParams).then((data) {
+    var response;
+    response = _client._request(url, "POST", body: request.toString(), urlParams: urlParams, queryParams: optParams);
+    response.then((data) {
       completer.complete(new Url.fromJson(data));
     });
 
@@ -36,13 +40,15 @@ class UrlResource extends Resource {
   }
 
   /** Retrieves a list of URLs shortened by a user. */
-  Future<UrlHistory> list([Map optParams]) {
+  Future<UrlHistory> list({Map optParams}) {
     var completer = new Completer();
     var url = "url/history";
     var urlParams = new Map();
     if (optParams == null) optParams = new Map();
 
-    _client._request(url, "GET", urlParams: urlParams, queryParams: optParams).then((data) {
+    var response;
+    response = _client._request(url, "GET", urlParams: urlParams, queryParams: optParams);
+    response.then((data) {
       completer.complete(new UrlHistory.fromJson(data));
     });
 

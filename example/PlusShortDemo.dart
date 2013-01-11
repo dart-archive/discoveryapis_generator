@@ -8,7 +8,7 @@ void main() {
   var shortener = new Urlshortener("AIzaSyDxnNu9Dm3eGxnDD72EF02IjRvR5v_eMPc");
   var container = html.query("#text");
   
-  plus.activities.list("+FoldedSoft", "public", {"maxResults": 5}).then((ActivityFeed data) {
+  plus.activities.list("+FoldedSoft", "public", optParams: {"maxResults": 5}).then((ActivityFeed data) {
     data.items.forEach((item) {
       shortener.url.insert(new Url.fromJson({"longUrl": item.url})).then((url) {
         container.appendHtml("<a href=\"${url.id}\">${url.id}</a> ${item.published} - ${item.title}<br>");

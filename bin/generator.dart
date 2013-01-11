@@ -19,7 +19,7 @@ class Generator {
   }
 
   void generateClient(String outputDirectory) {
-    var folderName = "$outputDirectory/${_name}_${_version}_${fileDate(new Date.now())}";
+    var folderName = "$outputDirectory/${fileDate(new Date.now())}/${_name}_${_version}_api_client";
     (new Directory("$folderName/lib/src")).createSync(recursive: true);
 
     (new File("$folderName/pubspec.yaml")).writeAsStringSync(_createPubspec());
@@ -110,6 +110,7 @@ part "src/resources.dart";
     }
     tmp.add("\n  ${capitalize(_name)}([String apiKey, OAuth2 auth]) : super(apiKey, auth) {\n");
     tmp.add("    _baseUrl = \"${_json["baseUrl"]}\";\n");
+    tmp.add("    _rootUrl = \"${_json["rootUrl"]}\";\n");
     if (_json.containsKey("resources")) {
       _json["resources"].forEach((key, resource) {
         var subClassName = "${capitalize(key)}Resource";
@@ -305,8 +306,11 @@ part "src/resources.dart";
     return tmp.toString();
   }
 
+  /// Create a method with [name] inside of a class, based on [data]
   String _createMethod(String name, Map data) {
     var tmp = new StringBuffer();
+    var upload = false;
+    var uploadPath;
 
     if(data.containsKey("description")) {
       tmp.add("  /** ${data["description"]} */\n");
@@ -333,9 +337,30 @@ part "src/resources.dart";
         }
       });
     }
-    if(!params.isEmpty) params.add(", ");
-    params.add("[Map optParams]");
+    
+    if (data.containsKey("mediaUpload")) {
+      if (data["mediaUpload"].containsKey("protocols")) {
+        if (data["mediaUpload"]["protocols"].containsKey("simple")) {
+          if (data["mediaUpload"]["protocols"]["simple"].containsKey("multipart")) {
+            if (data["mediaUpload"]["protocols"]["simple"]["multipart"] == true) {
+              upload = true;
+              uploadPath = data["mediaUpload"]["protocols"]["simple"]["path"];
+            }
+          }
+        }
+      }
+    }
+    
+    var optParams = new StringBuffer();
+    if (upload) {
+      optParams.add("String content, String contentType");
+    }
+    if(!optParams.isEmpty) optParams.add(", ");
+    optParams.add("Map optParams");
 
+    if(!params.isEmpty) params.add(", ");
+    params.add("{${optParams.toString()}}");
+    
     var response = null;
     if (data.containsKey("response")) {
       response = "Future<${data["response"]["\$ref"]}>";
@@ -346,6 +371,9 @@ part "src/resources.dart";
     tmp.add("  $response $name($params) {\n");
     tmp.add("    var completer = new Completer();\n");
     tmp.add("    var url = \"${data["path"]}\";\n");
+    if (upload) {
+      tmp.add("    var uploadUrl = \"$uploadPath\";\n");
+    }
     tmp.add("    var urlParams = new Map();\n");
     tmp.add("    if (optParams == null) optParams = new Map();\n\n");
     
@@ -362,14 +390,32 @@ part "src/resources.dart";
       tmp.add("\n");
     }
 
-    // Future _request(String requestUrl, String method, {String body, String contentType:"application/json", Map urlParams, Map queryParams}) {
     params.clear();
     if (data.containsKey("request")) {
       params.add("body: request.toString(), ");
     }
     params.add("urlParams: urlParams, queryParams: optParams");
     
-    tmp.add("    _client._request(url, \"${data["httpMethod"]}\", ${params.toString()}).then((data) {\n");
+    
+    tmp.add("    var response;\n");
+    if (upload) {
+      var uploadParams = new StringBuffer();
+      if (data.containsKey("request")) {
+        uploadParams.add("request.toString(), ");
+      } else {
+        uploadParams.add("\"\", ");
+      }
+      uploadParams.add("content, contentType, urlParams: urlParams, queryParams: optParams");
+      tmp.add("    if (?content && content != null) {\n");
+      tmp.add("      response = _client._upload(uploadUrl, \"${data["httpMethod"]}\", ${uploadParams.toString()});\n");
+      tmp.add("    } else {\n");
+      tmp.add("      response = _client._request(url, \"${data["httpMethod"]}\", ${params.toString()});\n");
+      tmp.add("    }\n");
+    } else {
+      tmp.add("    response = _client._request(url, \"${data["httpMethod"]}\", ${params.toString()});\n");
+    }
+    
+    tmp.add("    response.then((data) {\n");
     if (data.containsKey("response")) {
       tmp.add("      completer.complete(new ${data["response"]["\$ref"]}.fromJson(data));\n");
     } else {
@@ -432,7 +478,12 @@ abstract class Client {
   String _apiKey;
   OAuth2 _auth;
   String _baseUrl;
+  String _rootUrl;
   bool makeAuthRequests = false;
+
+  static const _boundary = "-------314159265358979323846";
+  static const _delimiter = "\\r\\n--\$_boundary\\r\\n";
+  static const _closeDelim = "\\r\\n--\$_boundary--";
 
   Client([String this._apiKey, OAuth2 this._auth]);
 
@@ -447,7 +498,7 @@ abstract class Client {
       queryParams["key"] = _apiKey;
     }
 
-    final url = new UrlPattern("\$_baseUrl\$requestUrl").generate(urlParams, queryParams);
+    final url = new UrlPattern("\${(requestUrl.substring(0,1) == "/") ? _rootUrl :_baseUrl}\$requestUrl").generate(urlParams, queryParams);
 
     request.on.loadEnd.add((Event e) {
       if (request.status == 200) {
@@ -467,6 +518,27 @@ abstract class Client {
     }
 
     return completer.future;
+  }
+
+  Future _upload(String requestUrl, String method, String body, String content, String contentType, {Map urlParams, Map queryParams}) {
+    var multiPartBody = new StringBuffer();
+    if (contentType == null || contentType.isEmpty) {
+      contentType = "application/octet-stream";
+    }
+    multiPartBody
+    ..add(_delimiter)
+    ..add("Content-Type: application/json\\r\\n\\r\\n")
+    ..add(body)
+    ..add(_delimiter)
+    ..add("Content-Type: ")
+    ..add(contentType)
+    ..add("\\r\\n")
+    ..add("Content-Transfer-Encoding: base64\\r\\n")
+    ..add("\\r\\n")
+    ..add(contentType)
+    ..add(_closeDelim);
+
+    return _request(requestUrl, method, body: multiPartBody.toString(), contentType: "multipart/mixed; boundary=\\"\$_boundary\\"", urlParams: urlParams, queryParams: queryParams);
   }
 }
 

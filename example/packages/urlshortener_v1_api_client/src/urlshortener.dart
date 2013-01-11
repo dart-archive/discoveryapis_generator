@@ -10,6 +10,7 @@ class Urlshortener extends Client {
 
   Urlshortener([String apiKey, OAuth2 auth]) : super(apiKey, auth) {
     _baseUrl = "https://www.googleapis.com:443/urlshortener/v1/";
+    _rootUrl = "https://www.googleapis.com:443/";
     _url = new UrlResource._internal(this);
   }
 }

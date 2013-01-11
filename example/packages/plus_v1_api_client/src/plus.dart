@@ -14,6 +14,7 @@ class Plus extends Client {
 
   Plus([String apiKey, OAuth2 auth]) : super(apiKey, auth) {
     _baseUrl = "https://www.googleapis.com:443/plus/v1/";
+    _rootUrl = "https://www.googleapis.com:443/";
     _activities = new ActivitiesResource._internal(this);
     _comments = new CommentsResource._internal(this);
     _people = new PeopleResource._internal(this);

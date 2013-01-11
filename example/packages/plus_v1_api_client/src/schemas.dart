@@ -109,7 +109,6 @@ class Activity {
   String url;
 
   /** This activity's verb, indicating what action was performed. Possible values are:  
-- "checkin" - Check in to a location. 
 - "post" - Publish content to the stream. 
 - "share" - Reshare an activity. */
   String verb;
