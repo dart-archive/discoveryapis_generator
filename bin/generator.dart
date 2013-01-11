@@ -22,53 +22,76 @@ class Generator {
     var folderName = "$outputDirectory/${_name}_${_version}_${fileDate(new Date.now())}";
     (new Directory("$folderName/lib/src")).createSync(recursive: true);
 
-    var tmp = new StringBuffer();
-    tmp.add("name: ${_name}_${_version}_api_client\n");
-    tmp.add("version: 0.0.1\n");
-    tmp.add("description: Auto-generated client library for accessing the $_name $_version API\n");
-    tmp.add("author: Gerwin Sturm (scarygami/+)\n\n");
-    tmp.add("dependencies:\n");
-    tmp.add("  dart-google-oauth2-library:\n");
-    tmp.add("    git: git://github.com/Scarygami/dart-google-oauth2-library.git\n");
-    (new File("$folderName/pubspec.yaml")).writeAsStringSync(tmp.toString());
+    (new File("$folderName/pubspec.yaml")).writeAsStringSync(_createPubspec());
 
+    (new File("$folderName/lib/$_name.dart")).writeAsStringSync(_createLibrary());
+    
     (new File("$folderName/lib/src/client.dart")).writeAsStringSync(_createClientClass());
 
-    tmp.clear();
-    tmp.add("library $_name;\n\n");
-    tmp.add("import \"dart:html\";\n");
-    tmp.add("import \"dart:uri\";\n");
-    tmp.add("import \"dart:json\";\n");
-    tmp.add("import \"package:dart-google-oauth2-library/oauth2.dart\";\n\n");
+    (new File("$folderName/lib/src/schemas.dart")).writeAsStringSync(_createSchemas());
 
-    tmp.add("part \"src/client.dart\";\n");
-    tmp.add("part \"src/$_name.dart\";\n");
-    tmp.add("part \"src/schemas.dart\";\n");
-    tmp.add("part \"src/resources.dart\";\n");
-    (new File("$folderName/lib/$_name.dart")).writeAsStringSync(tmp.toString());
+    (new File("$folderName/lib/src/resources.dart")).writeAsStringSync(_createResources());
 
-    tmp.clear();
+    (new File("$folderName/lib/src/$_name.dart")).writeAsStringSync(_createMainClass());
+  }
+
+  String _createPubspec() {
+    return """
+name: ${_name}_${_version}_api_client
+version: 0.0.1
+description: Auto-generated client library for accessing the $_name $_version API
+author: Gerwin Sturm (scarygami/+)
+
+dependencies:
+dart-google-oauth2-library:
+git: git://github.com/Scarygami/dart-google-oauth2-library.git
+""";
+  }
+
+  String _createLibrary() {
+    return """
+library $_name;
+
+import "dart:html";
+import "dart:uri";
+import "dart:json";
+import "package:dart-google-oauth2-library/oauth2.dart";
+
+part "src/client.dart";
+part "src/$_name.dart";
+part "src/schemas.dart";
+part "src/resources.dart";
+""";
+  }
+
+  String _createSchemas() {
+    var tmp = new StringBuffer();
+ 
     tmp.add("part of $_name;\n\n");
 
     if (_json.containsKey("schemas")) {
       _json["schemas"].forEach((key, schema) {
         tmp.add(_createSchemaClass(key, schema));
       });
-    }
-    (new File("$folderName/lib/src/schemas.dart")).writeAsStringSync(tmp.toString());
+    }    
+    
+    return tmp.toString();
+  }
 
-    tmp.clear();
+  String _createResources() {
+    var tmp = new StringBuffer();
+    
     tmp.add("part of $_name;\n\n");
+    
     if (_json.containsKey("resources")) {
       _json["resources"].forEach((key, resource) {
         tmp.add(_createResourceClass(key, resource));
       });
     }
-    (new File("$folderName/lib/src/resources.dart")).writeAsStringSync(tmp.toString());
-
-    (new File("$folderName/lib/src/$_name.dart")).writeAsStringSync(_createMainClass());
+    
+    return tmp.toString();
   }
-
+  
   String _createMainClass() {
     var tmp = new StringBuffer();
     tmp.add("part of $_name;\n\n");
@@ -283,73 +306,78 @@ class Generator {
   }
 
   String _createMethod(String name, Map data) {
-    // ONLY WORKS FOR SIMPLE GET REQUESTS AT THE MOMENT!!!
-
     var tmp = new StringBuffer();
 
-    if (data["httpMethod"] == "GET") {
-
-      if(data.containsKey("description")) {
-        tmp.add("  /** ${data["description"]} */\n");
-      }
-
-      var params = new StringBuffer();
-      if (data.containsKey("parameterOrder") && data.containsKey("parameters")) {
-        data["parameterOrder"].forEach((param) {
-          if (data["parameters"].containsKey(param)) {
-            var type = null;
-            switch(data["parameters"][param]["type"]) {
-              case "string": type = "String"; break;
-              case "number": type = "num"; break;
-              case "integer": type = "int"; break;
-              case "boolean": type = "bool"; break;
-            }
-            if (type != null) {
-              if(!params.isEmpty) params.add(", ");
-              params.add("$type $param");
-            }
-          }
-        });
-      }
-      if(!params.isEmpty) params.add(", ");
-      params.add("[Map optParams]");
-
-      var response = null;
-      if (data.containsKey("response")) {
-        response = "Future<${data["response"]["\$ref"]}>";
-      } else {
-        response = "Future<Map>";
-      }
-
-      tmp.add("  $response $name($params) {\n");
-      tmp.add("    var completer = new Completer();\n");
-      tmp.add("    var url = \"\${_client._baseUrl}${data["path"]}\";\n");
-      tmp.add("    var urlParams = new Map();\n");
-      tmp.add("    if (optParams == null) optParams = new Map();\n\n");
-
-      if (data.containsKey("parameterOrder") && data.containsKey("parameters")) {
-        data["parameterOrder"].forEach((param) {
-          if (data["parameters"].containsKey(param)) {
-            if (data["parameters"][param]["location"] == "path") {
-              tmp.add("    urlParams[\"$param\"] = $param;\n");
-            } else {
-              tmp.add("    optParams[\"$param\"] = $param;\n");
-            }
-          }
-        });
-        tmp.add("\n");
-      }
-
-      tmp.add("    _client._getRequest(url, urlParams, optParams).then((data) {\n");
-      if (data.containsKey("response")) {
-        tmp.add("      completer.complete(new ${data["response"]["\$ref"]}.fromJson(data));\n");
-      } else {
-        tmp.add("      completer.complete(data);\n");
-      }
-      tmp.add("    });\n\n");
-      tmp.add("    return completer.future;\n");
-      tmp.add("  }\n");
+    if(data.containsKey("description")) {
+      tmp.add("  /** ${data["description"]} */\n");
     }
+
+    var params = new StringBuffer();
+    if (data.containsKey("request")) {
+      params.add("${data["request"]["\$ref"]} request");
+    }
+    if (data.containsKey("parameterOrder") && data.containsKey("parameters")) {
+      data["parameterOrder"].forEach((param) {
+        if (data["parameters"].containsKey(param)) {
+          var type = null;
+          switch(data["parameters"][param]["type"]) {
+            case "string": type = "String"; break;
+            case "number": type = "num"; break;
+            case "integer": type = "int"; break;
+            case "boolean": type = "bool"; break;
+          }
+          if (type != null) {
+            if(!params.isEmpty) params.add(", ");
+            params.add("$type $param");
+          }
+        }
+      });
+    }
+    if(!params.isEmpty) params.add(", ");
+    params.add("[Map optParams]");
+
+    var response = null;
+    if (data.containsKey("response")) {
+      response = "Future<${data["response"]["\$ref"]}>";
+    } else {
+      response = "Future<Map>";
+    }
+
+    tmp.add("  $response $name($params) {\n");
+    tmp.add("    var completer = new Completer();\n");
+    tmp.add("    var url = \"${data["path"]}\";\n");
+    tmp.add("    var urlParams = new Map();\n");
+    tmp.add("    if (optParams == null) optParams = new Map();\n\n");
+    
+    if (data.containsKey("parameterOrder") && data.containsKey("parameters")) {
+      data["parameterOrder"].forEach((param) {
+        if (data["parameters"].containsKey(param)) {
+          if (data["parameters"][param]["location"] == "path") {
+            tmp.add("    urlParams[\"$param\"] = $param;\n");
+          } else {
+            tmp.add("    optParams[\"$param\"] = $param;\n");
+          }
+        }
+      });
+      tmp.add("\n");
+    }
+
+    // Future _request(String requestUrl, String method, {String body, String contentType:"application/json", Map urlParams, Map queryParams}) {
+    params.clear();
+    if (data.containsKey("request")) {
+      params.add("body: request.toString(), ");
+    }
+    params.add("urlParams: urlParams, queryParams: optParams");
+    
+    tmp.add("    _client._request(url, \"${data["httpMethod"]}\", ${params.toString()}).then((data) {\n");
+    if (data.containsKey("response")) {
+      tmp.add("      completer.complete(new ${data["response"]["\$ref"]}.fromJson(data));\n");
+    } else {
+      tmp.add("      completer.complete(data);\n");
+    }
+    tmp.add("    });\n\n");
+    tmp.add("    return completer.future;\n");
+    tmp.add("  }\n");
 
     return tmp.toString();
   }
@@ -408,7 +436,7 @@ abstract class Client {
 
   Client([String this._apiKey, OAuth2 this._auth]);
 
-  Future _getRequest(String requestUrl, [Map urlParams, Map queryParams]) {
+  Future _request(String requestUrl, String method, {String body, String contentType:"application/json", Map urlParams, Map queryParams}) {
     var request = new HttpRequest();
     var completer = new Completer();
 
@@ -419,7 +447,7 @@ abstract class Client {
       queryParams["key"] = _apiKey;
     }
 
-    final url = new UrlPattern(requestUrl).generate(urlParams, queryParams);
+    final url = new UrlPattern("\$_baseUrl\$requestUrl").generate(urlParams, queryParams);
 
     request.on.loadEnd.add((Event e) {
       if (request.status == 200) {
@@ -430,41 +458,8 @@ abstract class Client {
       }
     });
 
-    request.open("GET", url);
-
-    if (makeAuthRequests && _auth != null) {
-      _auth.authenticate(request).then((request) => request.send());
-    } else {
-      request.send();
-    }
-
-    return completer.future;
-  }
-
-  Future _putRequest(String requestUrl, String body, [Map urlParams, Map queryParams]) {
-    var request = new HttpRequest();
-    var completer = new Completer();
-
-    if (urlParams == null) urlParams = {};
-    if (queryParams == null) queryParams = {};
-
-    if (_apiKey != null) {
-      queryParams["key"] = _apiKey;
-    }
-
-    final url = new UrlPattern(requestUrl).generate(urlParams, queryParams);
-
-    request.on.loadEnd.add((Event e) {
-      if (request.status == 200) {
-        var data = JSON.parse(request.responseText);
-        completer.complete(data);
-      } else {
-        completer.complete({"error": "Error \${request.status}: \${request.statusText}"});
-      }
-    });
-
-    request.open("PUT", url);
-
+    request.open(method, url);
+    request.setRequestHeader("Content-Type", contentType);
     if (makeAuthRequests && _auth != null) {
       _auth.authenticate(request).then((request) => request.send(body));
     } else {

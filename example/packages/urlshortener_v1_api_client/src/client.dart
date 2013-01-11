@@ -1,4 +1,4 @@
-part of plus;
+part of urlshortener;
 
 abstract class Client {
   String _apiKey;
