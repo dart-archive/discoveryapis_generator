@@ -24,7 +24,13 @@ abstract class Client {
       queryParams["key"] = _apiKey;
     }
 
-    final url = new UrlPattern("${(requestUrl.substring(0,1) == "/") ? _rootUrl :_baseUrl}$requestUrl").generate(urlParams, queryParams);
+    var path;
+    if (requestUrl.substring(0,1) == "/") {
+      path ="$_rootUrl${requestUrl.substring(1)}";
+    } else {
+      path = "$_baseUrl$requestUrl";
+    }
+    final url = new UrlPattern(path).generate(urlParams, queryParams);
 
     request.on.loadEnd.add((Event e) {
       if (request.status == 200) {
