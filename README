@@ -2,10 +2,12 @@ WARNING! STILL IN ACTIVE DEVELOPMENT AND NOT FULLY FUNCTIONAL YET!
 PROCEED AT YOUR OWN RISK
 ------------------------------------------------------------------
 
-POST and GET requests should be working.
-Mediauploads are still missing.
+Current state:
 
-Also missing is any proper error handling in case the API doesn't respond as expected...
+POST and GET requests should be working.
+Mediauploads "should" be working but there are CORS problems that might need to be fixed by Google.
+Some basic error handling is included in case the API doesn't respond as expected...
+Methods now only accept the parameters that are actually defined in the API Discovery document.
 
 ------------------------------------------------------------------
 
@@ -16,15 +18,20 @@ Usage:
    generator.dart -a <API> - v <Version> [-o <Directory>] (to load from Google Discovery API)
 or generator.dart -u <URL> [-o <Directory>] (to load discovery document from specified URL)
 or generator.dart -i <File> [-o <Directory>] (to load discovery document from local file)
+or generator.dart -all [-o <Directory>] (to create libraries for all Google APIs)
 
--a, --api        Short name of the Google API (plus, drive, ...)
--v, --version    Google API version (v1, v2, v1alpha, ...)
--i, --input      Local Discovery document file
--u, --url        URL of a Discovery document
--o, --output     Output Directory
-                 (defaults to "output/")
+-a, --api          Short name of the Google API (plus, drive, ...)
+-v, --version      Google API version (v1, v2, v1alpha, ...)
+-i, --input        Local Discovery document file
+-u, --url          URL of a Discovery document
+    --all          Create client libraries for all Google APIs
+-o, --output       Output Directory
+                   (defaults to "output/")
 
--h, --help       Display this information and exit
+    --[no-]date    Create sub folder with current date (otherwise files might be overwritten)
+                   (defaults to on)
+
+-h, --help         Display this information and exit
 
 ------------------------
 
