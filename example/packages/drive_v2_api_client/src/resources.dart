@@ -12,9 +12,9 @@ class AboutResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if(?includeSubscribed && includeSubscribed != null) queryParams["includeSubscribed"] = includeSubscribed;
-    if(?maxChangeIdCount && maxChangeIdCount != null) queryParams["maxChangeIdCount"] = maxChangeIdCount;
-    if(?startChangeId && startChangeId != null) queryParams["startChangeId"] = startChangeId;
+    if (?includeSubscribed && includeSubscribed != null) queryParams["includeSubscribed"] = includeSubscribed;
+    if (?maxChangeIdCount && maxChangeIdCount != null) queryParams["maxChangeIdCount"] = maxChangeIdCount;
+    if (?startChangeId && startChangeId != null) queryParams["startChangeId"] = startChangeId;
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
@@ -36,7 +36,7 @@ class AppsResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if(?appId && appId != null) urlParams["appId"] = appId;
+    if (?appId && appId != null) urlParams["appId"] = appId;
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
@@ -73,7 +73,7 @@ class ChangesResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if(?changeId && changeId != null) urlParams["changeId"] = changeId;
+    if (?changeId && changeId != null) urlParams["changeId"] = changeId;
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
@@ -89,11 +89,11 @@ class ChangesResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if(?includeDeleted && includeDeleted != null) queryParams["includeDeleted"] = includeDeleted;
-    if(?includeSubscribed && includeSubscribed != null) queryParams["includeSubscribed"] = includeSubscribed;
-    if(?maxResults && maxResults != null) queryParams["maxResults"] = maxResults;
-    if(?pageToken && pageToken != null) queryParams["pageToken"] = pageToken;
-    if(?startChangeId && startChangeId != null) queryParams["startChangeId"] = startChangeId;
+    if (?includeDeleted && includeDeleted != null) queryParams["includeDeleted"] = includeDeleted;
+    if (?includeSubscribed && includeSubscribed != null) queryParams["includeSubscribed"] = includeSubscribed;
+    if (?maxResults && maxResults != null) queryParams["maxResults"] = maxResults;
+    if (?pageToken && pageToken != null) queryParams["pageToken"] = pageToken;
+    if (?startChangeId && startChangeId != null) queryParams["startChangeId"] = startChangeId;
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
@@ -115,8 +115,8 @@ class ChildrenResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if(?childId && childId != null) urlParams["childId"] = childId;
-    if(?folderId && folderId != null) urlParams["folderId"] = folderId;
+    if (?childId && childId != null) urlParams["childId"] = childId;
+    if (?folderId && folderId != null) urlParams["folderId"] = folderId;
     var response;
     response = _client._request(url, "DELETE", urlParams: urlParams, queryParams: queryParams);
     response
@@ -132,8 +132,8 @@ class ChildrenResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if(?childId && childId != null) urlParams["childId"] = childId;
-    if(?folderId && folderId != null) urlParams["folderId"] = folderId;
+    if (?childId && childId != null) urlParams["childId"] = childId;
+    if (?folderId && folderId != null) urlParams["folderId"] = folderId;
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
@@ -149,7 +149,7 @@ class ChildrenResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if(?folderId && folderId != null) urlParams["folderId"] = folderId;
+    if (?folderId && folderId != null) urlParams["folderId"] = folderId;
     var response;
     response = _client._request(url, "POST", body: request.toString(), urlParams: urlParams, queryParams: queryParams);
     response
@@ -165,10 +165,10 @@ class ChildrenResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if(?folderId && folderId != null) urlParams["folderId"] = folderId;
-    if(?maxResults && maxResults != null) queryParams["maxResults"] = maxResults;
-    if(?pageToken && pageToken != null) queryParams["pageToken"] = pageToken;
-    if(?q && q != null) queryParams["q"] = q;
+    if (?folderId && folderId != null) urlParams["folderId"] = folderId;
+    if (?maxResults && maxResults != null) queryParams["maxResults"] = maxResults;
+    if (?pageToken && pageToken != null) queryParams["pageToken"] = pageToken;
+    if (?q && q != null) queryParams["q"] = q;
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
@@ -190,8 +190,8 @@ class CommentsResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if(?commentId && commentId != null) urlParams["commentId"] = commentId;
-    if(?fileId && fileId != null) urlParams["fileId"] = fileId;
+    if (?commentId && commentId != null) urlParams["commentId"] = commentId;
+    if (?fileId && fileId != null) urlParams["fileId"] = fileId;
     var response;
     response = _client._request(url, "DELETE", urlParams: urlParams, queryParams: queryParams);
     response
@@ -207,9 +207,9 @@ class CommentsResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if(?commentId && commentId != null) urlParams["commentId"] = commentId;
-    if(?fileId && fileId != null) urlParams["fileId"] = fileId;
-    if(?includeDeleted && includeDeleted != null) queryParams["includeDeleted"] = includeDeleted;
+    if (?commentId && commentId != null) urlParams["commentId"] = commentId;
+    if (?fileId && fileId != null) urlParams["fileId"] = fileId;
+    if (?includeDeleted && includeDeleted != null) queryParams["includeDeleted"] = includeDeleted;
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
@@ -225,7 +225,7 @@ class CommentsResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if(?fileId && fileId != null) urlParams["fileId"] = fileId;
+    if (?fileId && fileId != null) urlParams["fileId"] = fileId;
     var response;
     response = _client._request(url, "POST", body: request.toString(), urlParams: urlParams, queryParams: queryParams);
     response
@@ -241,11 +241,11 @@ class CommentsResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if(?fileId && fileId != null) urlParams["fileId"] = fileId;
-    if(?includeDeleted && includeDeleted != null) queryParams["includeDeleted"] = includeDeleted;
-    if(?maxResults && maxResults != null) queryParams["maxResults"] = maxResults;
-    if(?pageToken && pageToken != null) queryParams["pageToken"] = pageToken;
-    if(?updatedMin && updatedMin != null) queryParams["updatedMin"] = updatedMin;
+    if (?fileId && fileId != null) urlParams["fileId"] = fileId;
+    if (?includeDeleted && includeDeleted != null) queryParams["includeDeleted"] = includeDeleted;
+    if (?maxResults && maxResults != null) queryParams["maxResults"] = maxResults;
+    if (?pageToken && pageToken != null) queryParams["pageToken"] = pageToken;
+    if (?updatedMin && updatedMin != null) queryParams["updatedMin"] = updatedMin;
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
@@ -261,8 +261,8 @@ class CommentsResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if(?commentId && commentId != null) urlParams["commentId"] = commentId;
-    if(?fileId && fileId != null) urlParams["fileId"] = fileId;
+    if (?commentId && commentId != null) urlParams["commentId"] = commentId;
+    if (?fileId && fileId != null) urlParams["fileId"] = fileId;
     var response;
     response = _client._request(url, "PATCH", body: request.toString(), urlParams: urlParams, queryParams: queryParams);
     response
@@ -278,8 +278,8 @@ class CommentsResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if(?commentId && commentId != null) urlParams["commentId"] = commentId;
-    if(?fileId && fileId != null) urlParams["fileId"] = fileId;
+    if (?commentId && commentId != null) urlParams["commentId"] = commentId;
+    if (?fileId && fileId != null) urlParams["fileId"] = fileId;
     var response;
     response = _client._request(url, "PUT", body: request.toString(), urlParams: urlParams, queryParams: queryParams);
     response
@@ -301,13 +301,13 @@ class FilesResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if(?convert && convert != null) queryParams["convert"] = convert;
-    if(?fileId && fileId != null) urlParams["fileId"] = fileId;
-    if(?ocr && ocr != null) queryParams["ocr"] = ocr;
-    if(?ocrLanguage && ocrLanguage != null) queryParams["ocrLanguage"] = ocrLanguage;
-    if(?pinned && pinned != null) queryParams["pinned"] = pinned;
-    if(?timedTextLanguage && timedTextLanguage != null) queryParams["timedTextLanguage"] = timedTextLanguage;
-    if(?timedTextTrackName && timedTextTrackName != null) queryParams["timedTextTrackName"] = timedTextTrackName;
+    if (?convert && convert != null) queryParams["convert"] = convert;
+    if (?fileId && fileId != null) urlParams["fileId"] = fileId;
+    if (?ocr && ocr != null) queryParams["ocr"] = ocr;
+    if (?ocrLanguage && ocrLanguage != null) queryParams["ocrLanguage"] = ocrLanguage;
+    if (?pinned && pinned != null) queryParams["pinned"] = pinned;
+    if (?timedTextLanguage && timedTextLanguage != null) queryParams["timedTextLanguage"] = timedTextLanguage;
+    if (?timedTextTrackName && timedTextTrackName != null) queryParams["timedTextTrackName"] = timedTextTrackName;
     var response;
     response = _client._request(url, "POST", body: request.toString(), urlParams: urlParams, queryParams: queryParams);
     response
@@ -323,7 +323,7 @@ class FilesResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if(?fileId && fileId != null) urlParams["fileId"] = fileId;
+    if (?fileId && fileId != null) urlParams["fileId"] = fileId;
     var response;
     response = _client._request(url, "DELETE", urlParams: urlParams, queryParams: queryParams);
     response
@@ -339,9 +339,9 @@ class FilesResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if(?fileId && fileId != null) urlParams["fileId"] = fileId;
-    if(?projection && projection != null) queryParams["projection"] = projection;
-    if(?updateViewedDate && updateViewedDate != null) queryParams["updateViewedDate"] = updateViewedDate;
+    if (?fileId && fileId != null) urlParams["fileId"] = fileId;
+    if (?projection && projection != null) queryParams["projection"] = projection;
+    if (?updateViewedDate && updateViewedDate != null) queryParams["updateViewedDate"] = updateViewedDate;
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
@@ -358,12 +358,12 @@ class FilesResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if(?convert && convert != null) queryParams["convert"] = convert;
-    if(?ocr && ocr != null) queryParams["ocr"] = ocr;
-    if(?ocrLanguage && ocrLanguage != null) queryParams["ocrLanguage"] = ocrLanguage;
-    if(?pinned && pinned != null) queryParams["pinned"] = pinned;
-    if(?timedTextLanguage && timedTextLanguage != null) queryParams["timedTextLanguage"] = timedTextLanguage;
-    if(?timedTextTrackName && timedTextTrackName != null) queryParams["timedTextTrackName"] = timedTextTrackName;
+    if (?convert && convert != null) queryParams["convert"] = convert;
+    if (?ocr && ocr != null) queryParams["ocr"] = ocr;
+    if (?ocrLanguage && ocrLanguage != null) queryParams["ocrLanguage"] = ocrLanguage;
+    if (?pinned && pinned != null) queryParams["pinned"] = pinned;
+    if (?timedTextLanguage && timedTextLanguage != null) queryParams["timedTextLanguage"] = timedTextLanguage;
+    if (?timedTextTrackName && timedTextTrackName != null) queryParams["timedTextTrackName"] = timedTextTrackName;
     var response;
     if (?content && content != null) {
       response = _client._upload(uploadUrl, "POST", request.toString(), content, contentType, urlParams: urlParams, queryParams: queryParams);
@@ -383,10 +383,10 @@ class FilesResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if(?maxResults && maxResults != null) queryParams["maxResults"] = maxResults;
-    if(?pageToken && pageToken != null) queryParams["pageToken"] = pageToken;
-    if(?projection && projection != null) queryParams["projection"] = projection;
-    if(?q && q != null) queryParams["q"] = q;
+    if (?maxResults && maxResults != null) queryParams["maxResults"] = maxResults;
+    if (?pageToken && pageToken != null) queryParams["pageToken"] = pageToken;
+    if (?projection && projection != null) queryParams["projection"] = projection;
+    if (?q && q != null) queryParams["q"] = q;
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
@@ -402,16 +402,16 @@ class FilesResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if(?convert && convert != null) queryParams["convert"] = convert;
-    if(?fileId && fileId != null) urlParams["fileId"] = fileId;
-    if(?newRevision && newRevision != null) queryParams["newRevision"] = newRevision;
-    if(?ocr && ocr != null) queryParams["ocr"] = ocr;
-    if(?ocrLanguage && ocrLanguage != null) queryParams["ocrLanguage"] = ocrLanguage;
-    if(?pinned && pinned != null) queryParams["pinned"] = pinned;
-    if(?setModifiedDate && setModifiedDate != null) queryParams["setModifiedDate"] = setModifiedDate;
-    if(?timedTextLanguage && timedTextLanguage != null) queryParams["timedTextLanguage"] = timedTextLanguage;
-    if(?timedTextTrackName && timedTextTrackName != null) queryParams["timedTextTrackName"] = timedTextTrackName;
-    if(?updateViewedDate && updateViewedDate != null) queryParams["updateViewedDate"] = updateViewedDate;
+    if (?convert && convert != null) queryParams["convert"] = convert;
+    if (?fileId && fileId != null) urlParams["fileId"] = fileId;
+    if (?newRevision && newRevision != null) queryParams["newRevision"] = newRevision;
+    if (?ocr && ocr != null) queryParams["ocr"] = ocr;
+    if (?ocrLanguage && ocrLanguage != null) queryParams["ocrLanguage"] = ocrLanguage;
+    if (?pinned && pinned != null) queryParams["pinned"] = pinned;
+    if (?setModifiedDate && setModifiedDate != null) queryParams["setModifiedDate"] = setModifiedDate;
+    if (?timedTextLanguage && timedTextLanguage != null) queryParams["timedTextLanguage"] = timedTextLanguage;
+    if (?timedTextTrackName && timedTextTrackName != null) queryParams["timedTextTrackName"] = timedTextTrackName;
+    if (?updateViewedDate && updateViewedDate != null) queryParams["updateViewedDate"] = updateViewedDate;
     var response;
     response = _client._request(url, "PATCH", body: request.toString(), urlParams: urlParams, queryParams: queryParams);
     response
@@ -427,7 +427,7 @@ class FilesResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if(?fileId && fileId != null) urlParams["fileId"] = fileId;
+    if (?fileId && fileId != null) urlParams["fileId"] = fileId;
     var response;
     response = _client._request(url, "POST", urlParams: urlParams, queryParams: queryParams);
     response
@@ -443,7 +443,7 @@ class FilesResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if(?fileId && fileId != null) urlParams["fileId"] = fileId;
+    if (?fileId && fileId != null) urlParams["fileId"] = fileId;
     var response;
     response = _client._request(url, "POST", urlParams: urlParams, queryParams: queryParams);
     response
@@ -459,7 +459,7 @@ class FilesResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if(?fileId && fileId != null) urlParams["fileId"] = fileId;
+    if (?fileId && fileId != null) urlParams["fileId"] = fileId;
     var response;
     response = _client._request(url, "POST", urlParams: urlParams, queryParams: queryParams);
     response
@@ -476,16 +476,16 @@ class FilesResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if(?convert && convert != null) queryParams["convert"] = convert;
-    if(?fileId && fileId != null) urlParams["fileId"] = fileId;
-    if(?newRevision && newRevision != null) queryParams["newRevision"] = newRevision;
-    if(?ocr && ocr != null) queryParams["ocr"] = ocr;
-    if(?ocrLanguage && ocrLanguage != null) queryParams["ocrLanguage"] = ocrLanguage;
-    if(?pinned && pinned != null) queryParams["pinned"] = pinned;
-    if(?setModifiedDate && setModifiedDate != null) queryParams["setModifiedDate"] = setModifiedDate;
-    if(?timedTextLanguage && timedTextLanguage != null) queryParams["timedTextLanguage"] = timedTextLanguage;
-    if(?timedTextTrackName && timedTextTrackName != null) queryParams["timedTextTrackName"] = timedTextTrackName;
-    if(?updateViewedDate && updateViewedDate != null) queryParams["updateViewedDate"] = updateViewedDate;
+    if (?convert && convert != null) queryParams["convert"] = convert;
+    if (?fileId && fileId != null) urlParams["fileId"] = fileId;
+    if (?newRevision && newRevision != null) queryParams["newRevision"] = newRevision;
+    if (?ocr && ocr != null) queryParams["ocr"] = ocr;
+    if (?ocrLanguage && ocrLanguage != null) queryParams["ocrLanguage"] = ocrLanguage;
+    if (?pinned && pinned != null) queryParams["pinned"] = pinned;
+    if (?setModifiedDate && setModifiedDate != null) queryParams["setModifiedDate"] = setModifiedDate;
+    if (?timedTextLanguage && timedTextLanguage != null) queryParams["timedTextLanguage"] = timedTextLanguage;
+    if (?timedTextTrackName && timedTextTrackName != null) queryParams["timedTextTrackName"] = timedTextTrackName;
+    if (?updateViewedDate && updateViewedDate != null) queryParams["updateViewedDate"] = updateViewedDate;
     var response;
     if (?content && content != null) {
       response = _client._upload(uploadUrl, "PUT", request.toString(), content, contentType, urlParams: urlParams, queryParams: queryParams);
@@ -511,8 +511,8 @@ class ParentsResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if(?fileId && fileId != null) urlParams["fileId"] = fileId;
-    if(?parentId && parentId != null) urlParams["parentId"] = parentId;
+    if (?fileId && fileId != null) urlParams["fileId"] = fileId;
+    if (?parentId && parentId != null) urlParams["parentId"] = parentId;
     var response;
     response = _client._request(url, "DELETE", urlParams: urlParams, queryParams: queryParams);
     response
@@ -528,8 +528,8 @@ class ParentsResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if(?fileId && fileId != null) urlParams["fileId"] = fileId;
-    if(?parentId && parentId != null) urlParams["parentId"] = parentId;
+    if (?fileId && fileId != null) urlParams["fileId"] = fileId;
+    if (?parentId && parentId != null) urlParams["parentId"] = parentId;
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
@@ -545,7 +545,7 @@ class ParentsResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if(?fileId && fileId != null) urlParams["fileId"] = fileId;
+    if (?fileId && fileId != null) urlParams["fileId"] = fileId;
     var response;
     response = _client._request(url, "POST", body: request.toString(), urlParams: urlParams, queryParams: queryParams);
     response
@@ -561,7 +561,7 @@ class ParentsResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if(?fileId && fileId != null) urlParams["fileId"] = fileId;
+    if (?fileId && fileId != null) urlParams["fileId"] = fileId;
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
@@ -583,8 +583,8 @@ class PermissionsResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if(?fileId && fileId != null) urlParams["fileId"] = fileId;
-    if(?permissionId && permissionId != null) urlParams["permissionId"] = permissionId;
+    if (?fileId && fileId != null) urlParams["fileId"] = fileId;
+    if (?permissionId && permissionId != null) urlParams["permissionId"] = permissionId;
     var response;
     response = _client._request(url, "DELETE", urlParams: urlParams, queryParams: queryParams);
     response
@@ -600,8 +600,8 @@ class PermissionsResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if(?fileId && fileId != null) urlParams["fileId"] = fileId;
-    if(?permissionId && permissionId != null) urlParams["permissionId"] = permissionId;
+    if (?fileId && fileId != null) urlParams["fileId"] = fileId;
+    if (?permissionId && permissionId != null) urlParams["permissionId"] = permissionId;
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
@@ -617,8 +617,8 @@ class PermissionsResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if(?fileId && fileId != null) urlParams["fileId"] = fileId;
-    if(?sendNotificationEmails && sendNotificationEmails != null) queryParams["sendNotificationEmails"] = sendNotificationEmails;
+    if (?fileId && fileId != null) urlParams["fileId"] = fileId;
+    if (?sendNotificationEmails && sendNotificationEmails != null) queryParams["sendNotificationEmails"] = sendNotificationEmails;
     var response;
     response = _client._request(url, "POST", body: request.toString(), urlParams: urlParams, queryParams: queryParams);
     response
@@ -634,7 +634,7 @@ class PermissionsResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if(?fileId && fileId != null) urlParams["fileId"] = fileId;
+    if (?fileId && fileId != null) urlParams["fileId"] = fileId;
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
@@ -650,8 +650,8 @@ class PermissionsResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if(?fileId && fileId != null) urlParams["fileId"] = fileId;
-    if(?permissionId && permissionId != null) urlParams["permissionId"] = permissionId;
+    if (?fileId && fileId != null) urlParams["fileId"] = fileId;
+    if (?permissionId && permissionId != null) urlParams["permissionId"] = permissionId;
     var response;
     response = _client._request(url, "PATCH", body: request.toString(), urlParams: urlParams, queryParams: queryParams);
     response
@@ -667,8 +667,8 @@ class PermissionsResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if(?fileId && fileId != null) urlParams["fileId"] = fileId;
-    if(?permissionId && permissionId != null) urlParams["permissionId"] = permissionId;
+    if (?fileId && fileId != null) urlParams["fileId"] = fileId;
+    if (?permissionId && permissionId != null) urlParams["permissionId"] = permissionId;
     var response;
     response = _client._request(url, "PUT", body: request.toString(), urlParams: urlParams, queryParams: queryParams);
     response
@@ -690,9 +690,9 @@ class RepliesResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if(?commentId && commentId != null) urlParams["commentId"] = commentId;
-    if(?fileId && fileId != null) urlParams["fileId"] = fileId;
-    if(?replyId && replyId != null) urlParams["replyId"] = replyId;
+    if (?commentId && commentId != null) urlParams["commentId"] = commentId;
+    if (?fileId && fileId != null) urlParams["fileId"] = fileId;
+    if (?replyId && replyId != null) urlParams["replyId"] = replyId;
     var response;
     response = _client._request(url, "DELETE", urlParams: urlParams, queryParams: queryParams);
     response
@@ -708,10 +708,10 @@ class RepliesResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if(?commentId && commentId != null) urlParams["commentId"] = commentId;
-    if(?fileId && fileId != null) urlParams["fileId"] = fileId;
-    if(?includeDeleted && includeDeleted != null) queryParams["includeDeleted"] = includeDeleted;
-    if(?replyId && replyId != null) urlParams["replyId"] = replyId;
+    if (?commentId && commentId != null) urlParams["commentId"] = commentId;
+    if (?fileId && fileId != null) urlParams["fileId"] = fileId;
+    if (?includeDeleted && includeDeleted != null) queryParams["includeDeleted"] = includeDeleted;
+    if (?replyId && replyId != null) urlParams["replyId"] = replyId;
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
@@ -727,8 +727,8 @@ class RepliesResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if(?commentId && commentId != null) urlParams["commentId"] = commentId;
-    if(?fileId && fileId != null) urlParams["fileId"] = fileId;
+    if (?commentId && commentId != null) urlParams["commentId"] = commentId;
+    if (?fileId && fileId != null) urlParams["fileId"] = fileId;
     var response;
     response = _client._request(url, "POST", body: request.toString(), urlParams: urlParams, queryParams: queryParams);
     response
@@ -744,11 +744,11 @@ class RepliesResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if(?commentId && commentId != null) urlParams["commentId"] = commentId;
-    if(?fileId && fileId != null) urlParams["fileId"] = fileId;
-    if(?includeDeleted && includeDeleted != null) queryParams["includeDeleted"] = includeDeleted;
-    if(?maxResults && maxResults != null) queryParams["maxResults"] = maxResults;
-    if(?pageToken && pageToken != null) queryParams["pageToken"] = pageToken;
+    if (?commentId && commentId != null) urlParams["commentId"] = commentId;
+    if (?fileId && fileId != null) urlParams["fileId"] = fileId;
+    if (?includeDeleted && includeDeleted != null) queryParams["includeDeleted"] = includeDeleted;
+    if (?maxResults && maxResults != null) queryParams["maxResults"] = maxResults;
+    if (?pageToken && pageToken != null) queryParams["pageToken"] = pageToken;
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
@@ -764,9 +764,9 @@ class RepliesResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if(?commentId && commentId != null) urlParams["commentId"] = commentId;
-    if(?fileId && fileId != null) urlParams["fileId"] = fileId;
-    if(?replyId && replyId != null) urlParams["replyId"] = replyId;
+    if (?commentId && commentId != null) urlParams["commentId"] = commentId;
+    if (?fileId && fileId != null) urlParams["fileId"] = fileId;
+    if (?replyId && replyId != null) urlParams["replyId"] = replyId;
     var response;
     response = _client._request(url, "PATCH", body: request.toString(), urlParams: urlParams, queryParams: queryParams);
     response
@@ -782,9 +782,9 @@ class RepliesResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if(?commentId && commentId != null) urlParams["commentId"] = commentId;
-    if(?fileId && fileId != null) urlParams["fileId"] = fileId;
-    if(?replyId && replyId != null) urlParams["replyId"] = replyId;
+    if (?commentId && commentId != null) urlParams["commentId"] = commentId;
+    if (?fileId && fileId != null) urlParams["fileId"] = fileId;
+    if (?replyId && replyId != null) urlParams["replyId"] = replyId;
     var response;
     response = _client._request(url, "PUT", body: request.toString(), urlParams: urlParams, queryParams: queryParams);
     response
@@ -806,8 +806,8 @@ class RevisionsResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if(?fileId && fileId != null) urlParams["fileId"] = fileId;
-    if(?revisionId && revisionId != null) urlParams["revisionId"] = revisionId;
+    if (?fileId && fileId != null) urlParams["fileId"] = fileId;
+    if (?revisionId && revisionId != null) urlParams["revisionId"] = revisionId;
     var response;
     response = _client._request(url, "DELETE", urlParams: urlParams, queryParams: queryParams);
     response
@@ -823,8 +823,8 @@ class RevisionsResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if(?fileId && fileId != null) urlParams["fileId"] = fileId;
-    if(?revisionId && revisionId != null) urlParams["revisionId"] = revisionId;
+    if (?fileId && fileId != null) urlParams["fileId"] = fileId;
+    if (?revisionId && revisionId != null) urlParams["revisionId"] = revisionId;
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
@@ -840,7 +840,7 @@ class RevisionsResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if(?fileId && fileId != null) urlParams["fileId"] = fileId;
+    if (?fileId && fileId != null) urlParams["fileId"] = fileId;
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
@@ -856,8 +856,8 @@ class RevisionsResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if(?fileId && fileId != null) urlParams["fileId"] = fileId;
-    if(?revisionId && revisionId != null) urlParams["revisionId"] = revisionId;
+    if (?fileId && fileId != null) urlParams["fileId"] = fileId;
+    if (?revisionId && revisionId != null) urlParams["revisionId"] = revisionId;
     var response;
     response = _client._request(url, "PATCH", body: request.toString(), urlParams: urlParams, queryParams: queryParams);
     response
@@ -873,8 +873,8 @@ class RevisionsResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if(?fileId && fileId != null) urlParams["fileId"] = fileId;
-    if(?revisionId && revisionId != null) urlParams["revisionId"] = revisionId;
+    if (?fileId && fileId != null) urlParams["fileId"] = fileId;
+    if (?revisionId && revisionId != null) urlParams["revisionId"] = revisionId;
     var response;
     response = _client._request(url, "PUT", body: request.toString(), urlParams: urlParams, queryParams: queryParams);
     response

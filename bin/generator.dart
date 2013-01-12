@@ -5,7 +5,7 @@ import "package:args/args.dart";
 
 String fileDate(Date date) => "${date.year}${(date.month < 10) ? 0 : ""}${date.month}${(date.day < 10) ? 0 : ""}${date.day}_${(date.hour < 10) ? 0 : ""}${date.hour}${(date.minute < 10) ? 0 : ""}${date.minute}${(date.second < 10) ? 0 : ""}${date.second}";
 String capitalize(String string) => "${string.substring(0,1).toUpperCase()}${string.substring(1)}";
-String cleanVariableName(String name) => name.replaceAll(new RegExp(r"(\W)"), "_");
+String cleanName(String name) => name.replaceAll(new RegExp(r"(\W)"), "_");
 
 const Map parameterType = const {
   "string": "String",
@@ -19,15 +19,17 @@ class Generator {
   Map _json;
   String _name;
   String _version;
+  String _libraryName;
 
   Generator(this._data) {
     _json = JSON.parse(_data);
     _name = _json["name"];
     _version = _json["version"];
+    _libraryName = cleanName("${_name}_${_version}_api_client");
   }
 
   void generateClient(String outputDirectory) {
-    var folderName = "$outputDirectory/${_name}_${_version}_api_client";
+    var folderName = "$outputDirectory/$_libraryName";
     (new Directory("$folderName/lib/src")).createSync(recursive: true);
 
     (new File("$folderName/pubspec.yaml")).writeAsStringSync(_createPubspec());
@@ -45,13 +47,13 @@ class Generator {
 
   String _createPubspec() {
     return """
-name: ${_name}_${_version}_api_client
+name: $_libraryName
 version: 0.0.1
 description: Auto-generated client library for accessing the $_name $_version API
 author: Gerwin Sturm (scarygami/+)
 
 dependencies:
-  dart-google-oauth2-library:
+  dart_google_oauth2_library:
     git: git://github.com/Scarygami/dart-google-oauth2-library.git
 """;
   }
@@ -63,7 +65,7 @@ library $_name;
 import "dart:html";
 import "dart:uri";
 import "dart:json";
-import "package:dart-google-oauth2-library/oauth2.dart";
+import "package:dart_google_oauth2_library/oauth2.dart";
 
 part "src/client.dart";
 part "src/$_name.dart";
@@ -338,7 +340,7 @@ part "src/resources.dart";
     var upload = false;
     var uploadPath;
 
-    if(data.containsKey("description")) {
+    if (data.containsKey("description")) {
       tmp.add("  /** ${data["description"]} */\n");
     }
 
@@ -353,8 +355,8 @@ part "src/resources.dart";
         if (data["parameters"].containsKey(param)) {
           var type = parameterType[data["parameters"][param]["type"]];
           if (type != null) {
-            if(!params.isEmpty) params.add(", ");
-            params.add("$type ${cleanVariableName(param)}");
+            if (!params.isEmpty) params.add(", ");
+            params.add("$type ${cleanName(param)}");
             data["parameters"][param]["gen_included"] = true;
           }
         }
@@ -382,15 +384,15 @@ part "src/resources.dart";
         if (!param.containsKey("gen_included")) {
           var type = parameterType[param["type"]];
           if (type != null) {
-            if(!optParams.isEmpty) optParams.add(", ");
-            optParams.add("$type ${cleanVariableName(name)}");
+            if (!optParams.isEmpty) optParams.add(", ");
+            optParams.add("$type ${cleanName(name)}");
           }
         }
       });
     }
 
-    if(!optParams.isEmpty) { 
-      if(!params.isEmpty) params.add(", ");
+    if (!optParams.isEmpty) { 
+      if (!params.isEmpty) params.add(", ");
       params.add("{${optParams.toString()}}");
     }
     
@@ -412,11 +414,11 @@ part "src/resources.dart";
     
     if (data.containsKey("parameters")) {
       data["parameters"].forEach((name, param) {
-        var variable = cleanVariableName(name);
+        var variable = cleanName(name);
         if (param["location"] == "path") {
-          tmp.add("    if(?$variable && $variable != null) urlParams[\"$name\"] = $variable;\n");
+          tmp.add("    if (?$variable && $variable != null) urlParams[\"$name\"] = $variable;\n");
         } else {
-          tmp.add("    if(?$variable && $variable != null) queryParams[\"$name\"] = $variable;\n");
+          tmp.add("    if (?$variable && $variable != null) queryParams[\"$name\"] = $variable;\n");
         }
       });
     }

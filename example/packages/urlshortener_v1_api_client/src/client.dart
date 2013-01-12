@@ -83,7 +83,7 @@ abstract class Client {
   }
 
   /**
-   * Wrap [content] (encoded as Base64-String) with specified [contentType] and [body] as additional into one multipart-body and send a HTTPRequest with [method] (usually POST) to [requestUrl]
+   * Join [content] (encoded as Base64-String) with specified [contentType] and additional request [body] into one multipart-body and send a HTTPRequest with [method] (usually POST) to [requestUrl]
    */
   Future _upload(String requestUrl, String method, String body, String content, String contentType, {Map urlParams, Map queryParams}) {
     var multiPartBody = new StringBuffer();

@@ -3,7 +3,7 @@ library drive;
 import "dart:html";
 import "dart:uri";
 import "dart:json";
-import "package:dart-google-oauth2-library/oauth2.dart";
+import "package:dart_google_oauth2_library/oauth2.dart";
 
 part "src/client.dart";
 part "src/drive.dart";

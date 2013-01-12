@@ -12,8 +12,8 @@ class UrlResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if(?projection && projection != null) queryParams["projection"] = projection;
-    if(?shortUrl && shortUrl != null) queryParams["shortUrl"] = shortUrl;
+    if (?projection && projection != null) queryParams["projection"] = projection;
+    if (?shortUrl && shortUrl != null) queryParams["shortUrl"] = shortUrl;
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
@@ -44,8 +44,8 @@ class UrlResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if(?projection && projection != null) queryParams["projection"] = projection;
-    if(?start_token && start_token != null) queryParams["start-token"] = start_token;
+    if (?projection && projection != null) queryParams["projection"] = projection;
+    if (?start_token && start_token != null) queryParams["start-token"] = start_token;
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response

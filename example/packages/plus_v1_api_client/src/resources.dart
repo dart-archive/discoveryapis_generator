@@ -12,7 +12,7 @@ class ActivitiesResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if(?activityId && activityId != null) urlParams["activityId"] = activityId;
+    if (?activityId && activityId != null) urlParams["activityId"] = activityId;
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
@@ -28,10 +28,10 @@ class ActivitiesResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if(?collection && collection != null) urlParams["collection"] = collection;
-    if(?maxResults && maxResults != null) queryParams["maxResults"] = maxResults;
-    if(?pageToken && pageToken != null) queryParams["pageToken"] = pageToken;
-    if(?userId && userId != null) urlParams["userId"] = userId;
+    if (?collection && collection != null) urlParams["collection"] = collection;
+    if (?maxResults && maxResults != null) queryParams["maxResults"] = maxResults;
+    if (?pageToken && pageToken != null) queryParams["pageToken"] = pageToken;
+    if (?userId && userId != null) urlParams["userId"] = userId;
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
@@ -47,11 +47,11 @@ class ActivitiesResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if(?language && language != null) queryParams["language"] = language;
-    if(?maxResults && maxResults != null) queryParams["maxResults"] = maxResults;
-    if(?orderBy && orderBy != null) queryParams["orderBy"] = orderBy;
-    if(?pageToken && pageToken != null) queryParams["pageToken"] = pageToken;
-    if(?query && query != null) queryParams["query"] = query;
+    if (?language && language != null) queryParams["language"] = language;
+    if (?maxResults && maxResults != null) queryParams["maxResults"] = maxResults;
+    if (?orderBy && orderBy != null) queryParams["orderBy"] = orderBy;
+    if (?pageToken && pageToken != null) queryParams["pageToken"] = pageToken;
+    if (?query && query != null) queryParams["query"] = query;
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
@@ -73,7 +73,7 @@ class CommentsResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if(?commentId && commentId != null) urlParams["commentId"] = commentId;
+    if (?commentId && commentId != null) urlParams["commentId"] = commentId;
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
@@ -89,10 +89,10 @@ class CommentsResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if(?activityId && activityId != null) urlParams["activityId"] = activityId;
-    if(?maxResults && maxResults != null) queryParams["maxResults"] = maxResults;
-    if(?pageToken && pageToken != null) queryParams["pageToken"] = pageToken;
-    if(?sortOrder && sortOrder != null) queryParams["sortOrder"] = sortOrder;
+    if (?activityId && activityId != null) urlParams["activityId"] = activityId;
+    if (?maxResults && maxResults != null) queryParams["maxResults"] = maxResults;
+    if (?pageToken && pageToken != null) queryParams["pageToken"] = pageToken;
+    if (?sortOrder && sortOrder != null) queryParams["sortOrder"] = sortOrder;
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
@@ -114,7 +114,7 @@ class PeopleResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if(?userId && userId != null) urlParams["userId"] = userId;
+    if (?userId && userId != null) urlParams["userId"] = userId;
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
@@ -130,10 +130,10 @@ class PeopleResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if(?activityId && activityId != null) urlParams["activityId"] = activityId;
-    if(?collection && collection != null) urlParams["collection"] = collection;
-    if(?maxResults && maxResults != null) queryParams["maxResults"] = maxResults;
-    if(?pageToken && pageToken != null) queryParams["pageToken"] = pageToken;
+    if (?activityId && activityId != null) urlParams["activityId"] = activityId;
+    if (?collection && collection != null) urlParams["collection"] = collection;
+    if (?maxResults && maxResults != null) queryParams["maxResults"] = maxResults;
+    if (?pageToken && pageToken != null) queryParams["pageToken"] = pageToken;
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
@@ -149,10 +149,10 @@ class PeopleResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if(?language && language != null) queryParams["language"] = language;
-    if(?maxResults && maxResults != null) queryParams["maxResults"] = maxResults;
-    if(?pageToken && pageToken != null) queryParams["pageToken"] = pageToken;
-    if(?query && query != null) queryParams["query"] = query;
+    if (?language && language != null) queryParams["language"] = language;
+    if (?maxResults && maxResults != null) queryParams["maxResults"] = maxResults;
+    if (?pageToken && pageToken != null) queryParams["pageToken"] = pageToken;
+    if (?query && query != null) queryParams["query"] = query;
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
