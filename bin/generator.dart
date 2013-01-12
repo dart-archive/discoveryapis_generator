@@ -5,17 +5,14 @@ import "package:args/args.dart";
 
 String fileDate(Date date) => "${date.year}${(date.month < 10) ? 0 : ""}${date.month}${(date.day < 10) ? 0 : ""}${date.day}_${(date.hour < 10) ? 0 : ""}${date.hour}${(date.minute < 10) ? 0 : ""}${date.minute}${(date.second < 10) ? 0 : ""}${date.second}";
 String capitalize(String string) => "${string.substring(0,1).toUpperCase()}${string.substring(1)}";
-String parameterType(String type) {
-  switch(type) {
-    case "string": return "String";
-    case "number": return "num";
-    case "integer": return "int";
-    case "boolean": return "bool";
-  }
-  return null;
-}
+String cleanVariableName(String name) => name.replaceAll(new RegExp(r"(\W)"), "_");
 
-String cleanVariableName(String name) => name.replaceAll(new RegExp(r"(\W)"), "_");  
+const Map parameterType = const {
+  "string": "String",
+  "number": "num",
+  "integer": "int",
+  "boolean": "bool"
+};  
 
 class Generator {
   String _data;
@@ -121,7 +118,7 @@ part "src/resources.dart";
     }
     if (_json.containsKey("parameters")) {
       _json["parameters"].forEach((key, param) {
-        var type = parameterType(param["type"]);
+        var type = parameterType[param["type"]];
         if (type != null) {
           tmp.add("\n");
           tmp.add("  /**\n");
@@ -354,7 +351,7 @@ part "src/resources.dart";
     if (data.containsKey("parameterOrder") && data.containsKey("parameters")) {
       data["parameterOrder"].forEach((param) {
         if (data["parameters"].containsKey(param)) {
-          var type = parameterType(data["parameters"][param]["type"]);
+          var type = parameterType[data["parameters"][param]["type"]];
           if (type != null) {
             if(!params.isEmpty) params.add(", ");
             params.add("$type ${cleanVariableName(param)}");
@@ -383,7 +380,7 @@ part "src/resources.dart";
     if (data.containsKey("parameters")) {
       data["parameters"].forEach((name, param) {
         if (!param.containsKey("gen_included")) {
-          var type = parameterType(param["type"]);
+          var type = parameterType[param["type"]];
           if (type != null) {
             if(!optParams.isEmpty) optParams.add(", ");
             optParams.add("$type ${cleanVariableName(name)}");
