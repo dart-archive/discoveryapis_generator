@@ -7,7 +7,7 @@ final SCOPES = ["https://www.googleapis.com/auth/drive.file"];
 
 void main() {
   var auth = new OAuth2(CLIENT_ID, SCOPES);
-  var drive = new drivelib.Drive(null, auth);
+  var drive = new drivelib.Drive(auth);
   drive.makeAuthRequests = true;
   var filePicker = query("#filePicker");
   var loginButton = query("#login");

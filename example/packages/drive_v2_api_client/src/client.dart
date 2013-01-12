@@ -1,17 +1,20 @@
 part of drive;
 
 abstract class Client {
-  String _apiKey;
   OAuth2 _auth;
   String _baseUrl;
   String _rootUrl;
-  bool makeAuthRequests = false;
+  bool makeAuthRequests;
+  Map _params;
 
   static const _boundary = "-------314159265358979323846";
   static const _delimiter = "\r\n--$_boundary\r\n";
   static const _closeDelim = "\r\n--$_boundary--";
 
-  Client([String this._apiKey, OAuth2 this._auth]);
+  Client([OAuth2 this._auth]) {
+    _params = new Map();
+    makeAuthRequests = false;
+  }
 
   Future _request(String requestUrl, String method, {String body, String contentType:"application/json", Map urlParams, Map queryParams}) {
     var request = new HttpRequest();
@@ -20,9 +23,11 @@ abstract class Client {
     if (urlParams == null) urlParams = {};
     if (queryParams == null) queryParams = {};
 
-    if (_apiKey != null) {
-      queryParams["key"] = _apiKey;
-    }
+    _params.forEach((key, param) {
+      if (param != null) {
+        queryParams[key] = param;
+      }
+    });
 
     var path;
     if (requestUrl.substring(0,1) == "/") {
@@ -37,7 +42,7 @@ abstract class Client {
         var data = JSON.parse(request.responseText);
         completer.complete(data);
       } else {
-        completer.complete({"error": "Error ${request.status}: ${request.statusText}"});
+        completer.completeException(new Exception("${request.status}: ${request.statusText}"));
       }
     });
 

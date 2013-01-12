@@ -43,8 +43,8 @@ description: Auto-generated client library for accessing the $_name $_version AP
 author: Gerwin Sturm (scarygami/+)
 
 dependencies:
-dart-google-oauth2-library:
-git: git://github.com/Scarygami/dart-google-oauth2-library.git
+  dart-google-oauth2-library:
+    git: git://github.com/Scarygami/dart-google-oauth2-library.git
 """;
   }
 
@@ -99,7 +99,7 @@ part "src/resources.dart";
     if (_json.containsKey("description")) {
       tmp.add("/** ${_json["description"]} */\n");
     }
-    tmp.add("class ${capitalize(_name)} extends Client {\n\n");
+    tmp.add("class ${capitalize(_name)} extends Client {\n");
     if (_json.containsKey("resources")) {
       tmp.add("\n");
       _json["resources"].forEach((key, resource) {
@@ -108,7 +108,29 @@ part "src/resources.dart";
         tmp.add("  $subClassName get $key => _$key;\n");
       });
     }
-    tmp.add("\n  ${capitalize(_name)}([String apiKey, OAuth2 auth]) : super(apiKey, auth) {\n");
+    if (_json.containsKey("parameters")) {
+      _json["parameters"].forEach((key, param) {
+        var type = null;
+        switch(param["type"]) {
+          case "string": type = "String"; break;
+          case "number": type = "num"; break;
+          case "integer": type = "int"; break;
+          case "boolean": type = "bool"; break;
+        }
+        if (type != null) {
+          tmp.add("\n");
+          tmp.add("  /**\n");
+          if (param.containsKey("description")) {
+            tmp.add("   * ${param["description"]}\n");
+          }
+          tmp.add("   * Added as queryParameter for each request.\n");
+          tmp.add("   */\n");
+          tmp.add("  $type get $key => _params[\"$key\"];\n");
+          tmp.add("  set $key($type value) => _params[\"$key\"] = value;\n");
+        }
+      });
+    }
+    tmp.add("\n  ${capitalize(_name)}([OAuth2 auth]) : super(auth) {\n");
     tmp.add("    _baseUrl = \"${_json["baseUrl"]}\";\n");
     tmp.add("    _rootUrl = \"${_json["rootUrl"]}\";\n");
     if (_json.containsKey("resources")) {
@@ -117,13 +139,15 @@ part "src/resources.dart";
         tmp.add("    _$key = new $subClassName._internal(this);\n");
       });
     }
+    tmp.add("  }\n");
+    
     if (_json.containsKey("methods")) {
       _json["methods"].forEach((key, method) {
         tmp.add("\n");
         tmp.add(_createMethod(key, method));
       });
     }
-    tmp.add("  }\n");
+    
     tmp.add("}\n");
 
     return tmp.toString();
@@ -475,17 +499,20 @@ part "src/resources.dart";
 part of $_name;
 
 abstract class Client {
-  String _apiKey;
   OAuth2 _auth;
   String _baseUrl;
   String _rootUrl;
-  bool makeAuthRequests = false;
+  bool makeAuthRequests;
+  Map _params;
 
   static const _boundary = "-------314159265358979323846";
   static const _delimiter = "\\r\\n--\$_boundary\\r\\n";
   static const _closeDelim = "\\r\\n--\$_boundary--";
 
-  Client([String this._apiKey, OAuth2 this._auth]);
+  Client([OAuth2 this._auth]) {
+    _params = new Map();
+    makeAuthRequests = false;
+  }
 
   Future _request(String requestUrl, String method, {String body, String contentType:"application/json", Map urlParams, Map queryParams}) {
     var request = new HttpRequest();
@@ -494,9 +521,11 @@ abstract class Client {
     if (urlParams == null) urlParams = {};
     if (queryParams == null) queryParams = {};
 
-    if (_apiKey != null) {
-      queryParams["key"] = _apiKey;
-    }
+    _params.forEach((key, param) {
+      if (param != null) {
+        queryParams[key] = param;
+      }
+    });
 
     var path;
     if (requestUrl.substring(0,1) == "/") {
@@ -511,7 +540,7 @@ abstract class Client {
         var data = JSON.parse(request.responseText);
         completer.complete(data);
       } else {
-        completer.complete({"error": "Error \${request.status}: \${request.statusText}"});
+        completer.completeException(new Exception("\${request.status}: \${request.statusText}"));
       }
     });
 
