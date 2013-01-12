@@ -7,7 +7,7 @@ void main() {
   plus.key = "AIzaSyDxnNu9Dm3eGxnDD72EF02IjRvR5v_eMPc";
   var container = query("#text");
   
-  plus.activities.list("+FoldedSoft", "public", optParams: {"maxResults": 10}).then((pluslib.ActivityFeed data) {
+  plus.activities.list("+FoldedSoft", "public", maxResults: 10).then((pluslib.ActivityFeed data) {
     data.items.forEach((item) {
       container.appendHtml("<a href=\"${item.url}\">${item.published}</a> - ${item.title}<br>");  
     });

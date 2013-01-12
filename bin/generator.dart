@@ -5,6 +5,17 @@ import "package:args/args.dart";
 
 String fileDate(Date date) => "${date.year}${(date.month < 10) ? 0 : ""}${date.month}${(date.day < 10) ? 0 : ""}${date.day}_${(date.hour < 10) ? 0 : ""}${date.hour}${(date.minute < 10) ? 0 : ""}${date.minute}${(date.second < 10) ? 0 : ""}${date.second}";
 String capitalize(String string) => "${string.substring(0,1).toUpperCase()}${string.substring(1)}";
+String parameterType(String type) {
+  switch(type) {
+    case "string": return "String";
+    case "number": return "num";
+    case "integer": return "int";
+    case "boolean": return "bool";
+  }
+  return null;
+}
+
+String cleanVariableName(String name) => name.replaceAll(new RegExp(r"(\W)"), "_");  
 
 class Generator {
   String _data;
@@ -110,13 +121,7 @@ part "src/resources.dart";
     }
     if (_json.containsKey("parameters")) {
       _json["parameters"].forEach((key, param) {
-        var type = null;
-        switch(param["type"]) {
-          case "string": type = "String"; break;
-          case "number": type = "num"; break;
-          case "integer": type = "int"; break;
-          case "boolean": type = "bool"; break;
-        }
+        var type = parameterType(param["type"]);
         if (type != null) {
           tmp.add("\n");
           tmp.add("  /**\n");
@@ -341,22 +346,19 @@ part "src/resources.dart";
     }
 
     var params = new StringBuffer();
+    var optParams = new StringBuffer();
+    
     if (data.containsKey("request")) {
       params.add("${data["request"]["\$ref"]} request");
     }
     if (data.containsKey("parameterOrder") && data.containsKey("parameters")) {
       data["parameterOrder"].forEach((param) {
         if (data["parameters"].containsKey(param)) {
-          var type = null;
-          switch(data["parameters"][param]["type"]) {
-            case "string": type = "String"; break;
-            case "number": type = "num"; break;
-            case "integer": type = "int"; break;
-            case "boolean": type = "bool"; break;
-          }
+          var type = parameterType(data["parameters"][param]["type"]);
           if (type != null) {
             if(!params.isEmpty) params.add(", ");
-            params.add("$type $param");
+            params.add("$type ${cleanVariableName(param)}");
+            data["parameters"][param]["gen_included"] = true;
           }
         }
       });
@@ -375,15 +377,25 @@ part "src/resources.dart";
       }
     }
     
-    var optParams = new StringBuffer();
     if (upload) {
       optParams.add("String content, String contentType");
     }
-    if(!optParams.isEmpty) optParams.add(", ");
-    optParams.add("Map optParams");
+    if (data.containsKey("parameters")) {
+      data["parameters"].forEach((name, param) {
+        if (!param.containsKey("gen_included")) {
+          var type = parameterType(param["type"]);
+          if (type != null) {
+            if(!optParams.isEmpty) optParams.add(", ");
+            optParams.add("$type ${cleanVariableName(name)}");
+          }
+        }
+      });
+    }
 
-    if(!params.isEmpty) params.add(", ");
-    params.add("{${optParams.toString()}}");
+    if(!optParams.isEmpty) { 
+      if(!params.isEmpty) params.add(", ");
+      params.add("{${optParams.toString()}}");
+    }
     
     var response = null;
     if (data.containsKey("response")) {
@@ -399,26 +411,24 @@ part "src/resources.dart";
       tmp.add("    var uploadUrl = \"$uploadPath\";\n");
     }
     tmp.add("    var urlParams = new Map();\n");
-    tmp.add("    if (optParams == null) optParams = new Map();\n\n");
+    tmp.add("    var queryParams = new Map();\n\n");
     
-    if (data.containsKey("parameterOrder") && data.containsKey("parameters")) {
-      data["parameterOrder"].forEach((param) {
-        if (data["parameters"].containsKey(param)) {
-          if (data["parameters"][param]["location"] == "path") {
-            tmp.add("    urlParams[\"$param\"] = $param;\n");
-          } else {
-            tmp.add("    optParams[\"$param\"] = $param;\n");
-          }
+    if (data.containsKey("parameters")) {
+      data["parameters"].forEach((name, param) {
+        var variable = cleanVariableName(name);
+        if (param["location"] == "path") {
+          tmp.add("    if(?$variable && $variable != null) urlParams[\"$name\"] = $variable;\n");
+        } else {
+          tmp.add("    if(?$variable && $variable != null) queryParams[\"$name\"] = $variable;\n");
         }
       });
-      tmp.add("\n");
     }
 
     params.clear();
     if (data.containsKey("request")) {
       params.add("body: request.toString(), ");
     }
-    params.add("urlParams: urlParams, queryParams: optParams");
+    params.add("urlParams: urlParams, queryParams: queryParams");
     
     
     tmp.add("    var response;\n");
@@ -429,7 +439,7 @@ part "src/resources.dart";
       } else {
         uploadParams.add("\"\", ");
       }
-      uploadParams.add("content, contentType, urlParams: urlParams, queryParams: optParams");
+      uploadParams.add("content, contentType, urlParams: urlParams, queryParams: queryParams");
       tmp.add("    if (?content && content != null) {\n");
       tmp.add("      response = _client._upload(uploadUrl, \"${data["httpMethod"]}\", ${uploadParams.toString()});\n");
       tmp.add("    } else {\n");
@@ -439,13 +449,14 @@ part "src/resources.dart";
       tmp.add("    response = _client._request(url, \"${data["httpMethod"]}\", ${params.toString()});\n");
     }
     
-    tmp.add("    response.then((data) {\n");
+    tmp.add("    response\n");
+    tmp.add("    ..handleException((e) => completer.completeException(e))\n"); 
+    tmp.add("    ..then((data) => ");
     if (data.containsKey("response")) {
-      tmp.add("      completer.complete(new ${data["response"]["\$ref"]}.fromJson(data));\n");
+      tmp.add("completer.complete(new ${data["response"]["\$ref"]}.fromJson(data)));\n");
     } else {
-      tmp.add("      completer.complete(data);\n");
+      tmp.add("completer.complete(data));\n");
     }
-    tmp.add("    });\n\n");
     tmp.add("    return completer.future;\n");
     tmp.add("  }\n");
 

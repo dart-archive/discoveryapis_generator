@@ -6,57 +6,57 @@ class ActivitiesResource extends Resource {
   }
 
   /** Get an activity. */
-  Future<Activity> get(String activityId, {Map optParams}) {
+  Future<Activity> get(String activityId) {
     var completer = new Completer();
     var url = "activities/{activityId}";
     var urlParams = new Map();
-    if (optParams == null) optParams = new Map();
+    var queryParams = new Map();
 
-    urlParams["activityId"] = activityId;
-
+    if(?activityId && activityId != null) urlParams["activityId"] = activityId;
     var response;
-    response = _client._request(url, "GET", urlParams: urlParams, queryParams: optParams);
-    response.then((data) {
-      completer.complete(new Activity.fromJson(data));
-    });
-
+    response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
+    response
+    ..handleException((e) => completer.completeException(e))
+    ..then((data) => completer.complete(new Activity.fromJson(data)));
     return completer.future;
   }
 
   /** List all of the activities in the specified collection for a particular user. */
-  Future<ActivityFeed> list(String userId, String collection, {Map optParams}) {
+  Future<ActivityFeed> list(String userId, String collection, {int maxResults, String pageToken}) {
     var completer = new Completer();
     var url = "people/{userId}/activities/{collection}";
     var urlParams = new Map();
-    if (optParams == null) optParams = new Map();
+    var queryParams = new Map();
 
-    urlParams["userId"] = userId;
-    urlParams["collection"] = collection;
-
+    if(?collection && collection != null) urlParams["collection"] = collection;
+    if(?maxResults && maxResults != null) queryParams["maxResults"] = maxResults;
+    if(?pageToken && pageToken != null) queryParams["pageToken"] = pageToken;
+    if(?userId && userId != null) urlParams["userId"] = userId;
     var response;
-    response = _client._request(url, "GET", urlParams: urlParams, queryParams: optParams);
-    response.then((data) {
-      completer.complete(new ActivityFeed.fromJson(data));
-    });
-
+    response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
+    response
+    ..handleException((e) => completer.completeException(e))
+    ..then((data) => completer.complete(new ActivityFeed.fromJson(data)));
     return completer.future;
   }
 
   /** Search public activities. */
-  Future<ActivityFeed> search(String query, {Map optParams}) {
+  Future<ActivityFeed> search(String query, {String language, int maxResults, String orderBy, String pageToken}) {
     var completer = new Completer();
     var url = "activities";
     var urlParams = new Map();
-    if (optParams == null) optParams = new Map();
+    var queryParams = new Map();
 
-    optParams["query"] = query;
-
+    if(?language && language != null) queryParams["language"] = language;
+    if(?maxResults && maxResults != null) queryParams["maxResults"] = maxResults;
+    if(?orderBy && orderBy != null) queryParams["orderBy"] = orderBy;
+    if(?pageToken && pageToken != null) queryParams["pageToken"] = pageToken;
+    if(?query && query != null) queryParams["query"] = query;
     var response;
-    response = _client._request(url, "GET", urlParams: urlParams, queryParams: optParams);
-    response.then((data) {
-      completer.complete(new ActivityFeed.fromJson(data));
-    });
-
+    response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
+    response
+    ..handleException((e) => completer.completeException(e))
+    ..then((data) => completer.complete(new ActivityFeed.fromJson(data)));
     return completer.future;
   }
 }
@@ -67,38 +67,37 @@ class CommentsResource extends Resource {
   }
 
   /** Get a comment. */
-  Future<Comment> get(String commentId, {Map optParams}) {
+  Future<Comment> get(String commentId) {
     var completer = new Completer();
     var url = "comments/{commentId}";
     var urlParams = new Map();
-    if (optParams == null) optParams = new Map();
+    var queryParams = new Map();
 
-    urlParams["commentId"] = commentId;
-
+    if(?commentId && commentId != null) urlParams["commentId"] = commentId;
     var response;
-    response = _client._request(url, "GET", urlParams: urlParams, queryParams: optParams);
-    response.then((data) {
-      completer.complete(new Comment.fromJson(data));
-    });
-
+    response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
+    response
+    ..handleException((e) => completer.completeException(e))
+    ..then((data) => completer.complete(new Comment.fromJson(data)));
     return completer.future;
   }
 
   /** List all of the comments for an activity. */
-  Future<CommentFeed> list(String activityId, {Map optParams}) {
+  Future<CommentFeed> list(String activityId, {int maxResults, String pageToken, String sortOrder}) {
     var completer = new Completer();
     var url = "activities/{activityId}/comments";
     var urlParams = new Map();
-    if (optParams == null) optParams = new Map();
+    var queryParams = new Map();
 
-    urlParams["activityId"] = activityId;
-
+    if(?activityId && activityId != null) urlParams["activityId"] = activityId;
+    if(?maxResults && maxResults != null) queryParams["maxResults"] = maxResults;
+    if(?pageToken && pageToken != null) queryParams["pageToken"] = pageToken;
+    if(?sortOrder && sortOrder != null) queryParams["sortOrder"] = sortOrder;
     var response;
-    response = _client._request(url, "GET", urlParams: urlParams, queryParams: optParams);
-    response.then((data) {
-      completer.complete(new CommentFeed.fromJson(data));
-    });
-
+    response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
+    response
+    ..handleException((e) => completer.completeException(e))
+    ..then((data) => completer.complete(new CommentFeed.fromJson(data)));
     return completer.future;
   }
 }
@@ -109,57 +108,56 @@ class PeopleResource extends Resource {
   }
 
   /** Get a person's profile. */
-  Future<Person> get(String userId, {Map optParams}) {
+  Future<Person> get(String userId) {
     var completer = new Completer();
     var url = "people/{userId}";
     var urlParams = new Map();
-    if (optParams == null) optParams = new Map();
+    var queryParams = new Map();
 
-    urlParams["userId"] = userId;
-
+    if(?userId && userId != null) urlParams["userId"] = userId;
     var response;
-    response = _client._request(url, "GET", urlParams: urlParams, queryParams: optParams);
-    response.then((data) {
-      completer.complete(new Person.fromJson(data));
-    });
-
+    response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
+    response
+    ..handleException((e) => completer.completeException(e))
+    ..then((data) => completer.complete(new Person.fromJson(data)));
     return completer.future;
   }
 
   /** List all of the people in the specified collection for a particular activity. */
-  Future<PeopleFeed> listByActivity(String activityId, String collection, {Map optParams}) {
+  Future<PeopleFeed> listByActivity(String activityId, String collection, {int maxResults, String pageToken}) {
     var completer = new Completer();
     var url = "activities/{activityId}/people/{collection}";
     var urlParams = new Map();
-    if (optParams == null) optParams = new Map();
+    var queryParams = new Map();
 
-    urlParams["activityId"] = activityId;
-    urlParams["collection"] = collection;
-
+    if(?activityId && activityId != null) urlParams["activityId"] = activityId;
+    if(?collection && collection != null) urlParams["collection"] = collection;
+    if(?maxResults && maxResults != null) queryParams["maxResults"] = maxResults;
+    if(?pageToken && pageToken != null) queryParams["pageToken"] = pageToken;
     var response;
-    response = _client._request(url, "GET", urlParams: urlParams, queryParams: optParams);
-    response.then((data) {
-      completer.complete(new PeopleFeed.fromJson(data));
-    });
-
+    response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
+    response
+    ..handleException((e) => completer.completeException(e))
+    ..then((data) => completer.complete(new PeopleFeed.fromJson(data)));
     return completer.future;
   }
 
   /** Search all public profiles. */
-  Future<PeopleFeed> search(String query, {Map optParams}) {
+  Future<PeopleFeed> search(String query, {String language, int maxResults, String pageToken}) {
     var completer = new Completer();
     var url = "people";
     var urlParams = new Map();
-    if (optParams == null) optParams = new Map();
+    var queryParams = new Map();
 
-    optParams["query"] = query;
-
+    if(?language && language != null) queryParams["language"] = language;
+    if(?maxResults && maxResults != null) queryParams["maxResults"] = maxResults;
+    if(?pageToken && pageToken != null) queryParams["pageToken"] = pageToken;
+    if(?query && query != null) queryParams["query"] = query;
     var response;
-    response = _client._request(url, "GET", urlParams: urlParams, queryParams: optParams);
-    response.then((data) {
-      completer.complete(new PeopleFeed.fromJson(data));
-    });
-
+    response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
+    response
+    ..handleException((e) => completer.completeException(e))
+    ..then((data) => completer.complete(new PeopleFeed.fromJson(data)));
     return completer.future;
   }
 }
