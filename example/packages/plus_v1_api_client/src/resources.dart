@@ -16,7 +16,7 @@ class ActivitiesResource extends Resource {
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) => completer.completeException(e))
+    ..handleException((e) { completer.completeException(e); return true; })
     ..then((data) => completer.complete(new Activity.fromJson(data)));
     return completer.future;
   }
@@ -35,7 +35,7 @@ class ActivitiesResource extends Resource {
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) => completer.completeException(e))
+    ..handleException((e) { completer.completeException(e); return true; })
     ..then((data) => completer.complete(new ActivityFeed.fromJson(data)));
     return completer.future;
   }
@@ -55,7 +55,7 @@ class ActivitiesResource extends Resource {
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) => completer.completeException(e))
+    ..handleException((e) { completer.completeException(e); return true; })
     ..then((data) => completer.complete(new ActivityFeed.fromJson(data)));
     return completer.future;
   }
@@ -77,7 +77,7 @@ class CommentsResource extends Resource {
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) => completer.completeException(e))
+    ..handleException((e) { completer.completeException(e); return true; })
     ..then((data) => completer.complete(new Comment.fromJson(data)));
     return completer.future;
   }
@@ -96,7 +96,7 @@ class CommentsResource extends Resource {
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) => completer.completeException(e))
+    ..handleException((e) { completer.completeException(e); return true; })
     ..then((data) => completer.complete(new CommentFeed.fromJson(data)));
     return completer.future;
   }
@@ -118,7 +118,7 @@ class PeopleResource extends Resource {
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) => completer.completeException(e))
+    ..handleException((e) { completer.completeException(e); return true; })
     ..then((data) => completer.complete(new Person.fromJson(data)));
     return completer.future;
   }
@@ -137,7 +137,7 @@ class PeopleResource extends Resource {
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) => completer.completeException(e))
+    ..handleException((e) { completer.completeException(e); return true; })
     ..then((data) => completer.complete(new PeopleFeed.fromJson(data)));
     return completer.future;
   }
@@ -156,7 +156,7 @@ class PeopleResource extends Resource {
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) => completer.completeException(e))
+    ..handleException((e) { completer.completeException(e); return true; })
     ..then((data) => completer.complete(new PeopleFeed.fromJson(data)));
     return completer.future;
   }

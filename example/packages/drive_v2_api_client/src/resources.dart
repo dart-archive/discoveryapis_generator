@@ -18,7 +18,7 @@ class AboutResource extends Resource {
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) => completer.completeException(e))
+    ..handleException((e) { completer.completeException(e); return true; })
     ..then((data) => completer.complete(new About.fromJson(data)));
     return completer.future;
   }
@@ -40,7 +40,7 @@ class AppsResource extends Resource {
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) => completer.completeException(e))
+    ..handleException((e) { completer.completeException(e); return true; })
     ..then((data) => completer.complete(new App.fromJson(data)));
     return completer.future;
   }
@@ -55,7 +55,7 @@ class AppsResource extends Resource {
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) => completer.completeException(e))
+    ..handleException((e) { completer.completeException(e); return true; })
     ..then((data) => completer.complete(new AppList.fromJson(data)));
     return completer.future;
   }
@@ -77,7 +77,7 @@ class ChangesResource extends Resource {
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) => completer.completeException(e))
+    ..handleException((e) { completer.completeException(e); return true; })
     ..then((data) => completer.complete(new Change.fromJson(data)));
     return completer.future;
   }
@@ -97,7 +97,7 @@ class ChangesResource extends Resource {
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) => completer.completeException(e))
+    ..handleException((e) { completer.completeException(e); return true; })
     ..then((data) => completer.complete(new ChangeList.fromJson(data)));
     return completer.future;
   }
@@ -120,7 +120,7 @@ class ChildrenResource extends Resource {
     var response;
     response = _client._request(url, "DELETE", urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) => completer.completeException(e))
+    ..handleException((e) { completer.completeException(e); return true; })
     ..then((data) => completer.complete(data));
     return completer.future;
   }
@@ -137,7 +137,7 @@ class ChildrenResource extends Resource {
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) => completer.completeException(e))
+    ..handleException((e) { completer.completeException(e); return true; })
     ..then((data) => completer.complete(new ChildReference.fromJson(data)));
     return completer.future;
   }
@@ -153,7 +153,7 @@ class ChildrenResource extends Resource {
     var response;
     response = _client._request(url, "POST", body: request.toString(), urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) => completer.completeException(e))
+    ..handleException((e) { completer.completeException(e); return true; })
     ..then((data) => completer.complete(new ChildReference.fromJson(data)));
     return completer.future;
   }
@@ -172,7 +172,7 @@ class ChildrenResource extends Resource {
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) => completer.completeException(e))
+    ..handleException((e) { completer.completeException(e); return true; })
     ..then((data) => completer.complete(new ChildList.fromJson(data)));
     return completer.future;
   }
@@ -195,7 +195,7 @@ class CommentsResource extends Resource {
     var response;
     response = _client._request(url, "DELETE", urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) => completer.completeException(e))
+    ..handleException((e) { completer.completeException(e); return true; })
     ..then((data) => completer.complete(data));
     return completer.future;
   }
@@ -213,7 +213,7 @@ class CommentsResource extends Resource {
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) => completer.completeException(e))
+    ..handleException((e) { completer.completeException(e); return true; })
     ..then((data) => completer.complete(new Comment.fromJson(data)));
     return completer.future;
   }
@@ -229,7 +229,7 @@ class CommentsResource extends Resource {
     var response;
     response = _client._request(url, "POST", body: request.toString(), urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) => completer.completeException(e))
+    ..handleException((e) { completer.completeException(e); return true; })
     ..then((data) => completer.complete(new Comment.fromJson(data)));
     return completer.future;
   }
@@ -249,7 +249,7 @@ class CommentsResource extends Resource {
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) => completer.completeException(e))
+    ..handleException((e) { completer.completeException(e); return true; })
     ..then((data) => completer.complete(new CommentList.fromJson(data)));
     return completer.future;
   }
@@ -266,7 +266,7 @@ class CommentsResource extends Resource {
     var response;
     response = _client._request(url, "PATCH", body: request.toString(), urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) => completer.completeException(e))
+    ..handleException((e) { completer.completeException(e); return true; })
     ..then((data) => completer.complete(new Comment.fromJson(data)));
     return completer.future;
   }
@@ -283,7 +283,7 @@ class CommentsResource extends Resource {
     var response;
     response = _client._request(url, "PUT", body: request.toString(), urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) => completer.completeException(e))
+    ..handleException((e) { completer.completeException(e); return true; })
     ..then((data) => completer.complete(new Comment.fromJson(data)));
     return completer.future;
   }
@@ -311,7 +311,7 @@ class FilesResource extends Resource {
     var response;
     response = _client._request(url, "POST", body: request.toString(), urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) => completer.completeException(e))
+    ..handleException((e) { completer.completeException(e); return true; })
     ..then((data) => completer.complete(new File.fromJson(data)));
     return completer.future;
   }
@@ -327,7 +327,7 @@ class FilesResource extends Resource {
     var response;
     response = _client._request(url, "DELETE", urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) => completer.completeException(e))
+    ..handleException((e) { completer.completeException(e); return true; })
     ..then((data) => completer.complete(data));
     return completer.future;
   }
@@ -345,7 +345,7 @@ class FilesResource extends Resource {
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) => completer.completeException(e))
+    ..handleException((e) { completer.completeException(e); return true; })
     ..then((data) => completer.complete(new File.fromJson(data)));
     return completer.future;
   }
@@ -371,7 +371,7 @@ class FilesResource extends Resource {
       response = _client._request(url, "POST", body: request.toString(), urlParams: urlParams, queryParams: queryParams);
     }
     response
-    ..handleException((e) => completer.completeException(e))
+    ..handleException((e) { completer.completeException(e); return true; })
     ..then((data) => completer.complete(new File.fromJson(data)));
     return completer.future;
   }
@@ -390,7 +390,7 @@ class FilesResource extends Resource {
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) => completer.completeException(e))
+    ..handleException((e) { completer.completeException(e); return true; })
     ..then((data) => completer.complete(new FileList.fromJson(data)));
     return completer.future;
   }
@@ -415,7 +415,7 @@ class FilesResource extends Resource {
     var response;
     response = _client._request(url, "PATCH", body: request.toString(), urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) => completer.completeException(e))
+    ..handleException((e) { completer.completeException(e); return true; })
     ..then((data) => completer.complete(new File.fromJson(data)));
     return completer.future;
   }
@@ -431,7 +431,7 @@ class FilesResource extends Resource {
     var response;
     response = _client._request(url, "POST", urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) => completer.completeException(e))
+    ..handleException((e) { completer.completeException(e); return true; })
     ..then((data) => completer.complete(new File.fromJson(data)));
     return completer.future;
   }
@@ -447,7 +447,7 @@ class FilesResource extends Resource {
     var response;
     response = _client._request(url, "POST", urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) => completer.completeException(e))
+    ..handleException((e) { completer.completeException(e); return true; })
     ..then((data) => completer.complete(new File.fromJson(data)));
     return completer.future;
   }
@@ -463,7 +463,7 @@ class FilesResource extends Resource {
     var response;
     response = _client._request(url, "POST", urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) => completer.completeException(e))
+    ..handleException((e) { completer.completeException(e); return true; })
     ..then((data) => completer.complete(new File.fromJson(data)));
     return completer.future;
   }
@@ -493,7 +493,7 @@ class FilesResource extends Resource {
       response = _client._request(url, "PUT", body: request.toString(), urlParams: urlParams, queryParams: queryParams);
     }
     response
-    ..handleException((e) => completer.completeException(e))
+    ..handleException((e) { completer.completeException(e); return true; })
     ..then((data) => completer.complete(new File.fromJson(data)));
     return completer.future;
   }
@@ -516,7 +516,7 @@ class ParentsResource extends Resource {
     var response;
     response = _client._request(url, "DELETE", urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) => completer.completeException(e))
+    ..handleException((e) { completer.completeException(e); return true; })
     ..then((data) => completer.complete(data));
     return completer.future;
   }
@@ -533,7 +533,7 @@ class ParentsResource extends Resource {
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) => completer.completeException(e))
+    ..handleException((e) { completer.completeException(e); return true; })
     ..then((data) => completer.complete(new ParentReference.fromJson(data)));
     return completer.future;
   }
@@ -549,7 +549,7 @@ class ParentsResource extends Resource {
     var response;
     response = _client._request(url, "POST", body: request.toString(), urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) => completer.completeException(e))
+    ..handleException((e) { completer.completeException(e); return true; })
     ..then((data) => completer.complete(new ParentReference.fromJson(data)));
     return completer.future;
   }
@@ -565,7 +565,7 @@ class ParentsResource extends Resource {
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) => completer.completeException(e))
+    ..handleException((e) { completer.completeException(e); return true; })
     ..then((data) => completer.complete(new ParentList.fromJson(data)));
     return completer.future;
   }
@@ -588,7 +588,7 @@ class PermissionsResource extends Resource {
     var response;
     response = _client._request(url, "DELETE", urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) => completer.completeException(e))
+    ..handleException((e) { completer.completeException(e); return true; })
     ..then((data) => completer.complete(data));
     return completer.future;
   }
@@ -605,7 +605,7 @@ class PermissionsResource extends Resource {
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) => completer.completeException(e))
+    ..handleException((e) { completer.completeException(e); return true; })
     ..then((data) => completer.complete(new Permission.fromJson(data)));
     return completer.future;
   }
@@ -622,7 +622,7 @@ class PermissionsResource extends Resource {
     var response;
     response = _client._request(url, "POST", body: request.toString(), urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) => completer.completeException(e))
+    ..handleException((e) { completer.completeException(e); return true; })
     ..then((data) => completer.complete(new Permission.fromJson(data)));
     return completer.future;
   }
@@ -638,7 +638,7 @@ class PermissionsResource extends Resource {
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) => completer.completeException(e))
+    ..handleException((e) { completer.completeException(e); return true; })
     ..then((data) => completer.complete(new PermissionList.fromJson(data)));
     return completer.future;
   }
@@ -655,7 +655,7 @@ class PermissionsResource extends Resource {
     var response;
     response = _client._request(url, "PATCH", body: request.toString(), urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) => completer.completeException(e))
+    ..handleException((e) { completer.completeException(e); return true; })
     ..then((data) => completer.complete(new Permission.fromJson(data)));
     return completer.future;
   }
@@ -672,7 +672,7 @@ class PermissionsResource extends Resource {
     var response;
     response = _client._request(url, "PUT", body: request.toString(), urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) => completer.completeException(e))
+    ..handleException((e) { completer.completeException(e); return true; })
     ..then((data) => completer.complete(new Permission.fromJson(data)));
     return completer.future;
   }
@@ -696,7 +696,7 @@ class RepliesResource extends Resource {
     var response;
     response = _client._request(url, "DELETE", urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) => completer.completeException(e))
+    ..handleException((e) { completer.completeException(e); return true; })
     ..then((data) => completer.complete(data));
     return completer.future;
   }
@@ -715,7 +715,7 @@ class RepliesResource extends Resource {
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) => completer.completeException(e))
+    ..handleException((e) { completer.completeException(e); return true; })
     ..then((data) => completer.complete(new CommentReply.fromJson(data)));
     return completer.future;
   }
@@ -732,7 +732,7 @@ class RepliesResource extends Resource {
     var response;
     response = _client._request(url, "POST", body: request.toString(), urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) => completer.completeException(e))
+    ..handleException((e) { completer.completeException(e); return true; })
     ..then((data) => completer.complete(new CommentReply.fromJson(data)));
     return completer.future;
   }
@@ -752,7 +752,7 @@ class RepliesResource extends Resource {
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) => completer.completeException(e))
+    ..handleException((e) { completer.completeException(e); return true; })
     ..then((data) => completer.complete(new CommentReplyList.fromJson(data)));
     return completer.future;
   }
@@ -770,7 +770,7 @@ class RepliesResource extends Resource {
     var response;
     response = _client._request(url, "PATCH", body: request.toString(), urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) => completer.completeException(e))
+    ..handleException((e) { completer.completeException(e); return true; })
     ..then((data) => completer.complete(new CommentReply.fromJson(data)));
     return completer.future;
   }
@@ -788,7 +788,7 @@ class RepliesResource extends Resource {
     var response;
     response = _client._request(url, "PUT", body: request.toString(), urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) => completer.completeException(e))
+    ..handleException((e) { completer.completeException(e); return true; })
     ..then((data) => completer.complete(new CommentReply.fromJson(data)));
     return completer.future;
   }
@@ -811,7 +811,7 @@ class RevisionsResource extends Resource {
     var response;
     response = _client._request(url, "DELETE", urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) => completer.completeException(e))
+    ..handleException((e) { completer.completeException(e); return true; })
     ..then((data) => completer.complete(data));
     return completer.future;
   }
@@ -828,7 +828,7 @@ class RevisionsResource extends Resource {
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) => completer.completeException(e))
+    ..handleException((e) { completer.completeException(e); return true; })
     ..then((data) => completer.complete(new Revision.fromJson(data)));
     return completer.future;
   }
@@ -844,7 +844,7 @@ class RevisionsResource extends Resource {
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) => completer.completeException(e))
+    ..handleException((e) { completer.completeException(e); return true; })
     ..then((data) => completer.complete(new RevisionList.fromJson(data)));
     return completer.future;
   }
@@ -861,7 +861,7 @@ class RevisionsResource extends Resource {
     var response;
     response = _client._request(url, "PATCH", body: request.toString(), urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) => completer.completeException(e))
+    ..handleException((e) { completer.completeException(e); return true; })
     ..then((data) => completer.complete(new Revision.fromJson(data)));
     return completer.future;
   }
@@ -878,7 +878,7 @@ class RevisionsResource extends Resource {
     var response;
     response = _client._request(url, "PUT", body: request.toString(), urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) => completer.completeException(e))
+    ..handleException((e) { completer.completeException(e); return true; })
     ..then((data) => completer.complete(new Revision.fromJson(data)));
     return completer.future;
   }

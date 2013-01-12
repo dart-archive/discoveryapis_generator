@@ -26,7 +26,8 @@ void main() {
       var newFile = new drivelib.File.fromJson({"title": file.name, "mimeType": contentType});
       drive.files.insert(newFile, content: base64Data, contentType: contentType)
         ..handleException((e) {
-          output.appendHtml("Error $e");
+          output.appendHtml("$e<br>");
+          return true;
         })
         ..then((data) {
           output.appendHtml("Uploaded file with ID ${data.id}<br>");

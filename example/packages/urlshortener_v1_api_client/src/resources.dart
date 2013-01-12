@@ -17,7 +17,7 @@ class UrlResource extends Resource {
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) => completer.completeException(e))
+    ..handleException((e) { completer.completeException(e); return true; })
     ..then((data) => completer.complete(new Url.fromJson(data)));
     return completer.future;
   }
@@ -32,7 +32,7 @@ class UrlResource extends Resource {
     var response;
     response = _client._request(url, "POST", body: request.toString(), urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) => completer.completeException(e))
+    ..handleException((e) { completer.completeException(e); return true; })
     ..then((data) => completer.complete(new Url.fromJson(data)));
     return completer.future;
   }
@@ -49,7 +49,7 @@ class UrlResource extends Resource {
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) => completer.completeException(e))
+    ..handleException((e) { completer.completeException(e); return true; })
     ..then((data) => completer.complete(new UrlHistory.fromJson(data)));
     return completer.future;
   }

@@ -447,7 +447,7 @@ part "src/resources.dart";
     }
     
     tmp.add("    response\n");
-    tmp.add("    ..handleException((e) => completer.completeException(e))\n"); 
+    tmp.add("    ..handleException((e) { completer.completeException(e); return true; })\n"); 
     tmp.add("    ..then((data) => ");
     if (data.containsKey("response")) {
       tmp.add("completer.complete(new ${data["response"]["\$ref"]}.fromJson(data)));\n");
@@ -506,6 +506,9 @@ part "src/resources.dart";
     return """
 part of $_name;
 
+/**
+ * Base class for all API clients, offering generic methods for HTTP Requests to the API
+ */
 abstract class Client {
   OAuth2 _auth;
   String _baseUrl;
@@ -522,6 +525,9 @@ abstract class Client {
     makeAuthRequests = false;
   }
 
+  /**
+   * Send a HTTPRequest using [method] (usually GET or POST) to [requestUrl] using the specified [urlParams] and [queryParams]. Optionally include a [body] in the request.
+   */
   Future _request(String requestUrl, String method, {String body, String contentType:"application/json", Map urlParams, Map queryParams}) {
     var request = new HttpRequest();
     var completer = new Completer();
@@ -548,7 +554,26 @@ abstract class Client {
         var data = JSON.parse(request.responseText);
         completer.complete(data);
       } else {
-        completer.completeException(new Exception("\${request.status}: \${request.statusText}"));
+        var error = "";
+        if (request.status == 0) {
+          error = "Unknown Error, most likely related to same-origin-policies.";
+        } else {
+          if (request.responseText != null) {
+            var errorJson;
+            try {
+              errorJson = JSON.parse(request.responseText); 
+            } on FormatException {
+              errorJson = null;
+            }
+            if (errorJson != null && errorJson.containsKey("error")) {
+              error = "\${errorJson["error"]["code"]} \${errorJson["error"]["message"]}";
+            }
+          }
+          if (error == "") {
+            error = "\${request.status} \${request.statusText}";
+          }
+        }
+        completer.completeException(new APIRequestException(error));
       }
     });
 
@@ -563,6 +588,9 @@ abstract class Client {
     return completer.future;
   }
 
+  /**
+   * Join [content] (encoded as Base64-String) with specified [contentType] and additional request [body] into one multipart-body and send a HTTPRequest with [method] (usually POST) to [requestUrl]
+   */
   Future _upload(String requestUrl, String method, String body, String content, String contentType, {Map urlParams, Map queryParams}) {
     var multiPartBody = new StringBuffer();
     if (contentType == null || contentType.isEmpty) {
@@ -585,12 +613,22 @@ abstract class Client {
   }
 }
 
-
+/// Base-class for all API Resources
 abstract class Resource {
+  /// The [Client] to be used for all requests
   Client _client;
 
+  /// Create a new Resource, using the specified [Client] for requests
   Resource(Client this._client);
 }
+
+/// Exception thrown when the HTTP Request to the API failed
+class APIRequestException implements Exception {
+  final String msg;
+  const APIRequestException([this.msg]);
+  String toString() => (msg == null) ? "APIRequestException" : "APIRequestException: \$msg";
+}
+
 """;
   }
 }
