@@ -15,16 +15,32 @@ class AboutResource extends Resource {
    *   Default: 1
    *
    * [startChangeId] - Change ID to start counting from when calculating number of remaining change IDs
+   *
+   * [optParams] - Additional query parameters
    */
-  Future<About> get({bool includeSubscribed, String maxChangeIdCount, String startChangeId}) {
+  Future<About> get({bool includeSubscribed, String maxChangeIdCount, String startChangeId, Map optParams}) {
     var completer = new Completer();
     var url = "about";
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if (?includeSubscribed && includeSubscribed != null) queryParams["includeSubscribed"] = includeSubscribed;
-    if (?maxChangeIdCount && maxChangeIdCount != null) queryParams["maxChangeIdCount"] = maxChangeIdCount;
-    if (?startChangeId && startChangeId != null) queryParams["startChangeId"] = startChangeId;
+    var paramErrors = new StringBuffer();
+    if (includeSubscribed != null) queryParams["includeSubscribed"] = includeSubscribed;
+    if (maxChangeIdCount != null) queryParams["maxChangeIdCount"] = maxChangeIdCount;
+    if (startChangeId != null) queryParams["startChangeId"] = startChangeId;
+    if (optParams != null) {
+      optParams.forEach((key, value) {
+        if (value != null && queryParams[key] == null) {
+          queryParams[key] = value;
+        }
+      });
+    }
+
+    if (!paramErrors.isEmpty) {
+      completer.completeException(new ArgumentError(paramErrors.toString()));
+      return completer.future;
+    }
+
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
@@ -43,14 +59,34 @@ class AppsResource extends Resource {
    * Gets a specific app.
    *
    * [appId] - The ID of the app.
+   *
+   * [optParams] - Additional query parameters
    */
-  Future<App> get(String appId) {
+  Future<App> get(String appId, {Map optParams}) {
     var completer = new Completer();
     var url = "apps/{appId}";
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if (?appId && appId != null) urlParams["appId"] = appId;
+    var paramErrors = new StringBuffer();
+    if (appId == null) {
+      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+      paramErrors.add("appId is required");
+    }
+    if (appId != null) urlParams["appId"] = appId;
+    if (optParams != null) {
+      optParams.forEach((key, value) {
+        if (value != null && queryParams[key] == null) {
+          queryParams[key] = value;
+        }
+      });
+    }
+
+    if (!paramErrors.isEmpty) {
+      completer.completeException(new ArgumentError(paramErrors.toString()));
+      return completer.future;
+    }
+
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
@@ -61,12 +97,28 @@ class AppsResource extends Resource {
 
   /**
    * Lists a user's apps.
+   *
+   * [optParams] - Additional query parameters
    */
-  Future<AppList> list() {
+  Future<AppList> list({Map optParams}) {
     var completer = new Completer();
     var url = "apps";
     var urlParams = new Map();
     var queryParams = new Map();
+
+    var paramErrors = new StringBuffer();
+    if (optParams != null) {
+      optParams.forEach((key, value) {
+        if (value != null && queryParams[key] == null) {
+          queryParams[key] = value;
+        }
+      });
+    }
+
+    if (!paramErrors.isEmpty) {
+      completer.completeException(new ArgumentError(paramErrors.toString()));
+      return completer.future;
+    }
 
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
@@ -86,14 +138,34 @@ class ChangesResource extends Resource {
    * Gets a specific change.
    *
    * [changeId] - The ID of the change.
+   *
+   * [optParams] - Additional query parameters
    */
-  Future<Change> get(String changeId) {
+  Future<Change> get(String changeId, {Map optParams}) {
     var completer = new Completer();
     var url = "changes/{changeId}";
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if (?changeId && changeId != null) urlParams["changeId"] = changeId;
+    var paramErrors = new StringBuffer();
+    if (changeId == null) {
+      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+      paramErrors.add("changeId is required");
+    }
+    if (changeId != null) urlParams["changeId"] = changeId;
+    if (optParams != null) {
+      optParams.forEach((key, value) {
+        if (value != null && queryParams[key] == null) {
+          queryParams[key] = value;
+        }
+      });
+    }
+
+    if (!paramErrors.isEmpty) {
+      completer.completeException(new ArgumentError(paramErrors.toString()));
+      return completer.future;
+    }
+
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
@@ -118,18 +190,34 @@ class ChangesResource extends Resource {
    * [pageToken] - Page token for changes.
    *
    * [startChangeId] - Change ID to start listing changes from.
+   *
+   * [optParams] - Additional query parameters
    */
-  Future<ChangeList> list({bool includeDeleted, bool includeSubscribed, int maxResults, String pageToken, String startChangeId}) {
+  Future<ChangeList> list({bool includeDeleted, bool includeSubscribed, int maxResults, String pageToken, String startChangeId, Map optParams}) {
     var completer = new Completer();
     var url = "changes";
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if (?includeDeleted && includeDeleted != null) queryParams["includeDeleted"] = includeDeleted;
-    if (?includeSubscribed && includeSubscribed != null) queryParams["includeSubscribed"] = includeSubscribed;
-    if (?maxResults && maxResults != null) queryParams["maxResults"] = maxResults;
-    if (?pageToken && pageToken != null) queryParams["pageToken"] = pageToken;
-    if (?startChangeId && startChangeId != null) queryParams["startChangeId"] = startChangeId;
+    var paramErrors = new StringBuffer();
+    if (includeDeleted != null) queryParams["includeDeleted"] = includeDeleted;
+    if (includeSubscribed != null) queryParams["includeSubscribed"] = includeSubscribed;
+    if (maxResults != null) queryParams["maxResults"] = maxResults;
+    if (pageToken != null) queryParams["pageToken"] = pageToken;
+    if (startChangeId != null) queryParams["startChangeId"] = startChangeId;
+    if (optParams != null) {
+      optParams.forEach((key, value) {
+        if (value != null && queryParams[key] == null) {
+          queryParams[key] = value;
+        }
+      });
+    }
+
+    if (!paramErrors.isEmpty) {
+      completer.completeException(new ArgumentError(paramErrors.toString()));
+      return completer.future;
+    }
+
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
@@ -150,15 +238,39 @@ class ChildrenResource extends Resource {
    * [folderId] - The ID of the folder.
    *
    * [childId] - The ID of the child.
+   *
+   * [optParams] - Additional query parameters
    */
-  Future<Map> delete(String folderId, String childId) {
+  Future<Map> delete(String folderId, String childId, {Map optParams}) {
     var completer = new Completer();
     var url = "files/{folderId}/children/{childId}";
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if (?childId && childId != null) urlParams["childId"] = childId;
-    if (?folderId && folderId != null) urlParams["folderId"] = folderId;
+    var paramErrors = new StringBuffer();
+    if (childId == null) {
+      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+      paramErrors.add("childId is required");
+    }
+    if (childId != null) urlParams["childId"] = childId;
+    if (folderId == null) {
+      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+      paramErrors.add("folderId is required");
+    }
+    if (folderId != null) urlParams["folderId"] = folderId;
+    if (optParams != null) {
+      optParams.forEach((key, value) {
+        if (value != null && queryParams[key] == null) {
+          queryParams[key] = value;
+        }
+      });
+    }
+
+    if (!paramErrors.isEmpty) {
+      completer.completeException(new ArgumentError(paramErrors.toString()));
+      return completer.future;
+    }
+
     var response;
     response = _client._request(url, "DELETE", urlParams: urlParams, queryParams: queryParams);
     response
@@ -173,15 +285,39 @@ class ChildrenResource extends Resource {
    * [folderId] - The ID of the folder.
    *
    * [childId] - The ID of the child.
+   *
+   * [optParams] - Additional query parameters
    */
-  Future<ChildReference> get(String folderId, String childId) {
+  Future<ChildReference> get(String folderId, String childId, {Map optParams}) {
     var completer = new Completer();
     var url = "files/{folderId}/children/{childId}";
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if (?childId && childId != null) urlParams["childId"] = childId;
-    if (?folderId && folderId != null) urlParams["folderId"] = folderId;
+    var paramErrors = new StringBuffer();
+    if (childId == null) {
+      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+      paramErrors.add("childId is required");
+    }
+    if (childId != null) urlParams["childId"] = childId;
+    if (folderId == null) {
+      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+      paramErrors.add("folderId is required");
+    }
+    if (folderId != null) urlParams["folderId"] = folderId;
+    if (optParams != null) {
+      optParams.forEach((key, value) {
+        if (value != null && queryParams[key] == null) {
+          queryParams[key] = value;
+        }
+      });
+    }
+
+    if (!paramErrors.isEmpty) {
+      completer.completeException(new ArgumentError(paramErrors.toString()));
+      return completer.future;
+    }
+
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
@@ -196,14 +332,34 @@ class ChildrenResource extends Resource {
    * [request] - ChildReference to send in this request
    *
    * [folderId] - The ID of the folder.
+   *
+   * [optParams] - Additional query parameters
    */
-  Future<ChildReference> insert(ChildReference request, String folderId) {
+  Future<ChildReference> insert(ChildReference request, String folderId, {Map optParams}) {
     var completer = new Completer();
     var url = "files/{folderId}/children";
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if (?folderId && folderId != null) urlParams["folderId"] = folderId;
+    var paramErrors = new StringBuffer();
+    if (folderId == null) {
+      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+      paramErrors.add("folderId is required");
+    }
+    if (folderId != null) urlParams["folderId"] = folderId;
+    if (optParams != null) {
+      optParams.forEach((key, value) {
+        if (value != null && queryParams[key] == null) {
+          queryParams[key] = value;
+        }
+      });
+    }
+
+    if (!paramErrors.isEmpty) {
+      completer.completeException(new ArgumentError(paramErrors.toString()));
+      return completer.future;
+    }
+
     var response;
     response = _client._request(url, "POST", body: request.toString(), urlParams: urlParams, queryParams: queryParams);
     response
@@ -224,17 +380,37 @@ class ChildrenResource extends Resource {
    * [pageToken] - Page token for children.
    *
    * [q] - Query string for searching children.
+   *
+   * [optParams] - Additional query parameters
    */
-  Future<ChildList> list(String folderId, {int maxResults, String pageToken, String q}) {
+  Future<ChildList> list(String folderId, {int maxResults, String pageToken, String q, Map optParams}) {
     var completer = new Completer();
     var url = "files/{folderId}/children";
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if (?folderId && folderId != null) urlParams["folderId"] = folderId;
-    if (?maxResults && maxResults != null) queryParams["maxResults"] = maxResults;
-    if (?pageToken && pageToken != null) queryParams["pageToken"] = pageToken;
-    if (?q && q != null) queryParams["q"] = q;
+    var paramErrors = new StringBuffer();
+    if (folderId == null) {
+      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+      paramErrors.add("folderId is required");
+    }
+    if (folderId != null) urlParams["folderId"] = folderId;
+    if (maxResults != null) queryParams["maxResults"] = maxResults;
+    if (pageToken != null) queryParams["pageToken"] = pageToken;
+    if (q != null) queryParams["q"] = q;
+    if (optParams != null) {
+      optParams.forEach((key, value) {
+        if (value != null && queryParams[key] == null) {
+          queryParams[key] = value;
+        }
+      });
+    }
+
+    if (!paramErrors.isEmpty) {
+      completer.completeException(new ArgumentError(paramErrors.toString()));
+      return completer.future;
+    }
+
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
@@ -255,15 +431,39 @@ class CommentsResource extends Resource {
    * [fileId] - The ID of the file.
    *
    * [commentId] - The ID of the comment.
+   *
+   * [optParams] - Additional query parameters
    */
-  Future<Map> delete(String fileId, String commentId) {
+  Future<Map> delete(String fileId, String commentId, {Map optParams}) {
     var completer = new Completer();
     var url = "files/{fileId}/comments/{commentId}";
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if (?commentId && commentId != null) urlParams["commentId"] = commentId;
-    if (?fileId && fileId != null) urlParams["fileId"] = fileId;
+    var paramErrors = new StringBuffer();
+    if (commentId == null) {
+      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+      paramErrors.add("commentId is required");
+    }
+    if (commentId != null) urlParams["commentId"] = commentId;
+    if (fileId == null) {
+      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+      paramErrors.add("fileId is required");
+    }
+    if (fileId != null) urlParams["fileId"] = fileId;
+    if (optParams != null) {
+      optParams.forEach((key, value) {
+        if (value != null && queryParams[key] == null) {
+          queryParams[key] = value;
+        }
+      });
+    }
+
+    if (!paramErrors.isEmpty) {
+      completer.completeException(new ArgumentError(paramErrors.toString()));
+      return completer.future;
+    }
+
     var response;
     response = _client._request(url, "DELETE", urlParams: urlParams, queryParams: queryParams);
     response
@@ -281,16 +481,40 @@ class CommentsResource extends Resource {
    *
    * [includeDeleted] - If set, this will succeed when retrieving a deleted comment, and will include any deleted replies.
    *   Default: false
+   *
+   * [optParams] - Additional query parameters
    */
-  Future<Comment> get(String fileId, String commentId, {bool includeDeleted}) {
+  Future<Comment> get(String fileId, String commentId, {bool includeDeleted, Map optParams}) {
     var completer = new Completer();
     var url = "files/{fileId}/comments/{commentId}";
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if (?commentId && commentId != null) urlParams["commentId"] = commentId;
-    if (?fileId && fileId != null) urlParams["fileId"] = fileId;
-    if (?includeDeleted && includeDeleted != null) queryParams["includeDeleted"] = includeDeleted;
+    var paramErrors = new StringBuffer();
+    if (commentId == null) {
+      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+      paramErrors.add("commentId is required");
+    }
+    if (commentId != null) urlParams["commentId"] = commentId;
+    if (fileId == null) {
+      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+      paramErrors.add("fileId is required");
+    }
+    if (fileId != null) urlParams["fileId"] = fileId;
+    if (includeDeleted != null) queryParams["includeDeleted"] = includeDeleted;
+    if (optParams != null) {
+      optParams.forEach((key, value) {
+        if (value != null && queryParams[key] == null) {
+          queryParams[key] = value;
+        }
+      });
+    }
+
+    if (!paramErrors.isEmpty) {
+      completer.completeException(new ArgumentError(paramErrors.toString()));
+      return completer.future;
+    }
+
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
@@ -305,14 +529,34 @@ class CommentsResource extends Resource {
    * [request] - Comment to send in this request
    *
    * [fileId] - The ID of the file.
+   *
+   * [optParams] - Additional query parameters
    */
-  Future<Comment> insert(Comment request, String fileId) {
+  Future<Comment> insert(Comment request, String fileId, {Map optParams}) {
     var completer = new Completer();
     var url = "files/{fileId}/comments";
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if (?fileId && fileId != null) urlParams["fileId"] = fileId;
+    var paramErrors = new StringBuffer();
+    if (fileId == null) {
+      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+      paramErrors.add("fileId is required");
+    }
+    if (fileId != null) urlParams["fileId"] = fileId;
+    if (optParams != null) {
+      optParams.forEach((key, value) {
+        if (value != null && queryParams[key] == null) {
+          queryParams[key] = value;
+        }
+      });
+    }
+
+    if (!paramErrors.isEmpty) {
+      completer.completeException(new ArgumentError(paramErrors.toString()));
+      return completer.future;
+    }
+
     var response;
     response = _client._request(url, "POST", body: request.toString(), urlParams: urlParams, queryParams: queryParams);
     response
@@ -337,18 +581,38 @@ class CommentsResource extends Resource {
    * [pageToken] - The continuation token, used to page through large result sets. To get the next page of results, set this parameter to the value of "nextPageToken" from the previous response.
    *
    * [updatedMin] - Only discussions that were updated after this timestamp will be returned. Formatted as an RFC 3339 timestamp.
+   *
+   * [optParams] - Additional query parameters
    */
-  Future<CommentList> list(String fileId, {bool includeDeleted, int maxResults, String pageToken, String updatedMin}) {
+  Future<CommentList> list(String fileId, {bool includeDeleted, int maxResults, String pageToken, String updatedMin, Map optParams}) {
     var completer = new Completer();
     var url = "files/{fileId}/comments";
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if (?fileId && fileId != null) urlParams["fileId"] = fileId;
-    if (?includeDeleted && includeDeleted != null) queryParams["includeDeleted"] = includeDeleted;
-    if (?maxResults && maxResults != null) queryParams["maxResults"] = maxResults;
-    if (?pageToken && pageToken != null) queryParams["pageToken"] = pageToken;
-    if (?updatedMin && updatedMin != null) queryParams["updatedMin"] = updatedMin;
+    var paramErrors = new StringBuffer();
+    if (fileId == null) {
+      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+      paramErrors.add("fileId is required");
+    }
+    if (fileId != null) urlParams["fileId"] = fileId;
+    if (includeDeleted != null) queryParams["includeDeleted"] = includeDeleted;
+    if (maxResults != null) queryParams["maxResults"] = maxResults;
+    if (pageToken != null) queryParams["pageToken"] = pageToken;
+    if (updatedMin != null) queryParams["updatedMin"] = updatedMin;
+    if (optParams != null) {
+      optParams.forEach((key, value) {
+        if (value != null && queryParams[key] == null) {
+          queryParams[key] = value;
+        }
+      });
+    }
+
+    if (!paramErrors.isEmpty) {
+      completer.completeException(new ArgumentError(paramErrors.toString()));
+      return completer.future;
+    }
+
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
@@ -365,15 +629,39 @@ class CommentsResource extends Resource {
    * [fileId] - The ID of the file.
    *
    * [commentId] - The ID of the comment.
+   *
+   * [optParams] - Additional query parameters
    */
-  Future<Comment> patch(Comment request, String fileId, String commentId) {
+  Future<Comment> patch(Comment request, String fileId, String commentId, {Map optParams}) {
     var completer = new Completer();
     var url = "files/{fileId}/comments/{commentId}";
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if (?commentId && commentId != null) urlParams["commentId"] = commentId;
-    if (?fileId && fileId != null) urlParams["fileId"] = fileId;
+    var paramErrors = new StringBuffer();
+    if (commentId == null) {
+      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+      paramErrors.add("commentId is required");
+    }
+    if (commentId != null) urlParams["commentId"] = commentId;
+    if (fileId == null) {
+      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+      paramErrors.add("fileId is required");
+    }
+    if (fileId != null) urlParams["fileId"] = fileId;
+    if (optParams != null) {
+      optParams.forEach((key, value) {
+        if (value != null && queryParams[key] == null) {
+          queryParams[key] = value;
+        }
+      });
+    }
+
+    if (!paramErrors.isEmpty) {
+      completer.completeException(new ArgumentError(paramErrors.toString()));
+      return completer.future;
+    }
+
     var response;
     response = _client._request(url, "PATCH", body: request.toString(), urlParams: urlParams, queryParams: queryParams);
     response
@@ -390,15 +678,39 @@ class CommentsResource extends Resource {
    * [fileId] - The ID of the file.
    *
    * [commentId] - The ID of the comment.
+   *
+   * [optParams] - Additional query parameters
    */
-  Future<Comment> update(Comment request, String fileId, String commentId) {
+  Future<Comment> update(Comment request, String fileId, String commentId, {Map optParams}) {
     var completer = new Completer();
     var url = "files/{fileId}/comments/{commentId}";
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if (?commentId && commentId != null) urlParams["commentId"] = commentId;
-    if (?fileId && fileId != null) urlParams["fileId"] = fileId;
+    var paramErrors = new StringBuffer();
+    if (commentId == null) {
+      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+      paramErrors.add("commentId is required");
+    }
+    if (commentId != null) urlParams["commentId"] = commentId;
+    if (fileId == null) {
+      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+      paramErrors.add("fileId is required");
+    }
+    if (fileId != null) urlParams["fileId"] = fileId;
+    if (optParams != null) {
+      optParams.forEach((key, value) {
+        if (value != null && queryParams[key] == null) {
+          queryParams[key] = value;
+        }
+      });
+    }
+
+    if (!paramErrors.isEmpty) {
+      completer.completeException(new ArgumentError(paramErrors.toString()));
+      return completer.future;
+    }
+
     var response;
     response = _client._request(url, "PUT", body: request.toString(), urlParams: urlParams, queryParams: queryParams);
     response
@@ -434,20 +746,40 @@ class FilesResource extends Resource {
    * [timedTextLanguage] - The language of the timed text.
    *
    * [timedTextTrackName] - The timed text track name.
+   *
+   * [optParams] - Additional query parameters
    */
-  Future<File> copy(File request, String fileId, {bool convert, bool ocr, String ocrLanguage, bool pinned, String timedTextLanguage, String timedTextTrackName}) {
+  Future<File> copy(File request, String fileId, {bool convert, bool ocr, String ocrLanguage, bool pinned, String timedTextLanguage, String timedTextTrackName, Map optParams}) {
     var completer = new Completer();
     var url = "files/{fileId}/copy";
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if (?convert && convert != null) queryParams["convert"] = convert;
-    if (?fileId && fileId != null) urlParams["fileId"] = fileId;
-    if (?ocr && ocr != null) queryParams["ocr"] = ocr;
-    if (?ocrLanguage && ocrLanguage != null) queryParams["ocrLanguage"] = ocrLanguage;
-    if (?pinned && pinned != null) queryParams["pinned"] = pinned;
-    if (?timedTextLanguage && timedTextLanguage != null) queryParams["timedTextLanguage"] = timedTextLanguage;
-    if (?timedTextTrackName && timedTextTrackName != null) queryParams["timedTextTrackName"] = timedTextTrackName;
+    var paramErrors = new StringBuffer();
+    if (convert != null) queryParams["convert"] = convert;
+    if (fileId == null) {
+      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+      paramErrors.add("fileId is required");
+    }
+    if (fileId != null) urlParams["fileId"] = fileId;
+    if (ocr != null) queryParams["ocr"] = ocr;
+    if (ocrLanguage != null) queryParams["ocrLanguage"] = ocrLanguage;
+    if (pinned != null) queryParams["pinned"] = pinned;
+    if (timedTextLanguage != null) queryParams["timedTextLanguage"] = timedTextLanguage;
+    if (timedTextTrackName != null) queryParams["timedTextTrackName"] = timedTextTrackName;
+    if (optParams != null) {
+      optParams.forEach((key, value) {
+        if (value != null && queryParams[key] == null) {
+          queryParams[key] = value;
+        }
+      });
+    }
+
+    if (!paramErrors.isEmpty) {
+      completer.completeException(new ArgumentError(paramErrors.toString()));
+      return completer.future;
+    }
+
     var response;
     response = _client._request(url, "POST", body: request.toString(), urlParams: urlParams, queryParams: queryParams);
     response
@@ -460,14 +792,34 @@ class FilesResource extends Resource {
    * Permanently deletes a file by ID. Skips the trash.
    *
    * [fileId] - The ID of the file to delete.
+   *
+   * [optParams] - Additional query parameters
    */
-  Future<Map> delete(String fileId) {
+  Future<Map> delete(String fileId, {Map optParams}) {
     var completer = new Completer();
     var url = "files/{fileId}";
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if (?fileId && fileId != null) urlParams["fileId"] = fileId;
+    var paramErrors = new StringBuffer();
+    if (fileId == null) {
+      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+      paramErrors.add("fileId is required");
+    }
+    if (fileId != null) urlParams["fileId"] = fileId;
+    if (optParams != null) {
+      optParams.forEach((key, value) {
+        if (value != null && queryParams[key] == null) {
+          queryParams[key] = value;
+        }
+      });
+    }
+
+    if (!paramErrors.isEmpty) {
+      completer.completeException(new ArgumentError(paramErrors.toString()));
+      return completer.future;
+    }
+
     var response;
     response = _client._request(url, "DELETE", urlParams: urlParams, queryParams: queryParams);
     response
@@ -488,16 +840,36 @@ class FilesResource extends Resource {
    *
    * [updateViewedDate] - Whether to update the view date after successfully retrieving the file.
    *   Default: false
+   *
+   * [optParams] - Additional query parameters
    */
-  Future<File> get(String fileId, {String projection, bool updateViewedDate}) {
+  Future<File> get(String fileId, {String projection, bool updateViewedDate, Map optParams}) {
     var completer = new Completer();
     var url = "files/{fileId}";
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if (?fileId && fileId != null) urlParams["fileId"] = fileId;
-    if (?projection && projection != null) queryParams["projection"] = projection;
-    if (?updateViewedDate && updateViewedDate != null) queryParams["updateViewedDate"] = updateViewedDate;
+    var paramErrors = new StringBuffer();
+    if (fileId == null) {
+      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+      paramErrors.add("fileId is required");
+    }
+    if (fileId != null) urlParams["fileId"] = fileId;
+    if (projection != null) queryParams["projection"] = projection;
+    if (updateViewedDate != null) queryParams["updateViewedDate"] = updateViewedDate;
+    if (optParams != null) {
+      optParams.forEach((key, value) {
+        if (value != null && queryParams[key] == null) {
+          queryParams[key] = value;
+        }
+      });
+    }
+
+    if (!paramErrors.isEmpty) {
+      completer.completeException(new ArgumentError(paramErrors.toString()));
+      return completer.future;
+    }
+
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
@@ -529,20 +901,36 @@ class FilesResource extends Resource {
    * [timedTextLanguage] - The language of the timed text.
    *
    * [timedTextTrackName] - The timed text track name.
+   *
+   * [optParams] - Additional query parameters
    */
-  Future<File> insert(File request, {String content, String contentType, bool convert, bool ocr, String ocrLanguage, bool pinned, String timedTextLanguage, String timedTextTrackName}) {
+  Future<File> insert(File request, {String content, String contentType, bool convert, bool ocr, String ocrLanguage, bool pinned, String timedTextLanguage, String timedTextTrackName, Map optParams}) {
     var completer = new Completer();
     var url = "files";
     var uploadUrl = "/upload/drive/v2/files";
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if (?convert && convert != null) queryParams["convert"] = convert;
-    if (?ocr && ocr != null) queryParams["ocr"] = ocr;
-    if (?ocrLanguage && ocrLanguage != null) queryParams["ocrLanguage"] = ocrLanguage;
-    if (?pinned && pinned != null) queryParams["pinned"] = pinned;
-    if (?timedTextLanguage && timedTextLanguage != null) queryParams["timedTextLanguage"] = timedTextLanguage;
-    if (?timedTextTrackName && timedTextTrackName != null) queryParams["timedTextTrackName"] = timedTextTrackName;
+    var paramErrors = new StringBuffer();
+    if (convert != null) queryParams["convert"] = convert;
+    if (ocr != null) queryParams["ocr"] = ocr;
+    if (ocrLanguage != null) queryParams["ocrLanguage"] = ocrLanguage;
+    if (pinned != null) queryParams["pinned"] = pinned;
+    if (timedTextLanguage != null) queryParams["timedTextLanguage"] = timedTextLanguage;
+    if (timedTextTrackName != null) queryParams["timedTextTrackName"] = timedTextTrackName;
+    if (optParams != null) {
+      optParams.forEach((key, value) {
+        if (value != null && queryParams[key] == null) {
+          queryParams[key] = value;
+        }
+      });
+    }
+
+    if (!paramErrors.isEmpty) {
+      completer.completeException(new ArgumentError(paramErrors.toString()));
+      return completer.future;
+    }
+
     var response;
     if (?content && content != null) {
       response = _client._upload(uploadUrl, "POST", request.toString(), content, contentType, urlParams: urlParams, queryParams: queryParams);
@@ -570,17 +958,33 @@ class FilesResource extends Resource {
    *     FULL - Deprecated
    *
    * [q] - Query string for searching files.
+   *
+   * [optParams] - Additional query parameters
    */
-  Future<FileList> list({int maxResults, String pageToken, String projection, String q}) {
+  Future<FileList> list({int maxResults, String pageToken, String projection, String q, Map optParams}) {
     var completer = new Completer();
     var url = "files";
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if (?maxResults && maxResults != null) queryParams["maxResults"] = maxResults;
-    if (?pageToken && pageToken != null) queryParams["pageToken"] = pageToken;
-    if (?projection && projection != null) queryParams["projection"] = projection;
-    if (?q && q != null) queryParams["q"] = q;
+    var paramErrors = new StringBuffer();
+    if (maxResults != null) queryParams["maxResults"] = maxResults;
+    if (pageToken != null) queryParams["pageToken"] = pageToken;
+    if (projection != null) queryParams["projection"] = projection;
+    if (q != null) queryParams["q"] = q;
+    if (optParams != null) {
+      optParams.forEach((key, value) {
+        if (value != null && queryParams[key] == null) {
+          queryParams[key] = value;
+        }
+      });
+    }
+
+    if (!paramErrors.isEmpty) {
+      completer.completeException(new ArgumentError(paramErrors.toString()));
+      return completer.future;
+    }
+
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
@@ -619,23 +1023,43 @@ class FilesResource extends Resource {
    *
    * [updateViewedDate] - Whether to update the view date after successfully updating the file.
    *   Default: true
+   *
+   * [optParams] - Additional query parameters
    */
-  Future<File> patch(File request, String fileId, {bool convert, bool newRevision, bool ocr, String ocrLanguage, bool pinned, bool setModifiedDate, String timedTextLanguage, String timedTextTrackName, bool updateViewedDate}) {
+  Future<File> patch(File request, String fileId, {bool convert, bool newRevision, bool ocr, String ocrLanguage, bool pinned, bool setModifiedDate, String timedTextLanguage, String timedTextTrackName, bool updateViewedDate, Map optParams}) {
     var completer = new Completer();
     var url = "files/{fileId}";
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if (?convert && convert != null) queryParams["convert"] = convert;
-    if (?fileId && fileId != null) urlParams["fileId"] = fileId;
-    if (?newRevision && newRevision != null) queryParams["newRevision"] = newRevision;
-    if (?ocr && ocr != null) queryParams["ocr"] = ocr;
-    if (?ocrLanguage && ocrLanguage != null) queryParams["ocrLanguage"] = ocrLanguage;
-    if (?pinned && pinned != null) queryParams["pinned"] = pinned;
-    if (?setModifiedDate && setModifiedDate != null) queryParams["setModifiedDate"] = setModifiedDate;
-    if (?timedTextLanguage && timedTextLanguage != null) queryParams["timedTextLanguage"] = timedTextLanguage;
-    if (?timedTextTrackName && timedTextTrackName != null) queryParams["timedTextTrackName"] = timedTextTrackName;
-    if (?updateViewedDate && updateViewedDate != null) queryParams["updateViewedDate"] = updateViewedDate;
+    var paramErrors = new StringBuffer();
+    if (convert != null) queryParams["convert"] = convert;
+    if (fileId == null) {
+      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+      paramErrors.add("fileId is required");
+    }
+    if (fileId != null) urlParams["fileId"] = fileId;
+    if (newRevision != null) queryParams["newRevision"] = newRevision;
+    if (ocr != null) queryParams["ocr"] = ocr;
+    if (ocrLanguage != null) queryParams["ocrLanguage"] = ocrLanguage;
+    if (pinned != null) queryParams["pinned"] = pinned;
+    if (setModifiedDate != null) queryParams["setModifiedDate"] = setModifiedDate;
+    if (timedTextLanguage != null) queryParams["timedTextLanguage"] = timedTextLanguage;
+    if (timedTextTrackName != null) queryParams["timedTextTrackName"] = timedTextTrackName;
+    if (updateViewedDate != null) queryParams["updateViewedDate"] = updateViewedDate;
+    if (optParams != null) {
+      optParams.forEach((key, value) {
+        if (value != null && queryParams[key] == null) {
+          queryParams[key] = value;
+        }
+      });
+    }
+
+    if (!paramErrors.isEmpty) {
+      completer.completeException(new ArgumentError(paramErrors.toString()));
+      return completer.future;
+    }
+
     var response;
     response = _client._request(url, "PATCH", body: request.toString(), urlParams: urlParams, queryParams: queryParams);
     response
@@ -648,14 +1072,34 @@ class FilesResource extends Resource {
    * Set the file's updated time to the current server time.
    *
    * [fileId] - The ID of the file to update.
+   *
+   * [optParams] - Additional query parameters
    */
-  Future<File> touch(String fileId) {
+  Future<File> touch(String fileId, {Map optParams}) {
     var completer = new Completer();
     var url = "files/{fileId}/touch";
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if (?fileId && fileId != null) urlParams["fileId"] = fileId;
+    var paramErrors = new StringBuffer();
+    if (fileId == null) {
+      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+      paramErrors.add("fileId is required");
+    }
+    if (fileId != null) urlParams["fileId"] = fileId;
+    if (optParams != null) {
+      optParams.forEach((key, value) {
+        if (value != null && queryParams[key] == null) {
+          queryParams[key] = value;
+        }
+      });
+    }
+
+    if (!paramErrors.isEmpty) {
+      completer.completeException(new ArgumentError(paramErrors.toString()));
+      return completer.future;
+    }
+
     var response;
     response = _client._request(url, "POST", urlParams: urlParams, queryParams: queryParams);
     response
@@ -668,14 +1112,34 @@ class FilesResource extends Resource {
    * Moves a file to the trash.
    *
    * [fileId] - The ID of the file to trash.
+   *
+   * [optParams] - Additional query parameters
    */
-  Future<File> trash(String fileId) {
+  Future<File> trash(String fileId, {Map optParams}) {
     var completer = new Completer();
     var url = "files/{fileId}/trash";
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if (?fileId && fileId != null) urlParams["fileId"] = fileId;
+    var paramErrors = new StringBuffer();
+    if (fileId == null) {
+      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+      paramErrors.add("fileId is required");
+    }
+    if (fileId != null) urlParams["fileId"] = fileId;
+    if (optParams != null) {
+      optParams.forEach((key, value) {
+        if (value != null && queryParams[key] == null) {
+          queryParams[key] = value;
+        }
+      });
+    }
+
+    if (!paramErrors.isEmpty) {
+      completer.completeException(new ArgumentError(paramErrors.toString()));
+      return completer.future;
+    }
+
     var response;
     response = _client._request(url, "POST", urlParams: urlParams, queryParams: queryParams);
     response
@@ -688,14 +1152,34 @@ class FilesResource extends Resource {
    * Restores a file from the trash.
    *
    * [fileId] - The ID of the file to untrash.
+   *
+   * [optParams] - Additional query parameters
    */
-  Future<File> untrash(String fileId) {
+  Future<File> untrash(String fileId, {Map optParams}) {
     var completer = new Completer();
     var url = "files/{fileId}/untrash";
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if (?fileId && fileId != null) urlParams["fileId"] = fileId;
+    var paramErrors = new StringBuffer();
+    if (fileId == null) {
+      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+      paramErrors.add("fileId is required");
+    }
+    if (fileId != null) urlParams["fileId"] = fileId;
+    if (optParams != null) {
+      optParams.forEach((key, value) {
+        if (value != null && queryParams[key] == null) {
+          queryParams[key] = value;
+        }
+      });
+    }
+
+    if (!paramErrors.isEmpty) {
+      completer.completeException(new ArgumentError(paramErrors.toString()));
+      return completer.future;
+    }
+
     var response;
     response = _client._request(url, "POST", urlParams: urlParams, queryParams: queryParams);
     response
@@ -738,24 +1222,44 @@ class FilesResource extends Resource {
    *
    * [updateViewedDate] - Whether to update the view date after successfully updating the file.
    *   Default: true
+   *
+   * [optParams] - Additional query parameters
    */
-  Future<File> update(File request, String fileId, {String content, String contentType, bool convert, bool newRevision, bool ocr, String ocrLanguage, bool pinned, bool setModifiedDate, String timedTextLanguage, String timedTextTrackName, bool updateViewedDate}) {
+  Future<File> update(File request, String fileId, {String content, String contentType, bool convert, bool newRevision, bool ocr, String ocrLanguage, bool pinned, bool setModifiedDate, String timedTextLanguage, String timedTextTrackName, bool updateViewedDate, Map optParams}) {
     var completer = new Completer();
     var url = "files/{fileId}";
     var uploadUrl = "/upload/drive/v2/files/{fileId}";
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if (?convert && convert != null) queryParams["convert"] = convert;
-    if (?fileId && fileId != null) urlParams["fileId"] = fileId;
-    if (?newRevision && newRevision != null) queryParams["newRevision"] = newRevision;
-    if (?ocr && ocr != null) queryParams["ocr"] = ocr;
-    if (?ocrLanguage && ocrLanguage != null) queryParams["ocrLanguage"] = ocrLanguage;
-    if (?pinned && pinned != null) queryParams["pinned"] = pinned;
-    if (?setModifiedDate && setModifiedDate != null) queryParams["setModifiedDate"] = setModifiedDate;
-    if (?timedTextLanguage && timedTextLanguage != null) queryParams["timedTextLanguage"] = timedTextLanguage;
-    if (?timedTextTrackName && timedTextTrackName != null) queryParams["timedTextTrackName"] = timedTextTrackName;
-    if (?updateViewedDate && updateViewedDate != null) queryParams["updateViewedDate"] = updateViewedDate;
+    var paramErrors = new StringBuffer();
+    if (convert != null) queryParams["convert"] = convert;
+    if (fileId == null) {
+      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+      paramErrors.add("fileId is required");
+    }
+    if (fileId != null) urlParams["fileId"] = fileId;
+    if (newRevision != null) queryParams["newRevision"] = newRevision;
+    if (ocr != null) queryParams["ocr"] = ocr;
+    if (ocrLanguage != null) queryParams["ocrLanguage"] = ocrLanguage;
+    if (pinned != null) queryParams["pinned"] = pinned;
+    if (setModifiedDate != null) queryParams["setModifiedDate"] = setModifiedDate;
+    if (timedTextLanguage != null) queryParams["timedTextLanguage"] = timedTextLanguage;
+    if (timedTextTrackName != null) queryParams["timedTextTrackName"] = timedTextTrackName;
+    if (updateViewedDate != null) queryParams["updateViewedDate"] = updateViewedDate;
+    if (optParams != null) {
+      optParams.forEach((key, value) {
+        if (value != null && queryParams[key] == null) {
+          queryParams[key] = value;
+        }
+      });
+    }
+
+    if (!paramErrors.isEmpty) {
+      completer.completeException(new ArgumentError(paramErrors.toString()));
+      return completer.future;
+    }
+
     var response;
     if (?content && content != null) {
       response = _client._upload(uploadUrl, "PUT", request.toString(), content, contentType, urlParams: urlParams, queryParams: queryParams);
@@ -780,15 +1284,39 @@ class ParentsResource extends Resource {
    * [fileId] - The ID of the file.
    *
    * [parentId] - The ID of the parent.
+   *
+   * [optParams] - Additional query parameters
    */
-  Future<Map> delete(String fileId, String parentId) {
+  Future<Map> delete(String fileId, String parentId, {Map optParams}) {
     var completer = new Completer();
     var url = "files/{fileId}/parents/{parentId}";
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if (?fileId && fileId != null) urlParams["fileId"] = fileId;
-    if (?parentId && parentId != null) urlParams["parentId"] = parentId;
+    var paramErrors = new StringBuffer();
+    if (fileId == null) {
+      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+      paramErrors.add("fileId is required");
+    }
+    if (fileId != null) urlParams["fileId"] = fileId;
+    if (parentId == null) {
+      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+      paramErrors.add("parentId is required");
+    }
+    if (parentId != null) urlParams["parentId"] = parentId;
+    if (optParams != null) {
+      optParams.forEach((key, value) {
+        if (value != null && queryParams[key] == null) {
+          queryParams[key] = value;
+        }
+      });
+    }
+
+    if (!paramErrors.isEmpty) {
+      completer.completeException(new ArgumentError(paramErrors.toString()));
+      return completer.future;
+    }
+
     var response;
     response = _client._request(url, "DELETE", urlParams: urlParams, queryParams: queryParams);
     response
@@ -803,15 +1331,39 @@ class ParentsResource extends Resource {
    * [fileId] - The ID of the file.
    *
    * [parentId] - The ID of the parent.
+   *
+   * [optParams] - Additional query parameters
    */
-  Future<ParentReference> get(String fileId, String parentId) {
+  Future<ParentReference> get(String fileId, String parentId, {Map optParams}) {
     var completer = new Completer();
     var url = "files/{fileId}/parents/{parentId}";
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if (?fileId && fileId != null) urlParams["fileId"] = fileId;
-    if (?parentId && parentId != null) urlParams["parentId"] = parentId;
+    var paramErrors = new StringBuffer();
+    if (fileId == null) {
+      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+      paramErrors.add("fileId is required");
+    }
+    if (fileId != null) urlParams["fileId"] = fileId;
+    if (parentId == null) {
+      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+      paramErrors.add("parentId is required");
+    }
+    if (parentId != null) urlParams["parentId"] = parentId;
+    if (optParams != null) {
+      optParams.forEach((key, value) {
+        if (value != null && queryParams[key] == null) {
+          queryParams[key] = value;
+        }
+      });
+    }
+
+    if (!paramErrors.isEmpty) {
+      completer.completeException(new ArgumentError(paramErrors.toString()));
+      return completer.future;
+    }
+
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
@@ -826,14 +1378,34 @@ class ParentsResource extends Resource {
    * [request] - ParentReference to send in this request
    *
    * [fileId] - The ID of the file.
+   *
+   * [optParams] - Additional query parameters
    */
-  Future<ParentReference> insert(ParentReference request, String fileId) {
+  Future<ParentReference> insert(ParentReference request, String fileId, {Map optParams}) {
     var completer = new Completer();
     var url = "files/{fileId}/parents";
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if (?fileId && fileId != null) urlParams["fileId"] = fileId;
+    var paramErrors = new StringBuffer();
+    if (fileId == null) {
+      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+      paramErrors.add("fileId is required");
+    }
+    if (fileId != null) urlParams["fileId"] = fileId;
+    if (optParams != null) {
+      optParams.forEach((key, value) {
+        if (value != null && queryParams[key] == null) {
+          queryParams[key] = value;
+        }
+      });
+    }
+
+    if (!paramErrors.isEmpty) {
+      completer.completeException(new ArgumentError(paramErrors.toString()));
+      return completer.future;
+    }
+
     var response;
     response = _client._request(url, "POST", body: request.toString(), urlParams: urlParams, queryParams: queryParams);
     response
@@ -846,14 +1418,34 @@ class ParentsResource extends Resource {
    * Lists a file's parents.
    *
    * [fileId] - The ID of the file.
+   *
+   * [optParams] - Additional query parameters
    */
-  Future<ParentList> list(String fileId) {
+  Future<ParentList> list(String fileId, {Map optParams}) {
     var completer = new Completer();
     var url = "files/{fileId}/parents";
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if (?fileId && fileId != null) urlParams["fileId"] = fileId;
+    var paramErrors = new StringBuffer();
+    if (fileId == null) {
+      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+      paramErrors.add("fileId is required");
+    }
+    if (fileId != null) urlParams["fileId"] = fileId;
+    if (optParams != null) {
+      optParams.forEach((key, value) {
+        if (value != null && queryParams[key] == null) {
+          queryParams[key] = value;
+        }
+      });
+    }
+
+    if (!paramErrors.isEmpty) {
+      completer.completeException(new ArgumentError(paramErrors.toString()));
+      return completer.future;
+    }
+
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
@@ -874,15 +1466,39 @@ class PermissionsResource extends Resource {
    * [fileId] - The ID for the file.
    *
    * [permissionId] - The ID for the permission.
+   *
+   * [optParams] - Additional query parameters
    */
-  Future<Map> delete(String fileId, String permissionId) {
+  Future<Map> delete(String fileId, String permissionId, {Map optParams}) {
     var completer = new Completer();
     var url = "files/{fileId}/permissions/{permissionId}";
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if (?fileId && fileId != null) urlParams["fileId"] = fileId;
-    if (?permissionId && permissionId != null) urlParams["permissionId"] = permissionId;
+    var paramErrors = new StringBuffer();
+    if (fileId == null) {
+      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+      paramErrors.add("fileId is required");
+    }
+    if (fileId != null) urlParams["fileId"] = fileId;
+    if (permissionId == null) {
+      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+      paramErrors.add("permissionId is required");
+    }
+    if (permissionId != null) urlParams["permissionId"] = permissionId;
+    if (optParams != null) {
+      optParams.forEach((key, value) {
+        if (value != null && queryParams[key] == null) {
+          queryParams[key] = value;
+        }
+      });
+    }
+
+    if (!paramErrors.isEmpty) {
+      completer.completeException(new ArgumentError(paramErrors.toString()));
+      return completer.future;
+    }
+
     var response;
     response = _client._request(url, "DELETE", urlParams: urlParams, queryParams: queryParams);
     response
@@ -897,15 +1513,39 @@ class PermissionsResource extends Resource {
    * [fileId] - The ID for the file.
    *
    * [permissionId] - The ID for the permission.
+   *
+   * [optParams] - Additional query parameters
    */
-  Future<Permission> get(String fileId, String permissionId) {
+  Future<Permission> get(String fileId, String permissionId, {Map optParams}) {
     var completer = new Completer();
     var url = "files/{fileId}/permissions/{permissionId}";
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if (?fileId && fileId != null) urlParams["fileId"] = fileId;
-    if (?permissionId && permissionId != null) urlParams["permissionId"] = permissionId;
+    var paramErrors = new StringBuffer();
+    if (fileId == null) {
+      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+      paramErrors.add("fileId is required");
+    }
+    if (fileId != null) urlParams["fileId"] = fileId;
+    if (permissionId == null) {
+      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+      paramErrors.add("permissionId is required");
+    }
+    if (permissionId != null) urlParams["permissionId"] = permissionId;
+    if (optParams != null) {
+      optParams.forEach((key, value) {
+        if (value != null && queryParams[key] == null) {
+          queryParams[key] = value;
+        }
+      });
+    }
+
+    if (!paramErrors.isEmpty) {
+      completer.completeException(new ArgumentError(paramErrors.toString()));
+      return completer.future;
+    }
+
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
@@ -923,15 +1563,35 @@ class PermissionsResource extends Resource {
    *
    * [sendNotificationEmails] - Whether to send notification emails.
    *   Default: true
+   *
+   * [optParams] - Additional query parameters
    */
-  Future<Permission> insert(Permission request, String fileId, {bool sendNotificationEmails}) {
+  Future<Permission> insert(Permission request, String fileId, {bool sendNotificationEmails, Map optParams}) {
     var completer = new Completer();
     var url = "files/{fileId}/permissions";
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if (?fileId && fileId != null) urlParams["fileId"] = fileId;
-    if (?sendNotificationEmails && sendNotificationEmails != null) queryParams["sendNotificationEmails"] = sendNotificationEmails;
+    var paramErrors = new StringBuffer();
+    if (fileId == null) {
+      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+      paramErrors.add("fileId is required");
+    }
+    if (fileId != null) urlParams["fileId"] = fileId;
+    if (sendNotificationEmails != null) queryParams["sendNotificationEmails"] = sendNotificationEmails;
+    if (optParams != null) {
+      optParams.forEach((key, value) {
+        if (value != null && queryParams[key] == null) {
+          queryParams[key] = value;
+        }
+      });
+    }
+
+    if (!paramErrors.isEmpty) {
+      completer.completeException(new ArgumentError(paramErrors.toString()));
+      return completer.future;
+    }
+
     var response;
     response = _client._request(url, "POST", body: request.toString(), urlParams: urlParams, queryParams: queryParams);
     response
@@ -944,14 +1604,34 @@ class PermissionsResource extends Resource {
    * Lists a file's permissions.
    *
    * [fileId] - The ID for the file.
+   *
+   * [optParams] - Additional query parameters
    */
-  Future<PermissionList> list(String fileId) {
+  Future<PermissionList> list(String fileId, {Map optParams}) {
     var completer = new Completer();
     var url = "files/{fileId}/permissions";
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if (?fileId && fileId != null) urlParams["fileId"] = fileId;
+    var paramErrors = new StringBuffer();
+    if (fileId == null) {
+      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+      paramErrors.add("fileId is required");
+    }
+    if (fileId != null) urlParams["fileId"] = fileId;
+    if (optParams != null) {
+      optParams.forEach((key, value) {
+        if (value != null && queryParams[key] == null) {
+          queryParams[key] = value;
+        }
+      });
+    }
+
+    if (!paramErrors.isEmpty) {
+      completer.completeException(new ArgumentError(paramErrors.toString()));
+      return completer.future;
+    }
+
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
@@ -968,15 +1648,39 @@ class PermissionsResource extends Resource {
    * [fileId] - The ID for the file.
    *
    * [permissionId] - The ID for the permission.
+   *
+   * [optParams] - Additional query parameters
    */
-  Future<Permission> patch(Permission request, String fileId, String permissionId) {
+  Future<Permission> patch(Permission request, String fileId, String permissionId, {Map optParams}) {
     var completer = new Completer();
     var url = "files/{fileId}/permissions/{permissionId}";
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if (?fileId && fileId != null) urlParams["fileId"] = fileId;
-    if (?permissionId && permissionId != null) urlParams["permissionId"] = permissionId;
+    var paramErrors = new StringBuffer();
+    if (fileId == null) {
+      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+      paramErrors.add("fileId is required");
+    }
+    if (fileId != null) urlParams["fileId"] = fileId;
+    if (permissionId == null) {
+      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+      paramErrors.add("permissionId is required");
+    }
+    if (permissionId != null) urlParams["permissionId"] = permissionId;
+    if (optParams != null) {
+      optParams.forEach((key, value) {
+        if (value != null && queryParams[key] == null) {
+          queryParams[key] = value;
+        }
+      });
+    }
+
+    if (!paramErrors.isEmpty) {
+      completer.completeException(new ArgumentError(paramErrors.toString()));
+      return completer.future;
+    }
+
     var response;
     response = _client._request(url, "PATCH", body: request.toString(), urlParams: urlParams, queryParams: queryParams);
     response
@@ -993,15 +1697,39 @@ class PermissionsResource extends Resource {
    * [fileId] - The ID for the file.
    *
    * [permissionId] - The ID for the permission.
+   *
+   * [optParams] - Additional query parameters
    */
-  Future<Permission> update(Permission request, String fileId, String permissionId) {
+  Future<Permission> update(Permission request, String fileId, String permissionId, {Map optParams}) {
     var completer = new Completer();
     var url = "files/{fileId}/permissions/{permissionId}";
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if (?fileId && fileId != null) urlParams["fileId"] = fileId;
-    if (?permissionId && permissionId != null) urlParams["permissionId"] = permissionId;
+    var paramErrors = new StringBuffer();
+    if (fileId == null) {
+      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+      paramErrors.add("fileId is required");
+    }
+    if (fileId != null) urlParams["fileId"] = fileId;
+    if (permissionId == null) {
+      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+      paramErrors.add("permissionId is required");
+    }
+    if (permissionId != null) urlParams["permissionId"] = permissionId;
+    if (optParams != null) {
+      optParams.forEach((key, value) {
+        if (value != null && queryParams[key] == null) {
+          queryParams[key] = value;
+        }
+      });
+    }
+
+    if (!paramErrors.isEmpty) {
+      completer.completeException(new ArgumentError(paramErrors.toString()));
+      return completer.future;
+    }
+
     var response;
     response = _client._request(url, "PUT", body: request.toString(), urlParams: urlParams, queryParams: queryParams);
     response
@@ -1024,16 +1752,44 @@ class RepliesResource extends Resource {
    * [commentId] - The ID of the comment.
    *
    * [replyId] - The ID of the reply.
+   *
+   * [optParams] - Additional query parameters
    */
-  Future<Map> delete(String fileId, String commentId, String replyId) {
+  Future<Map> delete(String fileId, String commentId, String replyId, {Map optParams}) {
     var completer = new Completer();
     var url = "files/{fileId}/comments/{commentId}/replies/{replyId}";
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if (?commentId && commentId != null) urlParams["commentId"] = commentId;
-    if (?fileId && fileId != null) urlParams["fileId"] = fileId;
-    if (?replyId && replyId != null) urlParams["replyId"] = replyId;
+    var paramErrors = new StringBuffer();
+    if (commentId == null) {
+      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+      paramErrors.add("commentId is required");
+    }
+    if (commentId != null) urlParams["commentId"] = commentId;
+    if (fileId == null) {
+      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+      paramErrors.add("fileId is required");
+    }
+    if (fileId != null) urlParams["fileId"] = fileId;
+    if (replyId == null) {
+      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+      paramErrors.add("replyId is required");
+    }
+    if (replyId != null) urlParams["replyId"] = replyId;
+    if (optParams != null) {
+      optParams.forEach((key, value) {
+        if (value != null && queryParams[key] == null) {
+          queryParams[key] = value;
+        }
+      });
+    }
+
+    if (!paramErrors.isEmpty) {
+      completer.completeException(new ArgumentError(paramErrors.toString()));
+      return completer.future;
+    }
+
     var response;
     response = _client._request(url, "DELETE", urlParams: urlParams, queryParams: queryParams);
     response
@@ -1053,17 +1809,45 @@ class RepliesResource extends Resource {
    *
    * [includeDeleted] - If set, this will succeed when retrieving a deleted reply.
    *   Default: false
+   *
+   * [optParams] - Additional query parameters
    */
-  Future<CommentReply> get(String fileId, String commentId, String replyId, {bool includeDeleted}) {
+  Future<CommentReply> get(String fileId, String commentId, String replyId, {bool includeDeleted, Map optParams}) {
     var completer = new Completer();
     var url = "files/{fileId}/comments/{commentId}/replies/{replyId}";
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if (?commentId && commentId != null) urlParams["commentId"] = commentId;
-    if (?fileId && fileId != null) urlParams["fileId"] = fileId;
-    if (?includeDeleted && includeDeleted != null) queryParams["includeDeleted"] = includeDeleted;
-    if (?replyId && replyId != null) urlParams["replyId"] = replyId;
+    var paramErrors = new StringBuffer();
+    if (commentId == null) {
+      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+      paramErrors.add("commentId is required");
+    }
+    if (commentId != null) urlParams["commentId"] = commentId;
+    if (fileId == null) {
+      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+      paramErrors.add("fileId is required");
+    }
+    if (fileId != null) urlParams["fileId"] = fileId;
+    if (includeDeleted != null) queryParams["includeDeleted"] = includeDeleted;
+    if (replyId == null) {
+      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+      paramErrors.add("replyId is required");
+    }
+    if (replyId != null) urlParams["replyId"] = replyId;
+    if (optParams != null) {
+      optParams.forEach((key, value) {
+        if (value != null && queryParams[key] == null) {
+          queryParams[key] = value;
+        }
+      });
+    }
+
+    if (!paramErrors.isEmpty) {
+      completer.completeException(new ArgumentError(paramErrors.toString()));
+      return completer.future;
+    }
+
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
@@ -1080,15 +1864,39 @@ class RepliesResource extends Resource {
    * [fileId] - The ID of the file.
    *
    * [commentId] - The ID of the comment.
+   *
+   * [optParams] - Additional query parameters
    */
-  Future<CommentReply> insert(CommentReply request, String fileId, String commentId) {
+  Future<CommentReply> insert(CommentReply request, String fileId, String commentId, {Map optParams}) {
     var completer = new Completer();
     var url = "files/{fileId}/comments/{commentId}/replies";
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if (?commentId && commentId != null) urlParams["commentId"] = commentId;
-    if (?fileId && fileId != null) urlParams["fileId"] = fileId;
+    var paramErrors = new StringBuffer();
+    if (commentId == null) {
+      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+      paramErrors.add("commentId is required");
+    }
+    if (commentId != null) urlParams["commentId"] = commentId;
+    if (fileId == null) {
+      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+      paramErrors.add("fileId is required");
+    }
+    if (fileId != null) urlParams["fileId"] = fileId;
+    if (optParams != null) {
+      optParams.forEach((key, value) {
+        if (value != null && queryParams[key] == null) {
+          queryParams[key] = value;
+        }
+      });
+    }
+
+    if (!paramErrors.isEmpty) {
+      completer.completeException(new ArgumentError(paramErrors.toString()));
+      return completer.future;
+    }
+
     var response;
     response = _client._request(url, "POST", body: request.toString(), urlParams: urlParams, queryParams: queryParams);
     response
@@ -1113,18 +1921,42 @@ class RepliesResource extends Resource {
    *   Maximum: 100
    *
    * [pageToken] - The continuation token, used to page through large result sets. To get the next page of results, set this parameter to the value of "nextPageToken" from the previous response.
+   *
+   * [optParams] - Additional query parameters
    */
-  Future<CommentReplyList> list(String fileId, String commentId, {bool includeDeleted, int maxResults, String pageToken}) {
+  Future<CommentReplyList> list(String fileId, String commentId, {bool includeDeleted, int maxResults, String pageToken, Map optParams}) {
     var completer = new Completer();
     var url = "files/{fileId}/comments/{commentId}/replies";
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if (?commentId && commentId != null) urlParams["commentId"] = commentId;
-    if (?fileId && fileId != null) urlParams["fileId"] = fileId;
-    if (?includeDeleted && includeDeleted != null) queryParams["includeDeleted"] = includeDeleted;
-    if (?maxResults && maxResults != null) queryParams["maxResults"] = maxResults;
-    if (?pageToken && pageToken != null) queryParams["pageToken"] = pageToken;
+    var paramErrors = new StringBuffer();
+    if (commentId == null) {
+      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+      paramErrors.add("commentId is required");
+    }
+    if (commentId != null) urlParams["commentId"] = commentId;
+    if (fileId == null) {
+      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+      paramErrors.add("fileId is required");
+    }
+    if (fileId != null) urlParams["fileId"] = fileId;
+    if (includeDeleted != null) queryParams["includeDeleted"] = includeDeleted;
+    if (maxResults != null) queryParams["maxResults"] = maxResults;
+    if (pageToken != null) queryParams["pageToken"] = pageToken;
+    if (optParams != null) {
+      optParams.forEach((key, value) {
+        if (value != null && queryParams[key] == null) {
+          queryParams[key] = value;
+        }
+      });
+    }
+
+    if (!paramErrors.isEmpty) {
+      completer.completeException(new ArgumentError(paramErrors.toString()));
+      return completer.future;
+    }
+
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
@@ -1143,16 +1975,44 @@ class RepliesResource extends Resource {
    * [commentId] - The ID of the comment.
    *
    * [replyId] - The ID of the reply.
+   *
+   * [optParams] - Additional query parameters
    */
-  Future<CommentReply> patch(CommentReply request, String fileId, String commentId, String replyId) {
+  Future<CommentReply> patch(CommentReply request, String fileId, String commentId, String replyId, {Map optParams}) {
     var completer = new Completer();
     var url = "files/{fileId}/comments/{commentId}/replies/{replyId}";
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if (?commentId && commentId != null) urlParams["commentId"] = commentId;
-    if (?fileId && fileId != null) urlParams["fileId"] = fileId;
-    if (?replyId && replyId != null) urlParams["replyId"] = replyId;
+    var paramErrors = new StringBuffer();
+    if (commentId == null) {
+      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+      paramErrors.add("commentId is required");
+    }
+    if (commentId != null) urlParams["commentId"] = commentId;
+    if (fileId == null) {
+      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+      paramErrors.add("fileId is required");
+    }
+    if (fileId != null) urlParams["fileId"] = fileId;
+    if (replyId == null) {
+      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+      paramErrors.add("replyId is required");
+    }
+    if (replyId != null) urlParams["replyId"] = replyId;
+    if (optParams != null) {
+      optParams.forEach((key, value) {
+        if (value != null && queryParams[key] == null) {
+          queryParams[key] = value;
+        }
+      });
+    }
+
+    if (!paramErrors.isEmpty) {
+      completer.completeException(new ArgumentError(paramErrors.toString()));
+      return completer.future;
+    }
+
     var response;
     response = _client._request(url, "PATCH", body: request.toString(), urlParams: urlParams, queryParams: queryParams);
     response
@@ -1171,16 +2031,44 @@ class RepliesResource extends Resource {
    * [commentId] - The ID of the comment.
    *
    * [replyId] - The ID of the reply.
+   *
+   * [optParams] - Additional query parameters
    */
-  Future<CommentReply> update(CommentReply request, String fileId, String commentId, String replyId) {
+  Future<CommentReply> update(CommentReply request, String fileId, String commentId, String replyId, {Map optParams}) {
     var completer = new Completer();
     var url = "files/{fileId}/comments/{commentId}/replies/{replyId}";
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if (?commentId && commentId != null) urlParams["commentId"] = commentId;
-    if (?fileId && fileId != null) urlParams["fileId"] = fileId;
-    if (?replyId && replyId != null) urlParams["replyId"] = replyId;
+    var paramErrors = new StringBuffer();
+    if (commentId == null) {
+      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+      paramErrors.add("commentId is required");
+    }
+    if (commentId != null) urlParams["commentId"] = commentId;
+    if (fileId == null) {
+      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+      paramErrors.add("fileId is required");
+    }
+    if (fileId != null) urlParams["fileId"] = fileId;
+    if (replyId == null) {
+      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+      paramErrors.add("replyId is required");
+    }
+    if (replyId != null) urlParams["replyId"] = replyId;
+    if (optParams != null) {
+      optParams.forEach((key, value) {
+        if (value != null && queryParams[key] == null) {
+          queryParams[key] = value;
+        }
+      });
+    }
+
+    if (!paramErrors.isEmpty) {
+      completer.completeException(new ArgumentError(paramErrors.toString()));
+      return completer.future;
+    }
+
     var response;
     response = _client._request(url, "PUT", body: request.toString(), urlParams: urlParams, queryParams: queryParams);
     response
@@ -1201,15 +2089,39 @@ class RevisionsResource extends Resource {
    * [fileId] - The ID of the file.
    *
    * [revisionId] - The ID of the revision.
+   *
+   * [optParams] - Additional query parameters
    */
-  Future<Map> delete(String fileId, String revisionId) {
+  Future<Map> delete(String fileId, String revisionId, {Map optParams}) {
     var completer = new Completer();
     var url = "files/{fileId}/revisions/{revisionId}";
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if (?fileId && fileId != null) urlParams["fileId"] = fileId;
-    if (?revisionId && revisionId != null) urlParams["revisionId"] = revisionId;
+    var paramErrors = new StringBuffer();
+    if (fileId == null) {
+      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+      paramErrors.add("fileId is required");
+    }
+    if (fileId != null) urlParams["fileId"] = fileId;
+    if (revisionId == null) {
+      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+      paramErrors.add("revisionId is required");
+    }
+    if (revisionId != null) urlParams["revisionId"] = revisionId;
+    if (optParams != null) {
+      optParams.forEach((key, value) {
+        if (value != null && queryParams[key] == null) {
+          queryParams[key] = value;
+        }
+      });
+    }
+
+    if (!paramErrors.isEmpty) {
+      completer.completeException(new ArgumentError(paramErrors.toString()));
+      return completer.future;
+    }
+
     var response;
     response = _client._request(url, "DELETE", urlParams: urlParams, queryParams: queryParams);
     response
@@ -1224,15 +2136,39 @@ class RevisionsResource extends Resource {
    * [fileId] - The ID of the file.
    *
    * [revisionId] - The ID of the revision.
+   *
+   * [optParams] - Additional query parameters
    */
-  Future<Revision> get(String fileId, String revisionId) {
+  Future<Revision> get(String fileId, String revisionId, {Map optParams}) {
     var completer = new Completer();
     var url = "files/{fileId}/revisions/{revisionId}";
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if (?fileId && fileId != null) urlParams["fileId"] = fileId;
-    if (?revisionId && revisionId != null) urlParams["revisionId"] = revisionId;
+    var paramErrors = new StringBuffer();
+    if (fileId == null) {
+      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+      paramErrors.add("fileId is required");
+    }
+    if (fileId != null) urlParams["fileId"] = fileId;
+    if (revisionId == null) {
+      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+      paramErrors.add("revisionId is required");
+    }
+    if (revisionId != null) urlParams["revisionId"] = revisionId;
+    if (optParams != null) {
+      optParams.forEach((key, value) {
+        if (value != null && queryParams[key] == null) {
+          queryParams[key] = value;
+        }
+      });
+    }
+
+    if (!paramErrors.isEmpty) {
+      completer.completeException(new ArgumentError(paramErrors.toString()));
+      return completer.future;
+    }
+
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
@@ -1245,14 +2181,34 @@ class RevisionsResource extends Resource {
    * Lists a file's revisions.
    *
    * [fileId] - The ID of the file.
+   *
+   * [optParams] - Additional query parameters
    */
-  Future<RevisionList> list(String fileId) {
+  Future<RevisionList> list(String fileId, {Map optParams}) {
     var completer = new Completer();
     var url = "files/{fileId}/revisions";
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if (?fileId && fileId != null) urlParams["fileId"] = fileId;
+    var paramErrors = new StringBuffer();
+    if (fileId == null) {
+      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+      paramErrors.add("fileId is required");
+    }
+    if (fileId != null) urlParams["fileId"] = fileId;
+    if (optParams != null) {
+      optParams.forEach((key, value) {
+        if (value != null && queryParams[key] == null) {
+          queryParams[key] = value;
+        }
+      });
+    }
+
+    if (!paramErrors.isEmpty) {
+      completer.completeException(new ArgumentError(paramErrors.toString()));
+      return completer.future;
+    }
+
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
@@ -1269,15 +2225,39 @@ class RevisionsResource extends Resource {
    * [fileId] - The ID for the file.
    *
    * [revisionId] - The ID for the revision.
+   *
+   * [optParams] - Additional query parameters
    */
-  Future<Revision> patch(Revision request, String fileId, String revisionId) {
+  Future<Revision> patch(Revision request, String fileId, String revisionId, {Map optParams}) {
     var completer = new Completer();
     var url = "files/{fileId}/revisions/{revisionId}";
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if (?fileId && fileId != null) urlParams["fileId"] = fileId;
-    if (?revisionId && revisionId != null) urlParams["revisionId"] = revisionId;
+    var paramErrors = new StringBuffer();
+    if (fileId == null) {
+      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+      paramErrors.add("fileId is required");
+    }
+    if (fileId != null) urlParams["fileId"] = fileId;
+    if (revisionId == null) {
+      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+      paramErrors.add("revisionId is required");
+    }
+    if (revisionId != null) urlParams["revisionId"] = revisionId;
+    if (optParams != null) {
+      optParams.forEach((key, value) {
+        if (value != null && queryParams[key] == null) {
+          queryParams[key] = value;
+        }
+      });
+    }
+
+    if (!paramErrors.isEmpty) {
+      completer.completeException(new ArgumentError(paramErrors.toString()));
+      return completer.future;
+    }
+
     var response;
     response = _client._request(url, "PATCH", body: request.toString(), urlParams: urlParams, queryParams: queryParams);
     response
@@ -1294,15 +2274,39 @@ class RevisionsResource extends Resource {
    * [fileId] - The ID for the file.
    *
    * [revisionId] - The ID for the revision.
+   *
+   * [optParams] - Additional query parameters
    */
-  Future<Revision> update(Revision request, String fileId, String revisionId) {
+  Future<Revision> update(Revision request, String fileId, String revisionId, {Map optParams}) {
     var completer = new Completer();
     var url = "files/{fileId}/revisions/{revisionId}";
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if (?fileId && fileId != null) urlParams["fileId"] = fileId;
-    if (?revisionId && revisionId != null) urlParams["revisionId"] = revisionId;
+    var paramErrors = new StringBuffer();
+    if (fileId == null) {
+      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+      paramErrors.add("fileId is required");
+    }
+    if (fileId != null) urlParams["fileId"] = fileId;
+    if (revisionId == null) {
+      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+      paramErrors.add("revisionId is required");
+    }
+    if (revisionId != null) urlParams["revisionId"] = revisionId;
+    if (optParams != null) {
+      optParams.forEach((key, value) {
+        if (value != null && queryParams[key] == null) {
+          queryParams[key] = value;
+        }
+      });
+    }
+
+    if (!paramErrors.isEmpty) {
+      completer.completeException(new ArgumentError(paramErrors.toString()));
+      return completer.future;
+    }
+
     var response;
     response = _client._request(url, "PUT", body: request.toString(), urlParams: urlParams, queryParams: queryParams);
     response

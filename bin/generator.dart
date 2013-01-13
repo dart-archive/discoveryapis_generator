@@ -443,7 +443,10 @@ part "src/resources.dart";
         }
       });
     }
+    if (!optParams.isEmpty) optParams.add(", ");
+    optParams.add("Map optParams");
 
+    tmp.add(_createParamComment("optParams", {"description": "Additional query parameters"}));
     if (!optParams.isEmpty) { 
       if (!params.isEmpty) params.add(", ");
       params.add("{${optParams.toString()}}");
@@ -465,18 +468,39 @@ part "src/resources.dart";
     }
     tmp.add("    var urlParams = new Map();\n");
     tmp.add("    var queryParams = new Map();\n\n");
+    tmp.add("    var paramErrors = new StringBuffer();\n");
     
     if (data.containsKey("parameters")) {
-      data["parameters"].forEach((name, param) {
+      data["parameters"].forEach((name, description) {
         var variable = cleanName(name);
-        if (param["location"] == "path") {
-          tmp.add("    if (?$variable && $variable != null) urlParams[\"$name\"] = $variable;\n");
-        } else {
-          tmp.add("    if (?$variable && $variable != null) queryParams[\"$name\"] = $variable;\n");
+        var location = "queryParams";
+        if (description["location"] == "path") { location = "urlParams"; }
+        if (description["required"] == true) {
+          tmp.add("    if ($variable == null) {\n");
+          tmp.add("      if (!paramErrors.isEmpty) paramErrors.add(\" / \");\n");
+          tmp.add("      paramErrors.add(\"$variable is required\");\n");
+          tmp.add("    }\n");
+        }
+        tmp.add("    if ($variable != null) $location[\"$name\"] = $variable;\n");
+      });
+    }
+
+    tmp.add("""
+    if (optParams != null) {
+      optParams.forEach((key, value) {
+        if (value != null && queryParams[key] == null) {
+          queryParams[key] = value;
         }
       });
     }
 
+    if (!paramErrors.isEmpty) {
+      completer.completeException(new ArgumentError(paramErrors.toString()));
+      return completer.future;
+    }
+
+""");
+    
     params.clear();
     if (data.containsKey("request")) {
       params.add("body: request.toString(), ");
@@ -582,7 +606,7 @@ abstract class Client {
   }
 
   /**
-   * Send a HTTPRequest using [method] (usually GET or POST) to [requestUrl] using the specified [urlParams] and [queryParams]. Optionally include a [body] in the request.
+   * Sends a HTTPRequest using [method] (usually GET or POST) to [requestUrl] using the specified [urlParams] and [queryParams]. Optionally include a [body] in the request.
    */
   Future _request(String requestUrl, String method, {String body, String contentType:"application/json", Map urlParams, Map queryParams}) {
     var request = new HttpRequest();
@@ -592,7 +616,7 @@ abstract class Client {
     if (queryParams == null) queryParams = {};
 
     _params.forEach((key, param) {
-      if (param != null) {
+      if (param != null && queryParams[key] == null) {
         queryParams[key] = param;
       }
     });

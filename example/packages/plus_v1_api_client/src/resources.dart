@@ -9,14 +9,34 @@ class ActivitiesResource extends Resource {
    * Get an activity.
    *
    * [activityId] - The ID of the activity to get.
+   *
+   * [optParams] - Additional query parameters
    */
-  Future<Activity> get(String activityId) {
+  Future<Activity> get(String activityId, {Map optParams}) {
     var completer = new Completer();
     var url = "activities/{activityId}";
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if (?activityId && activityId != null) urlParams["activityId"] = activityId;
+    var paramErrors = new StringBuffer();
+    if (activityId == null) {
+      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+      paramErrors.add("activityId is required");
+    }
+    if (activityId != null) urlParams["activityId"] = activityId;
+    if (optParams != null) {
+      optParams.forEach((key, value) {
+        if (value != null && queryParams[key] == null) {
+          queryParams[key] = value;
+        }
+      });
+    }
+
+    if (!paramErrors.isEmpty) {
+      completer.completeException(new ArgumentError(paramErrors.toString()));
+      return completer.future;
+    }
+
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
@@ -40,17 +60,41 @@ class ActivitiesResource extends Resource {
    *   Maximum: 100
    *
    * [pageToken] - The continuation token, which is used to page through large result sets. To get the next page of results, set this parameter to the value of "nextPageToken" from the previous response.
+   *
+   * [optParams] - Additional query parameters
    */
-  Future<ActivityFeed> list(String userId, String collection, {int maxResults, String pageToken}) {
+  Future<ActivityFeed> list(String userId, String collection, {int maxResults, String pageToken, Map optParams}) {
     var completer = new Completer();
     var url = "people/{userId}/activities/{collection}";
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if (?collection && collection != null) urlParams["collection"] = collection;
-    if (?maxResults && maxResults != null) queryParams["maxResults"] = maxResults;
-    if (?pageToken && pageToken != null) queryParams["pageToken"] = pageToken;
-    if (?userId && userId != null) urlParams["userId"] = userId;
+    var paramErrors = new StringBuffer();
+    if (collection == null) {
+      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+      paramErrors.add("collection is required");
+    }
+    if (collection != null) urlParams["collection"] = collection;
+    if (maxResults != null) queryParams["maxResults"] = maxResults;
+    if (pageToken != null) queryParams["pageToken"] = pageToken;
+    if (userId == null) {
+      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+      paramErrors.add("userId is required");
+    }
+    if (userId != null) urlParams["userId"] = userId;
+    if (optParams != null) {
+      optParams.forEach((key, value) {
+        if (value != null && queryParams[key] == null) {
+          queryParams[key] = value;
+        }
+      });
+    }
+
+    if (!paramErrors.isEmpty) {
+      completer.completeException(new ArgumentError(paramErrors.toString()));
+      return completer.future;
+    }
+
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
@@ -79,18 +123,38 @@ class ActivitiesResource extends Resource {
    *     recent - Sort activities by published date, most recent first.
    *
    * [pageToken] - The continuation token, which is used to page through large result sets. To get the next page of results, set this parameter to the value of "nextPageToken" from the previous response. This token can be of any length.
+   *
+   * [optParams] - Additional query parameters
    */
-  Future<ActivityFeed> search(String query, {String language, int maxResults, String orderBy, String pageToken}) {
+  Future<ActivityFeed> search(String query, {String language, int maxResults, String orderBy, String pageToken, Map optParams}) {
     var completer = new Completer();
     var url = "activities";
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if (?language && language != null) queryParams["language"] = language;
-    if (?maxResults && maxResults != null) queryParams["maxResults"] = maxResults;
-    if (?orderBy && orderBy != null) queryParams["orderBy"] = orderBy;
-    if (?pageToken && pageToken != null) queryParams["pageToken"] = pageToken;
-    if (?query && query != null) queryParams["query"] = query;
+    var paramErrors = new StringBuffer();
+    if (language != null) queryParams["language"] = language;
+    if (maxResults != null) queryParams["maxResults"] = maxResults;
+    if (orderBy != null) queryParams["orderBy"] = orderBy;
+    if (pageToken != null) queryParams["pageToken"] = pageToken;
+    if (query == null) {
+      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+      paramErrors.add("query is required");
+    }
+    if (query != null) queryParams["query"] = query;
+    if (optParams != null) {
+      optParams.forEach((key, value) {
+        if (value != null && queryParams[key] == null) {
+          queryParams[key] = value;
+        }
+      });
+    }
+
+    if (!paramErrors.isEmpty) {
+      completer.completeException(new ArgumentError(paramErrors.toString()));
+      return completer.future;
+    }
+
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
@@ -109,14 +173,34 @@ class CommentsResource extends Resource {
    * Get a comment.
    *
    * [commentId] - The ID of the comment to get.
+   *
+   * [optParams] - Additional query parameters
    */
-  Future<Comment> get(String commentId) {
+  Future<Comment> get(String commentId, {Map optParams}) {
     var completer = new Completer();
     var url = "comments/{commentId}";
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if (?commentId && commentId != null) urlParams["commentId"] = commentId;
+    var paramErrors = new StringBuffer();
+    if (commentId == null) {
+      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+      paramErrors.add("commentId is required");
+    }
+    if (commentId != null) urlParams["commentId"] = commentId;
+    if (optParams != null) {
+      optParams.forEach((key, value) {
+        if (value != null && queryParams[key] == null) {
+          queryParams[key] = value;
+        }
+      });
+    }
+
+    if (!paramErrors.isEmpty) {
+      completer.completeException(new ArgumentError(paramErrors.toString()));
+      return completer.future;
+    }
+
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
@@ -142,17 +226,37 @@ class CommentsResource extends Resource {
    *   Allowed values:
    *     ascending - Sort oldest comments first.
    *     descending - Sort newest comments first.
+   *
+   * [optParams] - Additional query parameters
    */
-  Future<CommentFeed> list(String activityId, {int maxResults, String pageToken, String sortOrder}) {
+  Future<CommentFeed> list(String activityId, {int maxResults, String pageToken, String sortOrder, Map optParams}) {
     var completer = new Completer();
     var url = "activities/{activityId}/comments";
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if (?activityId && activityId != null) urlParams["activityId"] = activityId;
-    if (?maxResults && maxResults != null) queryParams["maxResults"] = maxResults;
-    if (?pageToken && pageToken != null) queryParams["pageToken"] = pageToken;
-    if (?sortOrder && sortOrder != null) queryParams["sortOrder"] = sortOrder;
+    var paramErrors = new StringBuffer();
+    if (activityId == null) {
+      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+      paramErrors.add("activityId is required");
+    }
+    if (activityId != null) urlParams["activityId"] = activityId;
+    if (maxResults != null) queryParams["maxResults"] = maxResults;
+    if (pageToken != null) queryParams["pageToken"] = pageToken;
+    if (sortOrder != null) queryParams["sortOrder"] = sortOrder;
+    if (optParams != null) {
+      optParams.forEach((key, value) {
+        if (value != null && queryParams[key] == null) {
+          queryParams[key] = value;
+        }
+      });
+    }
+
+    if (!paramErrors.isEmpty) {
+      completer.completeException(new ArgumentError(paramErrors.toString()));
+      return completer.future;
+    }
+
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
@@ -171,14 +275,34 @@ class PeopleResource extends Resource {
    * Get a person's profile.
    *
    * [userId] - The ID of the person to get the profile for. The special value "me" can be used to indicate the authenticated user.
+   *
+   * [optParams] - Additional query parameters
    */
-  Future<Person> get(String userId) {
+  Future<Person> get(String userId, {Map optParams}) {
     var completer = new Completer();
     var url = "people/{userId}";
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if (?userId && userId != null) urlParams["userId"] = userId;
+    var paramErrors = new StringBuffer();
+    if (userId == null) {
+      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+      paramErrors.add("userId is required");
+    }
+    if (userId != null) urlParams["userId"] = userId;
+    if (optParams != null) {
+      optParams.forEach((key, value) {
+        if (value != null && queryParams[key] == null) {
+          queryParams[key] = value;
+        }
+      });
+    }
+
+    if (!paramErrors.isEmpty) {
+      completer.completeException(new ArgumentError(paramErrors.toString()));
+      return completer.future;
+    }
+
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
@@ -203,17 +327,41 @@ class PeopleResource extends Resource {
    *   Maximum: 100
    *
    * [pageToken] - The continuation token, which is used to page through large result sets. To get the next page of results, set this parameter to the value of "nextPageToken" from the previous response.
+   *
+   * [optParams] - Additional query parameters
    */
-  Future<PeopleFeed> listByActivity(String activityId, String collection, {int maxResults, String pageToken}) {
+  Future<PeopleFeed> listByActivity(String activityId, String collection, {int maxResults, String pageToken, Map optParams}) {
     var completer = new Completer();
     var url = "activities/{activityId}/people/{collection}";
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if (?activityId && activityId != null) urlParams["activityId"] = activityId;
-    if (?collection && collection != null) urlParams["collection"] = collection;
-    if (?maxResults && maxResults != null) queryParams["maxResults"] = maxResults;
-    if (?pageToken && pageToken != null) queryParams["pageToken"] = pageToken;
+    var paramErrors = new StringBuffer();
+    if (activityId == null) {
+      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+      paramErrors.add("activityId is required");
+    }
+    if (activityId != null) urlParams["activityId"] = activityId;
+    if (collection == null) {
+      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+      paramErrors.add("collection is required");
+    }
+    if (collection != null) urlParams["collection"] = collection;
+    if (maxResults != null) queryParams["maxResults"] = maxResults;
+    if (pageToken != null) queryParams["pageToken"] = pageToken;
+    if (optParams != null) {
+      optParams.forEach((key, value) {
+        if (value != null && queryParams[key] == null) {
+          queryParams[key] = value;
+        }
+      });
+    }
+
+    if (!paramErrors.isEmpty) {
+      completer.completeException(new ArgumentError(paramErrors.toString()));
+      return completer.future;
+    }
+
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
@@ -236,17 +384,37 @@ class PeopleResource extends Resource {
    *   Maximum: 20
    *
    * [pageToken] - The continuation token, which is used to page through large result sets. To get the next page of results, set this parameter to the value of "nextPageToken" from the previous response. This token can be of any length.
+   *
+   * [optParams] - Additional query parameters
    */
-  Future<PeopleFeed> search(String query, {String language, int maxResults, String pageToken}) {
+  Future<PeopleFeed> search(String query, {String language, int maxResults, String pageToken, Map optParams}) {
     var completer = new Completer();
     var url = "people";
     var urlParams = new Map();
     var queryParams = new Map();
 
-    if (?language && language != null) queryParams["language"] = language;
-    if (?maxResults && maxResults != null) queryParams["maxResults"] = maxResults;
-    if (?pageToken && pageToken != null) queryParams["pageToken"] = pageToken;
-    if (?query && query != null) queryParams["query"] = query;
+    var paramErrors = new StringBuffer();
+    if (language != null) queryParams["language"] = language;
+    if (maxResults != null) queryParams["maxResults"] = maxResults;
+    if (pageToken != null) queryParams["pageToken"] = pageToken;
+    if (query == null) {
+      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+      paramErrors.add("query is required");
+    }
+    if (query != null) queryParams["query"] = query;
+    if (optParams != null) {
+      optParams.forEach((key, value) {
+        if (value != null && queryParams[key] == null) {
+          queryParams[key] = value;
+        }
+      });
+    }
+
+    if (!paramErrors.isEmpty) {
+      completer.completeException(new ArgumentError(paramErrors.toString()));
+      return completer.future;
+    }
+
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response

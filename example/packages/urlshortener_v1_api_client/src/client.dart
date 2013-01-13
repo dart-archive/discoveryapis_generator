@@ -20,7 +20,7 @@ abstract class Client {
   }
 
   /**
-   * Send a HTTPRequest using [method] (usually GET or POST) to [requestUrl] using the specified [urlParams] and [queryParams]. Optionally include a [body] in the request.
+   * Sends a HTTPRequest using [method] (usually GET or POST) to [requestUrl] using the specified [urlParams] and [queryParams]. Optionally include a [body] in the request.
    */
   Future _request(String requestUrl, String method, {String body, String contentType:"application/json", Map urlParams, Map queryParams}) {
     var request = new HttpRequest();
@@ -30,7 +30,7 @@ abstract class Client {
     if (queryParams == null) queryParams = {};
 
     _params.forEach((key, param) {
-      if (param != null) {
+      if (param != null && queryParams[key] == null) {
         queryParams[key] = param;
       }
     });
