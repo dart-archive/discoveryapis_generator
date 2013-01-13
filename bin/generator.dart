@@ -34,7 +34,7 @@ class Generator {
 
     (new File("$folderName/pubspec.yaml")).writeAsStringSync(_createPubspec());
 
-    (new File("$folderName/lib/$_name.dart")).writeAsStringSync(_createLibrary());
+    (new File("$folderName/lib/$_libraryName.dart")).writeAsStringSync(_createLibrary());
     
     (new File("$folderName/lib/src/client.dart")).writeAsStringSync(_createClientClass());
 
@@ -59,7 +59,7 @@ dependencies:
 
   String _createLibrary() {
     return """
-library $_name;
+library $_libraryName;
 
 import "dart:html";
 import "dart:uri";
@@ -76,7 +76,7 @@ part "src/resources.dart";
   String _createSchemas() {
     var tmp = new StringBuffer();
  
-    tmp.add("part of $_name;\n\n");
+    tmp.add("part of $_libraryName;\n\n");
 
     if (_json.containsKey("schemas")) {
       _json["schemas"].forEach((key, schema) {
@@ -90,7 +90,7 @@ part "src/resources.dart";
   String _createResources() {
     var tmp = new StringBuffer();
     
-    tmp.add("part of $_name;\n\n");
+    tmp.add("part of $_libraryName;\n\n");
     
     if (_json.containsKey("resources")) {
       _json["resources"].forEach((key, resource) {
@@ -103,7 +103,7 @@ part "src/resources.dart";
   
   String _createMainClass() {
     var tmp = new StringBuffer();
-    tmp.add("part of $_name;\n\n");
+    tmp.add("part of $_libraryName;\n\n");
     tmp.add("/** Client to access the $_name $_version API */\n");
     if (_json.containsKey("description")) {
       tmp.add("/** ${_json["description"]} */\n");
@@ -115,6 +115,21 @@ part "src/resources.dart";
         var subClassName = "${capitalize(key)}Resource";
         tmp.add("  $subClassName _$key;\n");
         tmp.add("  $subClassName get $key => _$key;\n");
+      });
+    }
+    if(_json.containsKey("auth") && _json["auth"].containsKey("oauth2") && _json["auth"]["oauth2"].containsKey("scopes")) {
+      _json["auth"]["oauth2"]["scopes"].forEach((scope, description) {
+        var p = scope.lastIndexOf("/");
+        var scopeName = scope.toUpperCase();
+        if (p >= 0) scopeName = scopeName.substring(p+1);
+        scopeName = cleanName(scopeName);
+        tmp.add("\n");
+        if (description.containsKey("description")) {
+          tmp.add("  /** OAuth Scope2: ${description["description"]} */\n");
+        } else {
+          tmp.add("  /** OAuth Scope2 */\n");
+        }
+        tmp.add("  static const String ${scopeName}_SCOPE = \"$scope\";\n");
       });
     }
     if (_json.containsKey("parameters")) {
@@ -505,7 +520,7 @@ part "src/resources.dart";
 
   String _createClientClass() {
     return """
-part of $_name;
+part of $_libraryName;
 
 /**
  * Base class for all API clients, offering generic methods for HTTP Requests to the API

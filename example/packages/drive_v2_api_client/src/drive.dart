@@ -1,4 +1,4 @@
-part of drive;
+part of drive_v2_api_client;
 
 /** Client to access the drive v2 API */
 /** The API to interact with Drive. */
@@ -24,6 +24,21 @@ class Drive extends Client {
   RepliesResource get replies => _replies;
   RevisionsResource _revisions;
   RevisionsResource get revisions => _revisions;
+
+  /** OAuth Scope2: View and manage the files and documents in your Google Drive */
+  static const String DRIVE_SCOPE = "https://www.googleapis.com/auth/drive";
+
+  /** OAuth Scope2: View your Google Drive apps */
+  static const String DRIVE_APPS_READONLY_SCOPE = "https://www.googleapis.com/auth/drive.apps.readonly";
+
+  /** OAuth Scope2: View and manage Google Drive files that you have opened or created with this app */
+  static const String DRIVE_FILE_SCOPE = "https://www.googleapis.com/auth/drive.file";
+
+  /** OAuth Scope2: View metadata for files and documents in your Google Drive */
+  static const String DRIVE_METADATA_READONLY_SCOPE = "https://www.googleapis.com/auth/drive.metadata.readonly";
+
+  /** OAuth Scope2: View the files and documents in your Google Drive */
+  static const String DRIVE_READONLY_SCOPE = "https://www.googleapis.com/auth/drive.readonly";
 
   /**
    * Data format for the response.

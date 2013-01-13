@@ -1,4 +1,4 @@
-part of drive;
+part of drive_v2_api_client;
 
 class AboutResource extends Resource {
 

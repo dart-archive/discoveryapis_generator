@@ -1,4 +1,4 @@
-part of urlshortener;
+part of urlshortener_v1_api_client;
 
 /** Client to access the urlshortener v1 API */
 /** Lets you create, inspect, and manage goo.gl short URLs */
@@ -6,6 +6,9 @@ class Urlshortener extends Client {
 
   UrlResource _url;
   UrlResource get url => _url;
+
+  /** OAuth Scope2: Manage your goo.gl short URLs */
+  static const String URLSHORTENER_SCOPE = "https://www.googleapis.com/auth/urlshortener";
 
   /**
    * Data format for the response.

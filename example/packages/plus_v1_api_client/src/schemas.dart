@@ -1,4 +1,4 @@
-part of plus;
+part of plus_v1_api_client;
 
 class Acl {
 

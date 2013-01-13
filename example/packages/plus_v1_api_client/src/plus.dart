@@ -1,4 +1,4 @@
-part of plus;
+part of plus_v1_api_client;
 
 /** Client to access the plus v1 API */
 /** The Google+ API enables developers to build on top of the Google+ platform. */
@@ -10,6 +10,9 @@ class Plus extends Client {
   CommentsResource get comments => _comments;
   PeopleResource _people;
   PeopleResource get people => _people;
+
+  /** OAuth Scope2: Know who you are on Google */
+  static const String PLUS_ME_SCOPE = "https://www.googleapis.com/auth/plus.me";
 
   /**
    * Data format for the response.

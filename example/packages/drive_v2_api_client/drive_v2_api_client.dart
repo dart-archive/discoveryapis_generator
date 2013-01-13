@@ -1,4 +1,4 @@
-library drive;
+library drive_v2_api_client;
 
 import "dart:html";
 import "dart:uri";

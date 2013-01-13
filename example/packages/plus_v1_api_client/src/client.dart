@@ -1,4 +1,4 @@
-part of plus;
+part of plus_v1_api_client;
 
 /**
  * Base class for all API clients, offering generic methods for HTTP Requests to the API

@@ -1,4 +1,4 @@
-part of urlshortener;
+part of urlshortener_v1_api_client;
 
 class AnalyticsSnapshot {
 

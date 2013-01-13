@@ -1,4 +1,4 @@
-part of drive;
+part of drive_v2_api_client;
 
 /**
  * Base class for all API clients, offering generic methods for HTTP Requests to the API
