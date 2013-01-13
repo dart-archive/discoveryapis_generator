@@ -20,6 +20,7 @@ class Generator {
   String _name;
   String _version;
   String _libraryName;
+  String _clientVersion = "0.0.1";
 
   Generator(this._data) {
     _json = JSON.parse(_data);
@@ -33,6 +34,12 @@ class Generator {
     (new Directory("$folderName/lib/src")).createSync(recursive: true);
 
     (new File("$folderName/pubspec.yaml")).writeAsStringSync(_createPubspec());
+    
+    (new File("$folderName/LICENSE")).writeAsStringSync(_createLicense());
+    
+    (new File("$folderName/README.md")).writeAsStringSync(_createReadme());
+    
+    (new File("$folderName/CONTRIBUTORS")).writeAsStringSync(_createContributors());
 
     (new File("$folderName/lib/$_libraryName.dart")).writeAsStringSync(_createLibrary());
     
@@ -48,8 +55,9 @@ class Generator {
   String _createPubspec() {
     return """
 name: $_libraryName
-version: 0.0.1
+version: $_clientVersion
 description: Auto-generated client library for accessing the $_name $_version API
+homepage: https://github.com/dart-gde/discovery_api_dart_client_generator
 author: Gerwin Sturm (scarygami@gmail.com)
 
 dependencies:
@@ -57,6 +65,67 @@ dependencies:
 """;
   }
 
+  String _createLicense() {
+    return """
+Copyright (c) 2013 Gerwin Sturm, FoldedSoft e.U. / www.foldedsoft.at
+
+Licensed under the Apache License, Version 2.0 (the "License"); you may not
+use this file except in compliance with the License. You may obtain a copy of
+the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+License for the specific language governing permissions and limitations under
+the License
+
+------------------------
+Based on http://code.google.com/p/google-api-dart-client
+
+Copyright 2012 Google Inc.
+Licensed under the Apache License, Version 2.0 (the "License"); you may not
+use this file except in compliance with the License. You may obtain a copy of
+the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+License for the specific language governing permissions and limitations under
+the License
+
+""";
+  }
+  
+  String _createContributors() {
+    return """
+Adam Singer (https://github.com/financeCoding)
+Gerwin Sturm (https://github.com/Scarygami, http://scarygami.net/+)
+""";
+  }
+  
+  String _createReadme() {
+    var tmp = new StringBuffer();
+    tmp.add("""
+# $_libraryName
+
+### Description
+
+Auto-generated client library for accessing the $_name $_version API.
+
+""");
+    if (_json.containsKey("documentationLink")) {
+      tmp.add("Official API documentation: ${_json["documentationLink"]}\n\n");
+    }
+    tmp.add("### Licenses\n\n```\n");
+    tmp.add(_createLicense());
+    tmp.add("```\n");
+    return tmp.toString();
+  }
+  
   String _createLibrary() {
     return """
 library $_libraryName;
