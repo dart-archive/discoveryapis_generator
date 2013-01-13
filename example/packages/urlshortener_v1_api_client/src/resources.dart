@@ -5,7 +5,17 @@ class UrlResource extends Resource {
   UrlResource._internal(Client client) : super(client) {
   }
 
-  /** Expands a short URL or gets creation time and analytics. */
+  /**
+   * Expands a short URL or gets creation time and analytics.
+   *
+   * [shortUrl] - The short URL, including the protocol.
+   *
+   * [projection] - Additional information to return.
+   *   Allowed values:
+   *     ANALYTICS_CLICKS - Returns only click counts.
+   *     ANALYTICS_TOP_STRINGS - Returns only top string counts.
+   *     FULL - Returns the creation timestamp and all available analytics.
+   */
   Future<Url> get(String shortUrl, {String projection}) {
     var completer = new Completer();
     var url = "url";
@@ -22,7 +32,11 @@ class UrlResource extends Resource {
     return completer.future;
   }
 
-  /** Creates a new short URL. */
+  /**
+   * Creates a new short URL.
+   *
+   * [request] - Url to send in this request
+   */
   Future<Url> insert(Url request) {
     var completer = new Completer();
     var url = "url";
@@ -37,7 +51,16 @@ class UrlResource extends Resource {
     return completer.future;
   }
 
-  /** Retrieves a list of URLs shortened by a user. */
+  /**
+   * Retrieves a list of URLs shortened by a user.
+   *
+   * [projection] - Additional information to return.
+   *   Allowed values:
+   *     ANALYTICS_CLICKS - Returns short URL click counts.
+   *     FULL - Returns short URL click counts.
+   *
+   * [start_token] - Token for requesting successive pages of results.
+   */
   Future<UrlHistory> list({String projection, String start_token}) {
     var completer = new Completer();
     var url = "url/history";

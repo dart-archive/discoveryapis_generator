@@ -1487,9 +1487,6 @@ class File {
   /** A link for opening the file in using a relevant Google editor or viewer. */
   String alternateLink;
 
-  /** Whether this file is in the appdata folder. */
-  bool appDataContents;
-
   /** Create time for this file (formatted ISO8601 timestamp). */
   String createdDate;
 
@@ -1583,6 +1580,8 @@ Setting this field will put the file in all of the provided folders. On insert, 
 
   /** The title of this file. */
   String title;
+
+  /** The permissions for the authenticated user on this file. */
   Permission userPermission;
 
   /** A link for downloading the content of the file in a browser using cookie based authentication. In cases where the content is shared publicly, the content can be downloaded without any credentials. */
@@ -1598,9 +1597,6 @@ Setting this field will put the file in all of the provided folders. On insert, 
   File.fromJson(Map json) {
     if (json.containsKey("alternateLink")) {
       alternateLink = json["alternateLink"];
-    }
-    if (json.containsKey("appDataContents")) {
-      appDataContents = json["appDataContents"];
     }
     if (json.containsKey("createdDate")) {
       createdDate = json["createdDate"];
@@ -1721,9 +1717,6 @@ Setting this field will put the file in all of the provided folders. On insert, 
 
     if (alternateLink != null) {
       output["alternateLink"] = alternateLink;
-    }
-    if (appDataContents != null) {
-      output["appDataContents"] = appDataContents;
     }
     if (createdDate != null) {
       output["createdDate"] = createdDate;

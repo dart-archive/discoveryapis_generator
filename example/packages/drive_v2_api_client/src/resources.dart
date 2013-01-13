@@ -5,7 +5,17 @@ class AboutResource extends Resource {
   AboutResource._internal(Client client) : super(client) {
   }
 
-  /** Gets the information about the current user along with Drive API settings */
+  /**
+   * Gets the information about the current user along with Drive API settings
+   *
+   * [includeSubscribed] - When calculating the number of remaining change IDs, whether to include shared files and public files the user has opened. When set to false, this counts only change IDs for owned files and any shared or public files that the user has explictly added to a folder in Drive.
+   *   Default: true
+   *
+   * [maxChangeIdCount] - Maximum number of remaining change IDs to count
+   *   Default: 1
+   *
+   * [startChangeId] - Change ID to start counting from when calculating number of remaining change IDs
+   */
   Future<About> get({bool includeSubscribed, String maxChangeIdCount, String startChangeId}) {
     var completer = new Completer();
     var url = "about";
@@ -29,7 +39,11 @@ class AppsResource extends Resource {
   AppsResource._internal(Client client) : super(client) {
   }
 
-  /** Gets a specific app. */
+  /**
+   * Gets a specific app.
+   *
+   * [appId] - The ID of the app.
+   */
   Future<App> get(String appId) {
     var completer = new Completer();
     var url = "apps/{appId}";
@@ -45,7 +59,9 @@ class AppsResource extends Resource {
     return completer.future;
   }
 
-  /** Lists a user's apps. */
+  /**
+   * Lists a user's apps.
+   */
   Future<AppList> list() {
     var completer = new Completer();
     var url = "apps";
@@ -66,7 +82,11 @@ class ChangesResource extends Resource {
   ChangesResource._internal(Client client) : super(client) {
   }
 
-  /** Gets a specific change. */
+  /**
+   * Gets a specific change.
+   *
+   * [changeId] - The ID of the change.
+   */
   Future<Change> get(String changeId) {
     var completer = new Completer();
     var url = "changes/{changeId}";
@@ -82,7 +102,23 @@ class ChangesResource extends Resource {
     return completer.future;
   }
 
-  /** Lists the changes for a user. */
+  /**
+   * Lists the changes for a user.
+   *
+   * [includeDeleted] - Whether to include deleted items.
+   *   Default: true
+   *
+   * [includeSubscribed] - Whether to include shared files and public files the user has opened. When set to false, the list will include owned files plus any shared or public files the user has explictly added to a folder in Drive.
+   *   Default: true
+   *
+   * [maxResults] - Maximum number of changes to return.
+   *   Default: 100
+   *   Minimum: 0
+   *
+   * [pageToken] - Page token for changes.
+   *
+   * [startChangeId] - Change ID to start listing changes from.
+   */
   Future<ChangeList> list({bool includeDeleted, bool includeSubscribed, int maxResults, String pageToken, String startChangeId}) {
     var completer = new Completer();
     var url = "changes";
@@ -108,7 +144,13 @@ class ChildrenResource extends Resource {
   ChildrenResource._internal(Client client) : super(client) {
   }
 
-  /** Removes a child from a folder. */
+  /**
+   * Removes a child from a folder.
+   *
+   * [folderId] - The ID of the folder.
+   *
+   * [childId] - The ID of the child.
+   */
   Future<Map> delete(String folderId, String childId) {
     var completer = new Completer();
     var url = "files/{folderId}/children/{childId}";
@@ -125,7 +167,13 @@ class ChildrenResource extends Resource {
     return completer.future;
   }
 
-  /** Gets a specific child reference. */
+  /**
+   * Gets a specific child reference.
+   *
+   * [folderId] - The ID of the folder.
+   *
+   * [childId] - The ID of the child.
+   */
   Future<ChildReference> get(String folderId, String childId) {
     var completer = new Completer();
     var url = "files/{folderId}/children/{childId}";
@@ -142,7 +190,13 @@ class ChildrenResource extends Resource {
     return completer.future;
   }
 
-  /** Inserts a file into a folder. */
+  /**
+   * Inserts a file into a folder.
+   *
+   * [request] - ChildReference to send in this request
+   *
+   * [folderId] - The ID of the folder.
+   */
   Future<ChildReference> insert(ChildReference request, String folderId) {
     var completer = new Completer();
     var url = "files/{folderId}/children";
@@ -158,7 +212,19 @@ class ChildrenResource extends Resource {
     return completer.future;
   }
 
-  /** Lists a folder's children. */
+  /**
+   * Lists a folder's children.
+   *
+   * [folderId] - The ID of the folder.
+   *
+   * [maxResults] - Maximum number of children to return.
+   *   Default: 100
+   *   Minimum: 0
+   *
+   * [pageToken] - Page token for children.
+   *
+   * [q] - Query string for searching children.
+   */
   Future<ChildList> list(String folderId, {int maxResults, String pageToken, String q}) {
     var completer = new Completer();
     var url = "files/{folderId}/children";
@@ -183,7 +249,13 @@ class CommentsResource extends Resource {
   CommentsResource._internal(Client client) : super(client) {
   }
 
-  /** Deletes a comment. */
+  /**
+   * Deletes a comment.
+   *
+   * [fileId] - The ID of the file.
+   *
+   * [commentId] - The ID of the comment.
+   */
   Future<Map> delete(String fileId, String commentId) {
     var completer = new Completer();
     var url = "files/{fileId}/comments/{commentId}";
@@ -200,7 +272,16 @@ class CommentsResource extends Resource {
     return completer.future;
   }
 
-  /** Gets a comment by ID. */
+  /**
+   * Gets a comment by ID.
+   *
+   * [fileId] - The ID of the file.
+   *
+   * [commentId] - The ID of the comment.
+   *
+   * [includeDeleted] - If set, this will succeed when retrieving a deleted comment, and will include any deleted replies.
+   *   Default: false
+   */
   Future<Comment> get(String fileId, String commentId, {bool includeDeleted}) {
     var completer = new Completer();
     var url = "files/{fileId}/comments/{commentId}";
@@ -218,7 +299,13 @@ class CommentsResource extends Resource {
     return completer.future;
   }
 
-  /** Creates a new comment on the given file. */
+  /**
+   * Creates a new comment on the given file.
+   *
+   * [request] - Comment to send in this request
+   *
+   * [fileId] - The ID of the file.
+   */
   Future<Comment> insert(Comment request, String fileId) {
     var completer = new Completer();
     var url = "files/{fileId}/comments";
@@ -234,7 +321,23 @@ class CommentsResource extends Resource {
     return completer.future;
   }
 
-  /** Lists a file's comments. */
+  /**
+   * Lists a file's comments.
+   *
+   * [fileId] - The ID of the file.
+   *
+   * [includeDeleted] - If set, all comments and replies, including deleted comments and replies (with content stripped) will be returned.
+   *   Default: false
+   *
+   * [maxResults] - The maximum number of discussions to include in the response, used for paging.
+   *   Default: 20
+   *   Minimum: 0
+   *   Maximum: 100
+   *
+   * [pageToken] - The continuation token, used to page through large result sets. To get the next page of results, set this parameter to the value of "nextPageToken" from the previous response.
+   *
+   * [updatedMin] - Only discussions that were updated after this timestamp will be returned. Formatted as an RFC 3339 timestamp.
+   */
   Future<CommentList> list(String fileId, {bool includeDeleted, int maxResults, String pageToken, String updatedMin}) {
     var completer = new Completer();
     var url = "files/{fileId}/comments";
@@ -254,7 +357,15 @@ class CommentsResource extends Resource {
     return completer.future;
   }
 
-  /** Updates an existing comment. This method supports patch semantics. */
+  /**
+   * Updates an existing comment. This method supports patch semantics.
+   *
+   * [request] - Comment to send in this request
+   *
+   * [fileId] - The ID of the file.
+   *
+   * [commentId] - The ID of the comment.
+   */
   Future<Comment> patch(Comment request, String fileId, String commentId) {
     var completer = new Completer();
     var url = "files/{fileId}/comments/{commentId}";
@@ -271,7 +382,15 @@ class CommentsResource extends Resource {
     return completer.future;
   }
 
-  /** Updates an existing comment. */
+  /**
+   * Updates an existing comment.
+   *
+   * [request] - Comment to send in this request
+   *
+   * [fileId] - The ID of the file.
+   *
+   * [commentId] - The ID of the comment.
+   */
   Future<Comment> update(Comment request, String fileId, String commentId) {
     var completer = new Completer();
     var url = "files/{fileId}/comments/{commentId}";
@@ -294,7 +413,28 @@ class FilesResource extends Resource {
   FilesResource._internal(Client client) : super(client) {
   }
 
-  /** Creates a copy of the specified file. */
+  /**
+   * Creates a copy of the specified file.
+   *
+   * [request] - File to send in this request
+   *
+   * [fileId] - The ID of the file to copy.
+   *
+   * [convert] - Whether to convert this file to the corresponding Google Docs format.
+   *   Default: false
+   *
+   * [ocr] - Whether to attempt OCR on .jpg, .png, .gif, or .pdf uploads.
+   *   Default: false
+   *
+   * [ocrLanguage] - If ocr is true, hints at the language to use. Valid values are ISO 639-1 codes.
+   *
+   * [pinned] - Whether to pin the head revision of the new copy.
+   *   Default: false
+   *
+   * [timedTextLanguage] - The language of the timed text.
+   *
+   * [timedTextTrackName] - The timed text track name.
+   */
   Future<File> copy(File request, String fileId, {bool convert, bool ocr, String ocrLanguage, bool pinned, String timedTextLanguage, String timedTextTrackName}) {
     var completer = new Completer();
     var url = "files/{fileId}/copy";
@@ -316,7 +456,11 @@ class FilesResource extends Resource {
     return completer.future;
   }
 
-  /** Permanently deletes a file by ID. Skips the trash. */
+  /**
+   * Permanently deletes a file by ID. Skips the trash.
+   *
+   * [fileId] - The ID of the file to delete.
+   */
   Future<Map> delete(String fileId) {
     var completer = new Completer();
     var url = "files/{fileId}";
@@ -332,7 +476,19 @@ class FilesResource extends Resource {
     return completer.future;
   }
 
-  /** Gets a file's metadata by ID. */
+  /**
+   * Gets a file's metadata by ID.
+   *
+   * [fileId] - The ID for the file in question.
+   *
+   * [projection] - This parameter is deprecated and has no function.
+   *   Allowed values:
+   *     BASIC - Deprecated
+   *     FULL - Deprecated
+   *
+   * [updateViewedDate] - Whether to update the view date after successfully retrieving the file.
+   *   Default: false
+   */
   Future<File> get(String fileId, {String projection, bool updateViewedDate}) {
     var completer = new Completer();
     var url = "files/{fileId}";
@@ -350,7 +506,30 @@ class FilesResource extends Resource {
     return completer.future;
   }
 
-  /** Insert a new file. */
+  /**
+   * Insert a new file.
+   *
+   * [request] - File to send in this request
+   *
+   * [content] - Base64 Data of the file content to be uploaded
+   *
+   * [contentType] - MimeType of the file to be uploaded
+   *
+   * [convert] - Whether to convert this file to the corresponding Google Docs format.
+   *   Default: false
+   *
+   * [ocr] - Whether to attempt OCR on .jpg, .png, .gif, or .pdf uploads.
+   *   Default: false
+   *
+   * [ocrLanguage] - If ocr is true, hints at the language to use. Valid values are ISO 639-1 codes.
+   *
+   * [pinned] - Whether to pin the head revision of the uploaded file.
+   *   Default: false
+   *
+   * [timedTextLanguage] - The language of the timed text.
+   *
+   * [timedTextTrackName] - The timed text track name.
+   */
   Future<File> insert(File request, {String content, String contentType, bool convert, bool ocr, String ocrLanguage, bool pinned, String timedTextLanguage, String timedTextTrackName}) {
     var completer = new Completer();
     var url = "files";
@@ -376,7 +555,22 @@ class FilesResource extends Resource {
     return completer.future;
   }
 
-  /** Lists the user's files. */
+  /**
+   * Lists the user's files.
+   *
+   * [maxResults] - Maximum number of files to return.
+   *   Default: 100
+   *   Minimum: 0
+   *
+   * [pageToken] - Page token for files.
+   *
+   * [projection] - This parameter is deprecated and has no function.
+   *   Allowed values:
+   *     BASIC - Deprecated
+   *     FULL - Deprecated
+   *
+   * [q] - Query string for searching files.
+   */
   Future<FileList> list({int maxResults, String pageToken, String projection, String q}) {
     var completer = new Completer();
     var url = "files";
@@ -395,7 +589,37 @@ class FilesResource extends Resource {
     return completer.future;
   }
 
-  /** Updates file metadata and/or content. This method supports patch semantics. */
+  /**
+   * Updates file metadata and/or content. This method supports patch semantics.
+   *
+   * [request] - File to send in this request
+   *
+   * [fileId] - The ID of the file to update.
+   *
+   * [convert] - Whether to convert this file to the corresponding Google Docs format.
+   *   Default: false
+   *
+   * [newRevision] - Whether a blob upload should create a new revision. If false, the blob data in the current head revision will be replaced.
+   *   Default: true
+   *
+   * [ocr] - Whether to attempt OCR on .jpg, .png, .gif, or .pdf uploads.
+   *   Default: false
+   *
+   * [ocrLanguage] - If ocr is true, hints at the language to use. Valid values are ISO 639-1 codes.
+   *
+   * [pinned] - Whether to pin the new revision.
+   *   Default: false
+   *
+   * [setModifiedDate] - Whether to set the modified date with the supplied modified date.
+   *   Default: false
+   *
+   * [timedTextLanguage] - The language of the timed text.
+   *
+   * [timedTextTrackName] - The timed text track name.
+   *
+   * [updateViewedDate] - Whether to update the view date after successfully updating the file.
+   *   Default: true
+   */
   Future<File> patch(File request, String fileId, {bool convert, bool newRevision, bool ocr, String ocrLanguage, bool pinned, bool setModifiedDate, String timedTextLanguage, String timedTextTrackName, bool updateViewedDate}) {
     var completer = new Completer();
     var url = "files/{fileId}";
@@ -420,7 +644,11 @@ class FilesResource extends Resource {
     return completer.future;
   }
 
-  /** Set the file's updated time to the current server time. */
+  /**
+   * Set the file's updated time to the current server time.
+   *
+   * [fileId] - The ID of the file to update.
+   */
   Future<File> touch(String fileId) {
     var completer = new Completer();
     var url = "files/{fileId}/touch";
@@ -436,7 +664,11 @@ class FilesResource extends Resource {
     return completer.future;
   }
 
-  /** Moves a file to the trash. */
+  /**
+   * Moves a file to the trash.
+   *
+   * [fileId] - The ID of the file to trash.
+   */
   Future<File> trash(String fileId) {
     var completer = new Completer();
     var url = "files/{fileId}/trash";
@@ -452,7 +684,11 @@ class FilesResource extends Resource {
     return completer.future;
   }
 
-  /** Restores a file from the trash. */
+  /**
+   * Restores a file from the trash.
+   *
+   * [fileId] - The ID of the file to untrash.
+   */
   Future<File> untrash(String fileId) {
     var completer = new Completer();
     var url = "files/{fileId}/untrash";
@@ -468,7 +704,41 @@ class FilesResource extends Resource {
     return completer.future;
   }
 
-  /** Updates file metadata and/or content */
+  /**
+   * Updates file metadata and/or content
+   *
+   * [request] - File to send in this request
+   *
+   * [fileId] - The ID of the file to update.
+   *
+   * [content] - Base64 Data of the file content to be uploaded
+   *
+   * [contentType] - MimeType of the file to be uploaded
+   *
+   * [convert] - Whether to convert this file to the corresponding Google Docs format.
+   *   Default: false
+   *
+   * [newRevision] - Whether a blob upload should create a new revision. If false, the blob data in the current head revision will be replaced.
+   *   Default: true
+   *
+   * [ocr] - Whether to attempt OCR on .jpg, .png, .gif, or .pdf uploads.
+   *   Default: false
+   *
+   * [ocrLanguage] - If ocr is true, hints at the language to use. Valid values are ISO 639-1 codes.
+   *
+   * [pinned] - Whether to pin the new revision.
+   *   Default: false
+   *
+   * [setModifiedDate] - Whether to set the modified date with the supplied modified date.
+   *   Default: false
+   *
+   * [timedTextLanguage] - The language of the timed text.
+   *
+   * [timedTextTrackName] - The timed text track name.
+   *
+   * [updateViewedDate] - Whether to update the view date after successfully updating the file.
+   *   Default: true
+   */
   Future<File> update(File request, String fileId, {String content, String contentType, bool convert, bool newRevision, bool ocr, String ocrLanguage, bool pinned, bool setModifiedDate, String timedTextLanguage, String timedTextTrackName, bool updateViewedDate}) {
     var completer = new Completer();
     var url = "files/{fileId}";
@@ -504,7 +774,13 @@ class ParentsResource extends Resource {
   ParentsResource._internal(Client client) : super(client) {
   }
 
-  /** Removes a parent from a file. */
+  /**
+   * Removes a parent from a file.
+   *
+   * [fileId] - The ID of the file.
+   *
+   * [parentId] - The ID of the parent.
+   */
   Future<Map> delete(String fileId, String parentId) {
     var completer = new Completer();
     var url = "files/{fileId}/parents/{parentId}";
@@ -521,7 +797,13 @@ class ParentsResource extends Resource {
     return completer.future;
   }
 
-  /** Gets a specific parent reference. */
+  /**
+   * Gets a specific parent reference.
+   *
+   * [fileId] - The ID of the file.
+   *
+   * [parentId] - The ID of the parent.
+   */
   Future<ParentReference> get(String fileId, String parentId) {
     var completer = new Completer();
     var url = "files/{fileId}/parents/{parentId}";
@@ -538,7 +820,13 @@ class ParentsResource extends Resource {
     return completer.future;
   }
 
-  /** Adds a parent folder for a file. */
+  /**
+   * Adds a parent folder for a file.
+   *
+   * [request] - ParentReference to send in this request
+   *
+   * [fileId] - The ID of the file.
+   */
   Future<ParentReference> insert(ParentReference request, String fileId) {
     var completer = new Completer();
     var url = "files/{fileId}/parents";
@@ -554,7 +842,11 @@ class ParentsResource extends Resource {
     return completer.future;
   }
 
-  /** Lists a file's parents. */
+  /**
+   * Lists a file's parents.
+   *
+   * [fileId] - The ID of the file.
+   */
   Future<ParentList> list(String fileId) {
     var completer = new Completer();
     var url = "files/{fileId}/parents";
@@ -576,7 +868,13 @@ class PermissionsResource extends Resource {
   PermissionsResource._internal(Client client) : super(client) {
   }
 
-  /** Deletes a permission from a file. */
+  /**
+   * Deletes a permission from a file.
+   *
+   * [fileId] - The ID for the file.
+   *
+   * [permissionId] - The ID for the permission.
+   */
   Future<Map> delete(String fileId, String permissionId) {
     var completer = new Completer();
     var url = "files/{fileId}/permissions/{permissionId}";
@@ -593,7 +891,13 @@ class PermissionsResource extends Resource {
     return completer.future;
   }
 
-  /** Gets a permission by ID. */
+  /**
+   * Gets a permission by ID.
+   *
+   * [fileId] - The ID for the file.
+   *
+   * [permissionId] - The ID for the permission.
+   */
   Future<Permission> get(String fileId, String permissionId) {
     var completer = new Completer();
     var url = "files/{fileId}/permissions/{permissionId}";
@@ -610,7 +914,16 @@ class PermissionsResource extends Resource {
     return completer.future;
   }
 
-  /** Inserts a permission for a file. */
+  /**
+   * Inserts a permission for a file.
+   *
+   * [request] - Permission to send in this request
+   *
+   * [fileId] - The ID for the file.
+   *
+   * [sendNotificationEmails] - Whether to send notification emails.
+   *   Default: true
+   */
   Future<Permission> insert(Permission request, String fileId, {bool sendNotificationEmails}) {
     var completer = new Completer();
     var url = "files/{fileId}/permissions";
@@ -627,7 +940,11 @@ class PermissionsResource extends Resource {
     return completer.future;
   }
 
-  /** Lists a file's permissions. */
+  /**
+   * Lists a file's permissions.
+   *
+   * [fileId] - The ID for the file.
+   */
   Future<PermissionList> list(String fileId) {
     var completer = new Completer();
     var url = "files/{fileId}/permissions";
@@ -643,7 +960,15 @@ class PermissionsResource extends Resource {
     return completer.future;
   }
 
-  /** Updates a permission. This method supports patch semantics. */
+  /**
+   * Updates a permission. This method supports patch semantics.
+   *
+   * [request] - Permission to send in this request
+   *
+   * [fileId] - The ID for the file.
+   *
+   * [permissionId] - The ID for the permission.
+   */
   Future<Permission> patch(Permission request, String fileId, String permissionId) {
     var completer = new Completer();
     var url = "files/{fileId}/permissions/{permissionId}";
@@ -660,7 +985,15 @@ class PermissionsResource extends Resource {
     return completer.future;
   }
 
-  /** Updates a permission. */
+  /**
+   * Updates a permission.
+   *
+   * [request] - Permission to send in this request
+   *
+   * [fileId] - The ID for the file.
+   *
+   * [permissionId] - The ID for the permission.
+   */
   Future<Permission> update(Permission request, String fileId, String permissionId) {
     var completer = new Completer();
     var url = "files/{fileId}/permissions/{permissionId}";
@@ -683,7 +1016,15 @@ class RepliesResource extends Resource {
   RepliesResource._internal(Client client) : super(client) {
   }
 
-  /** Deletes a reply. */
+  /**
+   * Deletes a reply.
+   *
+   * [fileId] - The ID of the file.
+   *
+   * [commentId] - The ID of the comment.
+   *
+   * [replyId] - The ID of the reply.
+   */
   Future<Map> delete(String fileId, String commentId, String replyId) {
     var completer = new Completer();
     var url = "files/{fileId}/comments/{commentId}/replies/{replyId}";
@@ -701,7 +1042,18 @@ class RepliesResource extends Resource {
     return completer.future;
   }
 
-  /** Gets a reply. */
+  /**
+   * Gets a reply.
+   *
+   * [fileId] - The ID of the file.
+   *
+   * [commentId] - The ID of the comment.
+   *
+   * [replyId] - The ID of the reply.
+   *
+   * [includeDeleted] - If set, this will succeed when retrieving a deleted reply.
+   *   Default: false
+   */
   Future<CommentReply> get(String fileId, String commentId, String replyId, {bool includeDeleted}) {
     var completer = new Completer();
     var url = "files/{fileId}/comments/{commentId}/replies/{replyId}";
@@ -720,7 +1072,15 @@ class RepliesResource extends Resource {
     return completer.future;
   }
 
-  /** Creates a new reply to the given comment. */
+  /**
+   * Creates a new reply to the given comment.
+   *
+   * [request] - CommentReply to send in this request
+   *
+   * [fileId] - The ID of the file.
+   *
+   * [commentId] - The ID of the comment.
+   */
   Future<CommentReply> insert(CommentReply request, String fileId, String commentId) {
     var completer = new Completer();
     var url = "files/{fileId}/comments/{commentId}/replies";
@@ -737,7 +1097,23 @@ class RepliesResource extends Resource {
     return completer.future;
   }
 
-  /** Lists all of the replies to a comment. */
+  /**
+   * Lists all of the replies to a comment.
+   *
+   * [fileId] - The ID of the file.
+   *
+   * [commentId] - The ID of the comment.
+   *
+   * [includeDeleted] - If set, all replies, including deleted replies (with content stripped) will be returned.
+   *   Default: false
+   *
+   * [maxResults] - The maximum number of replies to include in the response, used for paging.
+   *   Default: 20
+   *   Minimum: 0
+   *   Maximum: 100
+   *
+   * [pageToken] - The continuation token, used to page through large result sets. To get the next page of results, set this parameter to the value of "nextPageToken" from the previous response.
+   */
   Future<CommentReplyList> list(String fileId, String commentId, {bool includeDeleted, int maxResults, String pageToken}) {
     var completer = new Completer();
     var url = "files/{fileId}/comments/{commentId}/replies";
@@ -757,7 +1133,17 @@ class RepliesResource extends Resource {
     return completer.future;
   }
 
-  /** Updates an existing reply. This method supports patch semantics. */
+  /**
+   * Updates an existing reply. This method supports patch semantics.
+   *
+   * [request] - CommentReply to send in this request
+   *
+   * [fileId] - The ID of the file.
+   *
+   * [commentId] - The ID of the comment.
+   *
+   * [replyId] - The ID of the reply.
+   */
   Future<CommentReply> patch(CommentReply request, String fileId, String commentId, String replyId) {
     var completer = new Completer();
     var url = "files/{fileId}/comments/{commentId}/replies/{replyId}";
@@ -775,7 +1161,17 @@ class RepliesResource extends Resource {
     return completer.future;
   }
 
-  /** Updates an existing reply. */
+  /**
+   * Updates an existing reply.
+   *
+   * [request] - CommentReply to send in this request
+   *
+   * [fileId] - The ID of the file.
+   *
+   * [commentId] - The ID of the comment.
+   *
+   * [replyId] - The ID of the reply.
+   */
   Future<CommentReply> update(CommentReply request, String fileId, String commentId, String replyId) {
     var completer = new Completer();
     var url = "files/{fileId}/comments/{commentId}/replies/{replyId}";
@@ -799,7 +1195,13 @@ class RevisionsResource extends Resource {
   RevisionsResource._internal(Client client) : super(client) {
   }
 
-  /** Removes a revision. */
+  /**
+   * Removes a revision.
+   *
+   * [fileId] - The ID of the file.
+   *
+   * [revisionId] - The ID of the revision.
+   */
   Future<Map> delete(String fileId, String revisionId) {
     var completer = new Completer();
     var url = "files/{fileId}/revisions/{revisionId}";
@@ -816,7 +1218,13 @@ class RevisionsResource extends Resource {
     return completer.future;
   }
 
-  /** Gets a specific revision. */
+  /**
+   * Gets a specific revision.
+   *
+   * [fileId] - The ID of the file.
+   *
+   * [revisionId] - The ID of the revision.
+   */
   Future<Revision> get(String fileId, String revisionId) {
     var completer = new Completer();
     var url = "files/{fileId}/revisions/{revisionId}";
@@ -833,7 +1241,11 @@ class RevisionsResource extends Resource {
     return completer.future;
   }
 
-  /** Lists a file's revisions. */
+  /**
+   * Lists a file's revisions.
+   *
+   * [fileId] - The ID of the file.
+   */
   Future<RevisionList> list(String fileId) {
     var completer = new Completer();
     var url = "files/{fileId}/revisions";
@@ -849,7 +1261,15 @@ class RevisionsResource extends Resource {
     return completer.future;
   }
 
-  /** Updates a revision. This method supports patch semantics. */
+  /**
+   * Updates a revision. This method supports patch semantics.
+   *
+   * [request] - Revision to send in this request
+   *
+   * [fileId] - The ID for the file.
+   *
+   * [revisionId] - The ID for the revision.
+   */
   Future<Revision> patch(Revision request, String fileId, String revisionId) {
     var completer = new Completer();
     var url = "files/{fileId}/revisions/{revisionId}";
@@ -866,7 +1286,15 @@ class RevisionsResource extends Resource {
     return completer.future;
   }
 
-  /** Updates a revision. */
+  /**
+   * Updates a revision.
+   *
+   * [request] - Revision to send in this request
+   *
+   * [fileId] - The ID for the file.
+   *
+   * [revisionId] - The ID for the revision.
+   */
   Future<Revision> update(Revision request, String fileId, String revisionId) {
     var completer = new Completer();
     var url = "files/{fileId}/revisions/{revisionId}";
