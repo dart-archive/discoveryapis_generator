@@ -53,7 +53,7 @@ description: Auto-generated client library for accessing the $_name $_version AP
 author: Gerwin Sturm (scarygami/+)
 
 dependencies:
-  dart_google_oauth2_library:
+  google_oauth2_client:
     git: git://github.com/Scarygami/dart-google-oauth2-library.git
 """;
   }
@@ -65,7 +65,7 @@ library $_name;
 import "dart:html";
 import "dart:uri";
 import "dart:json";
-import "package:dart_google_oauth2_library/oauth2.dart";
+import "package:google_oauth2_client/oauth2.dart";
 
 part "src/client.dart";
 part "src/$_name.dart";
