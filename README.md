@@ -1,20 +1,24 @@
-WARNING! STILL IN ACTIVE DEVELOPMENT AND NOT FULLY FUNCTIONAL YET!
-PROCEED AT YOUR OWN RISK
-------------------------------------------------------------------
+# discovery_api_dart_client_generator
 
-Current state:
+
+*WARNING! STILL IN ACTIVE DEVELOPMENT AND NOT FULLY FUNCTIONAL YET!
+PROCEED AT YOUR OWN RISK*
+
+
+### Current state:
 
 POST and GET requests should be working.
 Mediauploads "should" be working but there are CORS problems that might need to be fixed by Google.
 Some basic error handling is included in case the API doesn't respond as expected...
 Methods now only accept the parameters that are actually defined in the API Discovery document.
 
-------------------------------------------------------------------
+### Description
 
-Name:  discovery_api_dart_client_generator
-Description:  Dart application to create Dart API Client Libraries based on discovery documents
+Dart application to create Dart API Client Libraries based on discovery documents
 
-Usage:
+### Usage
+
+```
    generator.dart -a <API> - v <Version> [-o <Directory>] (to load from Google Discovery API)
 or generator.dart -u <URL> [-o <Directory>] (to load discovery document from specified URL)
 or generator.dart -i <File> [-o <Directory>] (to load discovery document from local file)
@@ -32,9 +36,11 @@ or generator.dart -all [-o <Directory>] (to create libraries for all Google APIs
                    (defaults to on)
 
 -h, --help         Display this information and exit
+```
 
-------------------------
+### Licenses
 
+```
 Copyright (c) 2013 Gerwin Sturm, FoldedSoft e.U. / www.foldedsoft.at
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -64,3 +70,4 @@ distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
 WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 License for the specific language governing permissions and limitations under
 the License
+```
