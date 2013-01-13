@@ -1,4 +1,4 @@
-part of oauth2;
+part of google_oauth2_client;
 
 /// Polls until either the future is completed or the window is closed.
 /// If the window was closed without the future being completed, completes

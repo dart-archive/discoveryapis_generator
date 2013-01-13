@@ -16,7 +16,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-library oauth2;
+library google_oauth2_client;
 
 import 'dart:json';
 import 'dart:html';

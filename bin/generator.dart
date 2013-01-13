@@ -50,11 +50,10 @@ class Generator {
 name: $_libraryName
 version: 0.0.1
 description: Auto-generated client library for accessing the $_name $_version API
-author: Gerwin Sturm (scarygami/+)
+author: Gerwin Sturm (scarygami@gmail.com)
 
 dependencies:
-  google_oauth2_client:
-    git: git://github.com/Scarygami/dart-google-oauth2-library.git
+  google_oauth2_client: any
 """;
   }
 
@@ -65,7 +64,7 @@ library $_name;
 import "dart:html";
 import "dart:uri";
 import "dart:json";
-import "package:google_oauth2_client/oauth2.dart";
+import "package:google_oauth2_client/google_oauth2_client.dart";
 
 part "src/client.dart";
 part "src/$_name.dart";

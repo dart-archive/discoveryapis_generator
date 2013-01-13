@@ -1,4 +1,4 @@
-part of oauth2;
+part of google_oauth2_client;
 
 /** Produces part of a URL, when the template parameters are provided. */
 typedef String _UrlPatternToken(Map<String, Object> params);

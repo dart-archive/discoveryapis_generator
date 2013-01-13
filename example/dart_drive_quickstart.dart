@@ -1,6 +1,6 @@
 import "dart:html";
 import "package:drive_v2_api_client/drive.dart" as drivelib; 
-import "package:google_oauth2_client/oauth2.dart";
+import "package:google_oauth2_client/google_oauth2_client.dart";
 
 final CLIENT_ID = "796343192238.apps.googleusercontent.com";
 final SCOPES = ["https://www.googleapis.com/auth/drive.file"];

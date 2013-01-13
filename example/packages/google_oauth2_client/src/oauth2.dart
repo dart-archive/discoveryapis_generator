@@ -1,4 +1,4 @@
-part of oauth2;
+part of google_oauth2_client;
 
 /// An OAuth2 authentication context.
 class OAuth2 {

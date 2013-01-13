@@ -1,4 +1,4 @@
-part of oauth2;
+part of google_oauth2_client;
 
 typedef void _ProxyCallback(String subject, List<String> args);
 
