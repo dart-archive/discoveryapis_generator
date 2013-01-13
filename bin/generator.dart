@@ -348,14 +348,46 @@ part "src/resources.dart";
     return tmp.toString();
   }
 
+  String _createParamComment(name, description) {
+    var tmp = new StringBuffer();
+    tmp.add("   *\n");
+    tmp.add("   * [$name]");
+    if (description.containsKey("description")) {
+      tmp.add(" - ${description["description"]}");
+    }
+    tmp.add("\n");
+    if (description.containsKey("default")) {
+      tmp.add("   *   Default: ${description["default"]}\n");
+    }
+    if (description.containsKey("minimum")) {
+      tmp.add("   *   Minimum: ${description["minimum"]}\n");
+    }
+    if (description.containsKey("maximum")) {
+      tmp.add("   *   Maximum: ${description["maximum"]}\n");
+    }
+    if (description.containsKey("enum")) {
+      tmp.add("   *   Allowed values:\n");
+      for (var i = 0; i < description["enum"].length; i++) {
+        tmp.add("   *     ${description["enum"][i]}");
+        if (description.containsKey("enumDescriptions")) {
+          tmp.add(" - ${description["enumDescriptions"][i]}");
+        }
+        tmp.add("\n");
+      }
+    }
+    
+    return tmp.toString();
+  }
+  
   /// Create a method with [name] inside of a class, based on [data]
   String _createMethod(String name, Map data) {
     var tmp = new StringBuffer();
     var upload = false;
     var uploadPath;
 
+    tmp.add("  /**\n");
     if (data.containsKey("description")) {
-      tmp.add("  /** ${data["description"]} */\n");
+      tmp.add("   * ${data["description"]}\n");
     }
 
     var params = new StringBuffer();
@@ -363,14 +395,17 @@ part "src/resources.dart";
     
     if (data.containsKey("request")) {
       params.add("${data["request"]["\$ref"]} request");
+      tmp.add(_createParamComment("request", {"description": "${data["request"]["\$ref"]} to send in this request"}));
     }
     if (data.containsKey("parameterOrder") && data.containsKey("parameters")) {
       data["parameterOrder"].forEach((param) {
         if (data["parameters"].containsKey(param)) {
           var type = parameterType[data["parameters"][param]["type"]];
           if (type != null) {
+            var variable = cleanName(param);
+            tmp.add(_createParamComment(variable, data["parameters"][param]));
             if (!params.isEmpty) params.add(", ");
-            params.add("$type ${cleanName(param)}");
+            params.add("$type $variable");
             data["parameters"][param]["gen_included"] = true;
           }
         }
@@ -392,14 +427,18 @@ part "src/resources.dart";
     
     if (upload) {
       optParams.add("String content, String contentType");
+      tmp.add(_createParamComment("content", {"description": "Base64 Data of the file content to be uploaded"}));
+      tmp.add(_createParamComment("contentType", {"description": "MimeType of the file to be uploaded"}));
     }
     if (data.containsKey("parameters")) {
-      data["parameters"].forEach((name, param) {
-        if (!param.containsKey("gen_included")) {
-          var type = parameterType[param["type"]];
+      data["parameters"].forEach((name, description) {
+        if (!description.containsKey("gen_included")) {
+          var type = parameterType[description["type"]];
           if (type != null) {
+            var variable = cleanName(name);
+            tmp.add(_createParamComment(variable, description));
             if (!optParams.isEmpty) optParams.add(", ");
-            optParams.add("$type ${cleanName(name)}");
+            optParams.add("$type $variable");
           }
         }
       });
@@ -409,7 +448,8 @@ part "src/resources.dart";
       if (!params.isEmpty) params.add(", ");
       params.add("{${optParams.toString()}}");
     }
-    
+
+    tmp.add("   */\n");    
     var response = null;
     if (data.containsKey("response")) {
       response = "Future<${data["response"]["\$ref"]}>";
