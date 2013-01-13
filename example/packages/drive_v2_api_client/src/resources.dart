@@ -855,6 +855,10 @@ class FilesResource extends Resource {
       paramErrors.add("fileId is required");
     }
     if (fileId != null) urlParams["fileId"] = fileId;
+    if (!["BASIC", "FULL"].contains(projection)) {
+      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+      paramErrors.add("Allowed values for projection: BASIC, FULL");
+    }
     if (projection != null) queryParams["projection"] = projection;
     if (updateViewedDate != null) queryParams["updateViewedDate"] = updateViewedDate;
     if (optParams != null) {
@@ -970,6 +974,10 @@ class FilesResource extends Resource {
     var paramErrors = new StringBuffer();
     if (maxResults != null) queryParams["maxResults"] = maxResults;
     if (pageToken != null) queryParams["pageToken"] = pageToken;
+    if (!["BASIC", "FULL"].contains(projection)) {
+      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+      paramErrors.add("Allowed values for projection: BASIC, FULL");
+    }
     if (projection != null) queryParams["projection"] = projection;
     if (q != null) queryParams["q"] = q;
     if (optParams != null) {

@@ -74,6 +74,10 @@ class ActivitiesResource extends Resource {
       if (!paramErrors.isEmpty) paramErrors.add(" / ");
       paramErrors.add("collection is required");
     }
+    if (!["public"].contains(collection)) {
+      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+      paramErrors.add("Allowed values for collection: public");
+    }
     if (collection != null) urlParams["collection"] = collection;
     if (maxResults != null) queryParams["maxResults"] = maxResults;
     if (pageToken != null) queryParams["pageToken"] = pageToken;
@@ -135,6 +139,10 @@ class ActivitiesResource extends Resource {
     var paramErrors = new StringBuffer();
     if (language != null) queryParams["language"] = language;
     if (maxResults != null) queryParams["maxResults"] = maxResults;
+    if (!["best", "recent"].contains(orderBy)) {
+      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+      paramErrors.add("Allowed values for orderBy: best, recent");
+    }
     if (orderBy != null) queryParams["orderBy"] = orderBy;
     if (pageToken != null) queryParams["pageToken"] = pageToken;
     if (query == null) {
@@ -243,6 +251,10 @@ class CommentsResource extends Resource {
     if (activityId != null) urlParams["activityId"] = activityId;
     if (maxResults != null) queryParams["maxResults"] = maxResults;
     if (pageToken != null) queryParams["pageToken"] = pageToken;
+    if (!["ascending", "descending"].contains(sortOrder)) {
+      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+      paramErrors.add("Allowed values for sortOrder: ascending, descending");
+    }
     if (sortOrder != null) queryParams["sortOrder"] = sortOrder;
     if (optParams != null) {
       optParams.forEach((key, value) {
@@ -345,6 +357,10 @@ class PeopleResource extends Resource {
     if (collection == null) {
       if (!paramErrors.isEmpty) paramErrors.add(" / ");
       paramErrors.add("collection is required");
+    }
+    if (!["plusoners", "resharers"].contains(collection)) {
+      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+      paramErrors.add("Allowed values for collection: plusoners, resharers");
     }
     if (collection != null) urlParams["collection"] = collection;
     if (maxResults != null) queryParams["maxResults"] = maxResults;

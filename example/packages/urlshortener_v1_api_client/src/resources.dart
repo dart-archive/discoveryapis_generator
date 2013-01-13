@@ -25,6 +25,10 @@ class UrlResource extends Resource {
     var queryParams = new Map();
 
     var paramErrors = new StringBuffer();
+    if (!["ANALYTICS_CLICKS", "ANALYTICS_TOP_STRINGS", "FULL"].contains(projection)) {
+      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+      paramErrors.add("Allowed values for projection: ANALYTICS_CLICKS, ANALYTICS_TOP_STRINGS, FULL");
+    }
     if (projection != null) queryParams["projection"] = projection;
     if (shortUrl == null) {
       if (!paramErrors.isEmpty) paramErrors.add(" / ");
@@ -106,6 +110,10 @@ class UrlResource extends Resource {
     var queryParams = new Map();
 
     var paramErrors = new StringBuffer();
+    if (!["ANALYTICS_CLICKS", "FULL"].contains(projection)) {
+      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+      paramErrors.add("Allowed values for projection: ANALYTICS_CLICKS, FULL");
+    }
     if (projection != null) queryParams["projection"] = projection;
     if (start_token != null) queryParams["start-token"] = start_token;
     if (optParams != null) {

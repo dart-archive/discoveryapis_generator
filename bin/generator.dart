@@ -481,6 +481,20 @@ part "src/resources.dart";
           tmp.add("      paramErrors.add(\"$variable is required\");\n");
           tmp.add("    }\n");
         }
+        if (description["enum"] != null) {
+          var list = new StringBuffer();
+          var values = new StringBuffer();
+          description["enum"].forEach((value) {
+            if (!list.isEmpty) list.add(", ");
+            if (!values.isEmpty) values.add(", ");
+            list.add("\"$value\"");
+            values.add(value);
+          });
+          tmp.add("    if (![$list].contains($variable)) {\n");
+          tmp.add("      if (!paramErrors.isEmpty) paramErrors.add(\" / \");\n");
+          tmp.add("      paramErrors.add(\"Allowed values for $variable: $values\");\n");
+          tmp.add("    }\n");
+        }
         tmp.add("    if ($variable != null) $location[\"$name\"] = $variable;\n");
       });
     }
