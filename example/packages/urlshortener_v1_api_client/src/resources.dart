@@ -24,16 +24,12 @@ class UrlResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    var paramErrors = new StringBuffer();
-    if (!["ANALYTICS_CLICKS", "ANALYTICS_TOP_STRINGS", "FULL"].contains(projection)) {
-      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+    var paramErrors = new List();
+    if (projection != null && !["ANALYTICS_CLICKS", "ANALYTICS_TOP_STRINGS", "FULL"].contains(projection)) {
       paramErrors.add("Allowed values for projection: ANALYTICS_CLICKS, ANALYTICS_TOP_STRINGS, FULL");
     }
     if (projection != null) queryParams["projection"] = projection;
-    if (shortUrl == null) {
-      if (!paramErrors.isEmpty) paramErrors.add(" / ");
-      paramErrors.add("shortUrl is required");
-    }
+    if (shortUrl == null) paramErrors.add("shortUrl is required");
     if (shortUrl != null) queryParams["shortUrl"] = shortUrl;
     if (optParams != null) {
       optParams.forEach((key, value) {
@@ -44,7 +40,7 @@ class UrlResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(paramErrors.toString()));
+      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
       return completer.future;
     }
 
@@ -69,7 +65,7 @@ class UrlResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    var paramErrors = new StringBuffer();
+    var paramErrors = new List();
     if (optParams != null) {
       optParams.forEach((key, value) {
         if (value != null && queryParams[key] == null) {
@@ -79,7 +75,7 @@ class UrlResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(paramErrors.toString()));
+      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
       return completer.future;
     }
 
@@ -109,9 +105,8 @@ class UrlResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    var paramErrors = new StringBuffer();
-    if (!["ANALYTICS_CLICKS", "FULL"].contains(projection)) {
-      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+    var paramErrors = new List();
+    if (projection != null && !["ANALYTICS_CLICKS", "FULL"].contains(projection)) {
       paramErrors.add("Allowed values for projection: ANALYTICS_CLICKS, FULL");
     }
     if (projection != null) queryParams["projection"] = projection;
@@ -125,7 +120,7 @@ class UrlResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(paramErrors.toString()));
+      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
       return completer.future;
     }
 

@@ -24,7 +24,7 @@ class AboutResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    var paramErrors = new StringBuffer();
+    var paramErrors = new List();
     if (includeSubscribed != null) queryParams["includeSubscribed"] = includeSubscribed;
     if (maxChangeIdCount != null) queryParams["maxChangeIdCount"] = maxChangeIdCount;
     if (startChangeId != null) queryParams["startChangeId"] = startChangeId;
@@ -37,7 +37,7 @@ class AboutResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(paramErrors.toString()));
+      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
       return completer.future;
     }
 
@@ -68,11 +68,8 @@ class AppsResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    var paramErrors = new StringBuffer();
-    if (appId == null) {
-      if (!paramErrors.isEmpty) paramErrors.add(" / ");
-      paramErrors.add("appId is required");
-    }
+    var paramErrors = new List();
+    if (appId == null) paramErrors.add("appId is required");
     if (appId != null) urlParams["appId"] = appId;
     if (optParams != null) {
       optParams.forEach((key, value) {
@@ -83,7 +80,7 @@ class AppsResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(paramErrors.toString()));
+      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
       return completer.future;
     }
 
@@ -106,7 +103,7 @@ class AppsResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    var paramErrors = new StringBuffer();
+    var paramErrors = new List();
     if (optParams != null) {
       optParams.forEach((key, value) {
         if (value != null && queryParams[key] == null) {
@@ -116,7 +113,7 @@ class AppsResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(paramErrors.toString()));
+      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
       return completer.future;
     }
 
@@ -147,11 +144,8 @@ class ChangesResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    var paramErrors = new StringBuffer();
-    if (changeId == null) {
-      if (!paramErrors.isEmpty) paramErrors.add(" / ");
-      paramErrors.add("changeId is required");
-    }
+    var paramErrors = new List();
+    if (changeId == null) paramErrors.add("changeId is required");
     if (changeId != null) urlParams["changeId"] = changeId;
     if (optParams != null) {
       optParams.forEach((key, value) {
@@ -162,7 +156,7 @@ class ChangesResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(paramErrors.toString()));
+      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
       return completer.future;
     }
 
@@ -199,7 +193,7 @@ class ChangesResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    var paramErrors = new StringBuffer();
+    var paramErrors = new List();
     if (includeDeleted != null) queryParams["includeDeleted"] = includeDeleted;
     if (includeSubscribed != null) queryParams["includeSubscribed"] = includeSubscribed;
     if (maxResults != null) queryParams["maxResults"] = maxResults;
@@ -214,7 +208,7 @@ class ChangesResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(paramErrors.toString()));
+      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
       return completer.future;
     }
 
@@ -247,16 +241,10 @@ class ChildrenResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    var paramErrors = new StringBuffer();
-    if (childId == null) {
-      if (!paramErrors.isEmpty) paramErrors.add(" / ");
-      paramErrors.add("childId is required");
-    }
+    var paramErrors = new List();
+    if (childId == null) paramErrors.add("childId is required");
     if (childId != null) urlParams["childId"] = childId;
-    if (folderId == null) {
-      if (!paramErrors.isEmpty) paramErrors.add(" / ");
-      paramErrors.add("folderId is required");
-    }
+    if (folderId == null) paramErrors.add("folderId is required");
     if (folderId != null) urlParams["folderId"] = folderId;
     if (optParams != null) {
       optParams.forEach((key, value) {
@@ -267,7 +255,7 @@ class ChildrenResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(paramErrors.toString()));
+      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
       return completer.future;
     }
 
@@ -294,16 +282,10 @@ class ChildrenResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    var paramErrors = new StringBuffer();
-    if (childId == null) {
-      if (!paramErrors.isEmpty) paramErrors.add(" / ");
-      paramErrors.add("childId is required");
-    }
+    var paramErrors = new List();
+    if (childId == null) paramErrors.add("childId is required");
     if (childId != null) urlParams["childId"] = childId;
-    if (folderId == null) {
-      if (!paramErrors.isEmpty) paramErrors.add(" / ");
-      paramErrors.add("folderId is required");
-    }
+    if (folderId == null) paramErrors.add("folderId is required");
     if (folderId != null) urlParams["folderId"] = folderId;
     if (optParams != null) {
       optParams.forEach((key, value) {
@@ -314,7 +296,7 @@ class ChildrenResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(paramErrors.toString()));
+      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
       return completer.future;
     }
 
@@ -341,11 +323,8 @@ class ChildrenResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    var paramErrors = new StringBuffer();
-    if (folderId == null) {
-      if (!paramErrors.isEmpty) paramErrors.add(" / ");
-      paramErrors.add("folderId is required");
-    }
+    var paramErrors = new List();
+    if (folderId == null) paramErrors.add("folderId is required");
     if (folderId != null) urlParams["folderId"] = folderId;
     if (optParams != null) {
       optParams.forEach((key, value) {
@@ -356,7 +335,7 @@ class ChildrenResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(paramErrors.toString()));
+      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
       return completer.future;
     }
 
@@ -389,11 +368,8 @@ class ChildrenResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    var paramErrors = new StringBuffer();
-    if (folderId == null) {
-      if (!paramErrors.isEmpty) paramErrors.add(" / ");
-      paramErrors.add("folderId is required");
-    }
+    var paramErrors = new List();
+    if (folderId == null) paramErrors.add("folderId is required");
     if (folderId != null) urlParams["folderId"] = folderId;
     if (maxResults != null) queryParams["maxResults"] = maxResults;
     if (pageToken != null) queryParams["pageToken"] = pageToken;
@@ -407,7 +383,7 @@ class ChildrenResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(paramErrors.toString()));
+      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
       return completer.future;
     }
 
@@ -440,16 +416,10 @@ class CommentsResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    var paramErrors = new StringBuffer();
-    if (commentId == null) {
-      if (!paramErrors.isEmpty) paramErrors.add(" / ");
-      paramErrors.add("commentId is required");
-    }
+    var paramErrors = new List();
+    if (commentId == null) paramErrors.add("commentId is required");
     if (commentId != null) urlParams["commentId"] = commentId;
-    if (fileId == null) {
-      if (!paramErrors.isEmpty) paramErrors.add(" / ");
-      paramErrors.add("fileId is required");
-    }
+    if (fileId == null) paramErrors.add("fileId is required");
     if (fileId != null) urlParams["fileId"] = fileId;
     if (optParams != null) {
       optParams.forEach((key, value) {
@@ -460,7 +430,7 @@ class CommentsResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(paramErrors.toString()));
+      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
       return completer.future;
     }
 
@@ -490,16 +460,10 @@ class CommentsResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    var paramErrors = new StringBuffer();
-    if (commentId == null) {
-      if (!paramErrors.isEmpty) paramErrors.add(" / ");
-      paramErrors.add("commentId is required");
-    }
+    var paramErrors = new List();
+    if (commentId == null) paramErrors.add("commentId is required");
     if (commentId != null) urlParams["commentId"] = commentId;
-    if (fileId == null) {
-      if (!paramErrors.isEmpty) paramErrors.add(" / ");
-      paramErrors.add("fileId is required");
-    }
+    if (fileId == null) paramErrors.add("fileId is required");
     if (fileId != null) urlParams["fileId"] = fileId;
     if (includeDeleted != null) queryParams["includeDeleted"] = includeDeleted;
     if (optParams != null) {
@@ -511,7 +475,7 @@ class CommentsResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(paramErrors.toString()));
+      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
       return completer.future;
     }
 
@@ -538,11 +502,8 @@ class CommentsResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    var paramErrors = new StringBuffer();
-    if (fileId == null) {
-      if (!paramErrors.isEmpty) paramErrors.add(" / ");
-      paramErrors.add("fileId is required");
-    }
+    var paramErrors = new List();
+    if (fileId == null) paramErrors.add("fileId is required");
     if (fileId != null) urlParams["fileId"] = fileId;
     if (optParams != null) {
       optParams.forEach((key, value) {
@@ -553,7 +514,7 @@ class CommentsResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(paramErrors.toString()));
+      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
       return completer.future;
     }
 
@@ -590,11 +551,8 @@ class CommentsResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    var paramErrors = new StringBuffer();
-    if (fileId == null) {
-      if (!paramErrors.isEmpty) paramErrors.add(" / ");
-      paramErrors.add("fileId is required");
-    }
+    var paramErrors = new List();
+    if (fileId == null) paramErrors.add("fileId is required");
     if (fileId != null) urlParams["fileId"] = fileId;
     if (includeDeleted != null) queryParams["includeDeleted"] = includeDeleted;
     if (maxResults != null) queryParams["maxResults"] = maxResults;
@@ -609,7 +567,7 @@ class CommentsResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(paramErrors.toString()));
+      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
       return completer.future;
     }
 
@@ -638,16 +596,10 @@ class CommentsResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    var paramErrors = new StringBuffer();
-    if (commentId == null) {
-      if (!paramErrors.isEmpty) paramErrors.add(" / ");
-      paramErrors.add("commentId is required");
-    }
+    var paramErrors = new List();
+    if (commentId == null) paramErrors.add("commentId is required");
     if (commentId != null) urlParams["commentId"] = commentId;
-    if (fileId == null) {
-      if (!paramErrors.isEmpty) paramErrors.add(" / ");
-      paramErrors.add("fileId is required");
-    }
+    if (fileId == null) paramErrors.add("fileId is required");
     if (fileId != null) urlParams["fileId"] = fileId;
     if (optParams != null) {
       optParams.forEach((key, value) {
@@ -658,7 +610,7 @@ class CommentsResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(paramErrors.toString()));
+      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
       return completer.future;
     }
 
@@ -687,16 +639,10 @@ class CommentsResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    var paramErrors = new StringBuffer();
-    if (commentId == null) {
-      if (!paramErrors.isEmpty) paramErrors.add(" / ");
-      paramErrors.add("commentId is required");
-    }
+    var paramErrors = new List();
+    if (commentId == null) paramErrors.add("commentId is required");
     if (commentId != null) urlParams["commentId"] = commentId;
-    if (fileId == null) {
-      if (!paramErrors.isEmpty) paramErrors.add(" / ");
-      paramErrors.add("fileId is required");
-    }
+    if (fileId == null) paramErrors.add("fileId is required");
     if (fileId != null) urlParams["fileId"] = fileId;
     if (optParams != null) {
       optParams.forEach((key, value) {
@@ -707,7 +653,7 @@ class CommentsResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(paramErrors.toString()));
+      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
       return completer.future;
     }
 
@@ -755,12 +701,9 @@ class FilesResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    var paramErrors = new StringBuffer();
+    var paramErrors = new List();
     if (convert != null) queryParams["convert"] = convert;
-    if (fileId == null) {
-      if (!paramErrors.isEmpty) paramErrors.add(" / ");
-      paramErrors.add("fileId is required");
-    }
+    if (fileId == null) paramErrors.add("fileId is required");
     if (fileId != null) urlParams["fileId"] = fileId;
     if (ocr != null) queryParams["ocr"] = ocr;
     if (ocrLanguage != null) queryParams["ocrLanguage"] = ocrLanguage;
@@ -776,7 +719,7 @@ class FilesResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(paramErrors.toString()));
+      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
       return completer.future;
     }
 
@@ -801,11 +744,8 @@ class FilesResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    var paramErrors = new StringBuffer();
-    if (fileId == null) {
-      if (!paramErrors.isEmpty) paramErrors.add(" / ");
-      paramErrors.add("fileId is required");
-    }
+    var paramErrors = new List();
+    if (fileId == null) paramErrors.add("fileId is required");
     if (fileId != null) urlParams["fileId"] = fileId;
     if (optParams != null) {
       optParams.forEach((key, value) {
@@ -816,7 +756,7 @@ class FilesResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(paramErrors.toString()));
+      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
       return completer.future;
     }
 
@@ -849,14 +789,10 @@ class FilesResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    var paramErrors = new StringBuffer();
-    if (fileId == null) {
-      if (!paramErrors.isEmpty) paramErrors.add(" / ");
-      paramErrors.add("fileId is required");
-    }
+    var paramErrors = new List();
+    if (fileId == null) paramErrors.add("fileId is required");
     if (fileId != null) urlParams["fileId"] = fileId;
-    if (!["BASIC", "FULL"].contains(projection)) {
-      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+    if (projection != null && !["BASIC", "FULL"].contains(projection)) {
       paramErrors.add("Allowed values for projection: BASIC, FULL");
     }
     if (projection != null) queryParams["projection"] = projection;
@@ -870,7 +806,7 @@ class FilesResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(paramErrors.toString()));
+      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
       return completer.future;
     }
 
@@ -915,7 +851,7 @@ class FilesResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    var paramErrors = new StringBuffer();
+    var paramErrors = new List();
     if (convert != null) queryParams["convert"] = convert;
     if (ocr != null) queryParams["ocr"] = ocr;
     if (ocrLanguage != null) queryParams["ocrLanguage"] = ocrLanguage;
@@ -931,7 +867,7 @@ class FilesResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(paramErrors.toString()));
+      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
       return completer.future;
     }
 
@@ -971,11 +907,10 @@ class FilesResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    var paramErrors = new StringBuffer();
+    var paramErrors = new List();
     if (maxResults != null) queryParams["maxResults"] = maxResults;
     if (pageToken != null) queryParams["pageToken"] = pageToken;
-    if (!["BASIC", "FULL"].contains(projection)) {
-      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+    if (projection != null && !["BASIC", "FULL"].contains(projection)) {
       paramErrors.add("Allowed values for projection: BASIC, FULL");
     }
     if (projection != null) queryParams["projection"] = projection;
@@ -989,7 +924,7 @@ class FilesResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(paramErrors.toString()));
+      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
       return completer.future;
     }
 
@@ -1040,12 +975,9 @@ class FilesResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    var paramErrors = new StringBuffer();
+    var paramErrors = new List();
     if (convert != null) queryParams["convert"] = convert;
-    if (fileId == null) {
-      if (!paramErrors.isEmpty) paramErrors.add(" / ");
-      paramErrors.add("fileId is required");
-    }
+    if (fileId == null) paramErrors.add("fileId is required");
     if (fileId != null) urlParams["fileId"] = fileId;
     if (newRevision != null) queryParams["newRevision"] = newRevision;
     if (ocr != null) queryParams["ocr"] = ocr;
@@ -1064,7 +996,7 @@ class FilesResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(paramErrors.toString()));
+      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
       return completer.future;
     }
 
@@ -1089,11 +1021,8 @@ class FilesResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    var paramErrors = new StringBuffer();
-    if (fileId == null) {
-      if (!paramErrors.isEmpty) paramErrors.add(" / ");
-      paramErrors.add("fileId is required");
-    }
+    var paramErrors = new List();
+    if (fileId == null) paramErrors.add("fileId is required");
     if (fileId != null) urlParams["fileId"] = fileId;
     if (optParams != null) {
       optParams.forEach((key, value) {
@@ -1104,7 +1033,7 @@ class FilesResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(paramErrors.toString()));
+      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
       return completer.future;
     }
 
@@ -1129,11 +1058,8 @@ class FilesResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    var paramErrors = new StringBuffer();
-    if (fileId == null) {
-      if (!paramErrors.isEmpty) paramErrors.add(" / ");
-      paramErrors.add("fileId is required");
-    }
+    var paramErrors = new List();
+    if (fileId == null) paramErrors.add("fileId is required");
     if (fileId != null) urlParams["fileId"] = fileId;
     if (optParams != null) {
       optParams.forEach((key, value) {
@@ -1144,7 +1070,7 @@ class FilesResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(paramErrors.toString()));
+      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
       return completer.future;
     }
 
@@ -1169,11 +1095,8 @@ class FilesResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    var paramErrors = new StringBuffer();
-    if (fileId == null) {
-      if (!paramErrors.isEmpty) paramErrors.add(" / ");
-      paramErrors.add("fileId is required");
-    }
+    var paramErrors = new List();
+    if (fileId == null) paramErrors.add("fileId is required");
     if (fileId != null) urlParams["fileId"] = fileId;
     if (optParams != null) {
       optParams.forEach((key, value) {
@@ -1184,7 +1107,7 @@ class FilesResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(paramErrors.toString()));
+      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
       return completer.future;
     }
 
@@ -1240,12 +1163,9 @@ class FilesResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    var paramErrors = new StringBuffer();
+    var paramErrors = new List();
     if (convert != null) queryParams["convert"] = convert;
-    if (fileId == null) {
-      if (!paramErrors.isEmpty) paramErrors.add(" / ");
-      paramErrors.add("fileId is required");
-    }
+    if (fileId == null) paramErrors.add("fileId is required");
     if (fileId != null) urlParams["fileId"] = fileId;
     if (newRevision != null) queryParams["newRevision"] = newRevision;
     if (ocr != null) queryParams["ocr"] = ocr;
@@ -1264,7 +1184,7 @@ class FilesResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(paramErrors.toString()));
+      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
       return completer.future;
     }
 
@@ -1301,16 +1221,10 @@ class ParentsResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    var paramErrors = new StringBuffer();
-    if (fileId == null) {
-      if (!paramErrors.isEmpty) paramErrors.add(" / ");
-      paramErrors.add("fileId is required");
-    }
+    var paramErrors = new List();
+    if (fileId == null) paramErrors.add("fileId is required");
     if (fileId != null) urlParams["fileId"] = fileId;
-    if (parentId == null) {
-      if (!paramErrors.isEmpty) paramErrors.add(" / ");
-      paramErrors.add("parentId is required");
-    }
+    if (parentId == null) paramErrors.add("parentId is required");
     if (parentId != null) urlParams["parentId"] = parentId;
     if (optParams != null) {
       optParams.forEach((key, value) {
@@ -1321,7 +1235,7 @@ class ParentsResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(paramErrors.toString()));
+      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
       return completer.future;
     }
 
@@ -1348,16 +1262,10 @@ class ParentsResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    var paramErrors = new StringBuffer();
-    if (fileId == null) {
-      if (!paramErrors.isEmpty) paramErrors.add(" / ");
-      paramErrors.add("fileId is required");
-    }
+    var paramErrors = new List();
+    if (fileId == null) paramErrors.add("fileId is required");
     if (fileId != null) urlParams["fileId"] = fileId;
-    if (parentId == null) {
-      if (!paramErrors.isEmpty) paramErrors.add(" / ");
-      paramErrors.add("parentId is required");
-    }
+    if (parentId == null) paramErrors.add("parentId is required");
     if (parentId != null) urlParams["parentId"] = parentId;
     if (optParams != null) {
       optParams.forEach((key, value) {
@@ -1368,7 +1276,7 @@ class ParentsResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(paramErrors.toString()));
+      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
       return completer.future;
     }
 
@@ -1395,11 +1303,8 @@ class ParentsResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    var paramErrors = new StringBuffer();
-    if (fileId == null) {
-      if (!paramErrors.isEmpty) paramErrors.add(" / ");
-      paramErrors.add("fileId is required");
-    }
+    var paramErrors = new List();
+    if (fileId == null) paramErrors.add("fileId is required");
     if (fileId != null) urlParams["fileId"] = fileId;
     if (optParams != null) {
       optParams.forEach((key, value) {
@@ -1410,7 +1315,7 @@ class ParentsResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(paramErrors.toString()));
+      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
       return completer.future;
     }
 
@@ -1435,11 +1340,8 @@ class ParentsResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    var paramErrors = new StringBuffer();
-    if (fileId == null) {
-      if (!paramErrors.isEmpty) paramErrors.add(" / ");
-      paramErrors.add("fileId is required");
-    }
+    var paramErrors = new List();
+    if (fileId == null) paramErrors.add("fileId is required");
     if (fileId != null) urlParams["fileId"] = fileId;
     if (optParams != null) {
       optParams.forEach((key, value) {
@@ -1450,7 +1352,7 @@ class ParentsResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(paramErrors.toString()));
+      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
       return completer.future;
     }
 
@@ -1483,16 +1385,10 @@ class PermissionsResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    var paramErrors = new StringBuffer();
-    if (fileId == null) {
-      if (!paramErrors.isEmpty) paramErrors.add(" / ");
-      paramErrors.add("fileId is required");
-    }
+    var paramErrors = new List();
+    if (fileId == null) paramErrors.add("fileId is required");
     if (fileId != null) urlParams["fileId"] = fileId;
-    if (permissionId == null) {
-      if (!paramErrors.isEmpty) paramErrors.add(" / ");
-      paramErrors.add("permissionId is required");
-    }
+    if (permissionId == null) paramErrors.add("permissionId is required");
     if (permissionId != null) urlParams["permissionId"] = permissionId;
     if (optParams != null) {
       optParams.forEach((key, value) {
@@ -1503,7 +1399,7 @@ class PermissionsResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(paramErrors.toString()));
+      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
       return completer.future;
     }
 
@@ -1530,16 +1426,10 @@ class PermissionsResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    var paramErrors = new StringBuffer();
-    if (fileId == null) {
-      if (!paramErrors.isEmpty) paramErrors.add(" / ");
-      paramErrors.add("fileId is required");
-    }
+    var paramErrors = new List();
+    if (fileId == null) paramErrors.add("fileId is required");
     if (fileId != null) urlParams["fileId"] = fileId;
-    if (permissionId == null) {
-      if (!paramErrors.isEmpty) paramErrors.add(" / ");
-      paramErrors.add("permissionId is required");
-    }
+    if (permissionId == null) paramErrors.add("permissionId is required");
     if (permissionId != null) urlParams["permissionId"] = permissionId;
     if (optParams != null) {
       optParams.forEach((key, value) {
@@ -1550,7 +1440,7 @@ class PermissionsResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(paramErrors.toString()));
+      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
       return completer.future;
     }
 
@@ -1580,11 +1470,8 @@ class PermissionsResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    var paramErrors = new StringBuffer();
-    if (fileId == null) {
-      if (!paramErrors.isEmpty) paramErrors.add(" / ");
-      paramErrors.add("fileId is required");
-    }
+    var paramErrors = new List();
+    if (fileId == null) paramErrors.add("fileId is required");
     if (fileId != null) urlParams["fileId"] = fileId;
     if (sendNotificationEmails != null) queryParams["sendNotificationEmails"] = sendNotificationEmails;
     if (optParams != null) {
@@ -1596,7 +1483,7 @@ class PermissionsResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(paramErrors.toString()));
+      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
       return completer.future;
     }
 
@@ -1621,11 +1508,8 @@ class PermissionsResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    var paramErrors = new StringBuffer();
-    if (fileId == null) {
-      if (!paramErrors.isEmpty) paramErrors.add(" / ");
-      paramErrors.add("fileId is required");
-    }
+    var paramErrors = new List();
+    if (fileId == null) paramErrors.add("fileId is required");
     if (fileId != null) urlParams["fileId"] = fileId;
     if (optParams != null) {
       optParams.forEach((key, value) {
@@ -1636,7 +1520,7 @@ class PermissionsResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(paramErrors.toString()));
+      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
       return completer.future;
     }
 
@@ -1665,16 +1549,10 @@ class PermissionsResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    var paramErrors = new StringBuffer();
-    if (fileId == null) {
-      if (!paramErrors.isEmpty) paramErrors.add(" / ");
-      paramErrors.add("fileId is required");
-    }
+    var paramErrors = new List();
+    if (fileId == null) paramErrors.add("fileId is required");
     if (fileId != null) urlParams["fileId"] = fileId;
-    if (permissionId == null) {
-      if (!paramErrors.isEmpty) paramErrors.add(" / ");
-      paramErrors.add("permissionId is required");
-    }
+    if (permissionId == null) paramErrors.add("permissionId is required");
     if (permissionId != null) urlParams["permissionId"] = permissionId;
     if (optParams != null) {
       optParams.forEach((key, value) {
@@ -1685,7 +1563,7 @@ class PermissionsResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(paramErrors.toString()));
+      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
       return completer.future;
     }
 
@@ -1714,16 +1592,10 @@ class PermissionsResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    var paramErrors = new StringBuffer();
-    if (fileId == null) {
-      if (!paramErrors.isEmpty) paramErrors.add(" / ");
-      paramErrors.add("fileId is required");
-    }
+    var paramErrors = new List();
+    if (fileId == null) paramErrors.add("fileId is required");
     if (fileId != null) urlParams["fileId"] = fileId;
-    if (permissionId == null) {
-      if (!paramErrors.isEmpty) paramErrors.add(" / ");
-      paramErrors.add("permissionId is required");
-    }
+    if (permissionId == null) paramErrors.add("permissionId is required");
     if (permissionId != null) urlParams["permissionId"] = permissionId;
     if (optParams != null) {
       optParams.forEach((key, value) {
@@ -1734,7 +1606,7 @@ class PermissionsResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(paramErrors.toString()));
+      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
       return completer.future;
     }
 
@@ -1769,21 +1641,12 @@ class RepliesResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    var paramErrors = new StringBuffer();
-    if (commentId == null) {
-      if (!paramErrors.isEmpty) paramErrors.add(" / ");
-      paramErrors.add("commentId is required");
-    }
+    var paramErrors = new List();
+    if (commentId == null) paramErrors.add("commentId is required");
     if (commentId != null) urlParams["commentId"] = commentId;
-    if (fileId == null) {
-      if (!paramErrors.isEmpty) paramErrors.add(" / ");
-      paramErrors.add("fileId is required");
-    }
+    if (fileId == null) paramErrors.add("fileId is required");
     if (fileId != null) urlParams["fileId"] = fileId;
-    if (replyId == null) {
-      if (!paramErrors.isEmpty) paramErrors.add(" / ");
-      paramErrors.add("replyId is required");
-    }
+    if (replyId == null) paramErrors.add("replyId is required");
     if (replyId != null) urlParams["replyId"] = replyId;
     if (optParams != null) {
       optParams.forEach((key, value) {
@@ -1794,7 +1657,7 @@ class RepliesResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(paramErrors.toString()));
+      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
       return completer.future;
     }
 
@@ -1826,22 +1689,13 @@ class RepliesResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    var paramErrors = new StringBuffer();
-    if (commentId == null) {
-      if (!paramErrors.isEmpty) paramErrors.add(" / ");
-      paramErrors.add("commentId is required");
-    }
+    var paramErrors = new List();
+    if (commentId == null) paramErrors.add("commentId is required");
     if (commentId != null) urlParams["commentId"] = commentId;
-    if (fileId == null) {
-      if (!paramErrors.isEmpty) paramErrors.add(" / ");
-      paramErrors.add("fileId is required");
-    }
+    if (fileId == null) paramErrors.add("fileId is required");
     if (fileId != null) urlParams["fileId"] = fileId;
     if (includeDeleted != null) queryParams["includeDeleted"] = includeDeleted;
-    if (replyId == null) {
-      if (!paramErrors.isEmpty) paramErrors.add(" / ");
-      paramErrors.add("replyId is required");
-    }
+    if (replyId == null) paramErrors.add("replyId is required");
     if (replyId != null) urlParams["replyId"] = replyId;
     if (optParams != null) {
       optParams.forEach((key, value) {
@@ -1852,7 +1706,7 @@ class RepliesResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(paramErrors.toString()));
+      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
       return completer.future;
     }
 
@@ -1881,16 +1735,10 @@ class RepliesResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    var paramErrors = new StringBuffer();
-    if (commentId == null) {
-      if (!paramErrors.isEmpty) paramErrors.add(" / ");
-      paramErrors.add("commentId is required");
-    }
+    var paramErrors = new List();
+    if (commentId == null) paramErrors.add("commentId is required");
     if (commentId != null) urlParams["commentId"] = commentId;
-    if (fileId == null) {
-      if (!paramErrors.isEmpty) paramErrors.add(" / ");
-      paramErrors.add("fileId is required");
-    }
+    if (fileId == null) paramErrors.add("fileId is required");
     if (fileId != null) urlParams["fileId"] = fileId;
     if (optParams != null) {
       optParams.forEach((key, value) {
@@ -1901,7 +1749,7 @@ class RepliesResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(paramErrors.toString()));
+      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
       return completer.future;
     }
 
@@ -1938,16 +1786,10 @@ class RepliesResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    var paramErrors = new StringBuffer();
-    if (commentId == null) {
-      if (!paramErrors.isEmpty) paramErrors.add(" / ");
-      paramErrors.add("commentId is required");
-    }
+    var paramErrors = new List();
+    if (commentId == null) paramErrors.add("commentId is required");
     if (commentId != null) urlParams["commentId"] = commentId;
-    if (fileId == null) {
-      if (!paramErrors.isEmpty) paramErrors.add(" / ");
-      paramErrors.add("fileId is required");
-    }
+    if (fileId == null) paramErrors.add("fileId is required");
     if (fileId != null) urlParams["fileId"] = fileId;
     if (includeDeleted != null) queryParams["includeDeleted"] = includeDeleted;
     if (maxResults != null) queryParams["maxResults"] = maxResults;
@@ -1961,7 +1803,7 @@ class RepliesResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(paramErrors.toString()));
+      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
       return completer.future;
     }
 
@@ -1992,21 +1834,12 @@ class RepliesResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    var paramErrors = new StringBuffer();
-    if (commentId == null) {
-      if (!paramErrors.isEmpty) paramErrors.add(" / ");
-      paramErrors.add("commentId is required");
-    }
+    var paramErrors = new List();
+    if (commentId == null) paramErrors.add("commentId is required");
     if (commentId != null) urlParams["commentId"] = commentId;
-    if (fileId == null) {
-      if (!paramErrors.isEmpty) paramErrors.add(" / ");
-      paramErrors.add("fileId is required");
-    }
+    if (fileId == null) paramErrors.add("fileId is required");
     if (fileId != null) urlParams["fileId"] = fileId;
-    if (replyId == null) {
-      if (!paramErrors.isEmpty) paramErrors.add(" / ");
-      paramErrors.add("replyId is required");
-    }
+    if (replyId == null) paramErrors.add("replyId is required");
     if (replyId != null) urlParams["replyId"] = replyId;
     if (optParams != null) {
       optParams.forEach((key, value) {
@@ -2017,7 +1850,7 @@ class RepliesResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(paramErrors.toString()));
+      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
       return completer.future;
     }
 
@@ -2048,21 +1881,12 @@ class RepliesResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    var paramErrors = new StringBuffer();
-    if (commentId == null) {
-      if (!paramErrors.isEmpty) paramErrors.add(" / ");
-      paramErrors.add("commentId is required");
-    }
+    var paramErrors = new List();
+    if (commentId == null) paramErrors.add("commentId is required");
     if (commentId != null) urlParams["commentId"] = commentId;
-    if (fileId == null) {
-      if (!paramErrors.isEmpty) paramErrors.add(" / ");
-      paramErrors.add("fileId is required");
-    }
+    if (fileId == null) paramErrors.add("fileId is required");
     if (fileId != null) urlParams["fileId"] = fileId;
-    if (replyId == null) {
-      if (!paramErrors.isEmpty) paramErrors.add(" / ");
-      paramErrors.add("replyId is required");
-    }
+    if (replyId == null) paramErrors.add("replyId is required");
     if (replyId != null) urlParams["replyId"] = replyId;
     if (optParams != null) {
       optParams.forEach((key, value) {
@@ -2073,7 +1897,7 @@ class RepliesResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(paramErrors.toString()));
+      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
       return completer.future;
     }
 
@@ -2106,16 +1930,10 @@ class RevisionsResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    var paramErrors = new StringBuffer();
-    if (fileId == null) {
-      if (!paramErrors.isEmpty) paramErrors.add(" / ");
-      paramErrors.add("fileId is required");
-    }
+    var paramErrors = new List();
+    if (fileId == null) paramErrors.add("fileId is required");
     if (fileId != null) urlParams["fileId"] = fileId;
-    if (revisionId == null) {
-      if (!paramErrors.isEmpty) paramErrors.add(" / ");
-      paramErrors.add("revisionId is required");
-    }
+    if (revisionId == null) paramErrors.add("revisionId is required");
     if (revisionId != null) urlParams["revisionId"] = revisionId;
     if (optParams != null) {
       optParams.forEach((key, value) {
@@ -2126,7 +1944,7 @@ class RevisionsResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(paramErrors.toString()));
+      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
       return completer.future;
     }
 
@@ -2153,16 +1971,10 @@ class RevisionsResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    var paramErrors = new StringBuffer();
-    if (fileId == null) {
-      if (!paramErrors.isEmpty) paramErrors.add(" / ");
-      paramErrors.add("fileId is required");
-    }
+    var paramErrors = new List();
+    if (fileId == null) paramErrors.add("fileId is required");
     if (fileId != null) urlParams["fileId"] = fileId;
-    if (revisionId == null) {
-      if (!paramErrors.isEmpty) paramErrors.add(" / ");
-      paramErrors.add("revisionId is required");
-    }
+    if (revisionId == null) paramErrors.add("revisionId is required");
     if (revisionId != null) urlParams["revisionId"] = revisionId;
     if (optParams != null) {
       optParams.forEach((key, value) {
@@ -2173,7 +1985,7 @@ class RevisionsResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(paramErrors.toString()));
+      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
       return completer.future;
     }
 
@@ -2198,11 +2010,8 @@ class RevisionsResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    var paramErrors = new StringBuffer();
-    if (fileId == null) {
-      if (!paramErrors.isEmpty) paramErrors.add(" / ");
-      paramErrors.add("fileId is required");
-    }
+    var paramErrors = new List();
+    if (fileId == null) paramErrors.add("fileId is required");
     if (fileId != null) urlParams["fileId"] = fileId;
     if (optParams != null) {
       optParams.forEach((key, value) {
@@ -2213,7 +2022,7 @@ class RevisionsResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(paramErrors.toString()));
+      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
       return completer.future;
     }
 
@@ -2242,16 +2051,10 @@ class RevisionsResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    var paramErrors = new StringBuffer();
-    if (fileId == null) {
-      if (!paramErrors.isEmpty) paramErrors.add(" / ");
-      paramErrors.add("fileId is required");
-    }
+    var paramErrors = new List();
+    if (fileId == null) paramErrors.add("fileId is required");
     if (fileId != null) urlParams["fileId"] = fileId;
-    if (revisionId == null) {
-      if (!paramErrors.isEmpty) paramErrors.add(" / ");
-      paramErrors.add("revisionId is required");
-    }
+    if (revisionId == null) paramErrors.add("revisionId is required");
     if (revisionId != null) urlParams["revisionId"] = revisionId;
     if (optParams != null) {
       optParams.forEach((key, value) {
@@ -2262,7 +2065,7 @@ class RevisionsResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(paramErrors.toString()));
+      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
       return completer.future;
     }
 
@@ -2291,16 +2094,10 @@ class RevisionsResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    var paramErrors = new StringBuffer();
-    if (fileId == null) {
-      if (!paramErrors.isEmpty) paramErrors.add(" / ");
-      paramErrors.add("fileId is required");
-    }
+    var paramErrors = new List();
+    if (fileId == null) paramErrors.add("fileId is required");
     if (fileId != null) urlParams["fileId"] = fileId;
-    if (revisionId == null) {
-      if (!paramErrors.isEmpty) paramErrors.add(" / ");
-      paramErrors.add("revisionId is required");
-    }
+    if (revisionId == null) paramErrors.add("revisionId is required");
     if (revisionId != null) urlParams["revisionId"] = revisionId;
     if (optParams != null) {
       optParams.forEach((key, value) {
@@ -2311,7 +2108,7 @@ class RevisionsResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(paramErrors.toString()));
+      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
       return completer.future;
     }
 

@@ -18,11 +18,8 @@ class ActivitiesResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    var paramErrors = new StringBuffer();
-    if (activityId == null) {
-      if (!paramErrors.isEmpty) paramErrors.add(" / ");
-      paramErrors.add("activityId is required");
-    }
+    var paramErrors = new List();
+    if (activityId == null) paramErrors.add("activityId is required");
     if (activityId != null) urlParams["activityId"] = activityId;
     if (optParams != null) {
       optParams.forEach((key, value) {
@@ -33,7 +30,7 @@ class ActivitiesResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(paramErrors.toString()));
+      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
       return completer.future;
     }
 
@@ -69,22 +66,15 @@ class ActivitiesResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    var paramErrors = new StringBuffer();
-    if (collection == null) {
-      if (!paramErrors.isEmpty) paramErrors.add(" / ");
-      paramErrors.add("collection is required");
-    }
-    if (!["public"].contains(collection)) {
-      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+    var paramErrors = new List();
+    if (collection == null) paramErrors.add("collection is required");
+    if (collection != null && !["public"].contains(collection)) {
       paramErrors.add("Allowed values for collection: public");
     }
     if (collection != null) urlParams["collection"] = collection;
     if (maxResults != null) queryParams["maxResults"] = maxResults;
     if (pageToken != null) queryParams["pageToken"] = pageToken;
-    if (userId == null) {
-      if (!paramErrors.isEmpty) paramErrors.add(" / ");
-      paramErrors.add("userId is required");
-    }
+    if (userId == null) paramErrors.add("userId is required");
     if (userId != null) urlParams["userId"] = userId;
     if (optParams != null) {
       optParams.forEach((key, value) {
@@ -95,7 +85,7 @@ class ActivitiesResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(paramErrors.toString()));
+      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
       return completer.future;
     }
 
@@ -136,19 +126,15 @@ class ActivitiesResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    var paramErrors = new StringBuffer();
+    var paramErrors = new List();
     if (language != null) queryParams["language"] = language;
     if (maxResults != null) queryParams["maxResults"] = maxResults;
-    if (!["best", "recent"].contains(orderBy)) {
-      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+    if (orderBy != null && !["best", "recent"].contains(orderBy)) {
       paramErrors.add("Allowed values for orderBy: best, recent");
     }
     if (orderBy != null) queryParams["orderBy"] = orderBy;
     if (pageToken != null) queryParams["pageToken"] = pageToken;
-    if (query == null) {
-      if (!paramErrors.isEmpty) paramErrors.add(" / ");
-      paramErrors.add("query is required");
-    }
+    if (query == null) paramErrors.add("query is required");
     if (query != null) queryParams["query"] = query;
     if (optParams != null) {
       optParams.forEach((key, value) {
@@ -159,7 +145,7 @@ class ActivitiesResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(paramErrors.toString()));
+      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
       return completer.future;
     }
 
@@ -190,11 +176,8 @@ class CommentsResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    var paramErrors = new StringBuffer();
-    if (commentId == null) {
-      if (!paramErrors.isEmpty) paramErrors.add(" / ");
-      paramErrors.add("commentId is required");
-    }
+    var paramErrors = new List();
+    if (commentId == null) paramErrors.add("commentId is required");
     if (commentId != null) urlParams["commentId"] = commentId;
     if (optParams != null) {
       optParams.forEach((key, value) {
@@ -205,7 +188,7 @@ class CommentsResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(paramErrors.toString()));
+      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
       return completer.future;
     }
 
@@ -243,16 +226,12 @@ class CommentsResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    var paramErrors = new StringBuffer();
-    if (activityId == null) {
-      if (!paramErrors.isEmpty) paramErrors.add(" / ");
-      paramErrors.add("activityId is required");
-    }
+    var paramErrors = new List();
+    if (activityId == null) paramErrors.add("activityId is required");
     if (activityId != null) urlParams["activityId"] = activityId;
     if (maxResults != null) queryParams["maxResults"] = maxResults;
     if (pageToken != null) queryParams["pageToken"] = pageToken;
-    if (!["ascending", "descending"].contains(sortOrder)) {
-      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+    if (sortOrder != null && !["ascending", "descending"].contains(sortOrder)) {
       paramErrors.add("Allowed values for sortOrder: ascending, descending");
     }
     if (sortOrder != null) queryParams["sortOrder"] = sortOrder;
@@ -265,7 +244,7 @@ class CommentsResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(paramErrors.toString()));
+      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
       return completer.future;
     }
 
@@ -296,11 +275,8 @@ class PeopleResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    var paramErrors = new StringBuffer();
-    if (userId == null) {
-      if (!paramErrors.isEmpty) paramErrors.add(" / ");
-      paramErrors.add("userId is required");
-    }
+    var paramErrors = new List();
+    if (userId == null) paramErrors.add("userId is required");
     if (userId != null) urlParams["userId"] = userId;
     if (optParams != null) {
       optParams.forEach((key, value) {
@@ -311,7 +287,7 @@ class PeopleResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(paramErrors.toString()));
+      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
       return completer.future;
     }
 
@@ -348,18 +324,11 @@ class PeopleResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    var paramErrors = new StringBuffer();
-    if (activityId == null) {
-      if (!paramErrors.isEmpty) paramErrors.add(" / ");
-      paramErrors.add("activityId is required");
-    }
+    var paramErrors = new List();
+    if (activityId == null) paramErrors.add("activityId is required");
     if (activityId != null) urlParams["activityId"] = activityId;
-    if (collection == null) {
-      if (!paramErrors.isEmpty) paramErrors.add(" / ");
-      paramErrors.add("collection is required");
-    }
-    if (!["plusoners", "resharers"].contains(collection)) {
-      if (!paramErrors.isEmpty) paramErrors.add(" / ");
+    if (collection == null) paramErrors.add("collection is required");
+    if (collection != null && !["plusoners", "resharers"].contains(collection)) {
       paramErrors.add("Allowed values for collection: plusoners, resharers");
     }
     if (collection != null) urlParams["collection"] = collection;
@@ -374,7 +343,7 @@ class PeopleResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(paramErrors.toString()));
+      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
       return completer.future;
     }
 
@@ -409,14 +378,11 @@ class PeopleResource extends Resource {
     var urlParams = new Map();
     var queryParams = new Map();
 
-    var paramErrors = new StringBuffer();
+    var paramErrors = new List();
     if (language != null) queryParams["language"] = language;
     if (maxResults != null) queryParams["maxResults"] = maxResults;
     if (pageToken != null) queryParams["pageToken"] = pageToken;
-    if (query == null) {
-      if (!paramErrors.isEmpty) paramErrors.add(" / ");
-      paramErrors.add("query is required");
-    }
+    if (query == null) paramErrors.add("query is required");
     if (query != null) queryParams["query"] = query;
     if (optParams != null) {
       optParams.forEach((key, value) {
@@ -427,7 +393,7 @@ class PeopleResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(paramErrors.toString()));
+      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
       return completer.future;
     }
 

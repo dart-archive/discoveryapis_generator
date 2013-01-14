@@ -20,7 +20,7 @@ class Generator {
   String _name;
   String _version;
   String _libraryName;
-  String _clientVersion = "0.0.1";
+  String _clientVersion = "0.0.2";
 
   Generator(this._data) {
     _json = JSON.parse(_data);
@@ -459,8 +459,8 @@ part "src/resources.dart";
       tmp.add("   * ${data["description"]}\n");
     }
 
-    var params = new StringBuffer();
-    var optParams = new StringBuffer();
+    var params = new List<String>();
+    var optParams = new List<String>();
     
     if (data.containsKey("request")) {
       params.add("${data["request"]["\$ref"]} request");
@@ -473,7 +473,6 @@ part "src/resources.dart";
           if (type != null) {
             var variable = cleanName(param);
             tmp.add(_createParamComment(variable, data["parameters"][param]));
-            if (!params.isEmpty) params.add(", ");
             params.add("$type $variable");
             data["parameters"][param]["gen_included"] = true;
           }
@@ -495,7 +494,8 @@ part "src/resources.dart";
     }
     
     if (upload) {
-      optParams.add("String content, String contentType");
+      optParams.add("String content");
+      optParams.add("String contentType");
       tmp.add(_createParamComment("content", {"description": "Base64 Data of the file content to be uploaded"}));
       tmp.add(_createParamComment("contentType", {"description": "MimeType of the file to be uploaded"}));
     }
@@ -506,20 +506,16 @@ part "src/resources.dart";
           if (type != null) {
             var variable = cleanName(name);
             tmp.add(_createParamComment(variable, description));
-            if (!optParams.isEmpty) optParams.add(", ");
             optParams.add("$type $variable");
           }
         }
       });
     }
-    if (!optParams.isEmpty) optParams.add(", ");
-    optParams.add("Map optParams");
 
+    optParams.add("Map optParams");
     tmp.add(_createParamComment("optParams", {"description": "Additional query parameters"}));
-    if (!optParams.isEmpty) { 
-      if (!params.isEmpty) params.add(", ");
-      params.add("{${optParams.toString()}}");
-    }
+
+    params.add("{${Strings.join(optParams, ", ")}}");
 
     tmp.add("   */\n");    
     var response = null;
@@ -529,7 +525,7 @@ part "src/resources.dart";
       response = "Future<Map>";
     }
 
-    tmp.add("  $response $name($params) {\n");
+    tmp.add("  $response $name(${Strings.join(params, ", ")}) {\n");
     tmp.add("    var completer = new Completer();\n");
     tmp.add("    var url = \"${data["path"]}\";\n");
     if (upload) {
@@ -537,7 +533,7 @@ part "src/resources.dart";
     }
     tmp.add("    var urlParams = new Map();\n");
     tmp.add("    var queryParams = new Map();\n\n");
-    tmp.add("    var paramErrors = new StringBuffer();\n");
+    tmp.add("    var paramErrors = new List();\n");
     
     if (data.containsKey("parameters")) {
       data["parameters"].forEach((name, description) {
@@ -545,10 +541,7 @@ part "src/resources.dart";
         var location = "queryParams";
         if (description["location"] == "path") { location = "urlParams"; }
         if (description["required"] == true) {
-          tmp.add("    if ($variable == null) {\n");
-          tmp.add("      if (!paramErrors.isEmpty) paramErrors.add(\" / \");\n");
-          tmp.add("      paramErrors.add(\"$variable is required\");\n");
-          tmp.add("    }\n");
+          tmp.add("    if ($variable == null) paramErrors.add(\"$variable is required\");\n");
         }
         if (description["enum"] != null) {
           var list = new StringBuffer();
@@ -559,8 +552,7 @@ part "src/resources.dart";
             list.add("\"$value\"");
             values.add(value);
           });
-          tmp.add("    if (![$list].contains($variable)) {\n");
-          tmp.add("      if (!paramErrors.isEmpty) paramErrors.add(\" / \");\n");
+          tmp.add("    if ($variable != null && ![$list].contains($variable)) {\n");
           tmp.add("      paramErrors.add(\"Allowed values for $variable: $values\");\n");
           tmp.add("    }\n");
         }
@@ -578,35 +570,30 @@ part "src/resources.dart";
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(paramErrors.toString()));
+      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
       return completer.future;
     }
 
 """);
     
-    params.clear();
+    var call, uploadCall;
     if (data.containsKey("request")) {
-      params.add("body: request.toString(), ");
+      call = "body: request.toString(), urlParams: urlParams, queryParams: queryParams";
+      uploadCall = "request.toString(), content, contentType, urlParams: urlParams, queryParams: queryParams";
+    } else {
+      call = "urlParams: urlParams, queryParams: queryParams";
+      uploadCall = "null, content, contentType, urlParams: urlParams, queryParams: queryParams"; 
     }
-    params.add("urlParams: urlParams, queryParams: queryParams");
-    
     
     tmp.add("    var response;\n");
     if (upload) {
-      var uploadParams = new StringBuffer();
-      if (data.containsKey("request")) {
-        uploadParams.add("request.toString(), ");
-      } else {
-        uploadParams.add("\"\", ");
-      }
-      uploadParams.add("content, contentType, urlParams: urlParams, queryParams: queryParams");
       tmp.add("    if (?content && content != null) {\n");
-      tmp.add("      response = _client._upload(uploadUrl, \"${data["httpMethod"]}\", ${uploadParams.toString()});\n");
+      tmp.add("      response = _client._upload(uploadUrl, \"${data["httpMethod"]}\", $uploadCall);\n");
       tmp.add("    } else {\n");
-      tmp.add("      response = _client._request(url, \"${data["httpMethod"]}\", ${params.toString()});\n");
+      tmp.add("      response = _client._request(url, \"${data["httpMethod"]}\", $call);\n");
       tmp.add("    }\n");
     } else {
-      tmp.add("    response = _client._request(url, \"${data["httpMethod"]}\", ${params.toString()});\n");
+      tmp.add("    response = _client._request(url, \"${data["httpMethod"]}\", $call);\n");
     }
     
     tmp.add("    response\n");

@@ -1,14 +1,12 @@
 # discovery_api_dart_client_generator
 
-
-*WARNING! STILL IN ACTIVE DEVELOPMENT AND NOT FULLY FUNCTIONAL YET!
-PROCEED AT YOUR OWN RISK*
-
-
 ### Current state:
 
-POST and GET requests should be working.
+Not working:
 Mediauploads "should" be working but there are CORS problems that might need to be fixed by Google.
+
+Working:
+POST and GET requests should be working.
 Some basic error handling is included in case the API doesn't respond as expected...
 Methods now only accept the parameters that are actually defined in the API Discovery document.
 
