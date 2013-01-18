@@ -1569,6 +1569,9 @@ Setting this field will put the file in all of the provided folders. On insert, 
   /** A link back to this file. */
   String selfLink;
 
+  /** Whether the file has been shared. */
+  bool shared;
+
   /** Time at which this file was shared with the user (formatted RFC 3339 timestamp). */
   String sharedWithMeDate;
 
@@ -1684,6 +1687,9 @@ Setting this field will put the file in all of the provided folders. On insert, 
     }
     if (json.containsKey("selfLink")) {
       selfLink = json["selfLink"];
+    }
+    if (json.containsKey("shared")) {
+      shared = json["shared"];
     }
     if (json.containsKey("sharedWithMeDate")) {
       sharedWithMeDate = json["sharedWithMeDate"];
@@ -1804,6 +1810,9 @@ Setting this field will put the file in all of the provided folders. On insert, 
     }
     if (selfLink != null) {
       output["selfLink"] = selfLink;
+    }
+    if (shared != null) {
+      output["shared"] = shared;
     }
     if (sharedWithMeDate != null) {
       output["sharedWithMeDate"] = sharedWithMeDate;

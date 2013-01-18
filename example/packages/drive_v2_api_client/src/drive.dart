@@ -90,7 +90,7 @@ class Drive extends Client {
   set userIp(String value) => _params["userIp"] = value;
 
   Drive([OAuth2 auth]) : super(auth) {
-    _baseUrl = "https://www.googleapis.com:443/drive/v2/";
+    _basePath = "/drive/v2/";
     _rootUrl = "https://www.googleapis.com:443/";
     _about = new AboutResource._internal(this);
     _apps = new AppsResource._internal(this);

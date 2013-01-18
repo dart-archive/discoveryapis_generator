@@ -64,7 +64,7 @@ class Plus extends Client {
   set userIp(String value) => _params["userIp"] = value;
 
   Plus([OAuth2 auth]) : super(auth) {
-    _baseUrl = "https://www.googleapis.com:443/plus/v1/";
+    _basePath = "/plus/v1/";
     _rootUrl = "https://www.googleapis.com:443/";
     _activities = new ActivitiesResource._internal(this);
     _comments = new CommentsResource._internal(this);

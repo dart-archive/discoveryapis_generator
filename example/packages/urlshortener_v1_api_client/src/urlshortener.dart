@@ -60,7 +60,7 @@ class Urlshortener extends Client {
   set userIp(String value) => _params["userIp"] = value;
 
   Urlshortener([OAuth2 auth]) : super(auth) {
-    _baseUrl = "https://www.googleapis.com:443/urlshortener/v1/";
+    _basePath = "/urlshortener/v1/";
     _rootUrl = "https://www.googleapis.com:443/";
     _url = new UrlResource._internal(this);
   }
