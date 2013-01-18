@@ -37,15 +37,15 @@ class AboutResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
+      completer.completeError(new ArgumentError(paramErrors.join(" / ")));
       return completer.future;
     }
 
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) { completer.completeException(e); return true; })
-    ..then((data) => completer.complete(new About.fromJson(data)));
+      .then((data) => completer.complete(new About.fromJson(data)))
+      .catchError((e) { completer.completeError(e); return true; });
     return completer.future;
   }
 }
@@ -80,15 +80,15 @@ class AppsResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
+      completer.completeError(new ArgumentError(paramErrors.join(" / ")));
       return completer.future;
     }
 
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) { completer.completeException(e); return true; })
-    ..then((data) => completer.complete(new App.fromJson(data)));
+      .then((data) => completer.complete(new App.fromJson(data)))
+      .catchError((e) { completer.completeError(e); return true; });
     return completer.future;
   }
 
@@ -113,15 +113,15 @@ class AppsResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
+      completer.completeError(new ArgumentError(paramErrors.join(" / ")));
       return completer.future;
     }
 
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) { completer.completeException(e); return true; })
-    ..then((data) => completer.complete(new AppList.fromJson(data)));
+      .then((data) => completer.complete(new AppList.fromJson(data)))
+      .catchError((e) { completer.completeError(e); return true; });
     return completer.future;
   }
 }
@@ -156,15 +156,15 @@ class ChangesResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
+      completer.completeError(new ArgumentError(paramErrors.join(" / ")));
       return completer.future;
     }
 
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) { completer.completeException(e); return true; })
-    ..then((data) => completer.complete(new Change.fromJson(data)));
+      .then((data) => completer.complete(new Change.fromJson(data)))
+      .catchError((e) { completer.completeError(e); return true; });
     return completer.future;
   }
 
@@ -208,15 +208,15 @@ class ChangesResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
+      completer.completeError(new ArgumentError(paramErrors.join(" / ")));
       return completer.future;
     }
 
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) { completer.completeException(e); return true; })
-    ..then((data) => completer.complete(new ChangeList.fromJson(data)));
+      .then((data) => completer.complete(new ChangeList.fromJson(data)))
+      .catchError((e) { completer.completeError(e); return true; });
     return completer.future;
   }
 }
@@ -255,15 +255,15 @@ class ChildrenResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
+      completer.completeError(new ArgumentError(paramErrors.join(" / ")));
       return completer.future;
     }
 
     var response;
     response = _client._request(url, "DELETE", urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) { completer.completeException(e); return true; })
-    ..then((data) => completer.complete(data));
+      .then((data) => completer.complete(data))
+      .catchError((e) { completer.completeError(e); return true; });
     return completer.future;
   }
 
@@ -296,15 +296,15 @@ class ChildrenResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
+      completer.completeError(new ArgumentError(paramErrors.join(" / ")));
       return completer.future;
     }
 
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) { completer.completeException(e); return true; })
-    ..then((data) => completer.complete(new ChildReference.fromJson(data)));
+      .then((data) => completer.complete(new ChildReference.fromJson(data)))
+      .catchError((e) { completer.completeError(e); return true; });
     return completer.future;
   }
 
@@ -335,15 +335,15 @@ class ChildrenResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
+      completer.completeError(new ArgumentError(paramErrors.join(" / ")));
       return completer.future;
     }
 
     var response;
     response = _client._request(url, "POST", body: request.toString(), urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) { completer.completeException(e); return true; })
-    ..then((data) => completer.complete(new ChildReference.fromJson(data)));
+      .then((data) => completer.complete(new ChildReference.fromJson(data)))
+      .catchError((e) { completer.completeError(e); return true; });
     return completer.future;
   }
 
@@ -383,15 +383,15 @@ class ChildrenResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
+      completer.completeError(new ArgumentError(paramErrors.join(" / ")));
       return completer.future;
     }
 
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) { completer.completeException(e); return true; })
-    ..then((data) => completer.complete(new ChildList.fromJson(data)));
+      .then((data) => completer.complete(new ChildList.fromJson(data)))
+      .catchError((e) { completer.completeError(e); return true; });
     return completer.future;
   }
 }
@@ -430,15 +430,15 @@ class CommentsResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
+      completer.completeError(new ArgumentError(paramErrors.join(" / ")));
       return completer.future;
     }
 
     var response;
     response = _client._request(url, "DELETE", urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) { completer.completeException(e); return true; })
-    ..then((data) => completer.complete(data));
+      .then((data) => completer.complete(data))
+      .catchError((e) { completer.completeError(e); return true; });
     return completer.future;
   }
 
@@ -475,15 +475,15 @@ class CommentsResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
+      completer.completeError(new ArgumentError(paramErrors.join(" / ")));
       return completer.future;
     }
 
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) { completer.completeException(e); return true; })
-    ..then((data) => completer.complete(new Comment.fromJson(data)));
+      .then((data) => completer.complete(new Comment.fromJson(data)))
+      .catchError((e) { completer.completeError(e); return true; });
     return completer.future;
   }
 
@@ -514,15 +514,15 @@ class CommentsResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
+      completer.completeError(new ArgumentError(paramErrors.join(" / ")));
       return completer.future;
     }
 
     var response;
     response = _client._request(url, "POST", body: request.toString(), urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) { completer.completeException(e); return true; })
-    ..then((data) => completer.complete(new Comment.fromJson(data)));
+      .then((data) => completer.complete(new Comment.fromJson(data)))
+      .catchError((e) { completer.completeError(e); return true; });
     return completer.future;
   }
 
@@ -567,15 +567,15 @@ class CommentsResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
+      completer.completeError(new ArgumentError(paramErrors.join(" / ")));
       return completer.future;
     }
 
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) { completer.completeException(e); return true; })
-    ..then((data) => completer.complete(new CommentList.fromJson(data)));
+      .then((data) => completer.complete(new CommentList.fromJson(data)))
+      .catchError((e) { completer.completeError(e); return true; });
     return completer.future;
   }
 
@@ -610,15 +610,15 @@ class CommentsResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
+      completer.completeError(new ArgumentError(paramErrors.join(" / ")));
       return completer.future;
     }
 
     var response;
     response = _client._request(url, "PATCH", body: request.toString(), urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) { completer.completeException(e); return true; })
-    ..then((data) => completer.complete(new Comment.fromJson(data)));
+      .then((data) => completer.complete(new Comment.fromJson(data)))
+      .catchError((e) { completer.completeError(e); return true; });
     return completer.future;
   }
 
@@ -653,15 +653,15 @@ class CommentsResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
+      completer.completeError(new ArgumentError(paramErrors.join(" / ")));
       return completer.future;
     }
 
     var response;
     response = _client._request(url, "PUT", body: request.toString(), urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) { completer.completeException(e); return true; })
-    ..then((data) => completer.complete(new Comment.fromJson(data)));
+      .then((data) => completer.complete(new Comment.fromJson(data)))
+      .catchError((e) { completer.completeError(e); return true; });
     return completer.future;
   }
 }
@@ -719,15 +719,15 @@ class FilesResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
+      completer.completeError(new ArgumentError(paramErrors.join(" / ")));
       return completer.future;
     }
 
     var response;
     response = _client._request(url, "POST", body: request.toString(), urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) { completer.completeException(e); return true; })
-    ..then((data) => completer.complete(new File.fromJson(data)));
+      .then((data) => completer.complete(new File.fromJson(data)))
+      .catchError((e) { completer.completeError(e); return true; });
     return completer.future;
   }
 
@@ -756,15 +756,15 @@ class FilesResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
+      completer.completeError(new ArgumentError(paramErrors.join(" / ")));
       return completer.future;
     }
 
     var response;
     response = _client._request(url, "DELETE", urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) { completer.completeException(e); return true; })
-    ..then((data) => completer.complete(data));
+      .then((data) => completer.complete(data))
+      .catchError((e) { completer.completeError(e); return true; });
     return completer.future;
   }
 
@@ -806,15 +806,15 @@ class FilesResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
+      completer.completeError(new ArgumentError(paramErrors.join(" / ")));
       return completer.future;
     }
 
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) { completer.completeException(e); return true; })
-    ..then((data) => completer.complete(new File.fromJson(data)));
+      .then((data) => completer.complete(new File.fromJson(data)))
+      .catchError((e) { completer.completeError(e); return true; });
     return completer.future;
   }
 
@@ -867,7 +867,7 @@ class FilesResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
+      completer.completeError(new ArgumentError(paramErrors.join(" / ")));
       return completer.future;
     }
 
@@ -878,8 +878,8 @@ class FilesResource extends Resource {
       response = _client._request(url, "POST", body: request.toString(), urlParams: urlParams, queryParams: queryParams);
     }
     response
-    ..handleException((e) { completer.completeException(e); return true; })
-    ..then((data) => completer.complete(new File.fromJson(data)));
+      .then((data) => completer.complete(new File.fromJson(data)))
+      .catchError((e) { completer.completeError(e); return true; });
     return completer.future;
   }
 
@@ -924,15 +924,15 @@ class FilesResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
+      completer.completeError(new ArgumentError(paramErrors.join(" / ")));
       return completer.future;
     }
 
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) { completer.completeException(e); return true; })
-    ..then((data) => completer.complete(new FileList.fromJson(data)));
+      .then((data) => completer.complete(new FileList.fromJson(data)))
+      .catchError((e) { completer.completeError(e); return true; });
     return completer.future;
   }
 
@@ -996,15 +996,15 @@ class FilesResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
+      completer.completeError(new ArgumentError(paramErrors.join(" / ")));
       return completer.future;
     }
 
     var response;
     response = _client._request(url, "PATCH", body: request.toString(), urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) { completer.completeException(e); return true; })
-    ..then((data) => completer.complete(new File.fromJson(data)));
+      .then((data) => completer.complete(new File.fromJson(data)))
+      .catchError((e) { completer.completeError(e); return true; });
     return completer.future;
   }
 
@@ -1033,15 +1033,15 @@ class FilesResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
+      completer.completeError(new ArgumentError(paramErrors.join(" / ")));
       return completer.future;
     }
 
     var response;
     response = _client._request(url, "POST", urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) { completer.completeException(e); return true; })
-    ..then((data) => completer.complete(new File.fromJson(data)));
+      .then((data) => completer.complete(new File.fromJson(data)))
+      .catchError((e) { completer.completeError(e); return true; });
     return completer.future;
   }
 
@@ -1070,15 +1070,15 @@ class FilesResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
+      completer.completeError(new ArgumentError(paramErrors.join(" / ")));
       return completer.future;
     }
 
     var response;
     response = _client._request(url, "POST", urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) { completer.completeException(e); return true; })
-    ..then((data) => completer.complete(new File.fromJson(data)));
+      .then((data) => completer.complete(new File.fromJson(data)))
+      .catchError((e) { completer.completeError(e); return true; });
     return completer.future;
   }
 
@@ -1107,15 +1107,15 @@ class FilesResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
+      completer.completeError(new ArgumentError(paramErrors.join(" / ")));
       return completer.future;
     }
 
     var response;
     response = _client._request(url, "POST", urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) { completer.completeException(e); return true; })
-    ..then((data) => completer.complete(new File.fromJson(data)));
+      .then((data) => completer.complete(new File.fromJson(data)))
+      .catchError((e) { completer.completeError(e); return true; });
     return completer.future;
   }
 
@@ -1184,7 +1184,7 @@ class FilesResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
+      completer.completeError(new ArgumentError(paramErrors.join(" / ")));
       return completer.future;
     }
 
@@ -1195,8 +1195,8 @@ class FilesResource extends Resource {
       response = _client._request(url, "PUT", body: request.toString(), urlParams: urlParams, queryParams: queryParams);
     }
     response
-    ..handleException((e) { completer.completeException(e); return true; })
-    ..then((data) => completer.complete(new File.fromJson(data)));
+      .then((data) => completer.complete(new File.fromJson(data)))
+      .catchError((e) { completer.completeError(e); return true; });
     return completer.future;
   }
 }
@@ -1235,15 +1235,15 @@ class ParentsResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
+      completer.completeError(new ArgumentError(paramErrors.join(" / ")));
       return completer.future;
     }
 
     var response;
     response = _client._request(url, "DELETE", urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) { completer.completeException(e); return true; })
-    ..then((data) => completer.complete(data));
+      .then((data) => completer.complete(data))
+      .catchError((e) { completer.completeError(e); return true; });
     return completer.future;
   }
 
@@ -1276,15 +1276,15 @@ class ParentsResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
+      completer.completeError(new ArgumentError(paramErrors.join(" / ")));
       return completer.future;
     }
 
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) { completer.completeException(e); return true; })
-    ..then((data) => completer.complete(new ParentReference.fromJson(data)));
+      .then((data) => completer.complete(new ParentReference.fromJson(data)))
+      .catchError((e) { completer.completeError(e); return true; });
     return completer.future;
   }
 
@@ -1315,15 +1315,15 @@ class ParentsResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
+      completer.completeError(new ArgumentError(paramErrors.join(" / ")));
       return completer.future;
     }
 
     var response;
     response = _client._request(url, "POST", body: request.toString(), urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) { completer.completeException(e); return true; })
-    ..then((data) => completer.complete(new ParentReference.fromJson(data)));
+      .then((data) => completer.complete(new ParentReference.fromJson(data)))
+      .catchError((e) { completer.completeError(e); return true; });
     return completer.future;
   }
 
@@ -1352,15 +1352,15 @@ class ParentsResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
+      completer.completeError(new ArgumentError(paramErrors.join(" / ")));
       return completer.future;
     }
 
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) { completer.completeException(e); return true; })
-    ..then((data) => completer.complete(new ParentList.fromJson(data)));
+      .then((data) => completer.complete(new ParentList.fromJson(data)))
+      .catchError((e) { completer.completeError(e); return true; });
     return completer.future;
   }
 }
@@ -1399,15 +1399,15 @@ class PermissionsResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
+      completer.completeError(new ArgumentError(paramErrors.join(" / ")));
       return completer.future;
     }
 
     var response;
     response = _client._request(url, "DELETE", urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) { completer.completeException(e); return true; })
-    ..then((data) => completer.complete(data));
+      .then((data) => completer.complete(data))
+      .catchError((e) { completer.completeError(e); return true; });
     return completer.future;
   }
 
@@ -1440,15 +1440,15 @@ class PermissionsResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
+      completer.completeError(new ArgumentError(paramErrors.join(" / ")));
       return completer.future;
     }
 
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) { completer.completeException(e); return true; })
-    ..then((data) => completer.complete(new Permission.fromJson(data)));
+      .then((data) => completer.complete(new Permission.fromJson(data)))
+      .catchError((e) { completer.completeError(e); return true; });
     return completer.future;
   }
 
@@ -1483,15 +1483,15 @@ class PermissionsResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
+      completer.completeError(new ArgumentError(paramErrors.join(" / ")));
       return completer.future;
     }
 
     var response;
     response = _client._request(url, "POST", body: request.toString(), urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) { completer.completeException(e); return true; })
-    ..then((data) => completer.complete(new Permission.fromJson(data)));
+      .then((data) => completer.complete(new Permission.fromJson(data)))
+      .catchError((e) { completer.completeError(e); return true; });
     return completer.future;
   }
 
@@ -1520,15 +1520,15 @@ class PermissionsResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
+      completer.completeError(new ArgumentError(paramErrors.join(" / ")));
       return completer.future;
     }
 
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) { completer.completeException(e); return true; })
-    ..then((data) => completer.complete(new PermissionList.fromJson(data)));
+      .then((data) => completer.complete(new PermissionList.fromJson(data)))
+      .catchError((e) { completer.completeError(e); return true; });
     return completer.future;
   }
 
@@ -1563,15 +1563,15 @@ class PermissionsResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
+      completer.completeError(new ArgumentError(paramErrors.join(" / ")));
       return completer.future;
     }
 
     var response;
     response = _client._request(url, "PATCH", body: request.toString(), urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) { completer.completeException(e); return true; })
-    ..then((data) => completer.complete(new Permission.fromJson(data)));
+      .then((data) => completer.complete(new Permission.fromJson(data)))
+      .catchError((e) { completer.completeError(e); return true; });
     return completer.future;
   }
 
@@ -1606,15 +1606,15 @@ class PermissionsResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
+      completer.completeError(new ArgumentError(paramErrors.join(" / ")));
       return completer.future;
     }
 
     var response;
     response = _client._request(url, "PUT", body: request.toString(), urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) { completer.completeException(e); return true; })
-    ..then((data) => completer.complete(new Permission.fromJson(data)));
+      .then((data) => completer.complete(new Permission.fromJson(data)))
+      .catchError((e) { completer.completeError(e); return true; });
     return completer.future;
   }
 }
@@ -1657,15 +1657,15 @@ class RepliesResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
+      completer.completeError(new ArgumentError(paramErrors.join(" / ")));
       return completer.future;
     }
 
     var response;
     response = _client._request(url, "DELETE", urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) { completer.completeException(e); return true; })
-    ..then((data) => completer.complete(data));
+      .then((data) => completer.complete(data))
+      .catchError((e) { completer.completeError(e); return true; });
     return completer.future;
   }
 
@@ -1706,15 +1706,15 @@ class RepliesResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
+      completer.completeError(new ArgumentError(paramErrors.join(" / ")));
       return completer.future;
     }
 
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) { completer.completeException(e); return true; })
-    ..then((data) => completer.complete(new CommentReply.fromJson(data)));
+      .then((data) => completer.complete(new CommentReply.fromJson(data)))
+      .catchError((e) { completer.completeError(e); return true; });
     return completer.future;
   }
 
@@ -1749,15 +1749,15 @@ class RepliesResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
+      completer.completeError(new ArgumentError(paramErrors.join(" / ")));
       return completer.future;
     }
 
     var response;
     response = _client._request(url, "POST", body: request.toString(), urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) { completer.completeException(e); return true; })
-    ..then((data) => completer.complete(new CommentReply.fromJson(data)));
+      .then((data) => completer.complete(new CommentReply.fromJson(data)))
+      .catchError((e) { completer.completeError(e); return true; });
     return completer.future;
   }
 
@@ -1803,15 +1803,15 @@ class RepliesResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
+      completer.completeError(new ArgumentError(paramErrors.join(" / ")));
       return completer.future;
     }
 
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) { completer.completeException(e); return true; })
-    ..then((data) => completer.complete(new CommentReplyList.fromJson(data)));
+      .then((data) => completer.complete(new CommentReplyList.fromJson(data)))
+      .catchError((e) { completer.completeError(e); return true; });
     return completer.future;
   }
 
@@ -1850,15 +1850,15 @@ class RepliesResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
+      completer.completeError(new ArgumentError(paramErrors.join(" / ")));
       return completer.future;
     }
 
     var response;
     response = _client._request(url, "PATCH", body: request.toString(), urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) { completer.completeException(e); return true; })
-    ..then((data) => completer.complete(new CommentReply.fromJson(data)));
+      .then((data) => completer.complete(new CommentReply.fromJson(data)))
+      .catchError((e) { completer.completeError(e); return true; });
     return completer.future;
   }
 
@@ -1897,15 +1897,15 @@ class RepliesResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
+      completer.completeError(new ArgumentError(paramErrors.join(" / ")));
       return completer.future;
     }
 
     var response;
     response = _client._request(url, "PUT", body: request.toString(), urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) { completer.completeException(e); return true; })
-    ..then((data) => completer.complete(new CommentReply.fromJson(data)));
+      .then((data) => completer.complete(new CommentReply.fromJson(data)))
+      .catchError((e) { completer.completeError(e); return true; });
     return completer.future;
   }
 }
@@ -1944,15 +1944,15 @@ class RevisionsResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
+      completer.completeError(new ArgumentError(paramErrors.join(" / ")));
       return completer.future;
     }
 
     var response;
     response = _client._request(url, "DELETE", urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) { completer.completeException(e); return true; })
-    ..then((data) => completer.complete(data));
+      .then((data) => completer.complete(data))
+      .catchError((e) { completer.completeError(e); return true; });
     return completer.future;
   }
 
@@ -1985,15 +1985,15 @@ class RevisionsResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
+      completer.completeError(new ArgumentError(paramErrors.join(" / ")));
       return completer.future;
     }
 
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) { completer.completeException(e); return true; })
-    ..then((data) => completer.complete(new Revision.fromJson(data)));
+      .then((data) => completer.complete(new Revision.fromJson(data)))
+      .catchError((e) { completer.completeError(e); return true; });
     return completer.future;
   }
 
@@ -2022,15 +2022,15 @@ class RevisionsResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
+      completer.completeError(new ArgumentError(paramErrors.join(" / ")));
       return completer.future;
     }
 
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) { completer.completeException(e); return true; })
-    ..then((data) => completer.complete(new RevisionList.fromJson(data)));
+      .then((data) => completer.complete(new RevisionList.fromJson(data)))
+      .catchError((e) { completer.completeError(e); return true; });
     return completer.future;
   }
 
@@ -2065,15 +2065,15 @@ class RevisionsResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
+      completer.completeError(new ArgumentError(paramErrors.join(" / ")));
       return completer.future;
     }
 
     var response;
     response = _client._request(url, "PATCH", body: request.toString(), urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) { completer.completeException(e); return true; })
-    ..then((data) => completer.complete(new Revision.fromJson(data)));
+      .then((data) => completer.complete(new Revision.fromJson(data)))
+      .catchError((e) { completer.completeError(e); return true; });
     return completer.future;
   }
 
@@ -2108,15 +2108,15 @@ class RevisionsResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
+      completer.completeError(new ArgumentError(paramErrors.join(" / ")));
       return completer.future;
     }
 
     var response;
     response = _client._request(url, "PUT", body: request.toString(), urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) { completer.completeException(e); return true; })
-    ..then((data) => completer.complete(new Revision.fromJson(data)));
+      .then((data) => completer.complete(new Revision.fromJson(data)))
+      .catchError((e) { completer.completeError(e); return true; });
     return completer.future;
   }
 }

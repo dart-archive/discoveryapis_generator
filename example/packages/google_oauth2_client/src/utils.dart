@@ -5,15 +5,22 @@ part of google_oauth2_client;
 /// the future with an exception.
 class _WindowPoller {
   Completer<Token> _completer;
-  Window _window;
-  _WindowPoller(Completer<Token> this._completer, Window this._window);
+  WindowBase _window;
+  bool _complete = false;
+  
+  _WindowPoller(Completer<Token> this._completer, WindowBase this._window) {
+    _completer.future.whenComplete(() {
+      _complete = true;
+    });
+  }
+  
 
   void poll() {
-    if (_completer.future.isComplete) {
+    if (_complete) {
       return;
     }
     if (_window.closed) {
-      _completer.completeException(new Exception("User closed the window"));
+      _completer.completeError(new Exception("User closed the window"));
     } else {
       window.setTimeout(poll, 500);
     }
@@ -21,7 +28,7 @@ class _WindowPoller {
 }
 
 /// Opens a popup centered on the screen displaying the provided URL.
-Window _popup(String url) {
+WindowBase _popup(String url) {
   // Popup is desigend for 650x600, but don't make one bigger than the screen!
   int width = min(650, window.screen.width - 20);
   int height = min(600, window.screen.height - 30);

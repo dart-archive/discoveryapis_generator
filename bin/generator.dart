@@ -1,6 +1,7 @@
 import "dart:io";
 import "dart:uri";
-import "dart:json";
+import "dart:async";
+import "dart:json" as JSON;
 import "package:args/args.dart";
 
 String fileDate(Date date) => "${date.year}${(date.month < 10) ? 0 : ""}${date.month}${(date.day < 10) ? 0 : ""}${date.day}_${(date.hour < 10) ? 0 : ""}${date.hour}${(date.minute < 10) ? 0 : ""}${date.minute}${(date.second < 10) ? 0 : ""}${date.second}";
@@ -132,8 +133,9 @@ Auto-generated client library for accessing the $_name $_version API.
 library $_libraryName;
 
 import "dart:html";
+import "dart:async";
 import "dart:uri";
-import "dart:json";
+import "dart:json" as JSON;
 import "package:js/js.dart" as js;
 import "package:google_oauth2_client/google_oauth2_client.dart";
 
@@ -517,7 +519,7 @@ part "src/resources.dart";
     optParams.add("Map optParams");
     tmp.add(_createParamComment("optParams", {"description": "Additional query parameters"}));
 
-    params.add("{${Strings.join(optParams, ", ")}}");
+    params.add("{${optParams.join(", ")}}");
 
     tmp.add("   */\n");    
     var response = null;
@@ -527,7 +529,7 @@ part "src/resources.dart";
       response = "Future<Map>";
     }
 
-    tmp.add("  $response $name(${Strings.join(params, ", ")}) {\n");
+    tmp.add("  $response $name(${params.join(", ")}) {\n");
     tmp.add("    var completer = new Completer();\n");
     tmp.add("    var url = \"${data["path"]}\";\n");
     if (upload) {
@@ -572,7 +574,7 @@ part "src/resources.dart";
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
+      completer.completeError(new ArgumentError(paramErrors.join(" / ")));
       return completer.future;
     }
 
@@ -599,13 +601,13 @@ part "src/resources.dart";
     }
     
     tmp.add("    response\n");
-    tmp.add("    ..handleException((e) { completer.completeException(e); return true; })\n"); 
-    tmp.add("    ..then((data) => ");
+    tmp.add("      .then((data) => ");
     if (data.containsKey("response")) {
-      tmp.add("completer.complete(new ${data["response"]["\$ref"]}.fromJson(data)));\n");
+      tmp.add("completer.complete(new ${data["response"]["\$ref"]}.fromJson(data)))\n");
     } else {
-      tmp.add("completer.complete(data));\n");
+      tmp.add("completer.complete(data))\n");
     }
+    tmp.add("      .catchError((e) { completer.completeError(e); return true; });\n");
     tmp.add("    return completer.future;\n");
     tmp.add("  }\n");
 
@@ -732,7 +734,7 @@ abstract class Client {
         if (jsonResp is bool && jsonResp == false) {
           var raw = JSON.parse(rawResp);
           if (raw["gapiRequest"]["data"]["status"] >= 400) {
-            completer.completeException(new APIRequestException("JS Client - \${raw["gapiRequest"]["data"]["status"]} \${raw["gapiRequest"]["data"]["statusText"]} - \${raw["gapiRequest"]["data"]["body"]}"));
+            completer.completeError(new APIRequestException("JS Client - \${raw["gapiRequest"]["data"]["status"]} \${raw["gapiRequest"]["data"]["statusText"]} - \${raw["gapiRequest"]["data"]["body"]}"));
           } else {
             completer.complete({});              
           }
@@ -784,13 +786,13 @@ abstract class Client {
             }
             url = new UrlPattern(path).generate(urlParams, {});
             _makeJsClientRequest(url, method, body: body, contentType: contentType, queryParams: queryParams)
-              ..handleException((e) {
-                completer.completeException(e);
-                return true;
-              })
-              ..then((response) {
+              .then((response) {
                 var data = JSON.parse(response);
                 completer.complete(data);
+              })
+              .catchError((e) {
+                completer.completeError(e);
+                return true;
               });
           });
         } else {
@@ -809,7 +811,7 @@ abstract class Client {
           if (error == "") {
             error = "\${request.status} \${request.statusText}";
           }
-          completer.completeException(new APIRequestException(error));
+          completer.completeError(new APIRequestException(error));
         }
       }
     });

@@ -26,12 +26,12 @@ void main() {
       var newFile = new drivelib.File.fromJson({"title": file.name, "mimeType": contentType});
       output.appendHtml("Uploading file...<br>");
       drive.files.insert(newFile, content: base64Data, contentType: contentType)
-        ..handleException((e) {
+        .then((data) {
+          output.appendHtml("Uploaded file with ID <a href=\"${data.alternateLink}\" target=\"_blank\">${data.id}</a><br>");
+        })
+        .catchError((e) {
           output.appendHtml("$e<br>");
           return true;
-        })
-        ..then((data) {
-          output.appendHtml("Uploaded file with ID <a href=\"${data.alternateLink}\" target=\"_blank\">${data.id}</a><br>");
         });
     });
   }

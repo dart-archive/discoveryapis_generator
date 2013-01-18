@@ -30,15 +30,15 @@ class ActivitiesResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
+      completer.completeError(new ArgumentError(paramErrors.join(" / ")));
       return completer.future;
     }
 
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) { completer.completeException(e); return true; })
-    ..then((data) => completer.complete(new Activity.fromJson(data)));
+      .then((data) => completer.complete(new Activity.fromJson(data)))
+      .catchError((e) { completer.completeError(e); return true; });
     return completer.future;
   }
 
@@ -85,15 +85,15 @@ class ActivitiesResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
+      completer.completeError(new ArgumentError(paramErrors.join(" / ")));
       return completer.future;
     }
 
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) { completer.completeException(e); return true; })
-    ..then((data) => completer.complete(new ActivityFeed.fromJson(data)));
+      .then((data) => completer.complete(new ActivityFeed.fromJson(data)))
+      .catchError((e) { completer.completeError(e); return true; });
     return completer.future;
   }
 
@@ -145,15 +145,15 @@ class ActivitiesResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
+      completer.completeError(new ArgumentError(paramErrors.join(" / ")));
       return completer.future;
     }
 
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) { completer.completeException(e); return true; })
-    ..then((data) => completer.complete(new ActivityFeed.fromJson(data)));
+      .then((data) => completer.complete(new ActivityFeed.fromJson(data)))
+      .catchError((e) { completer.completeError(e); return true; });
     return completer.future;
   }
 }
@@ -188,15 +188,15 @@ class CommentsResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
+      completer.completeError(new ArgumentError(paramErrors.join(" / ")));
       return completer.future;
     }
 
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) { completer.completeException(e); return true; })
-    ..then((data) => completer.complete(new Comment.fromJson(data)));
+      .then((data) => completer.complete(new Comment.fromJson(data)))
+      .catchError((e) { completer.completeError(e); return true; });
     return completer.future;
   }
 
@@ -244,15 +244,15 @@ class CommentsResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
+      completer.completeError(new ArgumentError(paramErrors.join(" / ")));
       return completer.future;
     }
 
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) { completer.completeException(e); return true; })
-    ..then((data) => completer.complete(new CommentFeed.fromJson(data)));
+      .then((data) => completer.complete(new CommentFeed.fromJson(data)))
+      .catchError((e) { completer.completeError(e); return true; });
     return completer.future;
   }
 }
@@ -287,15 +287,15 @@ class PeopleResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
+      completer.completeError(new ArgumentError(paramErrors.join(" / ")));
       return completer.future;
     }
 
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) { completer.completeException(e); return true; })
-    ..then((data) => completer.complete(new Person.fromJson(data)));
+      .then((data) => completer.complete(new Person.fromJson(data)))
+      .catchError((e) { completer.completeError(e); return true; });
     return completer.future;
   }
 
@@ -343,15 +343,15 @@ class PeopleResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
+      completer.completeError(new ArgumentError(paramErrors.join(" / ")));
       return completer.future;
     }
 
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) { completer.completeException(e); return true; })
-    ..then((data) => completer.complete(new PeopleFeed.fromJson(data)));
+      .then((data) => completer.complete(new PeopleFeed.fromJson(data)))
+      .catchError((e) { completer.completeError(e); return true; });
     return completer.future;
   }
 
@@ -393,15 +393,15 @@ class PeopleResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
+      completer.completeError(new ArgumentError(paramErrors.join(" / ")));
       return completer.future;
     }
 
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) { completer.completeException(e); return true; })
-    ..then((data) => completer.complete(new PeopleFeed.fromJson(data)));
+      .then((data) => completer.complete(new PeopleFeed.fromJson(data)))
+      .catchError((e) { completer.completeError(e); return true; });
     return completer.future;
   }
 }

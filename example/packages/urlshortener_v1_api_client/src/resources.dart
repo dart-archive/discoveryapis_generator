@@ -40,15 +40,15 @@ class UrlResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
+      completer.completeError(new ArgumentError(paramErrors.join(" / ")));
       return completer.future;
     }
 
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) { completer.completeException(e); return true; })
-    ..then((data) => completer.complete(new Url.fromJson(data)));
+      .then((data) => completer.complete(new Url.fromJson(data)))
+      .catchError((e) { completer.completeError(e); return true; });
     return completer.future;
   }
 
@@ -75,15 +75,15 @@ class UrlResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
+      completer.completeError(new ArgumentError(paramErrors.join(" / ")));
       return completer.future;
     }
 
     var response;
     response = _client._request(url, "POST", body: request.toString(), urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) { completer.completeException(e); return true; })
-    ..then((data) => completer.complete(new Url.fromJson(data)));
+      .then((data) => completer.complete(new Url.fromJson(data)))
+      .catchError((e) { completer.completeError(e); return true; });
     return completer.future;
   }
 
@@ -120,15 +120,15 @@ class UrlResource extends Resource {
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeException(new ArgumentError(Strings.join(paramErrors, " / ")));
+      completer.completeError(new ArgumentError(paramErrors.join(" / ")));
       return completer.future;
     }
 
     var response;
     response = _client._request(url, "GET", urlParams: urlParams, queryParams: queryParams);
     response
-    ..handleException((e) { completer.completeException(e); return true; })
-    ..then((data) => completer.complete(new UrlHistory.fromJson(data)));
+      .then((data) => completer.complete(new UrlHistory.fromJson(data)))
+      .catchError((e) { completer.completeError(e); return true; });
     return completer.future;
   }
 }

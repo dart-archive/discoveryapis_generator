@@ -8,13 +8,13 @@ void main() {
   var container = query("#text");
 
   plus.activities.list("+FoldedSoft", "public", maxResults: 10)
-  ..handleException((e) {
-    container.appendHtml("$e<br>");
-    return true;
-  })
-  ..then((pluslib.ActivityFeed data) {
-    data.items.forEach((item) {
-      container.appendHtml("<a href=\"${item.url}\">${item.published}</a> - ${item.title}<br>");  
+    .then((pluslib.ActivityFeed data) {
+      data.items.forEach((item) {
+        container.appendHtml("<a href=\"${item.url}\">${item.published}</a> - ${item.title}<br>");  
+      });
+    })
+    .catchError((e) {
+      container.appendHtml("$e<br>");
+      return true;
     });
-  });
 }

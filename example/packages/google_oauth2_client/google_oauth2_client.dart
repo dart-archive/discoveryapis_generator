@@ -18,15 +18,16 @@
 
 library google_oauth2_client;
 
-import 'dart:json';
-import 'dart:html';
-import 'dart:math';
-import 'dart:uri';
+import "dart:json" as JSON;
+import "dart:html";
+import "dart:math";
+import "dart:uri";
+import "dart:async";
 
-part 'src/oauth2.dart';
-part 'src/proxy_callback.dart';
-part 'src/token.dart';
-part 'src/url_pattern.dart';
-part 'src/utils.dart';
+part "src/oauth2.dart";
+part "src/proxy_callback.dart";
+part "src/token.dart";
+part "src/url_pattern.dart";
+part "src/utils.dart";
 
 

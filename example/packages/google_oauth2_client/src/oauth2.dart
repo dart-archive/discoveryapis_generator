@@ -50,7 +50,7 @@ class OAuth2 {
             Token token = Token._parse(args[0]);
             _tokenCompleter.complete(token);
           } catch (exception) {
-            _tokenCompleter.completeException(exception);
+            _tokenCompleter.completeError(exception);
           }
           break;
       }
@@ -71,7 +71,7 @@ class OAuth2 {
     return new UrlPattern("${_provider}auth").generate({}, queryParams);
   }
 
-
+  /// Deletes the stored token
   logout() {
     _token = null;
   }
@@ -103,51 +103,55 @@ class OAuth2 {
       // (even if it's not immediate).
       if (!immediate) {
         Completer result = new Completer<Token>();
-        _tokenFuture.onComplete((v) {
-          if (v.hasValue) return result.complete(v.value);
-          login(immediate:immediate).onComplete((f) {
-            if (f.hasValue) return result.complete(f.value);
-            result.completeException(f.exception);
+        _tokenFuture
+          .then((value) => result.complete(value))
+          .catchError((e) {
+            login(immediate:immediate)
+              .then((value) => result.complete(value))
+              .catchError((e) => result.completeError(e));
           });
-        });
         return result.future;
       }
     } else {
       Completer<Token> tokenCompleter = new Completer();
-      tokenCompleter.future.onComplete((tok) {
-        _tokenFuture = null;
-        _token = tok.hasValue ? tok.value : null;
-      });
+      tokenCompleter.future
+        .then((token) {
+          _tokenFuture = null;
+          _token = token;
+        })
+        .catchError((e) {
+          _tokenFuture = null;
+          _token = null;
+        });
+
       _tokenFuture = tokenCompleter.future;
 
       completeByPromptingUser() {
         _tokenCompleter = _wrapValidation(tokenCompleter);
 
         // Synchronous if the channel is already open -> avoids popup blocker
-        _channel.onComplete((proxyChannel) {
-          if (!proxyChannel.hasValue) {
-            return _tokenCompleter.completeException(proxyChannel.exception);
-          }
-          String uri = _getAuthorizeUri(immediate);
-          if (immediate) {
-            IFrameElement iframe = _iframe(uri);
-            _tokenCompleter.future.onComplete((f) => iframe.remove());
-          } else {
-            Window popup = _popup(uri);
-            new _WindowPoller(_tokenCompleter, popup).poll();
-          }
-        });
+        
+        _channel
+          .then((value) {
+            String uri = _getAuthorizeUri(immediate);
+            if (immediate) {
+              IFrameElement iframe = _iframe(uri);
+              _tokenCompleter.future.whenComplete(() => iframe.remove());
+            } else {
+              WindowBase popup = _popup(uri);
+              new _WindowPoller(_tokenCompleter, popup).poll();
+            }          
+          })
+          .catchError((e) {
+            return _tokenCompleter.completeError(e);
+          });
       }
 
       final stored = _storedToken;
       if ((stored != null) && !stored.expired) {
-        stored.validate(_clientId).onComplete((f) {
-          if (f.hasValue) {
-            tokenCompleter.complete(stored);
-          } else {
-            completeByPromptingUser();
-          }
-        });
+        stored.validate(_clientId)
+          .then((v) => tokenCompleter.complete(stored))
+          .catchError((e) => completeByPromptingUser());
       } else {
         completeByPromptingUser();
       }
@@ -156,10 +160,10 @@ class OAuth2 {
   }
 
   Future<HttpRequest> authenticate(HttpRequest request) =>
-      login().transform((token) {
-    request.setRequestHeader("Authorization", "${token.type} ${token.data}");
-    return request;
-  });
+      login().then((token) {
+        request.setRequestHeader("Authorization", "${token.type} ${token.data}");
+        return request;
+      });
 
   /// Returns the OAuth2 token, if one is currently available.
   Token get token => __token;
@@ -201,22 +205,20 @@ class OAuth2 {
   /// that accepts unvalidated tokens.
   Completer<Token> _wrapValidation(Completer<Token> validTokenCompleter) {
     Completer<Token> result = new Completer();
-    result.future.onComplete((future) {
-      if (!future.hasValue) {
-        return validTokenCompleter.completeException(future.exception);
-      }
-      future.value.validate(_clientId).onComplete((validation) {
-        if (!validation.hasValue) {
-          return validTokenCompleter.completeException(validation.exception);
-        }
-        if (validation.value) {
-          validTokenCompleter.complete(future.value);
-        } else {
-          validTokenCompleter.completeException(
-              new Exception("Server returned token is invalid"));
-        }
-      });
-    });
+    result.future
+      .then((value) {
+        value.validate(_clientId)
+          .then((validation) {
+            if (validation) {
+              validTokenCompleter.complete(value);
+            } else {
+              validTokenCompleter.completeError(new Exception("Server returned token is invalid"));
+            }          
+          })
+          .catchError((e) => validTokenCompleter.completeError(e));
+      })
+      .catchError((e) => validTokenCompleter.completeError(e));
+
     return result;
   }
 }

@@ -11,20 +11,20 @@ void main() {
   var container = query("#text");
   
   plus.activities.list("+FoldedSoft", "public", maxResults: 5)
-  ..handleException((e) {
-    container.appendHtml("$e<br>");
-    return true; 
-  })
-  ..then((data) {
-    data.items.forEach((item) {
-      shortener.url.insert(new urllib.Url.fromJson({"longUrl": item.url}))
-      ..handleException((e) {
-        container.appendHtml("$e<br>");
-        return true; 
-      })
-      ..then((url) {
-        container.appendHtml("<a href=\"${url.id}\">${url.id}</a> ${item.published} - ${item.title}<br>");
+    .then((data) {
+      data.items.forEach((item) {
+        shortener.url.insert(new urllib.Url.fromJson({"longUrl": item.url}))
+          .then((url) {
+            container.appendHtml("<a href=\"${url.id}\">${url.id}</a> ${item.published} - ${item.title}<br>");
+          })
+          .catchError((e) {
+            container.appendHtml("$e<br>");
+            return true; 
+          });
       });
+    })
+    .catchError((e) {
+      container.appendHtml("$e<br>");
+      return true; 
     });
-  });
 }

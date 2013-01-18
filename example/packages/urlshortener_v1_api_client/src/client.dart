@@ -74,7 +74,7 @@ abstract class Client {
         if (jsonResp is bool && jsonResp == false) {
           var raw = JSON.parse(rawResp);
           if (raw["gapiRequest"]["data"]["status"] >= 400) {
-            completer.completeException(new APIRequestException("JS Client - ${raw["gapiRequest"]["data"]["status"]} ${raw["gapiRequest"]["data"]["statusText"]} - ${raw["gapiRequest"]["data"]["body"]}"));
+            completer.completeError(new APIRequestException("JS Client - ${raw["gapiRequest"]["data"]["status"]} ${raw["gapiRequest"]["data"]["statusText"]} - ${raw["gapiRequest"]["data"]["body"]}"));
           } else {
             completer.complete({});              
           }
@@ -126,13 +126,13 @@ abstract class Client {
             }
             url = new UrlPattern(path).generate(urlParams, {});
             _makeJsClientRequest(url, method, body: body, contentType: contentType, queryParams: queryParams)
-              ..handleException((e) {
-                completer.completeException(e);
-                return true;
-              })
-              ..then((response) {
+              .then((response) {
                 var data = JSON.parse(response);
                 completer.complete(data);
+              })
+              .catchError((e) {
+                completer.completeError(e);
+                return true;
               });
           });
         } else {
@@ -151,7 +151,7 @@ abstract class Client {
           if (error == "") {
             error = "${request.status} ${request.statusText}";
           }
-          completer.completeException(new APIRequestException(error));
+          completer.completeError(new APIRequestException(error));
         }
       }
     });

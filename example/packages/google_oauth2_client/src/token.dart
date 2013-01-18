@@ -47,7 +47,7 @@ class Token {
     request.open("GET", url);
     request.send();
 
-    return completer.future.transform((json) {
+    return completer.future.then((json) {
       final data = JSON.parse(json);
       final valid = clientId == data['audience'];
       if (valid) {
