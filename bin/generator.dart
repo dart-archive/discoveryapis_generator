@@ -63,7 +63,7 @@ author: Gerwin Sturm (scarygami@gmail.com)
 
 dependencies:
   js: any
-  google_oauth2_client: any
+  google_oauth2_client: '>=0.1.0'
 """;
   }
 
