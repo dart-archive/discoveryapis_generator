@@ -36,6 +36,8 @@ class Generator {
     var folderName = "$outputDirectory/$_libraryName";
     (new Directory("$folderName/lib/src")).createSync(recursive: true);
 
+    (new Directory("$folderName/lib/src/console")).createSync(recursive: true);
+
     (new File("$folderName/pubspec.yaml")).writeAsStringSync(_createPubspec());
 
     (new File("$folderName/LICENSE")).writeAsStringSync(_createLicense());
