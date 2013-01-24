@@ -13,7 +13,7 @@ const Map parameterType = const {
   "number": "num",
   "integer": "int",
   "boolean": "bool"
-};  
+};
 
 class Generator {
   String _data;
@@ -21,6 +21,7 @@ class Generator {
   String _name;
   String _version;
   String _libraryName;
+  String _libraryConsoleName;
   String _clientVersion = "0.0.3";
 
   Generator(this._data) {
@@ -28,6 +29,7 @@ class Generator {
     _name = _json["name"];
     _version = _json["version"];
     _libraryName = cleanName("${_name}_${_version}_api_client");
+    _libraryConsoleName = cleanName("${_name}_${_version}_api_console");
   }
 
   void generateClient(String outputDirectory) {
@@ -35,15 +37,16 @@ class Generator {
     (new Directory("$folderName/lib/src")).createSync(recursive: true);
 
     (new File("$folderName/pubspec.yaml")).writeAsStringSync(_createPubspec());
-    
+
     (new File("$folderName/LICENSE")).writeAsStringSync(_createLicense());
-    
+
     (new File("$folderName/README.md")).writeAsStringSync(_createReadme());
-    
+
     (new File("$folderName/CONTRIBUTORS")).writeAsStringSync(_createContributors());
 
+    // Create browser versions of the libraries
     (new File("$folderName/lib/$_libraryName.dart")).writeAsStringSync(_createLibrary());
-    
+
     (new File("$folderName/lib/src/client.dart")).writeAsStringSync(_createClientClass());
 
     (new File("$folderName/lib/src/schemas.dart")).writeAsStringSync(_createSchemas());
@@ -51,6 +54,17 @@ class Generator {
     (new File("$folderName/lib/src/resources.dart")).writeAsStringSync(_createResources());
 
     (new File("$folderName/lib/src/$_name.dart")).writeAsStringSync(_createMainClass());
+
+    // Create console versions of the libraries
+    (new File("$folderName/lib/$_libraryConsoleName.dart")).writeAsStringSync(_createConsoleLibrary());
+
+    (new File("$folderName/lib/src/console/client.dart")).writeAsStringSync(_createConsoleClientClass());
+
+    (new File("$folderName/lib/src/console/schemas.dart")).writeAsStringSync(_createConsoleSchemas());
+
+    (new File("$folderName/lib/src/console/resources.dart")).writeAsStringSync(_createConsoleResources());
+
+    (new File("$folderName/lib/src/console/$_name.dart")).writeAsStringSync(_createConsoleMainClass());
   }
 
   String _createPubspec() {
@@ -102,14 +116,14 @@ the License
 
 """;
   }
-  
+
   String _createContributors() {
     return """
 Adam Singer (https://github.com/financeCoding)
 Gerwin Sturm (https://github.com/Scarygami, http://scarygami.net/+)
 """;
   }
-  
+
   String _createReadme() {
     var tmp = new StringBuffer();
     tmp.add("""
@@ -128,7 +142,7 @@ Auto-generated client library for accessing the $_name $_version API.
     tmp.add("```\n");
     return tmp.toString();
   }
-  
+
   String _createLibrary() {
     return """
 library $_libraryName;
@@ -147,34 +161,78 @@ part "src/resources.dart";
 """;
   }
 
+  String _createConsoleLibrary() {
+    return """
+library $_libraryConsoleName;
+
+import "dart:async";
+import "dart:uri";
+import "dart:json" as JSON;
+import "package:google_oauth2_client/google_oauth2_console.dart";
+
+part "src/console/client.dart";
+part "src/console/$_name.dart";
+part "src/console/schemas.dart";
+part "src/console/resources.dart";
+""";
+  }
+
   String _createSchemas() {
     var tmp = new StringBuffer();
- 
+
     tmp.add("part of $_libraryName;\n\n");
 
     if (_json.containsKey("schemas")) {
       _json["schemas"].forEach((key, schema) {
         tmp.add(_createSchemaClass(key, schema));
       });
-    }    
-    
+    }
+
+    return tmp.toString();
+  }
+
+  String _createConsoleSchemas() {
+    var tmp = new StringBuffer();
+
+    tmp.add("part of $_libraryConsoleName;\n\n");
+
+    if (_json.containsKey("schemas")) {
+      _json["schemas"].forEach((key, schema) {
+        tmp.add(_createSchemaClass(key, schema));
+      });
+    }
+
     return tmp.toString();
   }
 
   String _createResources() {
     var tmp = new StringBuffer();
-    
+
     tmp.add("part of $_libraryName;\n\n");
-    
+
     if (_json.containsKey("resources")) {
       _json["resources"].forEach((key, resource) {
         tmp.add(_createResourceClass(key, resource));
       });
     }
-    
+
     return tmp.toString();
   }
-  
+
+  String _createConsoleResources() {
+    var tmp = new StringBuffer();
+
+    tmp.add("part of $_libraryConsoleName;\n\n");
+
+    if (_json.containsKey("resources")) {
+      _json["resources"].forEach((key, resource) {
+        tmp.add(_createResourceClass(key, resource));
+      });
+    }
+
+    return tmp.toString();
+  }
+
   String _createMainClass() {
     var tmp = new StringBuffer();
     tmp.add("part of $_libraryName;\n\n");
@@ -232,16 +290,21 @@ part "src/resources.dart";
       });
     }
     tmp.add("  }\n");
-    
+
     if (_json.containsKey("methods")) {
       _json["methods"].forEach((key, method) {
         tmp.add("\n");
         tmp.add(_createMethod(key, method));
       });
     }
-    
+
     tmp.add("}\n");
 
+    return tmp.toString();
+  }
+
+  String _createConsoleMainClass() {
+    var tmp = new StringBuffer();
     return tmp.toString();
   }
 
@@ -449,10 +512,10 @@ part "src/resources.dart";
         tmp.add("\n");
       }
     }
-    
+
     return tmp.toString();
   }
-  
+
   /// Create a method with [name] inside of a class, based on [data]
   String _createMethod(String name, Map data) {
     var tmp = new StringBuffer();
@@ -466,7 +529,7 @@ part "src/resources.dart";
 
     var params = new List<String>();
     var optParams = new List<String>();
-    
+
     if (data.containsKey("request")) {
       params.add("${data["request"]["\$ref"]} request");
       tmp.add(_createParamComment("request", {"description": "${data["request"]["\$ref"]} to send in this request"}));
@@ -484,7 +547,7 @@ part "src/resources.dart";
         }
       });
     }
-    
+
     if (data.containsKey("mediaUpload")) {
       if (data["mediaUpload"].containsKey("protocols")) {
         if (data["mediaUpload"]["protocols"].containsKey("simple")) {
@@ -497,7 +560,7 @@ part "src/resources.dart";
         }
       }
     }
-    
+
     if (upload) {
       optParams.add("String content");
       optParams.add("String contentType");
@@ -522,7 +585,7 @@ part "src/resources.dart";
 
     params.add("{${optParams.join(", ")}}");
 
-    tmp.add("   */\n");    
+    tmp.add("   */\n");
     var response = null;
     if (data.containsKey("response")) {
       response = "Future<${data["response"]["\$ref"]}>";
@@ -539,7 +602,7 @@ part "src/resources.dart";
     tmp.add("    var urlParams = new Map();\n");
     tmp.add("    var queryParams = new Map();\n\n");
     tmp.add("    var paramErrors = new List();\n");
-    
+
     if (data.containsKey("parameters")) {
       data["parameters"].forEach((name, description) {
         var variable = cleanName(name);
@@ -580,16 +643,16 @@ part "src/resources.dart";
     }
 
 """);
-    
+
     var call, uploadCall;
     if (data.containsKey("request")) {
       call = "body: request.toString(), urlParams: urlParams, queryParams: queryParams";
       uploadCall = "request.toString(), content, contentType, urlParams: urlParams, queryParams: queryParams";
     } else {
       call = "urlParams: urlParams, queryParams: queryParams";
-      uploadCall = "null, content, contentType, urlParams: urlParams, queryParams: queryParams"; 
+      uploadCall = "null, content, contentType, urlParams: urlParams, queryParams: queryParams";
     }
-    
+
     tmp.add("    var response;\n");
     if (upload) {
       tmp.add("    if (?content && content != null) {\n");
@@ -600,7 +663,7 @@ part "src/resources.dart";
     } else {
       tmp.add("    response = _client._request(url, \"${data["httpMethod"]}\", $call);\n");
     }
-    
+
     tmp.add("    response\n");
     tmp.add("      .then((data) => ");
     if (data.containsKey("response")) {
@@ -871,6 +934,11 @@ class APIRequestException implements Exception {
 
 """;
   }
+
+  String _createConsoleClientClass() {
+    var tmp = new StringBuffer();
+    return tmp.toString();
+  }
 }
 
 
@@ -959,13 +1027,13 @@ void main() {
     printUsage(parser);
     return;
   }
-  
+
   var output = result["output"];
   if (result["date"] != null && result["date"] == true) {
     output = "$output/${fileDate(new Date.now())}";
   }
-  
-  if (result["all"] == null || result["all"] == false) { 
+
+  if (result["all"] == null || result["all"] == false) {
     var loader;
     if (result["api"] !=null)
       loader = loadDocumentFromGoogle(result["api"], result["version"]);
