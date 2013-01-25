@@ -24,7 +24,7 @@ class Generator {
   String _libraryBrowserName;
   String _libraryConsoleName;
   String _libraryPubspecName;
-  String _clientVersion = "0.0.3";
+  String _clientVersion = "0.1.0";
 
   Generator(this._data) {
     _json = JSON.parse(_data);
@@ -179,7 +179,7 @@ import "dart:async";
 import "dart:uri";
 import "dart:json" as JSON;
 import "package:js/js.dart" as js;
-import "package:google_oauth2_client/google_oauth2_client.dart";
+import "package:google_oauth2_client/google_oauth2_browser.dart";
 
 part "src/browser/browserclient.dart";
 part "src/browser/$_name.dart";

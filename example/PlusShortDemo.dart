@@ -1,6 +1,6 @@
 import "dart:html";
-import "package:plus_v1_api_client/plus_v1_api_client.dart" as pluslib;
-import "package:urlshortener_v1_api_client/urlshortener_v1_api_client.dart" as urllib;
+import "package:plus_v1_api/plus_v1_api_browser.dart" as pluslib;
+import "package:urlshortener_v1_api/urlshortener_v1_api_browser.dart" as urllib;
 
 void main() {
   // use your own API Key from the API Console here
