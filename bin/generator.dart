@@ -23,6 +23,7 @@ class Generator {
   String _libraryName;
   String _libraryBrowserName;
   String _libraryConsoleName;
+  String _libraryPubspecName;
   String _clientVersion = "0.0.3";
 
   Generator(this._data) {
@@ -32,6 +33,7 @@ class Generator {
     _libraryName = cleanName("${_name}_${_version}_api_client");
     _libraryBrowserName = cleanName("${_name}_${_version}_api_browser");
     _libraryConsoleName = cleanName("${_name}_${_version}_api_console");
+    _libraryPubspecName = cleanName("${_name}_${_version}_api");
   }
 
   void generateClient(String outputDirectory) {
@@ -51,13 +53,13 @@ class Generator {
     // Create common library files
 
     (new File("$folderName/lib/$_libraryName.dart")).writeAsStringSync(_createLibrary());
-    
+
     (new File("$folderName/lib/src/common/client.dart")).writeAsStringSync(_createClientClass());
-    
+
     (new File("$folderName/lib/src/common/schemas.dart")).writeAsStringSync(_createSchemas());
 
     (new File("$folderName/lib/src/common/resources.dart")).writeAsStringSync(_createResources());
-    
+
     // Create browser versions of the libraries
     (new File("$folderName/lib/$_libraryBrowserName.dart")).writeAsStringSync(_createBrowserLibrary());
 
@@ -75,7 +77,7 @@ class Generator {
 
   String _createPubspec() {
     return """
-name: $_libraryBrowserName
+name: $_libraryPubspecName
 version: $_clientVersion
 description: Auto-generated client library for accessing the $_name $_version API
 homepage: https://github.com/dart-gde/discovery_api_dart_client_generator
@@ -164,7 +166,7 @@ part "src/common/resources.dart";
 
 """;
   }
-  
+
   String _createBrowserLibrary() {
     return """
 library $_libraryBrowserName;
@@ -192,10 +194,12 @@ library $_libraryConsoleName;
 import "$_libraryName.dart";
 export "$_libraryName.dart";
 
+import "dart:io";
 import "dart:async";
 import "dart:uri";
 import "dart:json" as JSON;
-import "package:google_oauth2_client/google_oauth2_console.dart";
+import "package:http/http.dart" as http;
+import "package:google_oauth2_client/google_oauth2_console.dart" as oauth2;
 
 part "src/console/consoleclient.dart";
 part "src/console/$_name.dart";
@@ -854,7 +858,7 @@ class APIRequestException implements Exception {
 
 """;
   }
-  
+
   String _createBrowserClientClass() {
     return """
 part of $_libraryBrowserName;
@@ -1025,13 +1029,13 @@ abstract class BrowserClient extends Client {
 part of $_libraryConsoleName;
 
 /**
- * Base class for all Browser API clients, offering generic methods for HTTP Requests to the API
+ * Base class for all Console API clients, offering generic methods for HTTP Requests to the API
  */
 abstract class ConsoleClient extends Client {
 
-  Object _auth; // Todo: change this to correct auth class from console auth library
+  oauth2.OAuth2Console _auth; 
 
-  ConsoleClient([Object this._auth]) : super();
+  ConsoleClient([oauth2.OAuth2Console this._auth]) : super();
 
   /**
    * Sends a HTTPRequest using [method] (usually GET or POST) to [requestUrl] using the specified [urlParams] and [queryParams]. Optionally include a [body] in the request.
@@ -1054,9 +1058,39 @@ abstract class ConsoleClient extends Client {
     } else {
       path ="\$rootUrl\${basePath.substring(1)}\$requestUrl";
     }
-    var url = new UrlPattern(path).generate(urlParams, queryParams);
 
-    completer.completeError(new APIRequestException("Not implemented yet"));
+    var url = new oauth2.UrlPattern(path).generate(urlParams, queryParams);
+
+    Future clientCallback(http.Client client) {
+      var clientCompleter = new Completer();
+      if (method.toLowerCase() == "get") {
+        client.get(url).then((http.Response response) {
+          var data = JSON.parse(response.body);
+          completer.complete(data);
+        }, onError: (AsyncError error) {
+          clientCompleter.completeError(new APIRequestException("onError: \$error"));
+          completer.completeError(new APIRequestException("onError: \$error"));
+        });
+
+      } else if (method.toLowerCase() == "post") {
+        client.post(url, fields: JSON.parse(body)).then((http.Response response) {
+          var data = JSON.parse(response.body);
+          completer.complete(data);
+        }, onError: (AsyncError error) {
+          clientCompleter.completeError(new APIRequestException("onError: \$error"));
+          completer.completeError(new APIRequestException("onError: \$error"));
+        });
+
+      } else {
+        clientCompleter.completeError(new APIRequestException("\$method Not implemented"));
+        completer.completeError(new APIRequestException("\$method Not implemented"));
+      }
+
+      return clientCompleter.future;
+    };
+
+    _auth.withClient(clientCallback);
+
 
     return completer.future;
   }
