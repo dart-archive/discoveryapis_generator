@@ -13,7 +13,7 @@ const Map parameterType = const {
   "number": "num",
   "integer": "int",
   "boolean": "bool"
-};  
+};
 
 class Generator {
   String _data;
@@ -21,56 +21,79 @@ class Generator {
   String _name;
   String _version;
   String _libraryName;
-  String _clientVersion = "0.0.3";
+  String _libraryBrowserName;
+  String _libraryConsoleName;
+  String _libraryPubspecName;
+  String _clientVersion = "0.1.0";
 
   Generator(this._data) {
     _json = JSON.parse(_data);
     _name = _json["name"];
     _version = _json["version"];
     _libraryName = cleanName("${_name}_${_version}_api_client");
+    _libraryBrowserName = cleanName("${_name}_${_version}_api_browser");
+    _libraryConsoleName = cleanName("${_name}_${_version}_api_console");
+    _libraryPubspecName = cleanName("${_name}_${_version}_api");
   }
 
   void generateClient(String outputDirectory) {
     var folderName = "$outputDirectory/$_libraryName";
-    (new Directory("$folderName/lib/src")).createSync(recursive: true);
+    (new Directory("$folderName/lib/src/common")).createSync(recursive: true);
+    (new Directory("$folderName/lib/src/browser")).createSync(recursive: true);
+    (new Directory("$folderName/lib/src/console")).createSync(recursive: true);
 
     (new File("$folderName/pubspec.yaml")).writeAsStringSync(_createPubspec());
-    
+
     (new File("$folderName/LICENSE")).writeAsStringSync(_createLicense());
-    
+
     (new File("$folderName/README.md")).writeAsStringSync(_createReadme());
-    
+
     (new File("$folderName/CONTRIBUTORS")).writeAsStringSync(_createContributors());
 
+    // Create common library files
+
     (new File("$folderName/lib/$_libraryName.dart")).writeAsStringSync(_createLibrary());
-    
-    (new File("$folderName/lib/src/client.dart")).writeAsStringSync(_createClientClass());
 
-    (new File("$folderName/lib/src/schemas.dart")).writeAsStringSync(_createSchemas());
+    (new File("$folderName/lib/src/common/client.dart")).writeAsStringSync(_createClientClass());
 
-    (new File("$folderName/lib/src/resources.dart")).writeAsStringSync(_createResources());
+    (new File("$folderName/lib/src/common/schemas.dart")).writeAsStringSync(_createSchemas());
 
-    (new File("$folderName/lib/src/$_name.dart")).writeAsStringSync(_createMainClass());
+    (new File("$folderName/lib/src/common/resources.dart")).writeAsStringSync(_createResources());
+
+    // Create browser versions of the libraries
+    (new File("$folderName/lib/$_libraryBrowserName.dart")).writeAsStringSync(_createBrowserLibrary());
+
+    (new File("$folderName/lib/src/browser/browserclient.dart")).writeAsStringSync(_createBrowserClientClass());
+
+    (new File("$folderName/lib/src/browser/$_name.dart")).writeAsStringSync(_createBrowserMainClass());
+
+    // Create console versions of the libraries
+    (new File("$folderName/lib/$_libraryConsoleName.dart")).writeAsStringSync(_createConsoleLibrary());
+
+    (new File("$folderName/lib/src/console/consoleclient.dart")).writeAsStringSync(_createConsoleClientClass());
+
+    (new File("$folderName/lib/src/console/$_name.dart")).writeAsStringSync(_createConsoleMainClass());
   }
 
   String _createPubspec() {
     return """
-name: $_libraryName
+name: $_libraryPubspecName
 version: $_clientVersion
 description: Auto-generated client library for accessing the $_name $_version API
 homepage: https://github.com/dart-gde/discovery_api_dart_client_generator
-author: Gerwin Sturm (scarygami@gmail.com)
+authors:
+- Gerwin Sturm <scarygami@gmail.com>
+- Adam Singer <financeCoding@gmail.com>
 
 dependencies:
-  js:
-    git: git://github.com/dart-lang/js-interop.git
-  google_oauth2_client: '>=0.1.0'
+  js: '>=0.0.14'
+  google_oauth2_client: '>=0.2.0'
 """;
   }
 
   String _createLicense() {
     return """
-Copyright (c) 2013 Gerwin Sturm, FoldedSoft e.U. / www.foldedsoft.at
+Copyright (c) 2013 Gerwin Sturm, FoldedSoft e.U. / www.foldedsoft.at & Adam Singer
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not
 use this file except in compliance with the License. You may obtain a copy of
@@ -102,18 +125,18 @@ the License
 
 """;
   }
-  
+
   String _createContributors() {
     return """
 Adam Singer (https://github.com/financeCoding)
 Gerwin Sturm (https://github.com/Scarygami, http://scarygami.net/+)
 """;
   }
-  
+
   String _createReadme() {
     var tmp = new StringBuffer();
     tmp.add("""
-# $_libraryName
+# $_libraryBrowserName
 
 ### Description
 
@@ -128,61 +151,98 @@ Auto-generated client library for accessing the $_name $_version API.
     tmp.add("```\n");
     return tmp.toString();
   }
-  
+
   String _createLibrary() {
     return """
 library $_libraryName;
+
+import "dart:async";
+import "dart:uri";
+import "dart:json" as JSON;
+
+part "src/common/client.dart";
+part "src/common/schemas.dart";
+part "src/common/resources.dart";
+
+""";
+  }
+
+  String _createBrowserLibrary() {
+    return """
+library $_libraryBrowserName;
+
+import "$_libraryName.dart";
+export "$_libraryName.dart";
 
 import "dart:html";
 import "dart:async";
 import "dart:uri";
 import "dart:json" as JSON;
 import "package:js/js.dart" as js;
-import "package:google_oauth2_client/google_oauth2_client.dart";
+import "package:google_oauth2_client/google_oauth2_browser.dart";
 
-part "src/client.dart";
-part "src/$_name.dart";
-part "src/schemas.dart";
-part "src/resources.dart";
+part "src/browser/browserclient.dart";
+part "src/browser/$_name.dart";
+
+""";
+  }
+
+  String _createConsoleLibrary() {
+    return """
+library $_libraryConsoleName;
+
+import "$_libraryName.dart";
+export "$_libraryName.dart";
+
+import "dart:io";
+import "dart:async";
+import "dart:uri";
+import "dart:json" as JSON;
+import "package:http/http.dart" as http;
+import "package:google_oauth2_client/google_oauth2_console.dart" as oauth2;
+
+part "src/console/consoleclient.dart";
+part "src/console/$_name.dart";
+
 """;
   }
 
   String _createSchemas() {
     var tmp = new StringBuffer();
- 
+
     tmp.add("part of $_libraryName;\n\n");
 
     if (_json.containsKey("schemas")) {
       _json["schemas"].forEach((key, schema) {
         tmp.add(_createSchemaClass(key, schema));
       });
-    }    
-    
+    }
+
     return tmp.toString();
   }
 
   String _createResources() {
     var tmp = new StringBuffer();
-    
+
     tmp.add("part of $_libraryName;\n\n");
-    
+
     if (_json.containsKey("resources")) {
       _json["resources"].forEach((key, resource) {
         tmp.add(_createResourceClass(key, resource));
       });
     }
-    
+
     return tmp.toString();
   }
-  
-  String _createMainClass() {
+
+  String _createBrowserMainClass() {
     var tmp = new StringBuffer();
-    tmp.add("part of $_libraryName;\n\n");
+    tmp.add("part of $_libraryBrowserName;\n\n");
     tmp.add("/** Client to access the $_name $_version API */\n");
     if (_json.containsKey("description")) {
       tmp.add("/** ${_json["description"]} */\n");
     }
-    tmp.add("class ${capitalize(_name)} extends Client {\n");
+    tmp.add("class ${capitalize(_name)} extends BrowserClient {\n");
     if (_json.containsKey("resources")) {
       tmp.add("\n");
       _json["resources"].forEach((key, resource) {
@@ -217,29 +277,100 @@ part "src/resources.dart";
           }
           tmp.add("   * Added as queryParameter for each request.\n");
           tmp.add("   */\n");
-          tmp.add("  $type get $key => _params[\"$key\"];\n");
-          tmp.add("  set $key($type value) => _params[\"$key\"] = value;\n");
+          tmp.add("  $type get $key => params[\"$key\"];\n");
+          tmp.add("  set $key($type value) => params[\"$key\"] = value;\n");
         }
       });
     }
     tmp.add("\n  ${capitalize(_name)}([OAuth2 auth]) : super(auth) {\n");
-    tmp.add("    _basePath = \"${_json["basePath"]}\";\n");
-    tmp.add("    _rootUrl = \"${_json["rootUrl"]}\";\n");
+    tmp.add("    basePath = \"${_json["basePath"]}\";\n");
+    tmp.add("    rootUrl = \"${_json["rootUrl"]}\";\n");
     if (_json.containsKey("resources")) {
       _json["resources"].forEach((key, resource) {
         var subClassName = "${capitalize(key)}Resource";
-        tmp.add("    _$key = new $subClassName._internal(this);\n");
+        tmp.add("    _$key = new $subClassName(this);\n");
       });
     }
     tmp.add("  }\n");
-    
+
     if (_json.containsKey("methods")) {
       _json["methods"].forEach((key, method) {
         tmp.add("\n");
         tmp.add(_createMethod(key, method));
       });
     }
-    
+
+    tmp.add("}\n");
+
+    return tmp.toString();
+  }
+
+  String _createConsoleMainClass() {
+    var tmp = new StringBuffer();
+    tmp.add("part of $_libraryConsoleName;\n\n");
+    tmp.add("/** Client to access the $_name $_version API */\n");
+    if (_json.containsKey("description")) {
+      tmp.add("/** ${_json["description"]} */\n");
+    }
+    tmp.add("class ${capitalize(_name)} extends ConsoleClient {\n");
+    if (_json.containsKey("resources")) {
+      tmp.add("\n");
+      _json["resources"].forEach((key, resource) {
+        var subClassName = "${capitalize(key)}Resource";
+        tmp.add("  $subClassName _$key;\n");
+        tmp.add("  $subClassName get $key => _$key;\n");
+      });
+    }
+    if(_json.containsKey("auth") && _json["auth"].containsKey("oauth2") && _json["auth"]["oauth2"].containsKey("scopes")) {
+      _json["auth"]["oauth2"]["scopes"].forEach((scope, description) {
+        var p = scope.lastIndexOf("/");
+        var scopeName = scope.toUpperCase();
+        if (p >= 0) scopeName = scopeName.substring(p+1);
+        scopeName = cleanName(scopeName);
+        tmp.add("\n");
+        if (description.containsKey("description")) {
+          tmp.add("  /** OAuth Scope2: ${description["description"]} */\n");
+        } else {
+          tmp.add("  /** OAuth Scope2 */\n");
+        }
+        tmp.add("  static const String ${scopeName}_SCOPE = \"$scope\";\n");
+      });
+    }
+    if (_json.containsKey("parameters")) {
+      _json["parameters"].forEach((key, param) {
+        var type = parameterType[param["type"]];
+        if (type != null) {
+          tmp.add("\n");
+          tmp.add("  /**\n");
+          if (param.containsKey("description")) {
+            tmp.add("   * ${param["description"]}\n");
+          }
+          tmp.add("   * Added as queryParameter for each request.\n");
+          tmp.add("   */\n");
+          tmp.add("  $type get $key => params[\"$key\"];\n");
+          tmp.add("  set $key($type value) => params[\"$key\"] = value;\n");
+        }
+      });
+    }
+    // TODO: change this to correct OAuth class for console
+    tmp.add("\n  ${capitalize(_name)}([Object auth]) : super(auth) {\n");
+    tmp.add("    basePath = \"${_json["basePath"]}\";\n");
+    tmp.add("    rootUrl = \"${_json["rootUrl"]}\";\n");
+    if (_json.containsKey("resources")) {
+      _json["resources"].forEach((key, resource) {
+        var subClassName = "${capitalize(key)}Resource";
+        tmp.add("    _$key = new $subClassName(this);\n");
+      });
+    }
+    tmp.add("  }\n");
+
+    if (_json.containsKey("methods")) {
+      _json["methods"].forEach((key, method) {
+        tmp.add("\n");
+        tmp.add(_createMethod(key, method));
+      });
+    }
+
     tmp.add("}\n");
 
     return tmp.toString();
@@ -449,10 +580,10 @@ part "src/resources.dart";
         tmp.add("\n");
       }
     }
-    
+
     return tmp.toString();
   }
-  
+
   /// Create a method with [name] inside of a class, based on [data]
   String _createMethod(String name, Map data) {
     var tmp = new StringBuffer();
@@ -466,7 +597,7 @@ part "src/resources.dart";
 
     var params = new List<String>();
     var optParams = new List<String>();
-    
+
     if (data.containsKey("request")) {
       params.add("${data["request"]["\$ref"]} request");
       tmp.add(_createParamComment("request", {"description": "${data["request"]["\$ref"]} to send in this request"}));
@@ -484,7 +615,7 @@ part "src/resources.dart";
         }
       });
     }
-    
+
     if (data.containsKey("mediaUpload")) {
       if (data["mediaUpload"].containsKey("protocols")) {
         if (data["mediaUpload"]["protocols"].containsKey("simple")) {
@@ -497,7 +628,7 @@ part "src/resources.dart";
         }
       }
     }
-    
+
     if (upload) {
       optParams.add("String content");
       optParams.add("String contentType");
@@ -522,7 +653,7 @@ part "src/resources.dart";
 
     params.add("{${optParams.join(", ")}}");
 
-    tmp.add("   */\n");    
+    tmp.add("   */\n");
     var response = null;
     if (data.containsKey("response")) {
       response = "Future<${data["response"]["\$ref"]}>";
@@ -539,7 +670,7 @@ part "src/resources.dart";
     tmp.add("    var urlParams = new Map();\n");
     tmp.add("    var queryParams = new Map();\n\n");
     tmp.add("    var paramErrors = new List();\n");
-    
+
     if (data.containsKey("parameters")) {
       data["parameters"].forEach((name, description) {
         var variable = cleanName(name);
@@ -580,27 +711,27 @@ part "src/resources.dart";
     }
 
 """);
-    
+
     var call, uploadCall;
     if (data.containsKey("request")) {
       call = "body: request.toString(), urlParams: urlParams, queryParams: queryParams";
       uploadCall = "request.toString(), content, contentType, urlParams: urlParams, queryParams: queryParams";
     } else {
       call = "urlParams: urlParams, queryParams: queryParams";
-      uploadCall = "null, content, contentType, urlParams: urlParams, queryParams: queryParams"; 
+      uploadCall = "null, content, contentType, urlParams: urlParams, queryParams: queryParams";
     }
-    
+
     tmp.add("    var response;\n");
     if (upload) {
       tmp.add("    if (?content && content != null) {\n");
-      tmp.add("      response = _client._upload(uploadUrl, \"${data["httpMethod"]}\", $uploadCall);\n");
+      tmp.add("      response = _client.upload(uploadUrl, \"${data["httpMethod"]}\", $uploadCall);\n");
       tmp.add("    } else {\n");
-      tmp.add("      response = _client._request(url, \"${data["httpMethod"]}\", $call);\n");
+      tmp.add("      response = _client.request(url, \"${data["httpMethod"]}\", $call);\n");
       tmp.add("    }\n");
     } else {
-      tmp.add("    response = _client._request(url, \"${data["httpMethod"]}\", $call);\n");
+      tmp.add("    response = _client.request(url, \"${data["httpMethod"]}\", $call);\n");
     }
-    
+
     tmp.add("    response\n");
     tmp.add("      .then((data) => ");
     if (data.containsKey("response")) {
@@ -630,11 +761,11 @@ part "src/resources.dart";
       });
     }
 
-    tmp.add("\n  $className._internal(Client client) : super(client) {\n");
+    tmp.add("\n  $className(Client client) : super(client) {\n");
     if (data.containsKey("resources")) {
       data["resources"].forEach((key, resource) {
         var subClassName = "${capitalize(name)}${capitalize(key)}Resource";
-        tmp.add("  _$key = new $subClassName._internal(client);\n");
+        tmp.add("  _$key = new $subClassName(client);\n");
       });
     }
     tmp.add("  }\n");
@@ -665,21 +796,82 @@ part of $_libraryName;
  * Base class for all API clients, offering generic methods for HTTP Requests to the API
  */
 abstract class Client {
-  OAuth2 _auth;
-  String _basePath;
-  String _rootUrl;
+  String basePath;
+  String rootUrl;
   bool makeAuthRequests;
-  Map _params;
-  bool _jsClientLoaded = false;
+  Map params;
 
   static const _boundary = "-------314159265358979323846";
   static const _delimiter = "\\r\\n--\$_boundary\\r\\n";
   static const _closeDelim = "\\r\\n--\$_boundary--";
 
-  Client([OAuth2 this._auth]) {
-    _params = new Map();
+  Client() {
+    params = new Map();
     makeAuthRequests = false;
   }
+
+  /**
+   * Sends a HTTPRequest using [method] (usually GET or POST) to [requestUrl] using the specified [urlParams] and [queryParams]. Optionally include a [body] in the request.
+   */
+  Future request(String requestUrl, String method, {String body, String contentType:"application/json", Map urlParams, Map queryParams});
+
+  /**
+   * Joins [content] (encoded as Base64-String) with specified [contentType] and additional request [body] into one multipart-body and send a HTTPRequest with [method] (usually POST) to [requestUrl]
+   */
+  Future upload(String requestUrl, String method, String body, String content, String contentType, {Map urlParams, Map queryParams}) {
+    var multiPartBody = new StringBuffer();
+    if (contentType == null || contentType.isEmpty) {
+      contentType = "application/octet-stream";
+    }
+    multiPartBody
+    ..add(_delimiter)
+    ..add("Content-Type: application/json\\r\\n\\r\\n")
+    ..add(body)
+    ..add(_delimiter)
+    ..add("Content-Type: ")
+    ..add(contentType)
+    ..add("\\r\\n")
+    ..add("Content-Transfer-Encoding: base64\\r\\n")
+    ..add("\\r\\n")
+    ..add(content)
+    ..add(_closeDelim);
+
+    return request(requestUrl, method, body: multiPartBody.toString(), contentType: "multipart/mixed; boundary=\\"\$_boundary\\"", urlParams: urlParams, queryParams: queryParams);
+  }
+}
+
+/// Base-class for all API Resources
+abstract class Resource {
+  /// The [Client] to be used for all requests
+  Client _client;
+
+  /// Create a new Resource, using the specified [Client] for requests
+  Resource(Client this._client);
+}
+
+/// Exception thrown when the HTTP Request to the API failed
+class APIRequestException implements Exception {
+  final String msg;
+  const APIRequestException([this.msg]);
+  String toString() => (msg == null) ? "APIRequestException" : "APIRequestException: \$msg";
+}
+
+""";
+  }
+
+  String _createBrowserClientClass() {
+    return """
+part of $_libraryBrowserName;
+
+/**
+ * Base class for all Browser API clients, offering generic methods for HTTP Requests to the API
+ */
+abstract class BrowserClient extends Client {
+
+  OAuth2 _auth;
+  bool _jsClientLoaded = false;
+
+  BrowserClient([OAuth2 this._auth]) : super();
 
   /**
    * Loads the JS Client Library to make CORS-Requests
@@ -752,14 +944,14 @@ abstract class Client {
   /**
    * Sends a HTTPRequest using [method] (usually GET or POST) to [requestUrl] using the specified [urlParams] and [queryParams]. Optionally include a [body] in the request.
    */
-  Future _request(String requestUrl, String method, {String body, String contentType:"application/json", Map urlParams, Map queryParams}) {
+  Future request(String requestUrl, String method, {String body, String contentType:"application/json", Map urlParams, Map queryParams}) {
     var request = new HttpRequest();
     var completer = new Completer();
 
     if (urlParams == null) urlParams = {};
     if (queryParams == null) queryParams = {};
 
-    _params.forEach((key, param) {
+    params.forEach((key, param) {
       if (param != null && queryParams[key] == null) {
         queryParams[key] = param;
       }
@@ -767,9 +959,9 @@ abstract class Client {
 
     var path;
     if (requestUrl.substring(0,1) == "/") {
-      path ="\$_rootUrl\${requestUrl.substring(1)}";
+      path ="\$rootUrl\${requestUrl.substring(1)}";
     } else {
-      path ="\$_rootUrl\${_basePath.substring(1)}\$requestUrl";
+      path ="\$rootUrl\${basePath.substring(1)}\$requestUrl";
     }
     var url = new UrlPattern(path).generate(urlParams, queryParams);
 
@@ -783,7 +975,7 @@ abstract class Client {
             if (requestUrl.substring(0,1) == "/") {
               path = requestUrl;
             } else {
-              path ="\$_basePath\$requestUrl";
+              path ="\$basePath\$requestUrl";
             }
             url = new UrlPattern(path).generate(urlParams, {});
             _makeJsClientRequest(url, method, body: body, contentType: contentType, queryParams: queryParams)
@@ -827,46 +1019,149 @@ abstract class Client {
 
     return completer.future;
   }
+}
+
+""";
+  }
+
+  String _createConsoleClientClass() {
+    return """
+part of $_libraryConsoleName;
+
+/**
+ * Base class for all Console API clients, offering generic methods for HTTP Requests to the API
+ */
+abstract class ConsoleClient extends Client {
+
+  oauth2.OAuth2Console _auth; 
+
+  ConsoleClient([oauth2.OAuth2Console this._auth]) : super();
 
   /**
-   * Joins [content] (encoded as Base64-String) with specified [contentType] and additional request [body] into one multipart-body and send a HTTPRequest with [method] (usually POST) to [requestUrl]
+   * Sends a HTTPRequest using [method] (usually GET or POST) to [requestUrl] using the specified [urlParams] and [queryParams]. Optionally include a [body] in the request.
    */
-  Future _upload(String requestUrl, String method, String body, String content, String contentType, {Map urlParams, Map queryParams}) {
-    var multiPartBody = new StringBuffer();
-    if (contentType == null || contentType.isEmpty) {
-      contentType = "application/octet-stream";
+  Future request(String requestUrl, String method, {String body, String contentType:"application/json", Map urlParams, Map queryParams}) {
+    var completer = new Completer();
+
+    if (urlParams == null) urlParams = {};
+    if (queryParams == null) queryParams = {};
+
+    params.forEach((key, param) {
+      if (param != null && queryParams[key] == null) {
+        queryParams[key] = param;
+      }
+    });
+
+    var path;
+    if (requestUrl.substring(0,1) == "/") {
+      path ="\$rootUrl\${requestUrl.substring(1)}";
+    } else {
+      path ="\$rootUrl\${basePath.substring(1)}\$requestUrl";
     }
-    multiPartBody
-    ..add(_delimiter)
-    ..add("Content-Type: application/json\\r\\n\\r\\n")
-    ..add(body)
-    ..add(_delimiter)
-    ..add("Content-Type: ")
-    ..add(contentType)
-    ..add("\\r\\n")
-    ..add("Content-Transfer-Encoding: base64\\r\\n")
-    ..add("\\r\\n")
-    ..add(content)
-    ..add(_closeDelim);
 
-    return _request(requestUrl, method, body: multiPartBody.toString(), contentType: "multipart/mixed; boundary=\\"\$_boundary\\"", urlParams: urlParams, queryParams: queryParams);
+    var url = new oauth2.UrlPattern(path).generate(urlParams, queryParams);
+
+    Future clientCallback(http.Client client) {
+      // A dummy completer is used for the 'withClient' method, this should
+      // go away after refactoring withClient in oauth2 package
+      var clientDummyCompleter = new Completer();
+
+      if (method.toLowerCase() == "get") {
+        client.get(url).then((http.Response response) {
+          var data = JSON.parse(response.body);
+          completer.complete(data);
+          clientDummyCompleter.complete(null);          
+        }, onError: (AsyncError error) {
+          completer.completeError(new APIRequestException("onError: \$error"));
+        });
+
+      } else if (method.toLowerCase() == "post" || method.toLowerCase() == "put" || method.toLowerCase() == "patch") {
+        // Workaround since http.Client does not properly support post for google apis
+        var postHttpClient = new HttpClient();
+        HttpClientConnection postConnection = postHttpClient.openUrl(method, new Uri.fromString(url));
+
+
+        // On connection request set the content type and key if available.
+        postConnection.onRequest = (HttpClientRequest request) {
+          request.headers.set(HttpHeaders.CONTENT_TYPE, contentType);
+          if (_auth != null) {
+            request.headers.set(HttpHeaders.AUTHORIZATION, "Bearer \${_auth.credentials.accessToken}");
+          }
+
+          request.outputStream.writeString(body);
+          request.outputStream.close();
+        };
+
+        // On connection response read in data from stream, on close parse as json and return.
+        postConnection.onResponse = (HttpClientResponse response) {
+          StringInputStream stream = new StringInputStream(response.inputStream);
+          StringBuffer onResponseBody = new StringBuffer();
+          stream.onData = () {
+            onResponseBody.add(stream.read());
+          };
+
+          stream.onClosed = () {
+            var data = JSON.parse(onResponseBody.toString());
+            completer.complete(data);
+            clientDummyCompleter.complete(null);
+            postHttpClient.shutdown();
+          };
+
+          // Handle stream error
+          stream.onError = (error) {
+            completer.completeError(new APIRequestException("POST stream error: \$error"));
+          };
+
+        };
+
+        // Handle post error
+        postConnection.onError = (error) {
+          completer.completeError(new APIRequestException("POST error: \$error"));
+        };
+      } else if (method.toLowerCase() == "delete") {
+        var deleteHttpClient = new HttpClient();
+        HttpClientConnection deleteConnection = deleteHttpClient.openUrl(method, new Uri.fromString(url));
+
+        // On connection request set the content type and key if available.
+        deleteConnection.onRequest = (HttpClientRequest request) {
+          request.headers.set(HttpHeaders.CONTENT_TYPE, contentType);
+          if (_auth != null) {
+            request.headers.set(HttpHeaders.AUTHORIZATION, "Bearer \${_auth.credentials.accessToken}");
+          }
+
+          request.outputStream.close();
+        };
+
+        // On connection response read in data from stream, on close parse as json and return.
+        deleteConnection.onResponse = (HttpClientResponse response) {
+          // TODO: response.statusCode should be checked for errors.
+          completer.complete({});
+          clientDummyCompleter.complete(null);
+          deleteHttpClient.shutdown();
+        };
+
+        // Handle delete error
+        deleteConnection.onError = (error) {
+          completer.completeError(new APIRequestException("DELETE error: \$error"));
+        };
+      } else {
+        // Method has not been implemented yet error
+        completer.completeError(new APIRequestException("\$method Not implemented"));
+      }
+
+      return clientDummyCompleter.future;
+    };
+
+    if (makeAuthRequests && _auth != null) {
+      // Client wants an authenticated request.
+      _auth.withClient(clientCallback); // Should not care about the future here.
+    } else {
+      // Client wants a non authenticated request.
+      clientCallback(new http.Client()); // Should not care about the future here.
+    }
+
+    return completer.future;
   }
-}
-
-/// Base-class for all API Resources
-abstract class Resource {
-  /// The [Client] to be used for all requests
-  Client _client;
-
-  /// Create a new Resource, using the specified [Client] for requests
-  Resource(Client this._client);
-}
-
-/// Exception thrown when the HTTP Request to the API failed
-class APIRequestException implements Exception {
-  final String msg;
-  const APIRequestException([this.msg]);
-  String toString() => (msg == null) ? "APIRequestException" : "APIRequestException: \$msg";
 }
 
 """;
@@ -959,13 +1254,13 @@ void main() {
     printUsage(parser);
     return;
   }
-  
+
   var output = result["output"];
   if (result["date"] != null && result["date"] == true) {
     output = "$output/${fileDate(new Date.now())}";
   }
-  
-  if (result["all"] == null || result["all"] == false) { 
+
+  if (result["all"] == null || result["all"] == false) {
     var loader;
     if (result["api"] !=null)
       loader = loadDocumentFromGoogle(result["api"], result["version"]);
