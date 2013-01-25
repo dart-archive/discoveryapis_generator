@@ -1075,10 +1075,11 @@ abstract class ConsoleClient extends Client {
           completer.completeError(new APIRequestException("onError: \$error"));
         });
 
-      } else if (method.toLowerCase() == "post") {
+      } else if (method.toLowerCase() == "post" || method.toLowerCase() == "put" || method.toLowerCase() == "patch") {
         // Workaround since http.Client does not properly support post for google apis
         var postHttpClient = new HttpClient();
-        HttpClientConnection postConnection = postHttpClient.postUrl(new Uri.fromString(url));
+        HttpClientConnection postConnection = postHttpClient.openUrl(method, new Uri.fromString(url));
+
 
         // On connection request set the content type and key if available.
         postConnection.onRequest = (HttpClientRequest request) {
