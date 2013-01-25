@@ -87,7 +87,7 @@ authors:
 
 dependencies:
   js: '>=0.0.14'
-  google_oauth2_client: '>=0.1.0'
+  google_oauth2_client: '>=0.2.0'
 """;
   }
 
