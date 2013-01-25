@@ -1118,8 +1118,32 @@ abstract class ConsoleClient extends Client {
         postConnection.onError = (error) {
           completer.completeError(new APIRequestException("POST error: \$error"));
         };
+      } else if (method.toLowerCase() == "delete") {
+        var deleteHttpClient = new HttpClient();
+        HttpClientConnection deleteConnection = deleteHttpClient.openUrl(method, new Uri.fromString(url));
 
+        // On connection request set the content type and key if available.
+        deleteConnection.onRequest = (HttpClientRequest request) {
+          request.headers.set(HttpHeaders.CONTENT_TYPE, contentType);
+          if (_auth != null) {
+            request.headers.set(HttpHeaders.AUTHORIZATION, "Bearer \${_auth.credentials.accessToken}");
+          }
 
+          request.outputStream.close();
+        };
+
+        // On connection response read in data from stream, on close parse as json and return.
+        deleteConnection.onResponse = (HttpClientResponse response) {
+          // TODO: response.statusCode should be checked for errors.
+          completer.complete({});
+          clientDummyCompleter.complete(null);
+          deleteHttpClient.shutdown();
+        };
+
+        // Handle delete error
+        deleteConnection.onError = (error) {
+          completer.completeError(new APIRequestException("DELETE error: \$error"));
+        };
       } else {
         // Method has not been implemented yet error
         completer.completeError(new APIRequestException("\$method Not implemented"));
