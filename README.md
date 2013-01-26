@@ -14,13 +14,15 @@ Methods now only accept the parameters that are actually defined in the API Disc
 
 Dart application to create Dart API Client Libraries based on discovery documents
 
+Examples for how to use the generate client libraries can be found here: https://github.com/dart-gde/dart_api_client_examples
+
 ### Usage
 
 ```
    generator.dart -a <API> - v <Version> [-o <Directory>] (to load from Google Discovery API)
 or generator.dart -u <URL> [-o <Directory>] (to load discovery document from specified URL)
 or generator.dart -i <File> [-o <Directory>] (to load discovery document from local file)
-or generator.dart -all [-o <Directory>] (to create libraries for all Google APIs)
+or generator.dart --all [-o <Directory>] (to create libraries for all Google APIs)
 
 -a, --api          Short name of the Google API (plus, drive, ...)
 -v, --version      Google API version (v1, v2, v1alpha, ...)
@@ -39,7 +41,7 @@ or generator.dart -all [-o <Directory>] (to create libraries for all Google APIs
 ### Licenses
 
 ```
-Copyright (c) 2013 Gerwin Sturm, FoldedSoft e.U. / www.foldedsoft.at
+Copyright (c) 2013 Gerwin Sturm & Adam Singer
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not
 use this file except in compliance with the License. You may obtain a copy of

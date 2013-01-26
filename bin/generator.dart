@@ -87,13 +87,13 @@ authors:
 
 dependencies:
   js: '>=0.0.14'
-  google_oauth2_client: '>=0.2.0'
+  google_oauth2_client: '>=0.2.1'
 """;
   }
 
   String _createLicense() {
     return """
-Copyright (c) 2013 Gerwin Sturm, FoldedSoft e.U. / www.foldedsoft.at & Adam Singer
+Copyright (c) 2013 Gerwin Sturm & Adam Singer
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not
 use this file except in compliance with the License. You may obtain a copy of
@@ -1084,7 +1084,7 @@ abstract class ConsoleClient extends Client {
         // On connection request set the content type and key if available.
         postConnection.onRequest = (HttpClientRequest request) {
           request.headers.set(HttpHeaders.CONTENT_TYPE, contentType);
-          if (_auth != null) {
+          if (makeAuthRequests && _auth != null) {
             request.headers.set(HttpHeaders.AUTHORIZATION, "Bearer \${_auth.credentials.accessToken}");
           }
 
@@ -1125,7 +1125,7 @@ abstract class ConsoleClient extends Client {
         // On connection request set the content type and key if available.
         deleteConnection.onRequest = (HttpClientRequest request) {
           request.headers.set(HttpHeaders.CONTENT_TYPE, contentType);
-          if (_auth != null) {
+          if (makeAuthRequests && _auth != null) {
             request.headers.set(HttpHeaders.AUTHORIZATION, "Bearer \${_auth.credentials.accessToken}");
           }
 
