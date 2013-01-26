@@ -14,7 +14,7 @@ Methods now only accept the parameters that are actually defined in the API Disc
 
 Dart application to create Dart API Client Libraries based on discovery documents
 
-Examples for how to use the generate client libraries can be found here: https://github.com/dart-gde/dart_api_client_examples
+Examples for how to use the generated client libraries can be found here: https://github.com/dart-gde/dart_api_client_examples
 
 ### Usage
 
