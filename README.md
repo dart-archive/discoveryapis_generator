@@ -1,15 +1,5 @@
 # discovery_api_dart_client_generator
 
-### Current state:
-
-Not working:
-Mediauploads "should" be working but there are CORS problems that might need to be fixed by Google.
-
-Working:
-POST and GET requests should be working.
-Some basic error handling is included in case the API doesn't respond as expected...
-Methods now only accept the parameters that are actually defined in the API Discovery document.
-
 ### Description
 
 Dart application to create Dart API Client Libraries based on discovery documents
