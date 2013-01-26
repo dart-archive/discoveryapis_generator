@@ -15,84 +15,10 @@ const Map parameterType = const {
   "boolean": "bool"
 };
 
-class Generator {
-  String _data;
-  Map _json;
-  String _name;
-  String _version;
-  String _libraryName;
-  String _libraryBrowserName;
-  String _libraryConsoleName;
-  String _libraryPubspecName;
-  String _clientVersion = "0.1.0";
+const String clientVersion = "0.1.0";
 
-  Generator(this._data) {
-    _json = JSON.parse(_data);
-    _name = _json["name"];
-    _version = _json["version"];
-    _libraryName = cleanName("${_name}_${_version}_api_client");
-    _libraryBrowserName = cleanName("${_name}_${_version}_api_browser");
-    _libraryConsoleName = cleanName("${_name}_${_version}_api_console");
-    _libraryPubspecName = cleanName("${_name}_${_version}_api");
-  }
-
-  void generateClient(String outputDirectory) {
-    var folderName = "$outputDirectory/$_libraryName";
-    (new Directory("$folderName/lib/src/common")).createSync(recursive: true);
-    (new Directory("$folderName/lib/src/browser")).createSync(recursive: true);
-    (new Directory("$folderName/lib/src/console")).createSync(recursive: true);
-
-    (new File("$folderName/pubspec.yaml")).writeAsStringSync(_createPubspec());
-
-    (new File("$folderName/LICENSE")).writeAsStringSync(_createLicense());
-
-    (new File("$folderName/README.md")).writeAsStringSync(_createReadme());
-
-    (new File("$folderName/CONTRIBUTORS")).writeAsStringSync(_createContributors());
-
-    // Create common library files
-
-    (new File("$folderName/lib/$_libraryName.dart")).writeAsStringSync(_createLibrary());
-
-    (new File("$folderName/lib/src/common/client.dart")).writeAsStringSync(_createClientClass());
-
-    (new File("$folderName/lib/src/common/schemas.dart")).writeAsStringSync(_createSchemas());
-
-    (new File("$folderName/lib/src/common/resources.dart")).writeAsStringSync(_createResources());
-
-    // Create browser versions of the libraries
-    (new File("$folderName/lib/$_libraryBrowserName.dart")).writeAsStringSync(_createBrowserLibrary());
-
-    (new File("$folderName/lib/src/browser/browserclient.dart")).writeAsStringSync(_createBrowserClientClass());
-
-    (new File("$folderName/lib/src/browser/$_name.dart")).writeAsStringSync(_createBrowserMainClass());
-
-    // Create console versions of the libraries
-    (new File("$folderName/lib/$_libraryConsoleName.dart")).writeAsStringSync(_createConsoleLibrary());
-
-    (new File("$folderName/lib/src/console/consoleclient.dart")).writeAsStringSync(_createConsoleClientClass());
-
-    (new File("$folderName/lib/src/console/$_name.dart")).writeAsStringSync(_createConsoleMainClass());
-  }
-
-  String _createPubspec() {
-    return """
-name: $_libraryPubspecName
-version: $_clientVersion
-description: Auto-generated client library for accessing the $_name $_version API
-homepage: https://github.com/dart-gde/discovery_api_dart_client_generator
-authors:
-- Gerwin Sturm <scarygami@gmail.com>
-- Adam Singer <financeCoding@gmail.com>
-
-dependencies:
-  js: '>=0.0.14'
-  google_oauth2_client: '>=0.2.1'
-""";
-  }
-
-  String _createLicense() {
-    return """
+String createLicense() {
+  return """
 Copyright (c) 2013 Gerwin Sturm & Adam Singer
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -124,12 +50,110 @@ License for the specific language governing permissions and limitations under
 the License
 
 """;
-  }
+}
 
-  String _createContributors() {
-    return """
+String createContributors() {
+  return """
 Adam Singer (https://github.com/financeCoding)
 Gerwin Sturm (https://github.com/Scarygami, http://scarygami.net/+)
+""";
+}
+
+String createGitIgnore() {
+  return """
+packages/
+pubspec.lock
+""";
+}
+
+class Generator {
+  String _data;
+  Map _json;
+  String _name;
+  String _version;
+  String _shortName;
+  String _libraryName;
+  String _libraryBrowserName;
+  String _libraryConsoleName;
+  String _libraryPubspecName;
+
+  Generator(this._data) {
+    _json = JSON.parse(_data);
+    _name = _json["name"];
+    _version = _json["version"];
+    _shortName = cleanName("${_name}_${_version}");
+    _libraryName = cleanName("${_name}_${_version}_api_client");
+    _libraryBrowserName = cleanName("${_name}_${_version}_api_browser");
+    _libraryConsoleName = cleanName("${_name}_${_version}_api_console");
+    _libraryPubspecName = cleanName("${_name}_${_version}_api");
+  }
+
+  void generateClient(String outputDirectory, [bool fullLibrary = false]) {
+    var mainFolder, srcFolder, libFolder;
+    if (fullLibrary) {
+      mainFolder = outputDirectory;
+      libFolder = "$outputDirectory/lib";
+      srcFolder = "$outputDirectory/lib/src/$_shortName";
+    } else {
+      mainFolder = "$outputDirectory/$_libraryName";
+      libFolder = "$outputDirectory/$_libraryName/lib";
+      srcFolder = "$outputDirectory/$_libraryName/lib/src";
+    }
+
+    (new Directory("$srcFolder/common")).createSync(recursive: true);
+    (new Directory("$srcFolder/browser")).createSync(recursive: true);
+    (new Directory("$srcFolder/console")).createSync(recursive: true);
+
+    if (!fullLibrary) {
+      (new File("$mainFolder/pubspec.yaml")).writeAsStringSync(_createPubspec());
+  
+      (new File("$mainFolder/LICENSE")).writeAsStringSync(createLicense());
+  
+      (new File("$mainFolder/README.md")).writeAsStringSync(_createReadme());
+      
+      (new File("$mainFolder/.gitignore")).writeAsStringSync(createGitIgnore());
+  
+      (new File("$mainFolder/CONTRIBUTORS")).writeAsStringSync(createContributors());
+    }
+      
+    // Create common library files
+
+    (new File("$libFolder/$_libraryName.dart")).writeAsStringSync(_createLibrary());
+
+    (new File("$srcFolder/common/client.dart")).writeAsStringSync(_createClientClass());
+
+    (new File("$srcFolder/common/schemas.dart")).writeAsStringSync(_createSchemas());
+
+    (new File("$srcFolder/common/resources.dart")).writeAsStringSync(_createResources());
+
+    // Create browser versions of the libraries
+    (new File("$libFolder/$_libraryBrowserName.dart")).writeAsStringSync(_createBrowserLibrary());
+
+    (new File("$srcFolder/browser/browserclient.dart")).writeAsStringSync(_createBrowserClientClass());
+
+    (new File("$srcFolder/browser/$_name.dart")).writeAsStringSync(_createBrowserMainClass());
+
+    // Create console versions of the libraries
+    (new File("$libFolder/$_libraryConsoleName.dart")).writeAsStringSync(_createConsoleLibrary());
+
+    (new File("$srcFolder/console/consoleclient.dart")).writeAsStringSync(_createConsoleClientClass());
+
+    (new File("$srcFolder/console/$_name.dart")).writeAsStringSync(_createConsoleMainClass());
+  }
+
+  String _createPubspec() {
+    return """
+name: $_libraryPubspecName
+version: $clientVersion
+description: Auto-generated client library for accessing the $_name $_version API
+homepage: https://github.com/dart-gde/discovery_api_dart_client_generator
+authors:
+- Gerwin Sturm <scarygami@gmail.com>
+- Adam Singer <financeCoding@gmail.com>
+
+dependencies:
+  js: '>=0.0.14'
+  google_oauth2_client: '>=0.2.1'
 """;
   }
 
@@ -147,7 +171,7 @@ Auto-generated client library for accessing the $_name $_version API.
       tmp.add("Official API documentation: ${_json["documentationLink"]}\n\n");
     }
     tmp.add("### Licenses\n\n```\n");
-    tmp.add(_createLicense());
+    tmp.add(createLicense());
     tmp.add("```\n");
     return tmp.toString();
   }
@@ -1168,6 +1192,88 @@ abstract class ConsoleClient extends Client {
   }
 }
 
+void createFullClient(Map apis, String outputDirectory) {
+  
+  String fullLibraryName = "api_client";
+  
+  String createFullPubspec() {
+    return """
+name: $fullLibraryName
+version: $clientVersion
+description: Auto-generated client library for accessing Google APIs
+homepage: https://github.com/dart-gde/discovery_api_dart_client_generator
+authors:
+- Gerwin Sturm <scarygami@gmail.com>
+- Adam Singer <financeCoding@gmail.com>
+
+dependencies:
+  js: '>=0.0.14'
+  google_oauth2_client: '>=0.2.1'
+
+""";
+  }
+
+  String createFullReadme() {
+    var tmp = new StringBuffer();
+    tmp.add("""
+# $fullLibraryName
+
+### Description
+
+Auto-generated client library for accessing the Google APIs.
+
+### Supported APIs
+
+""");
+    
+    apis["items"].forEach((item) {
+      var name = item["name"];
+      var version = item["version"];
+      var title = item["title"];
+      var link = item["documentationLink"];
+      var description = item["description"];
+      
+      var libraryBrowserName = cleanName("${name}_${version}_api_browser");
+      var libraryConsoleName = cleanName("${name}_${version}_api_console");
+      
+      tmp.add("#### ");
+      if (item.containsKey("icons") && item["icons"].containsKey("x16")) {
+        tmp.add("![Logo](${item["icons"]["x16"]}) ");
+      }
+      tmp.add("$title - $name $version\n\n");
+      tmp.add("$description\n\n");
+      if (link != null) {
+        tmp.add("[Official API Documentation]($link)\n\n");  
+      }
+      tmp.add("For web applications:\n```\nimport \"package:api_client/$libraryBrowserName.dart\" as ${cleanName(name).toLowerCase()}client;\n```\n\n");
+      tmp.add("For console application:\n```\nimport \"package:api_client/$libraryConsoleName.dart\" as ${cleanName(name).toLowerCase()}client;\n```\n\n");
+
+      tmp.add("```\nvar ${cleanName(name).toLowerCase()} = new ${cleanName(name).toLowerCase()}client.${capitalize(name)}();\n```\n");
+      
+      tmp.add("\n");
+    });
+    
+    tmp.add("### Licenses\n\n```\n");
+    tmp.add(createLicense());
+    tmp.add("```\n");
+    return tmp.toString();
+  };
+
+  (new Directory("$outputDirectory/lib/src")).createSync(recursive: true);
+  
+  (new File("$outputDirectory/pubspec.yaml")).writeAsStringSync(createFullPubspec());
+  (new File("$outputDirectory/README.md")).writeAsStringSync(createFullReadme());
+  (new File("$outputDirectory/LICENSE")).writeAsStringSync(createLicense());
+  (new File("$outputDirectory/CONTRIBUTORS")).writeAsStringSync(createContributors());
+  (new File("$outputDirectory/.gitignore")).writeAsStringSync(createGitIgnore());
+  
+  apis["items"].forEach((item) {
+    loadDocumentFromUrl(item["discoveryRestUrl"]).then((doc) {
+      var generator = new Generator(doc);
+      generator.generateClient(outputDirectory, true);
+    });
+  });
+}
 
 Future<String> loadDocumentFromUrl(String url) {
   var completer = new Completer();
@@ -1223,7 +1329,7 @@ void main() {
   parser.addOption("url", abbr: "u", help: "URL of a Discovery document");
   parser.addFlag("all", help: "Create client libraries for all Google APIs", negatable: false);
   parser.addOption("output", abbr: "o", help: "Output Directory", defaultsTo: "output/");
-  parser.addFlag("date", help: "Create sub folder with current date", negatable: true, defaultsTo: true);
+  parser.addFlag("date", help: "Create sub folder with current date", negatable: false);
   parser.addFlag("help", abbr: "h", help: "Display this information and exit", negatable: false);
   var result;
   try {
@@ -1275,13 +1381,7 @@ void main() {
     });
   } else {
     loadDocumentFromUrl("https://www.googleapis.com/discovery/v1/apis").then((data) {
-      var jsonData = JSON.parse(data);
-      jsonData["items"].forEach((item) {
-        loadDocumentFromUrl(item["discoveryRestUrl"]).then((doc) {
-          var generator = new Generator(doc);
-          generator.generateClient(output);
-        });
-      });
+      createFullClient(JSON.parse(data), output);
     });
   }
 }

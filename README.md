@@ -32,8 +32,7 @@ or generator.dart --all [-o <Directory>] (to create libraries for all Google API
 -o, --output       Output Directory
                    (defaults to "output/")
 
-    --[no-]date    Create sub folder with current date (otherwise files might be overwritten)
-                   (defaults to on)
+    --date         Create sub folder with current date (otherwise files might be overwritten)
 
 -h, --help         Display this information and exit
 ```
