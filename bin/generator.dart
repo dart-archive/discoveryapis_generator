@@ -93,16 +93,16 @@ class Generator {
     if (fullLibrary) {
       mainFolder = outputDirectory;
       libFolder = "$outputDirectory/lib";
-      srcFolder = "$outputDirectory/lib/src/$_shortName";
+      srcFolder = "src/$_shortName";
     } else {
       mainFolder = "$outputDirectory/$_libraryName";
       libFolder = "$outputDirectory/$_libraryName/lib";
-      srcFolder = "$outputDirectory/$_libraryName/lib/src";
+      srcFolder = "src";
     }
 
-    (new Directory("$srcFolder/common")).createSync(recursive: true);
-    (new Directory("$srcFolder/browser")).createSync(recursive: true);
-    (new Directory("$srcFolder/console")).createSync(recursive: true);
+    (new Directory("$libFolder/$srcFolder/common")).createSync(recursive: true);
+    (new Directory("$libFolder/$srcFolder/browser")).createSync(recursive: true);
+    (new Directory("$libFolder/$srcFolder/console")).createSync(recursive: true);
 
     if (!fullLibrary) {
       (new File("$mainFolder/pubspec.yaml")).writeAsStringSync(_createPubspec());
@@ -118,27 +118,27 @@ class Generator {
       
     // Create common library files
 
-    (new File("$libFolder/$_libraryName.dart")).writeAsStringSync(_createLibrary());
+    (new File("$libFolder/$_libraryName.dart")).writeAsStringSync(_createLibrary(srcFolder));
 
-    (new File("$srcFolder/common/client.dart")).writeAsStringSync(_createClientClass());
+    (new File("$libFolder/$srcFolder/common/client.dart")).writeAsStringSync(_createClientClass());
 
-    (new File("$srcFolder/common/schemas.dart")).writeAsStringSync(_createSchemas());
+    (new File("$libFolder/$srcFolder/common/schemas.dart")).writeAsStringSync(_createSchemas());
 
-    (new File("$srcFolder/common/resources.dart")).writeAsStringSync(_createResources());
+    (new File("$libFolder/$srcFolder/common/resources.dart")).writeAsStringSync(_createResources());
 
     // Create browser versions of the libraries
-    (new File("$libFolder/$_libraryBrowserName.dart")).writeAsStringSync(_createBrowserLibrary());
+    (new File("$libFolder/$_libraryBrowserName.dart")).writeAsStringSync(_createBrowserLibrary(srcFolder));
 
-    (new File("$srcFolder/browser/browserclient.dart")).writeAsStringSync(_createBrowserClientClass());
+    (new File("$libFolder/$srcFolder/browser/browserclient.dart")).writeAsStringSync(_createBrowserClientClass());
 
-    (new File("$srcFolder/browser/$_name.dart")).writeAsStringSync(_createBrowserMainClass());
+    (new File("$libFolder/$srcFolder/browser/$_name.dart")).writeAsStringSync(_createBrowserMainClass());
 
     // Create console versions of the libraries
-    (new File("$libFolder/$_libraryConsoleName.dart")).writeAsStringSync(_createConsoleLibrary());
+    (new File("$libFolder/$_libraryConsoleName.dart")).writeAsStringSync(_createConsoleLibrary(srcFolder));
 
-    (new File("$srcFolder/console/consoleclient.dart")).writeAsStringSync(_createConsoleClientClass());
+    (new File("$libFolder/$srcFolder/console/consoleclient.dart")).writeAsStringSync(_createConsoleClientClass());
 
-    (new File("$srcFolder/console/$_name.dart")).writeAsStringSync(_createConsoleMainClass());
+    (new File("$libFolder/$srcFolder/console/$_name.dart")).writeAsStringSync(_createConsoleMainClass());
   }
 
   String _createPubspec() {
@@ -176,7 +176,7 @@ Auto-generated client library for accessing the $_name $_version API.
     return tmp.toString();
   }
 
-  String _createLibrary() {
+  String _createLibrary(String srcFolder) {
     return """
 library $_libraryName;
 
@@ -184,14 +184,14 @@ import "dart:async";
 import "dart:uri";
 import "dart:json" as JSON;
 
-part "src/common/client.dart";
-part "src/common/schemas.dart";
-part "src/common/resources.dart";
+part "$srcFolder/common/client.dart";
+part "$srcFolder/common/schemas.dart";
+part "$srcFolder/common/resources.dart";
 
 """;
   }
 
-  String _createBrowserLibrary() {
+  String _createBrowserLibrary(String srcFolder) {
     return """
 library $_libraryBrowserName;
 
@@ -205,13 +205,13 @@ import "dart:json" as JSON;
 import "package:js/js.dart" as js;
 import "package:google_oauth2_client/google_oauth2_browser.dart";
 
-part "src/browser/browserclient.dart";
-part "src/browser/$_name.dart";
+part "$srcFolder/browser/browserclient.dart";
+part "$srcFolder/browser/$_name.dart";
 
 """;
   }
 
-  String _createConsoleLibrary() {
+  String _createConsoleLibrary(String srcFolder) {
     return """
 library $_libraryConsoleName;
 
@@ -225,8 +225,8 @@ import "dart:json" as JSON;
 import "package:http/http.dart" as http;
 import "package:google_oauth2_client/google_oauth2_console.dart" as oauth2;
 
-part "src/console/consoleclient.dart";
-part "src/console/$_name.dart";
+part "$srcFolder/console/consoleclient.dart";
+part "$srcFolder/console/$_name.dart";
 
 """;
   }
