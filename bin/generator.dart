@@ -136,7 +136,7 @@ Gerwin Sturm (https://github.com/Scarygami, http://scarygami.net/+)
   String _createReadme() {
     var tmp = new StringBuffer();
     tmp.add("""
-# $_libraryBrowserName
+# $_libraryPubspecName
 
 ### Description
 
