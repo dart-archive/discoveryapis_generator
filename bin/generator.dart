@@ -1318,7 +1318,8 @@ void printUsage(parser) {
   print("   generator.dart -a <API> - v <Version> [-o <Directory>] (to load from Google Discovery API)");
   print("or generator.dart -u <URL> [-o <Directory>] (to load discovery document from specified URL)");
   print("or generator.dart -i <File> [-o <Directory>] (to load discovery document from local file)");
-  print("or generator.dart -all [-o <Directory>] (to create libraries for all Google APIs)\n");
+  print("or generator.dart --all [-o <Directory>] (to create libraries for all Google APIs)");
+  print("or generator.dart --full [-o <Directory>] (to create one library including all Google APIs)\n");
   print(parser.getUsage());
 }
 
@@ -1330,6 +1331,7 @@ void main() {
   parser.addOption("input", abbr: "i", help: "Local Discovery document file");
   parser.addOption("url", abbr: "u", help: "URL of a Discovery document");
   parser.addFlag("all", help: "Create client libraries for all Google APIs", negatable: false);
+  parser.addFlag("full", help: "Create one library including all Google APIs", negatable: false);
   parser.addOption("output", abbr: "o", help: "Output Directory", defaultsTo: "output/");
   parser.addFlag("date", help: "Create sub folder with current date", negatable: false);
   parser.addFlag("help", abbr: "h", help: "Display this information and exit", negatable: false);
@@ -1347,16 +1349,17 @@ void main() {
     return;
   }
 
-  if ((result["api"] == null || result["version"] == null) && result["input"] == null && result["url"] == null && (result["all"] == null || result["all"] == false)) {
+  if ((result["api"] == null || result["version"] == null) && result["input"] == null && result["url"] == null && (result["all"] == null || result["all"] == false) && (result["full"] == null || result["full"] == false)) {
     print("Missing arguments\n");
     printUsage(parser);
     return;
   }
 
   var argumentErrors = false;
-  argumentErrors = argumentErrors || (result["api"] != null && (result["input"] != null || result["url"] != null || (result["all"] != null && result["all"] == true)));
-  argumentErrors = argumentErrors || (result["input"] != null && (result["url"] != null || (result["all"] != null && result["all"] == true)));
-  argumentErrors = argumentErrors || (result["url"] != null && result["all"] != null && result["all"] == true);
+  argumentErrors = argumentErrors || (result["api"] != null && (result["input"] != null || result["url"] != null || (result["all"] != null && result["all"] == true) || (result["full"] != null && result["full"] == true)));
+  argumentErrors = argumentErrors || (result["input"] != null && (result["url"] != null || (result["all"] != null && result["all"] == true) || (result["full"] != null && result["full"] == true)));
+  argumentErrors = argumentErrors || (result["url"] != null && ((result["all"] != null && result["all"] == true) || (result["full"] != null && result["full"] == true)));
+  argumentErrors = argumentErrors || (result["all"] != null && result["all"] == true && (result["full"] != null && result["full"] == true));
   if (argumentErrors) {
     print("You can only define one kind of document source.\n");
     printUsage(parser);
@@ -1368,7 +1371,7 @@ void main() {
     output = "$output/${fileDate(new Date.now())}";
   }
 
-  if (result["all"] == null || result["all"] == false) {
+  if ((result["all"] == null || result["all"] == false) && (result["full"] == null || result["full"] == false)) {
     var loader;
     if (result["api"] !=null)
       loader = loadDocumentFromGoogle(result["api"], result["version"]);
@@ -1383,7 +1386,17 @@ void main() {
     });
   } else {
     loadDocumentFromUrl("https://www.googleapis.com/discovery/v1/apis").then((data) {
-      createFullClient(JSON.parse(data), output);
+      var apis = JSON.parse(data);
+      if (result["full"] != null && result["full"] == true) {
+        createFullClient(apis, output);
+      } else {
+        apis["items"].forEach((item) {
+          loadDocumentFromUrl(item["discoveryRestUrl"]).then((doc) {
+            var generator = new Generator(doc);
+            generator.generateClient(output);
+          });
+        });        
+      }
     });
   }
 }
