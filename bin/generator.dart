@@ -92,7 +92,7 @@ class Generator {
     _clientVersionBuild = 0;
   }
 
-  void generateClient(String outputDirectory, {bool fullLibrary: false, bool check: false}) {
+  void generateClient(String outputDirectory, {bool fullLibrary: false, bool check: false, bool force: false}) {
     var mainFolder, srcFolder, libFolder;
     if (fullLibrary) {
       mainFolder = outputDirectory;
@@ -116,19 +116,25 @@ class Generator {
             version = line.substring(9);
           }
         });
-        if (version.startsWith(clientVersion)) {
-          if (etag == _json["etag"]) {
-            print("Nothing changed for $_libraryName");
-            return;
-          } else {
-            print("Changes for $_libraryName");
-            print("Regenerating library $_libraryName");
-            _clientVersionBuild = int.parse(version.substring(clientVersion.length + 1)) + 1;
-          }
-        } else {
-          print("Generator version changed.");
+        if (force) {
+          print("Forced rebuilt");
           print("Regenerating library $_libraryName");
-          _clientVersionBuild = 0;
+          _clientVersionBuild = int.parse(version.substring(clientVersion.length + 1)) + 1;
+        } else {
+          if (version.startsWith(clientVersion)) {
+            if (etag == _json["etag"]) {
+              print("Nothing changed for $_libraryName");
+              return;
+            } else {
+              print("Changes for $_libraryName");
+              print("Regenerating library $_libraryName");
+              _clientVersionBuild = int.parse(version.substring(clientVersion.length + 1)) + 1;
+            }
+          } else {
+            print("Generator version changed.");
+            print("Regenerating library $_libraryName");
+            _clientVersionBuild = 0;
+          }
         }
       } else {
         print("Library $_libraryName does not exist yet.");
@@ -1178,7 +1184,7 @@ abstract class ConsoleClient extends Client {
         client.get(url).then((http.Response response) {
           var data = JSON.parse(response.body);
           completer.complete(data);
-          clientDummyCompleter.complete(null);          
+          clientDummyCompleter.complete(null);
         }, onError: (AsyncError error) {
           completer.completeError(new APIRequestException("onError: \$error"));
         });
@@ -1186,7 +1192,7 @@ abstract class ConsoleClient extends Client {
       } else if (method.toLowerCase() == "post" || method.toLowerCase() == "put" || method.toLowerCase() == "patch") {
         // Workaround since http.Client does not properly support post for google apis
         var postHttpClient = new HttpClient();
-        HttpClientConnection postConnection = postHttpClient.openUrl(method, new Uri.fromString(url));
+        HttpClientConnection postConnection = postHttpClient.openUrl(method, Uri.parse(url));
 
 
         // On connection request set the content type and key if available.
@@ -1228,7 +1234,7 @@ abstract class ConsoleClient extends Client {
         };
       } else if (method.toLowerCase() == "delete") {
         var deleteHttpClient = new HttpClient();
-        HttpClientConnection deleteConnection = deleteHttpClient.openUrl(method, new Uri.fromString(url));
+        HttpClientConnection deleteConnection = deleteHttpClient.openUrl(method, Uri.parse(url));
 
         // On connection request set the content type and key if available.
         deleteConnection.onRequest = (HttpClientRequest request) {
@@ -1380,7 +1386,7 @@ void createAPIList(Map apis, String outputDirectory) {
 Future<String> loadDocumentFromUrl(String url) {
   var completer = new Completer();
   var client = new HttpClient();
-  var connection = client.getUrl(new Uri.fromString(url));
+  var connection = client.getUrl(Uri.parse(url));
   var result = new StringBuffer();
 
   connection.onError = (error) => completer.complete("Unexpected error: $error");
@@ -1437,6 +1443,7 @@ void main() {
   parser.addOption("output", abbr: "o", help: "Output Directory", defaultsTo: "output/");
   parser.addFlag("date", help: "Create sub folder with current date", negatable: false);
   parser.addFlag("check", help: "Check for changes against existing version if available", negatable: false);
+  parser.addFlag("force", help: "Force client version update even if no changes", negatable: false);
   parser.addFlag("help", abbr: "h", help: "Display this information and exit", negatable: false);
   var result;
   try {
@@ -1509,6 +1516,11 @@ void main() {
     check = true;
   }
   
+  var force = false;
+  if (result["check"] != null && result["check"] == true) {
+    force = true;
+  }
+  
   if ((result["all"] == null || result["all"] == false) &&
       (result["full"] == null || result["full"] == false) &&
       (result["list"] == null || result["list"] == false)) {
@@ -1522,7 +1534,7 @@ void main() {
 
     loader.then((doc) {
       var generator = new Generator(doc);
-      generator.generateClient(output, check: check);
+      generator.generateClient(output, check: check, force: force);
     });
   } else {
     loadDocumentFromUrl("https://www.googleapis.com/discovery/v1/apis").then((data) {
@@ -1537,7 +1549,7 @@ void main() {
         apis["items"].forEach((item) {
           loadDocumentFromUrl(item["discoveryRestUrl"]).then((doc) {
             var generator = new Generator(doc);
-            generator.generateClient(output, check: check);
+            generator.generateClient(output, check: check, force: force);
           });
         });        
       }

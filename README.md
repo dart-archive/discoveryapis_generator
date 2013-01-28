@@ -28,6 +28,7 @@ or generator.dart --list [-o <Directory>] (to create a list of available APIs fo
 
     --date         Create sub folder with current date (otherwise files might be overwritten)
     --check        Check for changes against existing version if available
+    --force        Force client version update even if no changes
 
 -h, --help         Display this information and exit
 ```
