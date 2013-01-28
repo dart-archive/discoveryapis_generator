@@ -198,7 +198,7 @@ class Generator {
 
     (new File("$libFolder/$srcFolder/console/$_name.dart")).writeAsStringSync(_createConsoleMainClass());
     
-    print("Library $_libraryName generated.");
+    print("Library $_libraryName generated successfully.");
   }
 
   String _createPubspec() {

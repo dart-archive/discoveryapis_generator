@@ -1,6 +1,16 @@
 #!/bin/bash
 
-GITUSER="Scarygami"
+GITUSER=$1
+if [[ $GITUSER == "" ]]
+then
+  GITUSER="Scarygami"
+fi
+
+REPUSER=$2
+if [[ $REPUSER == "" ]]
+then
+  REPUSER=$GITUSER
+fi
 
 # Authenticate GitHub User to prevent API rate limits
 if [ ! -f "tool/githubtoken" ]
@@ -57,38 +67,41 @@ function handle_api {
   api=$1
   version=$2
   dir=$3
-  echo "curl https://api.github.com/repos/$GITUSER/$dir"
-  result=`curl --write-out %{http_code} --silent --output /dev/null -H "Authorization: token $token" https://api.github.com/repos/$GITUSER/$dir`
+  echo "curl https://api.github.com/repos/$REPUSER/$dir"
+  result=`curl --write-out %{http_code} --silent --output /dev/null -H "Authorization: token $token" https://api.github.com/repos/$REPUSER/$dir`
   
   if [ $result == "200" ]
   then
     echo "Repository $dir found."
-    echo "git clone https://github.com/$GITUSER/$dir.git output/$dir 2>&1"
-    echo `git clone https://github.com/$GITUSER/$dir.git output/$dir 2>&1`    
   else
     if [ $result == "404" ]
     then
       echo "Repository $dir not found."
+      # TODO:
+      #   - Create repository via API if it doesn't exist yet
     else
       echo "Error $result - $dir will be skipped."
       return 1
     fi
   fi
 
+  #echo "git clone https://github.com/$REPUSER/$dir.git output/$dir 2>&1"
+  #echo `git clone https://github.com/$REPUSER/$dir.git output/$dir 2>&1`
   
-  # call generator -a $api -v $version --check
-  #echo "dart bin/generator.dart -a $api -v $version --check 2>&1"
-  #echo `dart bin/generator.dart -a $api -v $version --check 2>&1`
+  # generate library
+  echo "dart bin/generator.dart -a $api -v $version --check 2>&1"
+  result=`dart bin/generator.dart -a $api -v $version --check 2>&1`
+  echo $result
   
-  # TODO: commit changes and push to github
-  # if repository doesn't exist yet:
-  #   - Create repository via API if it doesn't exist yet
-  #   - git clone https://github.com/$GITUSER/$dir.git output/$dir
-  # git status --> check response to see if changes
-  # git add --all
-  # git commit -m Automated update
-  # git push https://$token@github.com/$GITUSER/$dir.git master
-
+  if [[ "$result" == *"generated successfully"* ]]
+  then
+    echo "TODO: commit changes"
+    # TODO: commit changes and push to github
+    # git add --all
+    # git commit -m Automated update
+    # git push https://$token@github.com/$REPUSER/$dir.git master
+  fi
+  
   return 0
 }
 
@@ -97,4 +110,5 @@ do
   tmp=($line)
   handle_api "${tmp[0]}" "${tmp[1]}" "${tmp[2]}"
 done < "output/APIS"
+
 
