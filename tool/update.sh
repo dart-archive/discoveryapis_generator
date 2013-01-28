@@ -79,6 +79,23 @@ function handle_api {
       echo "Repository $dir not found."
       # TODO:
       #   - Create repository via API if it doesn't exist yet
+      if [[ $GITUSER != $REPUSER ]]
+      then
+        echo "Creating repository $dir in organization $REPUSER"
+        echo "curl https://api.github.com/orgs/$REPUSER/repos -d '{\"name\":\"$dir\"}'"
+        # result=`curl --write-out %{http_code} --silent --output /dev/null -H "Authorization: token $token" https://api.github.com/orgs/$REPUSER/repos -d '{"name":"$dir"}'`
+      else
+        echo "Creating repository $dir for user $REPUSER"
+        echo "curl https://api.github.com/user/repos -d '{\"name\":\"$dir\"}'"
+        # result=`curl --write-out %{http_code} --silent --output /dev/null -H "Authorization: token $token" https://api.github.com/user/repos -d '{"name":"$dir"}'`
+      fi
+      if [ $result != "201" ]
+      then
+        echo "Error creating repository $REPUSER/$dir"
+        return 1
+      else
+        echo "Repository $REPUSER/$dir created successfully"
+      fi
     else
       echo "Error $result - $dir will be skipped."
       return 1
