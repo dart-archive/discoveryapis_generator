@@ -60,19 +60,19 @@ function handle_api {
   echo "curl https://api.github.com/repos/$GITUSER/$dir"
   result=`curl --write-out %{http_code} --silent --output /dev/null -H "Authorization: token $token" https://api.github.com/repos/$GITUSER/$dir`
   
-  if [ $result == "000" ]
-  then
-    echo "curl error"
-    exit 1
-  fi
-  
   if [ $result == "200" ]
   then
     echo "Repository $dir found."
     echo "git clone https://github.com/$GITUSER/$dir.git output/$dir 2>&1"
     echo `git clone https://github.com/$GITUSER/$dir.git output/$dir 2>&1`    
   else
-    echo "Repository $dir not found."
+    if [ $result == "404" ]
+    then
+      echo "Repository $dir not found."
+    else
+      echo "Error $result - $dir will be skipped."
+      return 1
+    fi
   fi
 
   
@@ -88,6 +88,8 @@ function handle_api {
   # git add --all
   # git commit -m Automated update
   # git push https://$token@github.com/$GITUSER/$dir.git master
+
+  return 0
 }
 
 while read line
