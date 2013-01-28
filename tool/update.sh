@@ -95,10 +95,6 @@ function handle_api {
 while read line
 do
   tmp=($line)
-  api="${tmp[0]}"
-  version="${tmp[1]}"
-  dir="${tmp[2]}"
- 
-  handle_api $api $version $dir
+  handle_api "${tmp[0]}" "${tmp[1]}" "${tmp[2]}"
 done < "output/APIS"
 
