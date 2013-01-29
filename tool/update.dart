@@ -20,12 +20,15 @@ void printUsage(parser) {
 Future<String> promptPassword() {
   var completer = new Completer<String>();
   var stream = new StringInputStream(stdin);
-  stdout.writeString("Warning: Password will be displayed here until I find a better way to do this.\n");
+  stdout.writeString("Warning: If you didn't run this via run_update.sh your password will be displayed here until Dart has tty control.\n");
   stdout.writeString("Watch your back...\n");
   stdout.writeString("GitHub password for $gituser: ");
+  
   stream.onLine = () {
     var str = stream.readLine();
     stdin.close();
+    // scroll password out of view just in case...
+    stdout.writeString("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
     completer.complete(str);
   };
   return completer.future;
@@ -35,11 +38,11 @@ Future<String> gitHubLogin() {
   var completer = new Completer<String>();
   promptPassword().then((pw) {
     var client = new HttpClient();
-    
+
     client.addCredentials(Uri.parse("https://api.github.com/authorizations"), "realm", new HttpClientBasicCredentials(gituser, pw));
-    
+
     HttpClientConnection connection = client.openUrl("POST", Uri.parse("https://api.github.com/authorizations"));
-  
+
     // On connection request set the content type and key if available.
     connection.onRequest = (HttpClientRequest request) {
       var data = JSON.stringify({"scopes":["repo"],"note":"API Client Generator"});
@@ -48,7 +51,7 @@ Future<String> gitHubLogin() {
       request.outputStream.writeString(data);
       request.outputStream.close();
     };
-  
+
     // On connection response read in data from stream, on close parse as json and return.
     connection.onResponse = (HttpClientResponse response) {
       StringInputStream stream = new StringInputStream(response.inputStream);
@@ -56,7 +59,7 @@ Future<String> gitHubLogin() {
       stream.onData = () {
         onResponseBody.add(stream.read());
       };
-  
+
       stream.onClosed = () {
         if (response.statusCode == 201) {
           completer.complete(onResponseBody.toString());
@@ -65,7 +68,7 @@ Future<String> gitHubLogin() {
         }
         client.shutdown();
       };
-  
+
       // Handle stream error
       stream.onError = (error) {
         completer.completeError(new StreamException("$error"));
@@ -90,12 +93,12 @@ Future<bool> checkCredentials(String token) {
     request.headers.set(HttpHeaders.AUTHORIZATION, "token $token");
     request.outputStream.close();
   };
-  
+
   connection.onResponse = (HttpClientResponse response) {
     var stream = new StringInputStream(response.inputStream);
-    
+
     stream.onData = () => stream.read();
-    
+
     stream.onClosed = () {
       if (response.statusCode == 200) {
         completer.complete(true);
@@ -104,7 +107,7 @@ Future<bool> checkCredentials(String token) {
       }
       client.shutdown();
     };
-    
+
     // Handle stream error
     stream.onError = (error) {
       completer.completeError(new StreamException("$error"));
@@ -115,7 +118,7 @@ Future<bool> checkCredentials(String token) {
   connection.onError = (error) {
     completer.completeError(new HttpException("$error"));
   };
-  
+
   return completer.future;
 }
 
@@ -164,13 +167,13 @@ Future<bool> createRepository(String name, String version, String gitname) {
   var completer = new Completer<bool>();
   var client = new HttpClient();
   var url;
-  
+
   if (gituser != repouser) {
     url = "https://api.github.com/orgs/$repouser/repos";
   } else {
     url = "https://api.github.com/user/repos";
   }
-  
+
   var connection = client.openUrl("POST", Uri.parse(url));
 
   connection.onRequest = (request) {
@@ -186,15 +189,15 @@ Future<bool> createRepository(String name, String version, String gitname) {
     request.outputStream.writeString(data);
     request.outputStream.close();
   };
-  
+
   connection.onResponse = (HttpClientResponse response) {
     var stream = new StringInputStream(response.inputStream);
-    
+
     StringBuffer onResponseBody = new StringBuffer();
     stream.onData = () {
       onResponseBody.add(stream.read());
     };
-    
+
     stream.onClosed = () {
       if (response.statusCode == 201) {
         completer.complete(true);
@@ -204,7 +207,7 @@ Future<bool> createRepository(String name, String version, String gitname) {
       }
       client.shutdown();
     };
-    
+
     // Handle stream error
     stream.onError = (error) {
       completer.completeError(new StreamException("$error"));
@@ -215,7 +218,7 @@ Future<bool> createRepository(String name, String version, String gitname) {
   connection.onError = (error) {
     completer.completeError(new HttpException("$error"));
   };
-  
+
   return completer.future;
 }
 
@@ -228,12 +231,12 @@ Future<bool> findRepository(String name, String version, String gitname) {
     request.headers.set(HttpHeaders.AUTHORIZATION, "token $token");
     request.outputStream.close();
   };
-  
+
   connection.onResponse = (HttpClientResponse response) {
     var stream = new StringInputStream(response.inputStream);
-    
+
     stream.onData = () => stream.read();
-    
+
     stream.onClosed = () {
       if (response.statusCode == 200) {
         completer.complete(true);
@@ -246,7 +249,7 @@ Future<bool> findRepository(String name, String version, String gitname) {
       }
       client.shutdown();
     };
-    
+
     // Handle stream error
     stream.onError = (error) {
       completer.completeError(new StreamException("$error"));
@@ -257,7 +260,7 @@ Future<bool> findRepository(String name, String version, String gitname) {
   connection.onError = (error) {
     completer.completeError(new HttpException("$error"));
   };
-  
+
   return completer.future;
 }
 
@@ -281,7 +284,7 @@ Future handleAPI(String name, String version, String gitname) {
           }
           completer.complete(true);
         });
-        
+
       });
     } else {
       print("Repository not found and not able to create. Skipping $gitname");
@@ -296,7 +299,7 @@ void handleAPIs(List apis) {
   if (apis.length > 0) {
     var api = apis.removeAt(0);
     print(api["gitname"]);
-    handleAPI(api["name"], api["version"], api["gitname"]).then((v) => handleAPIs(apis));    
+    handleAPI(api["name"], api["version"], api["gitname"]).then((v) => handleAPIs(apis));
   }
 }
 
@@ -330,7 +333,7 @@ void main() {
   gituser = result["gituser"];
   repouser = result["repouser"];
   token = "";
-  
+
   getCredentials()
     .then((tok) {
       token = tok;
