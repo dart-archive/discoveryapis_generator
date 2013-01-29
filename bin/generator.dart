@@ -1368,8 +1368,9 @@ Examples for how to use these libraries can be found here: https://github.com/da
 }
 
 void createAPIList(Map apis, String outputDirectory) {
-  var tmp = new StringBuffer();
   (new Directory("$outputDirectory")).createSync(recursive: true);
+  /*var tmp = new StringBuffer();
+  
   apis["items"].forEach((item) {
     var name = item["name"];
     var version = item["version"];
@@ -1380,7 +1381,18 @@ void createAPIList(Map apis, String outputDirectory) {
     tmp.add(cleanName("dart_${name}_${version}_api_client"));
     tmp.add("\n");
   });
-  (new File("$outputDirectory/APIS")).writeAsStringSync(tmp.toString());
+  (new File("$outputDirectory/APIS")).writeAsStringSync(tmp.toString());*/
+  
+  var data = new Map();
+  data["apis"] = new List();
+  apis["items"].forEach((item) {
+    var api = new Map();
+    api["name"] = item["name"];
+    api["version"] = item["version"];
+    api["gitname"] = cleanName("dart_${item["name"]}_${item["version"]}_api_client");
+    data["apis"].add(api);
+  });
+  (new File("$outputDirectory/APIS")).writeAsStringSync(JSON.stringify(data));
 }
 
 Future<String> loadDocumentFromUrl(String url) {
