@@ -142,44 +142,44 @@ class Generator {
         _clientVersionBuild = 0;
       }
     }
-    
+
     // Clean contents of directory (except for .git folder)
     var tmpDir = new Directory(mainFolder);
     if (tmpDir.existsSync()) {
       print("Emptying folder before library generation.");
       tmpDir.listSync().forEach((f) {
         if (f is File) {
-          f.deleteSync();  
+          f.deleteSync();
         } else if (f is Directory) {
-          if (!f.path.endsWith(".git")) { 
+          if (!f.path.endsWith(".git")) {
             f.deleteSync(recursive: true);
           }
         }
       });
     }
-    
+
     (new Directory("$libFolder/$srcFolder/common")).createSync(recursive: true);
     (new Directory("$libFolder/$srcFolder/browser")).createSync(recursive: true);
     (new Directory("$libFolder/$srcFolder/console")).createSync(recursive: true);
 
     if (!fullLibrary) {
       (new Directory("$mainFolder/test")).createSync(recursive: true);
-      
+
       (new File("$mainFolder/pubspec.yaml")).writeAsStringSync(_createPubspec());
-  
+
       (new File("$mainFolder/LICENSE")).writeAsStringSync(createLicense());
-  
+
       (new File("$mainFolder/README.md")).writeAsStringSync(_createReadme());
-      
+
       (new File("$mainFolder/.gitignore")).writeAsStringSync(createGitIgnore());
-  
+
       (new File("$mainFolder/CONTRIBUTORS")).writeAsStringSync(createContributors());
-      
+
       (new File("$mainFolder/VERSION")).writeAsStringSync(_json["etag"]);
-      
+
       (new File("$mainFolder/test/run.sh")).writeAsStringSync(_createTest());
     }
-      
+
     // Create common library files
 
     (new File("$libFolder/$_libraryName.dart")).writeAsStringSync(_createLibrary(srcFolder));
@@ -203,7 +203,7 @@ class Generator {
     (new File("$libFolder/$srcFolder/console/consoleclient.dart")).writeAsStringSync(_createConsoleClientClass());
 
     (new File("$libFolder/$srcFolder/console/$_name.dart")).writeAsStringSync(_createConsoleMainClass());
-    
+
     print("Library $_libraryName generated successfully.");
   }
 
@@ -265,7 +265,7 @@ else
 fi
 """;
   }
-  
+
   String _createLibrary(String srcFolder) {
     return """
 library $_libraryName;
@@ -1283,9 +1283,9 @@ abstract class ConsoleClient extends Client {
 }
 
 void createFullClient(Map apis, String outputDirectory) {
-  
+
   String fullLibraryName = "api_client";
-  
+
   String createFullPubspec() {
     return """
 name: $fullLibraryName
@@ -1317,17 +1317,17 @@ Examples for how to use these libraries can be found here: https://github.com/da
 ### Supported APIs
 
 """);
-    
+
     apis["items"].forEach((item) {
       var name = item["name"];
       var version = item["version"];
       var title = item["title"];
       var link = item["documentationLink"];
       var description = item["description"];
-      
+
       var libraryBrowserName = cleanName("${name}_${version}_api_browser");
       var libraryConsoleName = cleanName("${name}_${version}_api_console");
-      
+
       tmp.add("#### ");
       if (item.containsKey("icons") && item["icons"].containsKey("x16")) {
         tmp.add("![Logo](${item["icons"]["x16"]}) ");
@@ -1335,16 +1335,16 @@ Examples for how to use these libraries can be found here: https://github.com/da
       tmp.add("$title - $name $version\n\n");
       tmp.add("$description\n\n");
       if (link != null) {
-        tmp.add("[Official API Documentation]($link)\n\n");  
+        tmp.add("[Official API Documentation]($link)\n\n");
       }
       tmp.add("For web applications:\n```\nimport \"package:api_client/$libraryBrowserName.dart\" as ${cleanName(name).toLowerCase()}client;\n```\n\n");
       tmp.add("For console application:\n```\nimport \"package:api_client/$libraryConsoleName.dart\" as ${cleanName(name).toLowerCase()}client;\n```\n\n");
 
       tmp.add("```\nvar ${cleanName(name).toLowerCase()} = new ${cleanName(name).toLowerCase()}client.${capitalize(name)}();\n```\n");
-      
+
       tmp.add("\n");
     });
-    
+
     tmp.add("### Licenses\n\n```\n");
     tmp.add(createLicense());
     tmp.add("```\n");
@@ -1352,13 +1352,13 @@ Examples for how to use these libraries can be found here: https://github.com/da
   };
 
   (new Directory("$outputDirectory/lib/src")).createSync(recursive: true);
-  
+
   (new File("$outputDirectory/pubspec.yaml")).writeAsStringSync(createFullPubspec());
   (new File("$outputDirectory/README.md")).writeAsStringSync(createFullReadme());
   (new File("$outputDirectory/LICENSE")).writeAsStringSync(createLicense());
   (new File("$outputDirectory/CONTRIBUTORS")).writeAsStringSync(createContributors());
   (new File("$outputDirectory/.gitignore")).writeAsStringSync(createGitIgnore());
-  
+
   apis["items"].forEach((item) {
     loadDocumentFromUrl(item["discoveryRestUrl"]).then((doc) {
       var generator = new Generator(doc);
@@ -1486,18 +1486,18 @@ void main() {
          (result["list"] != null && result["full"] == true))
       );
   argumentErrors = argumentErrors ||
-      (result["url"] != null && 
+      (result["url"] != null &&
         ((result["all"] != null && result["all"] == true) ||
          (result["full"] != null && result["full"] == true) ||
          (result["list"] != null && result["full"] == true))
       );
   argumentErrors = argumentErrors ||
-      (result["all"] != null && result["all"] == true && 
+      (result["all"] != null && result["all"] == true &&
         ((result["full"] != null && result["full"] == true) ||
          (result["list"] != null && result["full"] == true))
       );
   argumentErrors = argumentErrors ||
-      (result["full"] != null && result["full"] == true && 
+      (result["full"] != null && result["full"] == true &&
         ((result["list"] != null && result["full"] == true))
       );
   if (argumentErrors) {
@@ -1515,12 +1515,12 @@ void main() {
   if (result["check"] != null && result["check"] == true) {
     check = true;
   }
-  
+
   var force = false;
-  if (result["check"] != null && result["check"] == true) {
+  if (result["force"] != null && result["force"] == true) {
     force = true;
   }
-  
+
   if ((result["all"] == null || result["all"] == false) &&
       (result["full"] == null || result["full"] == false) &&
       (result["list"] == null || result["list"] == false)) {
@@ -1551,7 +1551,7 @@ void main() {
             var generator = new Generator(doc);
             generator.generateClient(output, check: check, force: force);
           });
-        });        
+        });
       }
     });
   }
