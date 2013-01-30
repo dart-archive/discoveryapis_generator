@@ -101,8 +101,10 @@ Future<bool> checkCredentials(String token) {
 
     stream.onClosed = () {
       if (response.statusCode == 200) {
+        print("GitHub authentication successful.");
         completer.complete(true);
       } else {
+        print("GitHub authentication failed.");
         completer.complete(false);
       }
       client.shutdown();
@@ -126,6 +128,7 @@ Future<String> getCredentials() {
   var credentialsFile = new File("tool/githubtoken");
   var completer = new Completer<String>();
   if (!credentialsFile.existsSync()) {
+    print("No stored GitHub credentials found, trying to authenticate.");
     gitHubLogin()
       .then((data) {
         var json = JSON.parse(data);
@@ -136,9 +139,11 @@ Future<String> getCredentials() {
       .catchError((e) => completer.completeError(e));
   } else {
     var token = credentialsFile.readAsStringSync();
+    print("Stored GitHub credentials found. Checking...");
     checkCredentials(token)
       .then((success) {
         if (success) {
+          print("GitHub credentials still valid.");
           completer.complete(token);
         } else {
           print("GitHub token no longer valid, trying to re-authenticate.");
@@ -200,9 +205,11 @@ Future<bool> createRepository(String name, String version, String gitname) {
 
     stream.onClosed = () {
       if (response.statusCode == 201) {
+        print("Repository $gitname created successfully.");
         completer.complete(true);
       } else {
         print (onResponseBody.toString());
+        print("Unable to create repository $gitname.");
         completer.complete(false);
       }
       client.shutdown();
@@ -239,9 +246,11 @@ Future<bool> findRepository(String name, String version, String gitname) {
 
     stream.onClosed = () {
       if (response.statusCode == 200) {
+        print("Repository $gitname found.");
         completer.complete(true);
       } else {
         if (response.statusCode == 404) {
+          print("Repository $gitname not found. Attempting to create it...");
           createRepository(name, version, gitname).then((success) => completer.complete(success));
         } else {
           completer.complete(false);
@@ -268,27 +277,47 @@ Future<bool> findRepository(String name, String version, String gitname) {
 
 Future handleAPI(String name, String version, String gitname) {
   var completer = new Completer();
+  print("");
+  print("------------------------------------------------");
+  print("$name $version - $gitname");
+  print("Trying to find existing GitHub repository...");
   findRepository(name, version, gitname).then((success) {
     if (success) {
-      print("Repository $gitname found.");
+      print("Cloning current version of library from GitHub");
       Process.run("git", ["clone", "https://github.com/$repouser/$gitname.git", "output/$gitname"]).then((p) {
         print(p.stdout);
 
         var params = "-a $name -v $version --check";
         if (force) params = "$params --force";
+        print("Checking for updates and regenerating library if necessary.");
         Process.run("dart bin/generator.dart $params", []).then((p) {
           var result = p.stdout;
           print(result);
           if (result.indexOf("generated successfully") >= 0) {
-            print("TODO: Commiting changes and pushing to GitHub");
+            print("Committing changes to GitHub");
+            var options = new ProcessOptions();
+            options.workingDirectory = "output/$gitname/";
+            Process.run("git status", [], options).then((p) {
+              print(p.stdout);
+              Process.run("git add", ["--all"], options).then((p) {
+                print(p.stdout);
+                Process.run("git commit", ["-m Automated update"], options).then((p) {
+                  print(p.stdout);
+                  Process.run("git push", ["https://$token@github.com/$repouser/$gitname.git", "master"], options).then((p) {
+                    print(p.stdout);
+                    print("Library $gitname updated successfully.");
+                    completer.complete(true);
+                  });
+                });
+              });
+            });
           }
-          completer.complete(true);
         });
 
       });
     } else {
-      print("Repository not found and not able to create. Skipping $gitname");
-      completer.complete(true);
+      print("Skipping $gitname");
+      completer.complete(false);
     }
   });
   return completer.future;
@@ -334,12 +363,16 @@ void main() {
   repouser = result["repouser"];
   token = "";
 
+  print("Starting automated update of client libraries...");
+  print("------------------------------------------------");
+  print("");
+  
   getCredentials()
     .then((tok) {
       token = tok;
       var tmpDir = new Directory("output/");
       if (tmpDir.existsSync()) {
-        print("Emptying folder before library generation...");
+        print("Emptying output folder before library update...");
         tmpDir.listSync().forEach((f) {
           if (f is File) {
             f.deleteSync();
@@ -348,9 +381,11 @@ void main() {
           }
         });
       }
+      print("Fetching list of currently available Google APIs...");
       Process.run("dart", ["bin/generator.dart", "--list"]).then((p) {
         var file = new File("output/APIS");
         if (file.existsSync()) {
+          print("List received, starting processing...");
           var data = file.readAsStringSync();
           var json = JSON.parse(data);
           var count = 0;
@@ -365,7 +400,7 @@ void main() {
           });
           handleAPIs(apis);
         } else {
-          print("No API List found.");
+          print("No APIs found.");
           exit(1);
         }
       });

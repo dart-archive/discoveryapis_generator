@@ -117,7 +117,7 @@ class Generator {
           }
         });
         if (force) {
-          print("Forced rebuilt");
+          print("Forced rebuild");
           print("Regenerating library $_libraryName");
           _clientVersionBuild = int.parse(version.substring(clientVersion.length + 1)) + 1;
         } else {
