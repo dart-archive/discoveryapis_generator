@@ -10,7 +10,6 @@ void printUsage(parser) {
   print("or generate.dart -i <File> [-o <Directory>] (to load discovery document from local file)");
   print("or generate.dart --all [-o <Directory>] (to create libraries for all Google APIs)");
   print("or generate.dart --full [-o <Directory>] (to create one library including all Google APIs)\n");
-  print("or generate.dart --list [-o <Directory>] (to create a list of available APIs for scripting)\n");
   print(parser.getUsage());
 }
 
@@ -23,7 +22,6 @@ void main() {
   parser.addOption("url", abbr: "u", help: "URL of a Discovery document");
   parser.addFlag("all", help: "Create client libraries for all Google APIs", negatable: false);
   parser.addFlag("full", help: "Create one library including all Google APIs", negatable: false);
-  parser.addFlag("list", help: "Create a list of available APIs for scripting", negatable: false);
   parser.addOption("output", abbr: "o", help: "Output Directory", defaultsTo: "output/");
   parser.addFlag("date", help: "Create sub folder with current date", negatable: false);
   parser.addFlag("check", help: "Check for changes against existing version if available", negatable: false);
@@ -46,8 +44,7 @@ void main() {
   if ((result["api"] == null || result["version"] == null)
       && result["input"] == null && result["url"] == null
       && (result["all"] == null || result["all"] == false)
-      && (result["full"] == null || result["full"] == false)
-      && (result["list"] == null || result["list"] == false)) {
+      && (result["full"] == null || result["full"] == false)) {
     print("Missing arguments\n");
     printUsage(parser);
     return;
@@ -59,30 +56,22 @@ void main() {
         (result["input"] != null ||
          result["url"] != null ||
          (result["all"] != null && result["all"] == true) ||
-         (result["full"] != null && result["full"] == true) ||
-         (result["list"] != null && result["full"] == true))
+         (result["full"] != null && result["full"] == true))
       );
   argumentErrors = argumentErrors||
       (result["input"] != null &&
         (result["url"] != null ||
          (result["all"] != null && result["all"] == true) ||
-         (result["full"] != null && result["full"] == true) ||
-         (result["list"] != null && result["full"] == true))
+         (result["full"] != null && result["full"] == true))
       );
   argumentErrors = argumentErrors ||
       (result["url"] != null &&
         ((result["all"] != null && result["all"] == true) ||
-         (result["full"] != null && result["full"] == true) ||
-         (result["list"] != null && result["full"] == true))
+         (result["full"] != null && result["full"] == true))
       );
   argumentErrors = argumentErrors ||
       (result["all"] != null && result["all"] == true &&
-        ((result["full"] != null && result["full"] == true) ||
-         (result["list"] != null && result["full"] == true))
-      );
-  argumentErrors = argumentErrors ||
-      (result["full"] != null && result["full"] == true &&
-        ((result["list"] != null && result["full"] == true))
+        ((result["full"] != null && result["full"] == true))
       );
   if (argumentErrors) {
     print("You can only define one kind of operation.\n");
@@ -106,8 +95,7 @@ void main() {
   }
 
   if ((result["all"] == null || result["all"] == false) &&
-      (result["full"] == null || result["full"] == false) &&
-      (result["list"] == null || result["list"] == false)) {
+      (result["full"] == null || result["full"] == false)) {
     var loader;
     if (result["api"] !=null)
       loader = loadDocumentFromGoogle(result["api"], result["version"]);
@@ -121,13 +109,9 @@ void main() {
       generator.generateClient(output, check: check, force: force);
     });
   } else {
-    loadDocumentFromUrl("https://www.googleapis.com/discovery/v1/apis").then((data) {
-      var apis = JSON.parse(data);
+    loadGoogleAPIList().then((apis) {
       if (result["full"] != null && result["full"] == true) {
         createFullClient(apis, output);
-      }
-      if (result["list"] != null && result["list"] == true) {
-        createAPIList(apis, output);
       }
       if (result["all"] != null && result["all"] == true) {
         apis["items"].forEach((item) {
