@@ -1,4 +1,4 @@
 packages/
-bin/packages/
-!example/packages/
 pubspec.lock
+output/
+tool/githubtoken

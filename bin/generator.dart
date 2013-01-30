@@ -15,7 +15,7 @@ const Map parameterType = const {
   "boolean": "bool"
 };
 
-const String clientVersion = "0.1.0";
+const String clientVersion = "0.1";
 
 String createLicense() {
   return """
@@ -72,32 +72,90 @@ class Generator {
   String _name;
   String _version;
   String _shortName;
+  String _gitName;
   String _libraryName;
   String _libraryBrowserName;
   String _libraryConsoleName;
   String _libraryPubspecName;
+  int _clientVersionBuild;
 
   Generator(this._data) {
     _json = JSON.parse(_data);
     _name = _json["name"];
     _version = _json["version"];
     _shortName = cleanName("${_name}_${_version}");
+    _gitName = cleanName("dart_${_name}_${_version}_api_client");
     _libraryName = cleanName("${_name}_${_version}_api_client");
     _libraryBrowserName = cleanName("${_name}_${_version}_api_browser");
     _libraryConsoleName = cleanName("${_name}_${_version}_api_console");
     _libraryPubspecName = cleanName("${_name}_${_version}_api");
+    _clientVersionBuild = 0;
   }
 
-  void generateClient(String outputDirectory, [bool fullLibrary = false]) {
+  void generateClient(String outputDirectory, {bool fullLibrary: false, bool check: false, bool force: false}) {
     var mainFolder, srcFolder, libFolder;
     if (fullLibrary) {
       mainFolder = outputDirectory;
       libFolder = "$outputDirectory/lib";
       srcFolder = "src/$_shortName";
     } else {
-      mainFolder = "$outputDirectory/$_libraryName";
-      libFolder = "$outputDirectory/$_libraryName/lib";
+      mainFolder = "$outputDirectory/$_gitName";
+      libFolder = "$mainFolder/lib";
       srcFolder = "src";
+    }
+
+    if (check) {
+      var versionFile = new File("$mainFolder/VERSION");
+      var pubFile = new File("$mainFolder/pubspec.yaml");
+      if (versionFile.existsSync() && pubFile.existsSync()) {
+        var etag = versionFile.readAsStringSync();
+        var pub = pubFile.readAsLinesSync();
+        var version = "";
+        pub.forEach((String line) {
+          if (line.startsWith("version: ")) {
+            version = line.substring(9);
+          }
+        });
+        if (force) {
+          print("Forced rebuild");
+          print("Regenerating library $_libraryName");
+          _clientVersionBuild = int.parse(version.substring(clientVersion.length + 1)) + 1;
+        } else {
+          if (version.startsWith(clientVersion)) {
+            if (etag == _json["etag"]) {
+              print("Nothing changed for $_libraryName");
+              return;
+            } else {
+              print("Changes for $_libraryName");
+              print("Regenerating library $_libraryName");
+              _clientVersionBuild = int.parse(version.substring(clientVersion.length + 1)) + 1;
+            }
+          } else {
+            print("Generator version changed.");
+            print("Regenerating library $_libraryName");
+            _clientVersionBuild = 0;
+          }
+        }
+      } else {
+        print("Library $_libraryName does not exist yet.");
+        print("Generating library $_libraryName");
+        _clientVersionBuild = 0;
+      }
+    }
+
+    // Clean contents of directory (except for .git folder)
+    var tmpDir = new Directory(mainFolder);
+    if (tmpDir.existsSync()) {
+      print("Emptying folder before library generation.");
+      tmpDir.listSync().forEach((f) {
+        if (f is File) {
+          f.deleteSync();
+        } else if (f is Directory) {
+          if (!f.path.endsWith(".git")) {
+            f.deleteSync(recursive: true);
+          }
+        }
+      });
     }
 
     (new Directory("$libFolder/$srcFolder/common")).createSync(recursive: true);
@@ -105,17 +163,23 @@ class Generator {
     (new Directory("$libFolder/$srcFolder/console")).createSync(recursive: true);
 
     if (!fullLibrary) {
+      (new Directory("$mainFolder/test")).createSync(recursive: true);
+
       (new File("$mainFolder/pubspec.yaml")).writeAsStringSync(_createPubspec());
-  
+
       (new File("$mainFolder/LICENSE")).writeAsStringSync(createLicense());
-  
+
       (new File("$mainFolder/README.md")).writeAsStringSync(_createReadme());
-      
+
       (new File("$mainFolder/.gitignore")).writeAsStringSync(createGitIgnore());
-  
+
       (new File("$mainFolder/CONTRIBUTORS")).writeAsStringSync(createContributors());
+
+      (new File("$mainFolder/VERSION")).writeAsStringSync(_json["etag"]);
+
+      (new File("$mainFolder/test/run.sh")).writeAsStringSync(_createTest());
     }
-      
+
     // Create common library files
 
     (new File("$libFolder/$_libraryName.dart")).writeAsStringSync(_createLibrary(srcFolder));
@@ -139,12 +203,14 @@ class Generator {
     (new File("$libFolder/$srcFolder/console/consoleclient.dart")).writeAsStringSync(_createConsoleClientClass());
 
     (new File("$libFolder/$srcFolder/console/$_name.dart")).writeAsStringSync(_createConsoleMainClass());
+
+    print("Library $_libraryName generated successfully.");
   }
 
   String _createPubspec() {
     return """
 name: $_libraryPubspecName
-version: $clientVersion
+version: $clientVersion.$_clientVersionBuild
 description: Auto-generated client library for accessing the $_name $_version API
 homepage: https://github.com/dart-gde/discovery_api_dart_client_generator
 authors:
@@ -174,6 +240,30 @@ Auto-generated client library for accessing the $_name $_version API.
     tmp.add(createLicense());
     tmp.add("```\n");
     return tmp.toString();
+  }
+
+  String _createTest() {
+    return """
+#!/bin/bash
+
+set -e
+
+#####
+# Type Analysis
+
+echo
+echo "dart_analyzer lib/*.dart"
+
+results=`dart_analyzer lib/*.dart 2>&1`
+
+echo "\$results"
+
+if [ -n "\$results" ]; then
+    exit 1
+else
+    echo "Passed analysis."
+fi
+""";
   }
 
   String _createLibrary(String srcFolder) {
@@ -1094,7 +1184,7 @@ abstract class ConsoleClient extends Client {
         client.get(url).then((http.Response response) {
           var data = JSON.parse(response.body);
           completer.complete(data);
-          clientDummyCompleter.complete(null);          
+          clientDummyCompleter.complete(null);
         }, onError: (AsyncError error) {
           completer.completeError(new APIRequestException("onError: \$error"));
         });
@@ -1102,7 +1192,7 @@ abstract class ConsoleClient extends Client {
       } else if (method.toLowerCase() == "post" || method.toLowerCase() == "put" || method.toLowerCase() == "patch") {
         // Workaround since http.Client does not properly support post for google apis
         var postHttpClient = new HttpClient();
-        HttpClientConnection postConnection = postHttpClient.openUrl(method, new Uri.fromString(url));
+        HttpClientConnection postConnection = postHttpClient.openUrl(method, Uri.parse(url));
 
 
         // On connection request set the content type and key if available.
@@ -1144,7 +1234,7 @@ abstract class ConsoleClient extends Client {
         };
       } else if (method.toLowerCase() == "delete") {
         var deleteHttpClient = new HttpClient();
-        HttpClientConnection deleteConnection = deleteHttpClient.openUrl(method, new Uri.fromString(url));
+        HttpClientConnection deleteConnection = deleteHttpClient.openUrl(method, Uri.parse(url));
 
         // On connection request set the content type and key if available.
         deleteConnection.onRequest = (HttpClientRequest request) {
@@ -1193,13 +1283,13 @@ abstract class ConsoleClient extends Client {
 }
 
 void createFullClient(Map apis, String outputDirectory) {
-  
+
   String fullLibraryName = "api_client";
-  
+
   String createFullPubspec() {
     return """
 name: $fullLibraryName
-version: $clientVersion
+version: $clientVersion.0
 description: Auto-generated client library for accessing Google APIs
 homepage: https://github.com/dart-gde/discovery_api_dart_client_generator
 authors:
@@ -1227,17 +1317,17 @@ Examples for how to use these libraries can be found here: https://github.com/da
 ### Supported APIs
 
 """);
-    
+
     apis["items"].forEach((item) {
       var name = item["name"];
       var version = item["version"];
       var title = item["title"];
       var link = item["documentationLink"];
       var description = item["description"];
-      
+
       var libraryBrowserName = cleanName("${name}_${version}_api_browser");
       var libraryConsoleName = cleanName("${name}_${version}_api_console");
-      
+
       tmp.add("#### ");
       if (item.containsKey("icons") && item["icons"].containsKey("x16")) {
         tmp.add("![Logo](${item["icons"]["x16"]}) ");
@@ -1245,16 +1335,16 @@ Examples for how to use these libraries can be found here: https://github.com/da
       tmp.add("$title - $name $version\n\n");
       tmp.add("$description\n\n");
       if (link != null) {
-        tmp.add("[Official API Documentation]($link)\n\n");  
+        tmp.add("[Official API Documentation]($link)\n\n");
       }
       tmp.add("For web applications:\n```\nimport \"package:api_client/$libraryBrowserName.dart\" as ${cleanName(name).toLowerCase()}client;\n```\n\n");
       tmp.add("For console application:\n```\nimport \"package:api_client/$libraryConsoleName.dart\" as ${cleanName(name).toLowerCase()}client;\n```\n\n");
 
       tmp.add("```\nvar ${cleanName(name).toLowerCase()} = new ${cleanName(name).toLowerCase()}client.${capitalize(name)}();\n```\n");
-      
+
       tmp.add("\n");
     });
-    
+
     tmp.add("### Licenses\n\n```\n");
     tmp.add(createLicense());
     tmp.add("```\n");
@@ -1262,25 +1352,53 @@ Examples for how to use these libraries can be found here: https://github.com/da
   };
 
   (new Directory("$outputDirectory/lib/src")).createSync(recursive: true);
-  
+
   (new File("$outputDirectory/pubspec.yaml")).writeAsStringSync(createFullPubspec());
   (new File("$outputDirectory/README.md")).writeAsStringSync(createFullReadme());
   (new File("$outputDirectory/LICENSE")).writeAsStringSync(createLicense());
   (new File("$outputDirectory/CONTRIBUTORS")).writeAsStringSync(createContributors());
   (new File("$outputDirectory/.gitignore")).writeAsStringSync(createGitIgnore());
-  
+
   apis["items"].forEach((item) {
     loadDocumentFromUrl(item["discoveryRestUrl"]).then((doc) {
       var generator = new Generator(doc);
-      generator.generateClient(outputDirectory, true);
+      generator.generateClient(outputDirectory, fullLibrary: true);
     });
   });
+}
+
+void createAPIList(Map apis, String outputDirectory) {
+  (new Directory("$outputDirectory")).createSync(recursive: true);
+  /*var tmp = new StringBuffer();
+  
+  apis["items"].forEach((item) {
+    var name = item["name"];
+    var version = item["version"];
+    tmp.add(name);
+    tmp.add(" ");
+    tmp.add(version);
+    tmp.add(" ");
+    tmp.add(cleanName("dart_${name}_${version}_api_client"));
+    tmp.add("\n");
+  });
+  (new File("$outputDirectory/APIS")).writeAsStringSync(tmp.toString());*/
+  
+  var data = new Map();
+  data["apis"] = new List();
+  apis["items"].forEach((item) {
+    var api = new Map();
+    api["name"] = item["name"];
+    api["version"] = item["version"];
+    api["gitname"] = cleanName("dart_${item["name"]}_${item["version"]}_api_client");
+    data["apis"].add(api);
+  });
+  (new File("$outputDirectory/APIS")).writeAsStringSync(JSON.stringify(data));
 }
 
 Future<String> loadDocumentFromUrl(String url) {
   var completer = new Completer();
   var client = new HttpClient();
-  var connection = client.getUrl(new Uri.fromString(url));
+  var connection = client.getUrl(Uri.parse(url));
   var result = new StringBuffer();
 
   connection.onError = (error) => completer.complete("Unexpected error: $error");
@@ -1320,6 +1438,7 @@ void printUsage(parser) {
   print("or generator.dart -i <File> [-o <Directory>] (to load discovery document from local file)");
   print("or generator.dart --all [-o <Directory>] (to create libraries for all Google APIs)");
   print("or generator.dart --full [-o <Directory>] (to create one library including all Google APIs)\n");
+  print("or generator.dart --list [-o <Directory>] (to create a list of available APIs for scripting)\n");
   print(parser.getUsage());
 }
 
@@ -1332,8 +1451,11 @@ void main() {
   parser.addOption("url", abbr: "u", help: "URL of a Discovery document");
   parser.addFlag("all", help: "Create client libraries for all Google APIs", negatable: false);
   parser.addFlag("full", help: "Create one library including all Google APIs", negatable: false);
+  parser.addFlag("list", help: "Create a list of available APIs for scripting", negatable: false);
   parser.addOption("output", abbr: "o", help: "Output Directory", defaultsTo: "output/");
   parser.addFlag("date", help: "Create sub folder with current date", negatable: false);
+  parser.addFlag("check", help: "Check for changes against existing version if available", negatable: false);
+  parser.addFlag("force", help: "Force client version update even if no changes", negatable: false);
   parser.addFlag("help", abbr: "h", help: "Display this information and exit", negatable: false);
   var result;
   try {
@@ -1349,19 +1471,49 @@ void main() {
     return;
   }
 
-  if ((result["api"] == null || result["version"] == null) && result["input"] == null && result["url"] == null && (result["all"] == null || result["all"] == false) && (result["full"] == null || result["full"] == false)) {
+  if ((result["api"] == null || result["version"] == null)
+      && result["input"] == null && result["url"] == null
+      && (result["all"] == null || result["all"] == false)
+      && (result["full"] == null || result["full"] == false)
+      && (result["list"] == null || result["list"] == false)) {
     print("Missing arguments\n");
     printUsage(parser);
     return;
   }
 
   var argumentErrors = false;
-  argumentErrors = argumentErrors || (result["api"] != null && (result["input"] != null || result["url"] != null || (result["all"] != null && result["all"] == true) || (result["full"] != null && result["full"] == true)));
-  argumentErrors = argumentErrors || (result["input"] != null && (result["url"] != null || (result["all"] != null && result["all"] == true) || (result["full"] != null && result["full"] == true)));
-  argumentErrors = argumentErrors || (result["url"] != null && ((result["all"] != null && result["all"] == true) || (result["full"] != null && result["full"] == true)));
-  argumentErrors = argumentErrors || (result["all"] != null && result["all"] == true && (result["full"] != null && result["full"] == true));
+  argumentErrors = argumentErrors ||
+      (result["api"] != null &&
+        (result["input"] != null ||
+         result["url"] != null ||
+         (result["all"] != null && result["all"] == true) ||
+         (result["full"] != null && result["full"] == true) ||
+         (result["list"] != null && result["full"] == true))
+      );
+  argumentErrors = argumentErrors||
+      (result["input"] != null &&
+        (result["url"] != null ||
+         (result["all"] != null && result["all"] == true) ||
+         (result["full"] != null && result["full"] == true) ||
+         (result["list"] != null && result["full"] == true))
+      );
+  argumentErrors = argumentErrors ||
+      (result["url"] != null &&
+        ((result["all"] != null && result["all"] == true) ||
+         (result["full"] != null && result["full"] == true) ||
+         (result["list"] != null && result["full"] == true))
+      );
+  argumentErrors = argumentErrors ||
+      (result["all"] != null && result["all"] == true &&
+        ((result["full"] != null && result["full"] == true) ||
+         (result["list"] != null && result["full"] == true))
+      );
+  argumentErrors = argumentErrors ||
+      (result["full"] != null && result["full"] == true &&
+        ((result["list"] != null && result["full"] == true))
+      );
   if (argumentErrors) {
-    print("You can only define one kind of document source.\n");
+    print("You can only define one kind of operation.\n");
     printUsage(parser);
     return;
   }
@@ -1371,7 +1523,19 @@ void main() {
     output = "$output/${fileDate(new Date.now())}";
   }
 
-  if ((result["all"] == null || result["all"] == false) && (result["full"] == null || result["full"] == false)) {
+  var check = false;
+  if (result["check"] != null && result["check"] == true) {
+    check = true;
+  }
+
+  var force = false;
+  if (result["force"] != null && result["force"] == true) {
+    force = true;
+  }
+
+  if ((result["all"] == null || result["all"] == false) &&
+      (result["full"] == null || result["full"] == false) &&
+      (result["list"] == null || result["list"] == false)) {
     var loader;
     if (result["api"] !=null)
       loader = loadDocumentFromGoogle(result["api"], result["version"]);
@@ -1382,20 +1546,24 @@ void main() {
 
     loader.then((doc) {
       var generator = new Generator(doc);
-      generator.generateClient(output);
+      generator.generateClient(output, check: check, force: force);
     });
   } else {
     loadDocumentFromUrl("https://www.googleapis.com/discovery/v1/apis").then((data) {
       var apis = JSON.parse(data);
       if (result["full"] != null && result["full"] == true) {
         createFullClient(apis, output);
-      } else {
+      }
+      if (result["list"] != null && result["list"] == true) {
+        createAPIList(apis, output);
+      }
+      if (result["all"] != null && result["all"] == true) {
         apis["items"].forEach((item) {
           loadDocumentFromUrl(item["discoveryRestUrl"]).then((doc) {
             var generator = new Generator(doc);
-            generator.generateClient(output);
+            generator.generateClient(output, check: check, force: force);
           });
-        });        
+        });
       }
     });
   }
