@@ -3,6 +3,7 @@ import "dart:uri";
 import "dart:async";
 import "dart:json" as JSON;
 import "package:args/args.dart";
+import "package:discovery_api_client_generator/generator.dart";
 
 var gituser;
 var repouser;
@@ -287,15 +288,11 @@ Future handleAPI(String name, String version, String gitname) {
       Process.run("git", ["clone", "https://github.com/$repouser/$gitname.git", "output/$gitname"]).then((p) {
         print(p.stdout);
 
-        var params = ["bin/generator.dart", "-a", name, "-v", version, "--check"];
-        if (force) {
-          params.add("--force");
-        }
-        print("Checking for updates and regenerating library if necessary.");
-        Process.run("dart", params).then((p) {
-          var result = p.stdout;
-          print(result);
-          if (result.indexOf("generated successfully") >= 0) {
+        print("Fetching API Description");  
+        loadDocumentFromGoogle(name, version).then((doc) {  
+          print("Checking for updates and regenerating library if necessary.");
+          var generator = new Generator(doc);
+          if (generator.generateClient("output/", check: true, force: force)) {
             print("Committing changes to GitHub");
             var options = new ProcessOptions();
             options.workingDirectory = "output/$gitname/";
@@ -384,28 +381,29 @@ void main() {
         });
       }
       print("Fetching list of currently available Google APIs...");
-      Process.run("dart", ["bin/generator.dart", "--list"]).then((p) {
-        var file = new File("output/APIS");
-        if (file.existsSync()) {
-          print("List received, starting processing...");
-          var data = file.readAsStringSync();
+      loadDocumentFromUrl("https://www.googleapis.com/discovery/v1/apis")
+        .then((data) {
           var json = JSON.parse(data);
           var count = 0;
-          var limit = json["apis"].length;
+          var limit = json["items"].length;
           var apis = new List();
           if (result["limit"] != null) limit = int.parse(result["limit"]);
-          json["apis"].forEach((item) {
+          json["items"].forEach((item) {
             count++;
             if (count <= limit) {
-              apis.add(item);
+              var api = new Map();
+              api["name"] = item["name"];
+              api["version"] = item["version"];
+              api["gitname"] = cleanName("dart_${item["name"]}_${item["version"]}_api_client");
+              apis.add(api);
             }
           });
           handleAPIs(apis);
-        } else {
-          print("No APIs found.");
+        })
+        .catchError((e) {
+          print("Error fetching APIs - $e");
           exit(1);
-        }
-      });
+        });
     })
     .catchError((e) => print("$e"));
 }

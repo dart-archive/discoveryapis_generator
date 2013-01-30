@@ -1,4 +1,4 @@
-# discovery_api_dart_client_generator
+# discovery_api_client_generator
 
 ### Description
 
@@ -9,12 +9,12 @@ Examples for how to use the generated client libraries can be found here: https:
 ### Usage
 
 ```
-   generator.dart -a <API> - v <Version> [-o <Directory>] (to load from Google Discovery API)
-or generator.dart -u <URL> [-o <Directory>] (to load discovery document from specified URL)
-or generator.dart -i <File> [-o <Directory>] (to load discovery document from local file)
-or generator.dart --all [-o <Directory>] (to create libraries for all Google APIs)
-or generator.dart --full [-o <Directory>] (to create one library including all Google APIs)
-or generator.dart --list [-o <Directory>] (to create a list of available APIs for scripting)
+   generate.dart -a <API> - v <Version> [-o <Directory>] (to load from Google Discovery API)
+or generate.dart -u <URL> [-o <Directory>] (to load discovery document from specified URL)
+or generate.dart -i <File> [-o <Directory>] (to load discovery document from local file)
+or generate.dart --all [-o <Directory>] (to create libraries for all Google APIs)
+or generate.dart --full [-o <Directory>] (to create one library including all Google APIs)
+or generate.dart --list [-o <Directory>] (to create a list of available APIs for scripting)
 
 -a, --api          Short name of the Google API (plus, drive, ...)
 -v, --version      Google API version (v1, v2, v1alpha, ...)
