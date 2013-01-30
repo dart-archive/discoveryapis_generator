@@ -23,7 +23,7 @@ Future<String> promptPassword() {
   stdout.writeString("Warning: If you didn't run this via run_update.sh your password will be displayed here until Dart has tty control.\n");
   stdout.writeString("Watch your back...\n");
   stdout.writeString("GitHub password for $gituser: ");
-  
+
   stream.onLine = () {
     var str = stream.readLine();
     stdin.close();
@@ -287,23 +287,25 @@ Future handleAPI(String name, String version, String gitname) {
       Process.run("git", ["clone", "https://github.com/$repouser/$gitname.git", "output/$gitname"]).then((p) {
         print(p.stdout);
 
-        var params = "-a $name -v $version --check";
-        if (force) params = "$params --force";
+        var params = ["bin/generator.dart", "-a", name, "-v", version, "--check"];
+        if (force) {
+          params.add("--force");
+        }
         print("Checking for updates and regenerating library if necessary.");
-        Process.run("dart bin/generator.dart $params", []).then((p) {
+        Process.run("dart", params).then((p) {
           var result = p.stdout;
           print(result);
           if (result.indexOf("generated successfully") >= 0) {
             print("Committing changes to GitHub");
             var options = new ProcessOptions();
             options.workingDirectory = "output/$gitname/";
-            Process.run("git status", [], options).then((p) {
+            Process.run("git", ["status"], options).then((p) {
               print(p.stdout);
-              Process.run("git add", ["--all"], options).then((p) {
+              Process.run("git", ["add", "--all"], options).then((p) {
                 print(p.stdout);
-                Process.run("git commit", ["-m Automated update"], options).then((p) {
+                Process.run("git", ["commit", "-m Automated update"], options).then((p) {
                   print(p.stdout);
-                  Process.run("git push", ["https://$token@github.com/$repouser/$gitname.git", "master"], options).then((p) {
+                  Process.run("git", ["push", "https://$token@github.com/$repouser/$gitname.git", "master"], options).then((p) {
                     print(p.stdout);
                     print("Library $gitname updated successfully.");
                     completer.complete(true);
@@ -366,7 +368,7 @@ void main() {
   print("Starting automated update of client libraries...");
   print("------------------------------------------------");
   print("");
-  
+
   getCredentials()
     .then((tok) {
       token = tok;
