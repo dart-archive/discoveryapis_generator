@@ -14,6 +14,7 @@ or generator.dart -u <URL> [-o <Directory>] (to load discovery document from spe
 or generator.dart -i <File> [-o <Directory>] (to load discovery document from local file)
 or generator.dart --all [-o <Directory>] (to create libraries for all Google APIs)
 or generator.dart --full [-o <Directory>] (to create one library including all Google APIs)
+or generator.dart --list [-o <Directory>] (to create a list of available APIs for scripting)
 
 -a, --api          Short name of the Google API (plus, drive, ...)
 -v, --version      Google API version (v1, v2, v1alpha, ...)
@@ -21,10 +22,13 @@ or generator.dart --full [-o <Directory>] (to create one library including all G
 -u, --url          URL of a Discovery document
     --all          Create client libraries for all Google APIs
     --full         Create one library including all Google APIs
+    --list         Create a list of available APIs for scripting
 -o, --output       Output Directory
                    (defaults to "output/")
 
     --date         Create sub folder with current date (otherwise files might be overwritten)
+    --check        Check for changes against existing version if available
+    --force        Force client version update even if no changes
 
 -h, --help         Display this information and exit
 ```
