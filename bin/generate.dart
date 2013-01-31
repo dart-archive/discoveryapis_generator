@@ -100,7 +100,7 @@ void main() {
     if (result["api"] !=null)
       loader = loadDocumentFromGoogle(result["api"], result["version"]);
     else if (result["url"] != null)
-      loader = loadDocumentFromUrl(result["url"]);
+      loader = loadCustomUrl(result["url"]);
     else if (result["input"] != null)
       loader = loadDocumentFromFile(result["input"]);
 

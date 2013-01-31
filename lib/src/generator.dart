@@ -335,7 +335,8 @@ part "$srcFolder/console/$_name.dart";
     }
     tmp.add("\n  ${capitalize(_name)}([OAuth2 auth]) : super(auth) {\n");
     tmp.add("    basePath = \"${_json["basePath"]}\";\n");
-    tmp.add("    rootUrl = \"${_json["rootUrl"]}\";\n");
+    var uri = Uri.parse(_json["rootUrl"]);
+    tmp.add("    rootUrl = \"${uri.origin}/\";\n");
     if (_json.containsKey("resources")) {
       _json["resources"].forEach((key, resource) {
         var subClassName = "${capitalize(key)}Resource";
@@ -406,7 +407,8 @@ part "$srcFolder/console/$_name.dart";
     // TODO: change this to correct OAuth class for console
     tmp.add("\n  ${capitalize(_name)}([Object auth]) : super(auth) {\n");
     tmp.add("    basePath = \"${_json["basePath"]}\";\n");
-    tmp.add("    rootUrl = \"${_json["rootUrl"]}\";\n");
+    var uri = Uri.parse(_json["rootUrl"]);
+    tmp.add("    rootUrl = \"${uri.origin}/\";\n");
     if (_json.containsKey("resources")) {
       _json["resources"].forEach((key, resource) {
         var subClassName = "${capitalize(key)}Resource";

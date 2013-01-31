@@ -1,5 +1,15 @@
 part of discovery_api_client_generator;
 
+// Workaround for Cloud Endpoints because they don't respond to requests from HttpClient
+Future<String> loadCustomUrl(String url) {
+  var completer = new Completer();
+  Process.run("curl", ["-k", url]).then((p) {
+    completer.complete(p.stdout);    
+  });
+
+  return completer.future;
+}
+
 Future<String> loadDocumentFromUrl(String url) {
   var completer = new Completer();
   var client = new HttpClient();
