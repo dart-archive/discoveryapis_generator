@@ -3,17 +3,14 @@ import "dart:uri";
 import "dart:async";
 import "dart:json" as JSON;
 import "package:args/args.dart";
+import "package:discovery_api_client_generator/generator.dart";
 
-var gituser;
-var repouser;
-var token;
+String gituser;
+String repouser;
+String token;
+String outputdir;
 bool force = false;
-
-void printUsage(parser) {
-  print("discovery_api_dart_client_generator update: automatically creates/updates GitHub repositories for the client libraries\n");
-  print("Usage:");
-  print(parser.getUsage());
-}
+int limit;
 
 // Authentication stuff
 
@@ -284,21 +281,17 @@ Future handleAPI(String name, String version, String gitname) {
   findRepository(name, version, gitname).then((success) {
     if (success) {
       print("Cloning current version of library from GitHub");
-      Process.run("git", ["clone", "https://github.com/$repouser/$gitname.git", "output/$gitname"]).then((p) {
+      Process.run("git", ["clone", "https://github.com/$repouser/$gitname.git", "$outputdir/$gitname"]).then((p) {
         print(p.stdout);
 
-        var params = ["bin/generator.dart", "-a", name, "-v", version, "--check"];
-        if (force) {
-          params.add("--force");
-        }
-        print("Checking for updates and regenerating library if necessary.");
-        Process.run("dart", params).then((p) {
-          var result = p.stdout;
-          print(result);
-          if (result.indexOf("generated successfully") >= 0) {
+        print("Fetching API Description");  
+        loadDocumentFromGoogle(name, version).then((doc) {  
+          print("Checking for updates and regenerating library if necessary.");
+          var generator = new Generator(doc);
+          if (generator.generateClient(outputdir, check: true, force: force)) {
             print("Committing changes to GitHub");
             var options = new ProcessOptions();
-            options.workingDirectory = "output/$gitname/";
+            options.workingDirectory = "$outputdir/$gitname/";
             Process.run("git", ["status"], options).then((p) {
               print(p.stdout);
               Process.run("git", ["add", "--all"], options).then((p) {
@@ -334,37 +327,7 @@ void handleAPIs(List apis) {
   }
 }
 
-void main() {
-  final options = new Options();
-  var parser = new ArgParser();
-  parser.addOption("gituser", abbr: "g", help: "User to connect to GitHub with", defaultsTo: "Scarygami");
-  parser.addOption("repouser", abbr: "r", help: "Owner of the repositories (can be User or Organization)", defaultsTo: "Scarygami");
-  parser.addOption("limit", abbr: "l", help: "Limit the number of repositories being generated (for testing)");
-  parser.addFlag("force", help: "Force client version update even if no changes", negatable: false);
-  parser.addFlag("help", abbr: "h", help: "Display this information and exit", negatable: false);
-
-  var result;
-  try {
-    result = parser.parse(options.arguments);
-  } on FormatException catch(e) {
-    print("Error parsing arguments:\n${e.message}\n");
-    printUsage(parser);
-    return;
-  }
-
-  if (result["help"] != null && result["help"] == true) {
-    printUsage(parser);
-    return;
-  }
-
-  if (result["force"] != null && result["force"] == true) {
-    force = true;
-  }
-
-  gituser = result["gituser"];
-  repouser = result["repouser"];
-  token = "";
-
+void runUpdate() {
   print("Starting automated update of client libraries...");
   print("------------------------------------------------");
   print("");
@@ -372,7 +335,7 @@ void main() {
   getCredentials()
     .then((tok) {
       token = tok;
-      var tmpDir = new Directory("output/");
+      var tmpDir = new Directory(outputdir);
       if (tmpDir.existsSync()) {
         print("Emptying output folder before library update...");
         tmpDir.listSync().forEach((f) {
@@ -384,28 +347,82 @@ void main() {
         });
       }
       print("Fetching list of currently available Google APIs...");
-      Process.run("dart", ["bin/generator.dart", "--list"]).then((p) {
-        var file = new File("output/APIS");
-        if (file.existsSync()) {
-          print("List received, starting processing...");
-          var data = file.readAsStringSync();
-          var json = JSON.parse(data);
+      loadGoogleAPIList()
+        .then((json) {
           var count = 0;
-          var limit = json["apis"].length;
+          if (limit == null) limit = json["items"].length;
           var apis = new List();
-          if (result["limit"] != null) limit = int.parse(result["limit"]);
-          json["apis"].forEach((item) {
+          
+          json["items"].forEach((item) {
             count++;
             if (count <= limit) {
-              apis.add(item);
+              var api = new Map();
+              api["name"] = item["name"];
+              api["version"] = item["version"];
+              api["gitname"] = cleanName("dart_${item["name"]}_${item["version"]}_api_client");
+              apis.add(api);
             }
           });
           handleAPIs(apis);
-        } else {
-          print("No APIs found.");
+        })
+        .catchError((e) {
+          print("Error fetching APIs - $e");
           exit(1);
-        }
-      });
+        });
     })
     .catchError((e) => print("$e"));
+}
+
+void printUsage(parser) {
+  print("discovery_api_client_generator update: automatically creates/updates GitHub repositories for the client libraries\n");
+  print("Usage:");
+  print(parser.getUsage());
+}
+
+void main() {
+  final options = new Options();
+  var parser = new ArgParser();
+  parser.addOption("gituser", abbr: "g", help: "User to connect to GitHub with (required)");
+  parser.addOption("repouser", abbr: "r", help: "Owner of the repositories (defaults to --gituser)");
+  parser.addOption("output", abbr: "o", help: "Output directory where to generate the libraries", defaultsTo: "output/");
+  parser.addOption("limit", abbr: "l", help: "Limit the number of repositories being generated (for testing)");
+  parser.addFlag("force", help: "Force client library update even if no changes", negatable: false);
+  parser.addFlag("help", abbr: "h", help: "Display this information and exit", negatable: false);
+
+  var result;
+  try {
+    result = parser.parse(options.arguments);
+  } on FormatException catch(e) {
+    print("Error parsing arguments:\n${e.message}\n");
+    exit(1);
+  }
+
+  if (result["help"] != null && result["help"] == true) {
+    printUsage(parser);
+    exit(0);
+  }
+
+  if (result["gituser"] == null) {
+    print("Please provide your GitHub Username with --gituser=YOURNAME\n");
+    printUsage(parser);
+    exit(1);
+  }
+  
+  if (result["force"] != null && result["force"] == true) {
+    force = true;
+  }
+  
+  if (result["limit"] != null) limit = int.parse(result["limit"]);
+
+  gituser = result["gituser"];
+  if (result["repouser"] == null) {
+    repouser = gituser; 
+  } else {
+    repouser = result["repouser"];
+  }
+  
+  outputdir = result["output"];
+  token = "";
+
+  runUpdate();
 }
