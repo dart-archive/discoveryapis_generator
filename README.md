@@ -1,5 +1,7 @@
 # discovery_api_client_generator
 
+[![Build Status](https://drone.io/github.com/dart-gde/discovery_api_dart_client_generator/status.png)](https://drone.io/github.com/dart-gde/discovery_api_dart_client_generator/)
+
 ### Description
 
 Dart application to create Dart API Client Libraries based on discovery documents
