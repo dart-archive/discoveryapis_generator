@@ -1,6 +1,8 @@
-name: discovery_api_dart_client_generator
-version: 0.1.0
-author: Gerwin Sturm (scarygami.net/+)
+name: discovery_api_client_generator
+version: 0.2.0
+authors:
+- Gerwin Sturm <scarygami@gmail.com>
+- Adam Singer <financeCoding@gmail.com>
 description: Create API Client libraries based on the API's Discovery documentation
 
 dependencies:

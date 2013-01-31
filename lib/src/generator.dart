@@ -1,70 +1,6 @@
-import "dart:io";
-import "dart:uri";
-import "dart:async";
-import "dart:json" as JSON;
-import "package:args/args.dart";
-
-String fileDate(Date date) => "${date.year}${(date.month < 10) ? 0 : ""}${date.month}${(date.day < 10) ? 0 : ""}${date.day}_${(date.hour < 10) ? 0 : ""}${date.hour}${(date.minute < 10) ? 0 : ""}${date.minute}${(date.second < 10) ? 0 : ""}${date.second}";
-String capitalize(String string) => "${string.substring(0,1).toUpperCase()}${string.substring(1)}";
-String cleanName(String name) => name.replaceAll(new RegExp(r"(\W)"), "_");
-
-const Map parameterType = const {
-  "string": "String",
-  "number": "num",
-  "integer": "int",
-  "boolean": "bool"
-};
+part of discovery_api_client_generator;
 
 const String clientVersion = "0.1";
-
-String createLicense() {
-  return """
-Copyright (c) 2013 Gerwin Sturm & Adam Singer
-
-Licensed under the Apache License, Version 2.0 (the "License"); you may not
-use this file except in compliance with the License. You may obtain a copy of
-the License at
-
-http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
-WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
-License for the specific language governing permissions and limitations under
-the License
-
-------------------------
-Based on http://code.google.com/p/google-api-dart-client
-
-Copyright 2012 Google Inc.
-Licensed under the Apache License, Version 2.0 (the "License"); you may not
-use this file except in compliance with the License. You may obtain a copy of
-the License at
-
-http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
-WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
-License for the specific language governing permissions and limitations under
-the License
-
-""";
-}
-
-String createContributors() {
-  return """
-Adam Singer (https://github.com/financeCoding)
-Gerwin Sturm (https://github.com/Scarygami, http://scarygami.net/+)
-""";
-}
-
-String createGitIgnore() {
-  return """
-packages/
-pubspec.lock
-""";
-}
 
 class Generator {
   String _data;
@@ -92,7 +28,7 @@ class Generator {
     _clientVersionBuild = 0;
   }
 
-  void generateClient(String outputDirectory, {bool fullLibrary: false, bool check: false, bool force: false}) {
+  bool generateClient(String outputDirectory, {bool fullLibrary: false, bool check: false, bool force: false}) {
     var mainFolder, srcFolder, libFolder;
     if (fullLibrary) {
       mainFolder = outputDirectory;
@@ -124,7 +60,7 @@ class Generator {
           if (version.startsWith(clientVersion)) {
             if (etag == _json["etag"]) {
               print("Nothing changed for $_libraryName");
-              return;
+              return false;
             } else {
               print("Changes for $_libraryName");
               print("Regenerating library $_libraryName");
@@ -205,6 +141,7 @@ class Generator {
     (new File("$libFolder/$srcFolder/console/$_name.dart")).writeAsStringSync(_createConsoleMainClass());
 
     print("Library $_libraryName generated successfully.");
+    return true;
   }
 
   String _createPubspec() {
@@ -398,7 +335,8 @@ part "$srcFolder/console/$_name.dart";
     }
     tmp.add("\n  ${capitalize(_name)}([OAuth2 auth]) : super(auth) {\n");
     tmp.add("    basePath = \"${_json["basePath"]}\";\n");
-    tmp.add("    rootUrl = \"${_json["rootUrl"]}\";\n");
+    var uri = Uri.parse(_json["rootUrl"]);
+    tmp.add("    rootUrl = \"${uri.origin}/\";\n");
     if (_json.containsKey("resources")) {
       _json["resources"].forEach((key, resource) {
         var subClassName = "${capitalize(key)}Resource";
@@ -469,7 +407,8 @@ part "$srcFolder/console/$_name.dart";
     // TODO: change this to correct OAuth class for console
     tmp.add("\n  ${capitalize(_name)}([Object auth]) : super(auth) {\n");
     tmp.add("    basePath = \"${_json["basePath"]}\";\n");
-    tmp.add("    rootUrl = \"${_json["rootUrl"]}\";\n");
+    var uri = Uri.parse(_json["rootUrl"]);
+    tmp.add("    rootUrl = \"${uri.origin}/\";\n");
     if (_json.containsKey("resources")) {
       _json["resources"].forEach((key, resource) {
         var subClassName = "${capitalize(key)}Resource";
@@ -1279,292 +1218,5 @@ abstract class ConsoleClient extends Client {
 }
 
 """;
-  }
-}
-
-void createFullClient(Map apis, String outputDirectory) {
-
-  String fullLibraryName = "api_client";
-
-  String createFullPubspec() {
-    return """
-name: $fullLibraryName
-version: $clientVersion.0
-description: Auto-generated client library for accessing Google APIs
-homepage: https://github.com/dart-gde/discovery_api_dart_client_generator
-authors:
-- Gerwin Sturm <scarygami@gmail.com>
-- Adam Singer <financeCoding@gmail.com>
-
-dependencies:
-  js: '>=0.0.14'
-  google_oauth2_client: '>=0.2.1'
-
-""";
-  }
-
-  String createFullReadme() {
-    var tmp = new StringBuffer();
-    tmp.add("""
-# $fullLibraryName
-
-### Description
-
-Auto-generated client library for accessing the Google APIs.
-
-Examples for how to use these libraries can be found here: https://github.com/dart-gde/dart_api_client_examples
-
-### Supported APIs
-
-""");
-
-    apis["items"].forEach((item) {
-      var name = item["name"];
-      var version = item["version"];
-      var title = item["title"];
-      var link = item["documentationLink"];
-      var description = item["description"];
-
-      var libraryBrowserName = cleanName("${name}_${version}_api_browser");
-      var libraryConsoleName = cleanName("${name}_${version}_api_console");
-
-      tmp.add("#### ");
-      if (item.containsKey("icons") && item["icons"].containsKey("x16")) {
-        tmp.add("![Logo](${item["icons"]["x16"]}) ");
-      }
-      tmp.add("$title - $name $version\n\n");
-      tmp.add("$description\n\n");
-      if (link != null) {
-        tmp.add("[Official API Documentation]($link)\n\n");
-      }
-      tmp.add("For web applications:\n```\nimport \"package:api_client/$libraryBrowserName.dart\" as ${cleanName(name).toLowerCase()}client;\n```\n\n");
-      tmp.add("For console application:\n```\nimport \"package:api_client/$libraryConsoleName.dart\" as ${cleanName(name).toLowerCase()}client;\n```\n\n");
-
-      tmp.add("```\nvar ${cleanName(name).toLowerCase()} = new ${cleanName(name).toLowerCase()}client.${capitalize(name)}();\n```\n");
-
-      tmp.add("\n");
-    });
-
-    tmp.add("### Licenses\n\n```\n");
-    tmp.add(createLicense());
-    tmp.add("```\n");
-    return tmp.toString();
-  };
-
-  (new Directory("$outputDirectory/lib/src")).createSync(recursive: true);
-
-  (new File("$outputDirectory/pubspec.yaml")).writeAsStringSync(createFullPubspec());
-  (new File("$outputDirectory/README.md")).writeAsStringSync(createFullReadme());
-  (new File("$outputDirectory/LICENSE")).writeAsStringSync(createLicense());
-  (new File("$outputDirectory/CONTRIBUTORS")).writeAsStringSync(createContributors());
-  (new File("$outputDirectory/.gitignore")).writeAsStringSync(createGitIgnore());
-
-  apis["items"].forEach((item) {
-    loadDocumentFromUrl(item["discoveryRestUrl"]).then((doc) {
-      var generator = new Generator(doc);
-      generator.generateClient(outputDirectory, fullLibrary: true);
-    });
-  });
-}
-
-void createAPIList(Map apis, String outputDirectory) {
-  (new Directory("$outputDirectory")).createSync(recursive: true);
-  /*var tmp = new StringBuffer();
-  
-  apis["items"].forEach((item) {
-    var name = item["name"];
-    var version = item["version"];
-    tmp.add(name);
-    tmp.add(" ");
-    tmp.add(version);
-    tmp.add(" ");
-    tmp.add(cleanName("dart_${name}_${version}_api_client"));
-    tmp.add("\n");
-  });
-  (new File("$outputDirectory/APIS")).writeAsStringSync(tmp.toString());*/
-  
-  var data = new Map();
-  data["apis"] = new List();
-  apis["items"].forEach((item) {
-    var api = new Map();
-    api["name"] = item["name"];
-    api["version"] = item["version"];
-    api["gitname"] = cleanName("dart_${item["name"]}_${item["version"]}_api_client");
-    data["apis"].add(api);
-  });
-  (new File("$outputDirectory/APIS")).writeAsStringSync(JSON.stringify(data));
-}
-
-Future<String> loadDocumentFromUrl(String url) {
-  var completer = new Completer();
-  var client = new HttpClient();
-  var connection = client.getUrl(Uri.parse(url));
-  var result = new StringBuffer();
-
-  connection.onError = (error) => completer.complete("Unexpected error: $error");
-
-  connection.onRequest = (HttpClientRequest request) {
-    request.outputStream.close();
-  };
-
-  connection.onResponse = (HttpClientResponse response) {
-    response.inputStream.onData = () {
-      result.add(new String.fromCharCodes(response.inputStream.read()));
-    };
-    response.inputStream.onClosed = () {
-      client.shutdown();
-      completer.complete(result.toString());
-    };
-  };
-
-  return completer.future;
-}
-
-Future<String> loadDocumentFromGoogle(String api, String version) {
-  final url = "https://www.googleapis.com/discovery/v1/apis/${encodeUriComponent(api)}/${encodeUriComponent(version)}/rest";
-  return loadDocumentFromUrl(url);
-}
-
-Future<String> loadDocumentFromFile(String fileName) {
-  final file = new File(fileName);
-  return file.readAsString();
-}
-
-void printUsage(parser) {
-  print("discovery_api_dart_client_generator: creates a Client library based on a discovery document\n");
-  print("Usage:");
-  print("   generator.dart -a <API> - v <Version> [-o <Directory>] (to load from Google Discovery API)");
-  print("or generator.dart -u <URL> [-o <Directory>] (to load discovery document from specified URL)");
-  print("or generator.dart -i <File> [-o <Directory>] (to load discovery document from local file)");
-  print("or generator.dart --all [-o <Directory>] (to create libraries for all Google APIs)");
-  print("or generator.dart --full [-o <Directory>] (to create one library including all Google APIs)\n");
-  print("or generator.dart --list [-o <Directory>] (to create a list of available APIs for scripting)\n");
-  print(parser.getUsage());
-}
-
-void main() {
-  final options = new Options();
-  var parser = new ArgParser();
-  parser.addOption("api", abbr: "a", help: "Short name of the Google API (plus, drive, ...)");
-  parser.addOption("version", abbr: "v", help: "Google API version (v1, v2, v1alpha, ...)");
-  parser.addOption("input", abbr: "i", help: "Local Discovery document file");
-  parser.addOption("url", abbr: "u", help: "URL of a Discovery document");
-  parser.addFlag("all", help: "Create client libraries for all Google APIs", negatable: false);
-  parser.addFlag("full", help: "Create one library including all Google APIs", negatable: false);
-  parser.addFlag("list", help: "Create a list of available APIs for scripting", negatable: false);
-  parser.addOption("output", abbr: "o", help: "Output Directory", defaultsTo: "output/");
-  parser.addFlag("date", help: "Create sub folder with current date", negatable: false);
-  parser.addFlag("check", help: "Check for changes against existing version if available", negatable: false);
-  parser.addFlag("force", help: "Force client version update even if no changes", negatable: false);
-  parser.addFlag("help", abbr: "h", help: "Display this information and exit", negatable: false);
-  var result;
-  try {
-    result = parser.parse(options.arguments);
-  } on FormatException catch(e) {
-    print("Error parsing arguments:\n${e.message}\n");
-    printUsage(parser);
-    return;
-  }
-
-  if (result["help"] != null && result["help"] == true) {
-    printUsage(parser);
-    return;
-  }
-
-  if ((result["api"] == null || result["version"] == null)
-      && result["input"] == null && result["url"] == null
-      && (result["all"] == null || result["all"] == false)
-      && (result["full"] == null || result["full"] == false)
-      && (result["list"] == null || result["list"] == false)) {
-    print("Missing arguments\n");
-    printUsage(parser);
-    return;
-  }
-
-  var argumentErrors = false;
-  argumentErrors = argumentErrors ||
-      (result["api"] != null &&
-        (result["input"] != null ||
-         result["url"] != null ||
-         (result["all"] != null && result["all"] == true) ||
-         (result["full"] != null && result["full"] == true) ||
-         (result["list"] != null && result["full"] == true))
-      );
-  argumentErrors = argumentErrors||
-      (result["input"] != null &&
-        (result["url"] != null ||
-         (result["all"] != null && result["all"] == true) ||
-         (result["full"] != null && result["full"] == true) ||
-         (result["list"] != null && result["full"] == true))
-      );
-  argumentErrors = argumentErrors ||
-      (result["url"] != null &&
-        ((result["all"] != null && result["all"] == true) ||
-         (result["full"] != null && result["full"] == true) ||
-         (result["list"] != null && result["full"] == true))
-      );
-  argumentErrors = argumentErrors ||
-      (result["all"] != null && result["all"] == true &&
-        ((result["full"] != null && result["full"] == true) ||
-         (result["list"] != null && result["full"] == true))
-      );
-  argumentErrors = argumentErrors ||
-      (result["full"] != null && result["full"] == true &&
-        ((result["list"] != null && result["full"] == true))
-      );
-  if (argumentErrors) {
-    print("You can only define one kind of operation.\n");
-    printUsage(parser);
-    return;
-  }
-
-  var output = result["output"];
-  if (result["date"] != null && result["date"] == true) {
-    output = "$output/${fileDate(new Date.now())}";
-  }
-
-  var check = false;
-  if (result["check"] != null && result["check"] == true) {
-    check = true;
-  }
-
-  var force = false;
-  if (result["force"] != null && result["force"] == true) {
-    force = true;
-  }
-
-  if ((result["all"] == null || result["all"] == false) &&
-      (result["full"] == null || result["full"] == false) &&
-      (result["list"] == null || result["list"] == false)) {
-    var loader;
-    if (result["api"] !=null)
-      loader = loadDocumentFromGoogle(result["api"], result["version"]);
-    else if (result["url"] != null)
-      loader = loadDocumentFromUrl(result["url"]);
-    else if (result["input"] != null)
-      loader = loadDocumentFromFile(result["input"]);
-
-    loader.then((doc) {
-      var generator = new Generator(doc);
-      generator.generateClient(output, check: check, force: force);
-    });
-  } else {
-    loadDocumentFromUrl("https://www.googleapis.com/discovery/v1/apis").then((data) {
-      var apis = JSON.parse(data);
-      if (result["full"] != null && result["full"] == true) {
-        createFullClient(apis, output);
-      }
-      if (result["list"] != null && result["list"] == true) {
-        createAPIList(apis, output);
-      }
-      if (result["all"] != null && result["all"] == true) {
-        apis["items"].forEach((item) {
-          loadDocumentFromUrl(item["discoveryRestUrl"]).then((doc) {
-            var generator = new Generator(doc);
-            generator.generateClient(output, check: check, force: force);
-          });
-        });
-      }
-    });
   }
 }
