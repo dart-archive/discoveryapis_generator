@@ -284,8 +284,8 @@ Future handleAPI(String name, String version, String gitname) {
       Process.run("git", ["clone", "https://github.com/$repouser/$gitname.git", "$outputdir/$gitname"]).then((p) {
         print(p.stdout);
 
-        print("Fetching API Description");  
-        loadDocumentFromGoogle(name, version).then((doc) {  
+        print("Fetching API Description");
+        loadDocumentFromGoogle(name, version).then((doc) {
           print("Checking for updates and regenerating library if necessary.");
           var generator = new Generator(doc);
           if (generator.generateClient(outputdir, check: true, force: force)) {
@@ -306,6 +306,8 @@ Future handleAPI(String name, String version, String gitname) {
                 });
               });
             });
+          } else {
+            completer.complete(false);
           }
         });
 
@@ -352,7 +354,7 @@ void runUpdate() {
           var count = 0;
           if (limit == null) limit = json["items"].length;
           var apis = new List();
-          
+
           json["items"].forEach((item) {
             count++;
             if (count <= limit) {
@@ -407,20 +409,20 @@ void main() {
     printUsage(parser);
     exit(1);
   }
-  
+
   if (result["force"] != null && result["force"] == true) {
     force = true;
   }
-  
+
   if (result["limit"] != null) limit = int.parse(result["limit"]);
 
   gituser = result["gituser"];
   if (result["repouser"] == null) {
-    repouser = gituser; 
+    repouser = gituser;
   } else {
     repouser = result["repouser"];
   }
-  
+
   outputdir = result["output"];
   token = "";
 
