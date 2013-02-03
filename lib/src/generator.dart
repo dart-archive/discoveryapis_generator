@@ -13,9 +13,10 @@ class Generator {
   String _libraryBrowserName;
   String _libraryConsoleName;
   String _libraryPubspecName;
+  String _prefix;
   int _clientVersionBuild;
 
-  Generator(this._data) {
+  Generator(String this._data, [String this._prefix = "google"]) {
     _json = JSON.parse(_data);
     _name = _json["name"];
     _version = _json["version"];
@@ -24,7 +25,7 @@ class Generator {
     _libraryName = cleanName("${_name}_${_version}_api_client");
     _libraryBrowserName = cleanName("${_name}_${_version}_api_browser");
     _libraryConsoleName = cleanName("${_name}_${_version}_api_console");
-    _libraryPubspecName = cleanName("${_name}_${_version}_api");
+    _libraryPubspecName = cleanName("${_prefix}_${_name}_${_version}_api");
     _clientVersionBuild = 0;
   }
 
@@ -170,9 +171,19 @@ dependencies:
 Auto-generated client library for accessing the $_name $_version API.
 
 """);
+    tmp.add("#### ");
+    if (_json.containsKey("icons") && _json["icons"].containsKey("x16")) {
+      tmp.add("![Logo](${_json["icons"]["x16"]}) ");
+    }
+    tmp.add("${_json["title"]} - $_name $_version\n\n");
+    tmp.add("${_json["description"]}\n\n");
     if (_json.containsKey("documentationLink")) {
       tmp.add("Official API documentation: ${_json["documentationLink"]}\n\n");
     }
+    tmp.add("For web applications:\n```\nimport \"package:$_libraryPubspecName/$_libraryBrowserName.dart\" as ${cleanName(_name).toLowerCase()}client;\n```\n\n");
+    tmp.add("For console application:\n```\nimport \"package:$_libraryPubspecName/$_libraryConsoleName.dart\" as ${cleanName(_name).toLowerCase()}client;\n```\n\n");
+
+    tmp.add("```\nvar ${cleanName(_name).toLowerCase()} = new ${cleanName(_name).toLowerCase()}client.${capitalize(_name)}();\n```\n\n");
     tmp.add("### Licenses\n\n```\n");
     tmp.add(createLicense());
     tmp.add("```\n");

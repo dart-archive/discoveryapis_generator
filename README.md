@@ -21,10 +21,10 @@ or generate.dart --full [-o <Directory>] (to create one library including all Go
 -v, --version      Google API version (v1, v2, v1alpha, ...)
 -i, --input        Local Discovery document file
 -u, --url          URL of a Discovery document
+-p, --prefix       Prefix for library name (defaults to "google")
     --all          Create client libraries for all Google APIs
     --full         Create one library including all Google APIs
--o, --output       Output Directory
-                   (defaults to "output/")
+-o, --output       Output Directory (defaults to "output/")
 
     --date         Create sub folder with current date (otherwise files might be overwritten)
     --check        Check for changes against existing version if available

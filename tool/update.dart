@@ -9,6 +9,7 @@ String gituser;
 String repouser;
 String token;
 String outputdir;
+String prefix;
 bool force = false;
 int limit;
 
@@ -287,7 +288,7 @@ Future handleAPI(String name, String version, String gitname) {
         print("Fetching API Description");
         loadDocumentFromGoogle(name, version).then((doc) {
           print("Checking for updates and regenerating library if necessary.");
-          var generator = new Generator(doc);
+          var generator = new Generator(doc, prefix);
           if (generator.generateClient(outputdir, check: true, force: force)) {
             print("Committing changes to GitHub");
             var options = new ProcessOptions();
@@ -388,6 +389,7 @@ void main() {
   parser.addOption("repouser", abbr: "r", help: "Owner of the repositories (defaults to --gituser)");
   parser.addOption("output", abbr: "o", help: "Output directory where to generate the libraries", defaultsTo: "output/");
   parser.addOption("limit", abbr: "l", help: "Limit the number of repositories being generated (for testing)");
+  parser.addOption("prefix", abbr: "p", help: "Prefix for library name", defaultsTo: "google");
   parser.addFlag("force", help: "Force client library update even if no changes", negatable: false);
   parser.addFlag("help", abbr: "h", help: "Display this information and exit", negatable: false);
 
@@ -415,6 +417,7 @@ void main() {
   }
 
   if (result["limit"] != null) limit = int.parse(result["limit"]);
+  prefix = result["prefix"];
 
   gituser = result["gituser"];
   if (result["repouser"] == null) {

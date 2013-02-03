@@ -20,6 +20,7 @@ void main() {
   parser.addOption("version", abbr: "v", help: "Google API version (v1, v2, v1alpha, ...)");
   parser.addOption("input", abbr: "i", help: "Local Discovery document file");
   parser.addOption("url", abbr: "u", help: "URL of a Discovery document");
+  parser.addOption("prefix", abbr: "p", help: "Prefix for library name", defaultsTo: "google");
   parser.addFlag("all", help: "Create client libraries for all Google APIs", negatable: false);
   parser.addFlag("full", help: "Create one library including all Google APIs", negatable: false);
   parser.addOption("output", abbr: "o", help: "Output Directory", defaultsTo: "output/");
@@ -105,7 +106,7 @@ void main() {
       loader = loadDocumentFromFile(result["input"]);
 
     loader.then((doc) {
-      var generator = new Generator(doc);
+      var generator = new Generator(doc, result["prefix"]);
       generator.generateClient(output, check: check, force: force);
     });
   } else {
@@ -116,7 +117,7 @@ void main() {
       if (result["all"] != null && result["all"] == true) {
         apis["items"].forEach((item) {
           loadDocumentFromUrl(item["discoveryRestUrl"]).then((doc) {
-            var generator = new Generator(doc);
+            var generator = new Generator(doc, result["prefix"]);
             generator.generateClient(output, check: check, force: force);
           });
         });
