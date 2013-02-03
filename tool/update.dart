@@ -10,6 +10,7 @@ String repouser;
 String token;
 String outputdir;
 String prefix;
+String pubserver;
 bool force = false;
 int limit;
 
@@ -302,7 +303,18 @@ Future handleAPI(String name, String version, String gitname) {
                   Process.run("git", ["push", "https://$token@github.com/$repouser/$gitname.git", "master"], options).then((p) {
                     print(p.stdout);
                     print("Library $gitname updated successfully.");
-                    completer.complete(true);
+                    if (pubserver != null) {
+                      print("Publishing library to pub");
+                      Process.start("pub", ["publish", "--server==$pubserver"]).then((p) {
+                        p.stdout.pipe(stdout);
+                        p.onExit = (code) {
+                          p.stdout.close();
+                          completer.complete(true);
+                        };
+                      });
+                    } else {
+                      completer.complete(true);
+                    }
                   });
                 });
               });
@@ -389,8 +401,11 @@ void main() {
   parser.addOption("repouser", abbr: "r", help: "Owner of the repositories (defaults to --gituser)");
   parser.addOption("output", abbr: "o", help: "Output directory where to generate the libraries", defaultsTo: "output/");
   parser.addOption("limit", abbr: "l", help: "Limit the number of repositories being generated (for testing)");
+  // TODO: Set https://pub.dartlang.org as default, not setting this until tests complete
+  parser.addOption("pubserver", help: "Server to use for publishing");
   parser.addOption("prefix", abbr: "p", help: "Prefix for library name", defaultsTo: "google");
   parser.addFlag("force", help: "Force client library update even if no changes", negatable: false);
+  parser.addFlag("pub", help: "Publish library to pub", negatable: false);
   parser.addFlag("help", abbr: "h", help: "Display this information and exit", negatable: false);
 
   var result;
@@ -414,6 +429,10 @@ void main() {
 
   if (result["force"] != null && result["force"] == true) {
     force = true;
+  }
+  
+  if (result["pub"] != null && result["pub"] == true && result["pubserver"] != null) {
+    pubserver = result["pubserver"];
   }
 
   if (result["limit"] != null) limit = int.parse(result["limit"]);
