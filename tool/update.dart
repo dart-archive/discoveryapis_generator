@@ -12,6 +12,7 @@ String outputdir;
 String prefix;
 String pubserver;
 bool force = false;
+bool pubVerbose = false;
 int limit;
 
 // Authentication stuff
@@ -302,15 +303,61 @@ Future handleAPI(String name, String version, String gitname) {
                   print(p.stdout);
                   Process.run("git", ["push", "https://$token@github.com/$repouser/$gitname.git", "master"], options).then((p) {
                     print(p.stdout);
-                    print("Library $gitname updated successfully.");
                     if (pubserver != null) {
                       print("Publishing library to pub");
-                      Process.start("pub", ["publish", "--server==$pubserver"]).then((p) {
-                        p.stdout.pipe(stdout);
-                        p.onExit = (code) {
-                          p.stdout.close();
-                          completer.complete(true);
+                      var options = new ProcessOptions();
+                      options.workingDirectory = "$outputdir/$gitname/";
+                      var arguments = [];
+                      if (pubVerbose) {
+                        arguments.add("-v");
+                      }
+
+                      arguments.add("publish");
+                      arguments.add("--server=$pubserver");
+                      Process.start("pub", arguments, options)
+                      ..then((p) {
+                        StringBuffer stderrBuffer = new StringBuffer();
+                        p.stderr.onData = () {
+                          var s = new String.fromCharCodes(p.stderr.read());
+                          stderrBuffer.add(s);
+                          if (pubVerbose) {
+                            print(s);
+                          }
                         };
+
+                        StringBuffer stdoutBuffer = new StringBuffer();
+                        p.stdout.onData = () {
+                          var s = new String.fromCharCodes(p.stdout.read());
+                          stdoutBuffer.add(s);
+                          if (pubVerbose) {
+                            print(s);
+                          }
+
+                          if (stdoutBuffer.toString().contains(r"Are you ready to upload your package")) {
+                            p.stdin.writeString('y\n');
+                          }
+                        };
+                        p.onExit = (code) {
+                          if (pubVerbose) {
+                            print("onExit: pub publish");
+                          }
+
+                          if (stderrBuffer.toString().contains(r"Failed to upload the package")) {
+                            print("Library $gitname upload failed.");
+                            completer.complete(false);
+                          } else if (stdoutBuffer.toString().contains(r"uploaded successfully.")) {
+                            print("Library $gitname uploaded successfully.");
+                            completer.complete(true);
+                          } else {
+                            print("Could not tell if package was uploaded or error happened.");
+                            completer.complete(false);
+                          }
+
+                          p.stdout.close();
+                        };
+                      })
+                      ..catchError((error) {
+                        print("catchError = $error");
                       });
                     } else {
                       completer.complete(true);
@@ -406,6 +453,7 @@ void main() {
   parser.addOption("prefix", abbr: "p", help: "Prefix for library name", defaultsTo: "google");
   parser.addFlag("force", help: "Force client library update even if no changes", negatable: false);
   parser.addFlag("pub", help: "Publish library to pub", negatable: false);
+  parser.addFlag("pub-verbose", help: "Make pub output verbose", negatable: false);
   parser.addFlag("help", abbr: "h", help: "Display this information and exit", negatable: false);
 
   var result;
@@ -430,9 +478,12 @@ void main() {
   if (result["force"] != null && result["force"] == true) {
     force = true;
   }
-  
+
   if (result["pub"] != null && result["pub"] == true && result["pubserver"] != null) {
     pubserver = result["pubserver"];
+    if (result["pub-verbose"] != null && result["pub-verbose"] == true) {
+      pubVerbose = true;
+    }
   }
 
   if (result["limit"] != null) limit = int.parse(result["limit"]);
