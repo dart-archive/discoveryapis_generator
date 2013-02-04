@@ -279,7 +279,7 @@ Future<bool> findRepository(String name, String version, String gitname) {
 
 // API generation and push
 
-Future handleAPI(String name, String version, String gitname) {
+Future handleAPI(String name, String version, String gitname, {retry: false}) {
   var completer = new Completer();
   print("");
   print("------------------------------------------------");
@@ -295,7 +295,7 @@ Future handleAPI(String name, String version, String gitname) {
         loadDocumentFromGoogle(name, version).then((doc) {
           print("Checking for updates and regenerating library if necessary.");
           var generator = new Generator(doc, prefix);
-          if (generator.generateClient(outputdir, check: true, force: force)) {
+          if (generator.generateClient(outputdir, check: true, force: force) || retry) {
             print("Committing changes to GitHub");
             var options = new ProcessOptions();
             options.workingDirectory = "$outputdir/$gitname/";
@@ -374,7 +374,7 @@ Future handleAPI(String name, String version, String gitname) {
               });
             });
           } else {
-            completer.complete(false);
+            completer.complete(true);
           }
         });
 
@@ -388,12 +388,12 @@ Future handleAPI(String name, String version, String gitname) {
 }
 
 // Force synchronous handling of APIs to prevent API Rate limits and processor overload
-void handleAPIs(List apis) {
+void handleAPIs(List apis, {retry: false}) {
 
   if (apis.length > 0) {
     var api = apis.removeAt(0);
     print(api["gitname"]);
-    handleAPI(api["name"], api["version"], api["gitname"])
+    handleAPI(api["name"], api["version"], api["gitname"], retry: retry)
     ..then((bool completed) {
       if (completed) {
         completedUpload.add(api);
@@ -417,14 +417,14 @@ void handleAPIs(List apis) {
           print("Failed Summary");
           print(sb.toString());
           if (retryAuto) {
-            handleAPIs(failedUpload);
+            handleAPIs(failedUpload, retry: true);
           } else {
             print("Retry Failed Upload (y)?");
             stdin.onData = () {
               var r = stdin.read();
               String retry = new String.fromCharCodes(r);
               if (retry[0].toLowerCase() == 'y') {
-                handleAPIs(failedUpload);
+                handleAPIs(failedUpload, retry: true);
               }
               stdin.onData = null;
             };
@@ -432,9 +432,9 @@ void handleAPIs(List apis) {
         } else {
           stdin.close();
         }
+      } else {
+        handleAPIs(apis, retry: retry);
       }
-
-      handleAPIs(apis);
     })
     ..catchError((error) {
       print("Error: handleAPIs = $error");
