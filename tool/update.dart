@@ -13,7 +13,11 @@ String prefix;
 String pubserver;
 bool force = false;
 bool pubVerbose = false;
+bool retryRequest = false;
+bool retryAuto = false;
 int limit;
+List failedUpload = [];
+List completedUpload = [];
 
 // Authentication stuff
 
@@ -457,6 +461,8 @@ void main() {
   parser.addFlag("force", help: "Force client library update even if no changes", negatable: false);
   parser.addFlag("pub", help: "Publish library to pub", negatable: false);
   parser.addFlag("pub-verbose", help: "Make pub output verbose", negatable: false);
+  parser.addFlag("retry-request", help: "Request user for retry on failed uploads", defaultsTo: false, negatable: false);
+  parser.addFlag("retry-auto", help: "Auto retry failed uploads", defaultsTo: false, negatable: false);
   parser.addFlag("help", abbr: "h", help: "Display this information and exit", negatable: false);
 
   var result;
@@ -486,6 +492,14 @@ void main() {
     pubserver = result["pubserver"];
     if (result["pub-verbose"] != null && result["pub-verbose"] == true) {
       pubVerbose = true;
+    }
+
+    if (result["retry-request"] != null && result["retry-request"] == true) {
+      retryRequest = true;
+    }
+
+    if (result["retry-auto"] != null && result["retry-auto"] == true) {
+      retryAuto = true;
     }
   }
 
