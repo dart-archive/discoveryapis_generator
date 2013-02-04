@@ -335,6 +335,8 @@ Future handleAPI(String name, String version, String gitname) {
 
                           if (stdoutBuffer.toString().contains(r"Are you ready to upload your package")) {
                             p.stdin.writeString('y\n');
+                          } else if (stdoutBuffer.toString().contains(r"warnings. Upload anyway")) {
+                            p.stdin.writeString('y\n');
                           }
                         };
                         p.onExit = (code) {
@@ -358,6 +360,7 @@ Future handleAPI(String name, String version, String gitname) {
                       })
                       ..catchError((error) {
                         print("catchError = $error");
+                        completer.completeError(error);
                       });
                     } else {
                       completer.complete(true);
