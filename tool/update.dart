@@ -389,10 +389,56 @@ Future handleAPI(String name, String version, String gitname) {
 
 // Force synchronous handling of APIs to prevent API Rate limits and processor overload
 void handleAPIs(List apis) {
+
   if (apis.length > 0) {
     var api = apis.removeAt(0);
     print(api["gitname"]);
-    handleAPI(api["name"], api["version"], api["gitname"]).then((v) => handleAPIs(apis));
+    handleAPI(api["name"], api["version"], api["gitname"])
+    ..then((bool completed) {
+      if (completed) {
+        completedUpload.add(api);
+      } else {
+        failedUpload.add(api);
+      }
+
+      if (apis.length == 0) {
+        StringBuffer sb = new StringBuffer();
+        List completedSummary = completedUpload.mappedBy((api) => 'COMPLETED: ${api["name"]}, ${api["version"]}, ${api["gitname"]}\n');
+        print("------------------------------------------------");
+        print("Completed Summary");
+        sb.addAll(completedSummary);
+        print(sb.toString());
+        sb = new StringBuffer();
+
+        if ((retryRequest || retryAuto) && failedUpload.length > 1) {
+          List failedSummary = failedUpload.mappedBy((api) => 'FAILED: ${api["name"]}, ${api["version"]}, ${api["gitname"]}\n');
+          sb.addAll(failedSummary);
+          print("------------------------------------------------");
+          print("Failed Summary");
+          print(sb.toString());
+          if (retryAuto) {
+            handleAPIs(failedUpload);
+          } else {
+            print("Retry Failed Upload (y)?");
+            stdin.onData = () {
+              var r = stdin.read();
+              String retry = new String.fromCharCodes(r);
+              if (retry[0].toLowerCase() == 'y') {
+                handleAPIs(failedUpload);
+              }
+              stdin.onData = null;
+            };
+          }
+        } else {
+          stdin.close();
+        }
+      }
+
+      handleAPIs(apis);
+    })
+    ..catchError((error) {
+      print("Error: handleAPIs = $error");
+    });
   }
 }
 
