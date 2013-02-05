@@ -20,12 +20,12 @@ class Generator {
     _json = JSON.parse(_data);
     _name = _json["name"];
     _version = _json["version"];
-    _shortName = cleanName("${_name}_${_version}");
-    _gitName = cleanName("dart_${_name}_${_version}_api_client");
-    _libraryName = cleanName("${_name}_${_version}_api_client");
-    _libraryBrowserName = cleanName("${_name}_${_version}_api_browser");
-    _libraryConsoleName = cleanName("${_name}_${_version}_api_console");
-    _libraryPubspecName = cleanName("${_prefix}_${_name}_${_version}_api");
+    _shortName = cleanName("${_name}_${_version}").toLowerCase();
+    _gitName = cleanName("dart_${_name}_${_version}_api_client").toLowerCase();
+    _libraryName = cleanName("${_name}_${_version}_api_client").toLowerCase();
+    _libraryBrowserName = cleanName("${_name}_${_version}_api_browser").toLowerCase();
+    _libraryConsoleName = cleanName("${_name}_${_version}_api_console").toLowerCase();
+    _libraryPubspecName = cleanName("${_prefix}_${_name}_${_version}_api").toLowerCase();
     _clientVersionBuild = 0;
   }
 

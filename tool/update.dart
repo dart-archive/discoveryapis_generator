@@ -12,7 +12,12 @@ String outputdir;
 String prefix;
 String pubserver;
 bool force = false;
+bool pubVerbose = false;
+bool retryRequest = false;
+bool retryAuto = false;
 int limit;
+List failedUpload = [];
+List completedUpload = [];
 
 // Authentication stuff
 
@@ -274,7 +279,7 @@ Future<bool> findRepository(String name, String version, String gitname) {
 
 // API generation and push
 
-Future handleAPI(String name, String version, String gitname) {
+Future handleAPI(String name, String version, String gitname, {retry: false}) {
   var completer = new Completer();
   print("");
   print("------------------------------------------------");
@@ -290,7 +295,7 @@ Future handleAPI(String name, String version, String gitname) {
         loadDocumentFromGoogle(name, version).then((doc) {
           print("Checking for updates and regenerating library if necessary.");
           var generator = new Generator(doc, prefix);
-          if (generator.generateClient(outputdir, check: true, force: force)) {
+          if (generator.generateClient(outputdir, check: true, force: force) || retry) {
             print("Committing changes to GitHub");
             var options = new ProcessOptions();
             options.workingDirectory = "$outputdir/$gitname/";
@@ -302,15 +307,64 @@ Future handleAPI(String name, String version, String gitname) {
                   print(p.stdout);
                   Process.run("git", ["push", "https://$token@github.com/$repouser/$gitname.git", "master"], options).then((p) {
                     print(p.stdout);
-                    print("Library $gitname updated successfully.");
                     if (pubserver != null) {
                       print("Publishing library to pub");
-                      Process.start("pub", ["publish", "--server==$pubserver"]).then((p) {
-                        p.stdout.pipe(stdout);
-                        p.onExit = (code) {
-                          p.stdout.close();
-                          completer.complete(true);
+                      var options = new ProcessOptions();
+                      options.workingDirectory = "$outputdir/$gitname/";
+                      var arguments = [];
+                      if (pubVerbose) {
+                        arguments.add("-v");
+                      }
+
+                      arguments.add("publish");
+                      arguments.add("--server=$pubserver");
+                      Process.start("pub", arguments, options)
+                      ..then((p) {
+                        StringBuffer stderrBuffer = new StringBuffer();
+                        p.stderr.onData = () {
+                          var s = new String.fromCharCodes(p.stderr.read());
+                          stderrBuffer.add(s);
+                          if (pubVerbose) {
+                            print(s);
+                          }
                         };
+
+                        StringBuffer stdoutBuffer = new StringBuffer();
+                        p.stdout.onData = () {
+                          var s = new String.fromCharCodes(p.stdout.read());
+                          stdoutBuffer.add(s);
+                          if (pubVerbose) {
+                            print(s);
+                          }
+
+                          if (stdoutBuffer.toString().contains(r"Are you ready to upload your package")) {
+                            p.stdin.writeString('y\n');
+                          } else if (stdoutBuffer.toString().contains(r"warnings. Upload anyway")) {
+                            p.stdin.writeString('y\n');
+                          }
+                        };
+                        p.onExit = (code) {
+                          if (pubVerbose) {
+                            print("onExit: pub publish");
+                          }
+
+                          if (stderrBuffer.toString().contains(r"Failed to upload the package")) {
+                            print("Library $gitname upload failed.");
+                            completer.complete(false);
+                          } else if (stdoutBuffer.toString().contains(r"uploaded successfully.")) {
+                            print("Library $gitname uploaded successfully.");
+                            completer.complete(true);
+                          } else {
+                            print("Could not tell if package was uploaded or error happened.");
+                            completer.complete(false);
+                          }
+
+                          p.stdout.close();
+                        };
+                      })
+                      ..catchError((error) {
+                        print("catchError = $error");
+                        completer.completeError(error);
                       });
                     } else {
                       completer.complete(true);
@@ -320,7 +374,7 @@ Future handleAPI(String name, String version, String gitname) {
               });
             });
           } else {
-            completer.complete(false);
+            completer.complete(true);
           }
         });
 
@@ -334,11 +388,57 @@ Future handleAPI(String name, String version, String gitname) {
 }
 
 // Force synchronous handling of APIs to prevent API Rate limits and processor overload
-void handleAPIs(List apis) {
+void handleAPIs(List apis, {retry: false}) {
+
   if (apis.length > 0) {
     var api = apis.removeAt(0);
     print(api["gitname"]);
-    handleAPI(api["name"], api["version"], api["gitname"]).then((v) => handleAPIs(apis));
+    handleAPI(api["name"], api["version"], api["gitname"], retry: retry)
+    ..then((bool completed) {
+      if (completed) {
+        completedUpload.add(api);
+      } else {
+        failedUpload.add(api);
+      }
+
+      if (apis.length == 0) {
+        StringBuffer sb = new StringBuffer();
+        List completedSummary = completedUpload.mappedBy((api) => 'COMPLETED: ${api["name"]}, ${api["version"]}, ${api["gitname"]}\n');
+        print("------------------------------------------------");
+        print("Completed Summary");
+        sb.addAll(completedSummary);
+        print(sb.toString());
+        sb = new StringBuffer();
+
+        if ((retryRequest || retryAuto) && failedUpload.length > 1) {
+          List failedSummary = failedUpload.mappedBy((api) => 'FAILED: ${api["name"]}, ${api["version"]}, ${api["gitname"]}\n');
+          sb.addAll(failedSummary);
+          print("------------------------------------------------");
+          print("Failed Summary");
+          print(sb.toString());
+          if (retryAuto) {
+            handleAPIs(failedUpload, retry: true);
+          } else {
+            print("Retry Failed Upload (y)?");
+            stdin.onData = () {
+              var r = stdin.read();
+              String retry = new String.fromCharCodes(r);
+              if (retry[0].toLowerCase() == 'y') {
+                handleAPIs(failedUpload, retry: true);
+              }
+              stdin.onData = null;
+            };
+          }
+        } else {
+          stdin.close();
+        }
+      } else {
+        handleAPIs(apis, retry: retry);
+      }
+    })
+    ..catchError((error) {
+      print("Error: handleAPIs = $error");
+    });
   }
 }
 
@@ -374,7 +474,7 @@ void runUpdate() {
               var api = new Map();
               api["name"] = item["name"];
               api["version"] = item["version"];
-              api["gitname"] = cleanName("dart_${item["name"]}_${item["version"]}_api_client");
+              api["gitname"] = cleanName("dart_${item["name"]}_${item["version"]}_api_client").toLowerCase();
               apis.add(api);
             }
           });
@@ -406,6 +506,9 @@ void main() {
   parser.addOption("prefix", abbr: "p", help: "Prefix for library name", defaultsTo: "google");
   parser.addFlag("force", help: "Force client library update even if no changes", negatable: false);
   parser.addFlag("pub", help: "Publish library to pub", negatable: false);
+  parser.addFlag("pub-verbose", help: "Make pub output verbose", negatable: false);
+  parser.addFlag("retry-request", help: "Request user for retry on failed uploads", defaultsTo: false, negatable: false);
+  parser.addFlag("retry-auto", help: "Auto retry failed uploads", defaultsTo: false, negatable: false);
   parser.addFlag("help", abbr: "h", help: "Display this information and exit", negatable: false);
 
   var result;
@@ -430,9 +533,20 @@ void main() {
   if (result["force"] != null && result["force"] == true) {
     force = true;
   }
-  
+
   if (result["pub"] != null && result["pub"] == true && result["pubserver"] != null) {
     pubserver = result["pubserver"];
+    if (result["pub-verbose"] != null && result["pub-verbose"] == true) {
+      pubVerbose = true;
+    }
+
+    if (result["retry-request"] != null && result["retry-request"] == true) {
+      retryRequest = true;
+    }
+
+    if (result["retry-auto"] != null && result["retry-auto"] == true) {
+      retryAuto = true;
+    }
   }
 
   if (result["limit"] != null) limit = int.parse(result["limit"]);
