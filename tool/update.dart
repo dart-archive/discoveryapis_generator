@@ -474,7 +474,7 @@ void runUpdate() {
               var api = new Map();
               api["name"] = item["name"];
               api["version"] = item["version"];
-              api["gitname"] = cleanName("dart_${item["name"]}_${item["version"]}_api_client");
+              api["gitname"] = cleanName("dart_${item["name"]}_${item["version"]}_api_client").toLowerCase();
               apis.add(api);
             }
           });
