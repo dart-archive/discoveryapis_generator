@@ -29,7 +29,7 @@ class Generator {
     _clientVersionBuild = 0;
   }
 
-  bool generateClient(String outputDirectory, {bool fullLibrary: false, bool check: false, bool force: false}) {
+  bool generateClient(String outputDirectory, {bool fullLibrary: false, bool check: false, bool force: false, int forceVersion}) {
     var mainFolder, srcFolder, libFolder;
     if (fullLibrary) {
       mainFolder = outputDirectory;
@@ -56,7 +56,7 @@ class Generator {
         if (force) {
           print("Forced rebuild");
           print("Regenerating library $_libraryName");
-          _clientVersionBuild = int.parse(version.substring(clientVersion.length + 1)) + 1;
+          _clientVersionBuild = (forceVersion != null) ? forceVersion : int.parse(version.substring(clientVersion.length + 1)) + 1;
         } else {
           if (version.startsWith(clientVersion)) {
             if (etag == _json["etag"]) {
@@ -65,18 +65,18 @@ class Generator {
             } else {
               print("Changes for $_libraryName");
               print("Regenerating library $_libraryName");
-              _clientVersionBuild = int.parse(version.substring(clientVersion.length + 1)) + 1;
+              _clientVersionBuild = (forceVersion != null) ? forceVersion : int.parse(version.substring(clientVersion.length + 1)) + 1;
             }
           } else {
             print("Generator version changed.");
             print("Regenerating library $_libraryName");
-            _clientVersionBuild = 0;
+            _clientVersionBuild = (forceVersion != null) ? forceVersion : 0;
           }
         }
       } else {
         print("Library $_libraryName does not exist yet.");
         print("Generating library $_libraryName");
-        _clientVersionBuild = 0;
+        _clientVersionBuild = (forceVersion != null) ? forceVersion : 0;
       }
     }
 
