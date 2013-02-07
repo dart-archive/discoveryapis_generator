@@ -1029,7 +1029,7 @@ abstract class BrowserClient extends Client {
     }
     var url = new UrlPattern(path).generate(urlParams, queryParams);
 
-    request.on.loadEnd.add((Event e) {
+    request.onLoadEnd.listen((Event e) {
       if (request.status == 200) {
         var data = JSON.parse(request.responseText);
         completer.complete(data);
