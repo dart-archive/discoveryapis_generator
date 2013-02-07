@@ -347,7 +347,8 @@ Future<bool> setPubUploaders(String gitname, {int index: 0}) {
   var completer = new Completer();
   var options = new ProcessOptions();
   options.workingDirectory = "$outputdir/$gitname/";
-  Process.run("pub", ["uploader", "add", uploaders[index]], options).then((p) {
+  Process.run("pub", ["uploader", "--server=$pubserver", "add", uploaders[index]], options).then((p) {
+    print(p.stderr);
     print(p.stdout);
     index++;
     if (index < uploaders.length) {
