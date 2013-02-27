@@ -13,24 +13,20 @@ Future<String> loadCustomUrl(String url) {
 Future<String> loadDocumentFromUrl(String url) {
   var completer = new Completer();
   var client = new HttpClient();
-  var connection = client.getUrl(Uri.parse(url));
-  var result = new StringBuffer();
+  var result = new List<int>();
 
-  connection.onError = (error) => completer.complete("Unexpected error: $error");
-
-  connection.onRequest = (HttpClientRequest request) {
-    request.outputStream.close();
-  };
-
-  connection.onResponse = (HttpClientResponse response) {
-    response.inputStream.onData = () {
-      result.add(new String.fromCharCodes(response.inputStream.read()));
-    };
-    response.inputStream.onClosed = () {
-      client.shutdown();
-      completer.complete(result.toString());
-    };
-  };
+  client.getUrl(Uri.parse(url))
+    .then((HttpClientRequest request) {
+      return request.close();
+    })
+    .then((HttpClientResponse response) {
+      response.listen(result.addAll, onDone: () {
+        var str = new String.fromCharCodes(result);
+        completer.complete(str);
+        client.close();
+      });
+    })
+    .catchError((e) => completer.complete("Unexpected error: $e"));
 
   return completer.future;
 }
