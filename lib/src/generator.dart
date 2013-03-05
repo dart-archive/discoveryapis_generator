@@ -163,7 +163,7 @@ dependencies:
 
   String _createReadme() {
     var tmp = new StringBuffer();
-    tmp.add("""
+    tmp.write("""
 # $_libraryPubspecName
 
 ### Description
@@ -171,22 +171,22 @@ dependencies:
 Auto-generated client library for accessing the $_name $_version API.
 
 """);
-    tmp.add("#### ");
+    tmp.write("#### ");
     if (_json.containsKey("icons") && _json["icons"].containsKey("x16")) {
-      tmp.add("![Logo](${_json["icons"]["x16"]}) ");
+      tmp.write("![Logo](${_json["icons"]["x16"]}) ");
     }
-    tmp.add("${_json["title"]} - $_name $_version\n\n");
-    tmp.add("${_json["description"]}\n\n");
+    tmp.write("${_json["title"]} - $_name $_version\n\n");
+    tmp.write("${_json["description"]}\n\n");
     if (_json.containsKey("documentationLink")) {
-      tmp.add("Official API documentation: ${_json["documentationLink"]}\n\n");
+      tmp.write("Official API documentation: ${_json["documentationLink"]}\n\n");
     }
-    tmp.add("For web applications:\n```\nimport \"package:$_libraryPubspecName/$_libraryBrowserName.dart\" as ${cleanName(_name).toLowerCase()}client;\n```\n\n");
-    tmp.add("For console application:\n```\nimport \"package:$_libraryPubspecName/$_libraryConsoleName.dart\" as ${cleanName(_name).toLowerCase()}client;\n```\n\n");
+    tmp.write("For web applications:\n```\nimport \"package:$_libraryPubspecName/$_libraryBrowserName.dart\" as ${cleanName(_name).toLowerCase()}client;\n```\n\n");
+    tmp.write("For console application:\n```\nimport \"package:$_libraryPubspecName/$_libraryConsoleName.dart\" as ${cleanName(_name).toLowerCase()}client;\n```\n\n");
 
-    tmp.add("```\nvar ${cleanName(_name).toLowerCase()} = new ${cleanName(_name).toLowerCase()}client.${capitalize(_name)}();\n```\n\n");
-    tmp.add("### Licenses\n\n```\n");
-    tmp.add(createLicense());
-    tmp.add("```\n");
+    tmp.write("```\nvar ${cleanName(_name).toLowerCase()} = new ${cleanName(_name).toLowerCase()}client.${capitalize(_name)}();\n```\n\n");
+    tmp.write("### Licenses\n\n```\n");
+    tmp.write(createLicense());
+    tmp.write("```\n");
     return tmp.toString();
   }
 
@@ -272,11 +272,11 @@ part "$srcFolder/console/$_name.dart";
   String _createSchemas() {
     var tmp = new StringBuffer();
 
-    tmp.add("part of $_libraryName;\n\n");
+    tmp.write("part of $_libraryName;\n\n");
 
     if (_json.containsKey("schemas")) {
       _json["schemas"].forEach((key, schema) {
-        tmp.add(_createSchemaClass(key, schema));
+        tmp.write(_createSchemaClass(key, schema));
       });
     }
 
@@ -286,11 +286,11 @@ part "$srcFolder/console/$_name.dart";
   String _createResources() {
     var tmp = new StringBuffer();
 
-    tmp.add("part of $_libraryName;\n\n");
+    tmp.write("part of $_libraryName;\n\n");
 
     if (_json.containsKey("resources")) {
       _json["resources"].forEach((key, resource) {
-        tmp.add(_createResourceClass(key, resource));
+        tmp.write(_createResourceClass(key, resource));
       });
     }
 
@@ -299,18 +299,18 @@ part "$srcFolder/console/$_name.dart";
 
   String _createBrowserMainClass() {
     var tmp = new StringBuffer();
-    tmp.add("part of $_libraryBrowserName;\n\n");
-    tmp.add("/** Client to access the $_name $_version API */\n");
+    tmp.write("part of $_libraryBrowserName;\n\n");
+    tmp.write("/** Client to access the $_name $_version API */\n");
     if (_json.containsKey("description")) {
-      tmp.add("/** ${_json["description"]} */\n");
+      tmp.write("/** ${_json["description"]} */\n");
     }
-    tmp.add("class ${capitalize(_name)} extends BrowserClient {\n");
+    tmp.write("class ${capitalize(_name)} extends BrowserClient {\n");
     if (_json.containsKey("resources")) {
-      tmp.add("\n");
+      tmp.write("\n");
       _json["resources"].forEach((key, resource) {
         var subClassName = "${capitalize(key)}Resource";
-        tmp.add("  $subClassName _$key;\n");
-        tmp.add("  $subClassName get $key => _$key;\n");
+        tmp.write("  $subClassName _$key;\n");
+        tmp.write("  $subClassName get $key => _$key;\n");
       });
     }
     if(_json.containsKey("auth") && _json["auth"].containsKey("oauth2") && _json["auth"]["oauth2"].containsKey("scopes")) {
@@ -319,69 +319,69 @@ part "$srcFolder/console/$_name.dart";
         var scopeName = scope.toUpperCase();
         if (p >= 0) scopeName = scopeName.substring(p+1);
         scopeName = cleanName(scopeName);
-        tmp.add("\n");
+        tmp.write("\n");
         if (description.containsKey("description")) {
-          tmp.add("  /** OAuth Scope2: ${description["description"]} */\n");
+          tmp.write("  /** OAuth Scope2: ${description["description"]} */\n");
         } else {
-          tmp.add("  /** OAuth Scope2 */\n");
+          tmp.write("  /** OAuth Scope2 */\n");
         }
-        tmp.add("  static const String ${scopeName}_SCOPE = \"$scope\";\n");
+        tmp.write("  static const String ${scopeName}_SCOPE = \"$scope\";\n");
       });
     }
     if (_json.containsKey("parameters")) {
       _json["parameters"].forEach((key, param) {
         var type = parameterType[param["type"]];
         if (type != null) {
-          tmp.add("\n");
-          tmp.add("  /**\n");
+          tmp.write("\n");
+          tmp.write("  /**\n");
           if (param.containsKey("description")) {
-            tmp.add("   * ${param["description"]}\n");
+            tmp.write("   * ${param["description"]}\n");
           }
-          tmp.add("   * Added as queryParameter for each request.\n");
-          tmp.add("   */\n");
-          tmp.add("  $type get $key => params[\"$key\"];\n");
-          tmp.add("  set $key($type value) => params[\"$key\"] = value;\n");
+          tmp.write("   * Added as queryParameter for each request.\n");
+          tmp.write("   */\n");
+          tmp.write("  $type get $key => params[\"$key\"];\n");
+          tmp.write("  set $key($type value) => params[\"$key\"] = value;\n");
         }
       });
     }
-    tmp.add("\n  ${capitalize(_name)}([OAuth2 auth]) : super(auth) {\n");
-    tmp.add("    basePath = \"${_json["basePath"]}\";\n");
+    tmp.write("\n  ${capitalize(_name)}([OAuth2 auth]) : super(auth) {\n");
+    tmp.write("    basePath = \"${_json["basePath"]}\";\n");
     var uri = Uri.parse(_json["rootUrl"]);
-    tmp.add("    rootUrl = \"${uri.origin}/\";\n");
+    tmp.write("    rootUrl = \"${uri.origin}/\";\n");
     if (_json.containsKey("resources")) {
       _json["resources"].forEach((key, resource) {
         var subClassName = "${capitalize(key)}Resource";
-        tmp.add("    _$key = new $subClassName(this);\n");
+        tmp.write("    _$key = new $subClassName(this);\n");
       });
     }
-    tmp.add("  }\n");
+    tmp.write("  }\n");
 
     if (_json.containsKey("methods")) {
       _json["methods"].forEach((key, method) {
-        tmp.add("\n");
-        tmp.add(_createMethod(key, method));
+        tmp.write("\n");
+        tmp.write(_createMethod(key, method));
       });
     }
 
-    tmp.add("}\n");
+    tmp.write("}\n");
 
     return tmp.toString();
   }
 
   String _createConsoleMainClass() {
     var tmp = new StringBuffer();
-    tmp.add("part of $_libraryConsoleName;\n\n");
-    tmp.add("/** Client to access the $_name $_version API */\n");
+    tmp.write("part of $_libraryConsoleName;\n\n");
+    tmp.write("/** Client to access the $_name $_version API */\n");
     if (_json.containsKey("description")) {
-      tmp.add("/** ${_json["description"]} */\n");
+      tmp.write("/** ${_json["description"]} */\n");
     }
-    tmp.add("class ${capitalize(_name)} extends ConsoleClient {\n");
+    tmp.write("class ${capitalize(_name)} extends ConsoleClient {\n");
     if (_json.containsKey("resources")) {
-      tmp.add("\n");
+      tmp.write("\n");
       _json["resources"].forEach((key, resource) {
         var subClassName = "${capitalize(key)}Resource";
-        tmp.add("  $subClassName _$key;\n");
-        tmp.add("  $subClassName get $key => _$key;\n");
+        tmp.write("  $subClassName _$key;\n");
+        tmp.write("  $subClassName get $key => _$key;\n");
       });
     }
     if(_json.containsKey("auth") && _json["auth"].containsKey("oauth2") && _json["auth"]["oauth2"].containsKey("scopes")) {
@@ -390,52 +390,52 @@ part "$srcFolder/console/$_name.dart";
         var scopeName = scope.toUpperCase();
         if (p >= 0) scopeName = scopeName.substring(p+1);
         scopeName = cleanName(scopeName);
-        tmp.add("\n");
+        tmp.write("\n");
         if (description.containsKey("description")) {
-          tmp.add("  /** OAuth Scope2: ${description["description"]} */\n");
+          tmp.write("  /** OAuth Scope2: ${description["description"]} */\n");
         } else {
-          tmp.add("  /** OAuth Scope2 */\n");
+          tmp.write("  /** OAuth Scope2 */\n");
         }
-        tmp.add("  static const String ${scopeName}_SCOPE = \"$scope\";\n");
+        tmp.write("  static const String ${scopeName}_SCOPE = \"$scope\";\n");
       });
     }
     if (_json.containsKey("parameters")) {
       _json["parameters"].forEach((key, param) {
         var type = parameterType[param["type"]];
         if (type != null) {
-          tmp.add("\n");
-          tmp.add("  /**\n");
+          tmp.write("\n");
+          tmp.write("  /**\n");
           if (param.containsKey("description")) {
-            tmp.add("   * ${param["description"]}\n");
+            tmp.write("   * ${param["description"]}\n");
           }
-          tmp.add("   * Added as queryParameter for each request.\n");
-          tmp.add("   */\n");
-          tmp.add("  $type get $key => params[\"$key\"];\n");
-          tmp.add("  set $key($type value) => params[\"$key\"] = value;\n");
+          tmp.write("   * Added as queryParameter for each request.\n");
+          tmp.write("   */\n");
+          tmp.write("  $type get $key => params[\"$key\"];\n");
+          tmp.write("  set $key($type value) => params[\"$key\"] = value;\n");
         }
       });
     }
     // TODO: change this to correct OAuth class for console
-    tmp.add("\n  ${capitalize(_name)}([Object auth]) : super(auth) {\n");
-    tmp.add("    basePath = \"${_json["basePath"]}\";\n");
+    tmp.write("\n  ${capitalize(_name)}([Object auth]) : super(auth) {\n");
+    tmp.write("    basePath = \"${_json["basePath"]}\";\n");
     var uri = Uri.parse(_json["rootUrl"]);
-    tmp.add("    rootUrl = \"${uri.origin}/\";\n");
+    tmp.write("    rootUrl = \"${uri.origin}/\";\n");
     if (_json.containsKey("resources")) {
       _json["resources"].forEach((key, resource) {
         var subClassName = "${capitalize(key)}Resource";
-        tmp.add("    _$key = new $subClassName(this);\n");
+        tmp.write("    _$key = new $subClassName(this);\n");
       });
     }
-    tmp.add("  }\n");
+    tmp.write("  }\n");
 
     if (_json.containsKey("methods")) {
       _json["methods"].forEach((key, method) {
-        tmp.add("\n");
-        tmp.add(_createMethod(key, method));
+        tmp.write("\n");
+        tmp.write(_createMethod(key, method));
       });
     }
 
-    tmp.add("}\n");
+    tmp.write("}\n");
 
     return tmp.toString();
   }
@@ -445,10 +445,10 @@ part "$srcFolder/console/$_name.dart";
     Map subSchemas = new Map();
 
     if (data.containsKey("description")) {
-      tmp.add("/** ${data["description"]} */\n");
+      tmp.write("/** ${data["description"]} */\n");
     }
 
-    tmp.add("class ${capitalize(name)} {\n");
+    tmp.write("class ${capitalize(name)} {\n");
 
     if (data.containsKey("properties")) {
       data["properties"].forEach((key, property) {
@@ -483,20 +483,20 @@ part "$srcFolder/console/$_name.dart";
         }
         if (type != null) {
           if (property.containsKey("description")) {
-            tmp.add("\n  /** ${property["description"]} */\n");
+            tmp.write("\n  /** ${property["description"]} */\n");
           }
           if (array) {
-            tmp.add("  List<$type> $key;\n");
+            tmp.write("  List<$type> $key;\n");
           } else {
-            tmp.add("  $type $key;\n");
+            tmp.write("  $type $key;\n");
           }
         }
       });
     }
 
-    tmp.add("\n");
-    tmp.add("  /** Create new $name from JSON data */\n");
-    tmp.add("  ${capitalize(name)}.fromJson(Map json) {\n");
+    tmp.write("\n");
+    tmp.write("  /** Create new $name from JSON data */\n");
+    tmp.write("  ${capitalize(name)}.fromJson(Map json) {\n");
     if (data.containsKey("properties")) {
       data["properties"].forEach((key, property) {
         var schemaType = property["type"];
@@ -526,32 +526,32 @@ part "$srcFolder/console/$_name.dart";
           }
         }
         if (type != null) {
-          tmp.add("    if (json.containsKey(\"$key\")) {\n");
+          tmp.write("    if (json.containsKey(\"$key\")) {\n");
           if (array) {
-            tmp.add("      $key = [];\n");
-            tmp.add("      json[\"$key\"].forEach((item) {\n");
+            tmp.write("      $key = [];\n");
+            tmp.write("      json[\"$key\"].forEach((item) {\n");
             if (object) {
-              tmp.add("        $key.add(new $type.fromJson(item));\n");
+              tmp.write("        $key.add(new $type.fromJson(item));\n");
             } else {
-              tmp.add("        $key.add(item);\n");
+              tmp.write("        $key.add(item);\n");
             }
-            tmp.add("      });\n");
+            tmp.write("      });\n");
           } else {
             if (object) {
-              tmp.add("      $key = new $type.fromJson(json[\"$key\"]);\n");
+              tmp.write("      $key = new $type.fromJson(json[\"$key\"]);\n");
             } else {
-              tmp.add("      $key = json[\"$key\"];\n");
+              tmp.write("      $key = json[\"$key\"];\n");
             }
           }
-          tmp.add("    }\n");
+          tmp.write("    }\n");
         }
       });
     }
-    tmp.add("  }\n\n");
+    tmp.write("  }\n\n");
 
-    tmp.add("  /** Create JSON Object for $name */\n");
-    tmp.add("  Map toJson() {\n");
-    tmp.add("    var output = new Map();\n\n");
+    tmp.write("  /** Create JSON Object for $name */\n");
+    tmp.write("  Map toJson() {\n");
+    tmp.write("    var output = new Map();\n\n");
     if (data.containsKey("properties")) {
       data["properties"].forEach((key, property) {
         var schemaType = property["type"];
@@ -581,37 +581,37 @@ part "$srcFolder/console/$_name.dart";
           }
         }
         if (type != null) {
-          tmp.add("    if ($key != null) {\n");
+          tmp.write("    if ($key != null) {\n");
           if (array) {
-            tmp.add("      output[\"$key\"] = new List();\n");
-            tmp.add("      $key.forEach((item) {\n");
+            tmp.write("      output[\"$key\"] = new List();\n");
+            tmp.write("      $key.forEach((item) {\n");
             if (object) {
-              tmp.add("        output[\"$key\"].add(item.toJson());\n");
+              tmp.write("        output[\"$key\"].add(item.toJson());\n");
             } else {
-              tmp.add("        output[\"$key\"].add(item);\n");
+              tmp.write("        output[\"$key\"].add(item);\n");
             }
-            tmp.add("      });\n");
+            tmp.write("      });\n");
           } else {
             if (object) {
-              tmp.add("      output[\"$key\"] = $key.toJson();\n");
+              tmp.write("      output[\"$key\"] = $key.toJson();\n");
             } else {
-              tmp.add("      output[\"$key\"] = $key;\n");
+              tmp.write("      output[\"$key\"] = $key;\n");
             }
           }
-          tmp.add("    }\n");
+          tmp.write("    }\n");
         }
       });
     }
-    tmp.add("\n    return output;\n");
-    tmp.add("  }\n\n");
+    tmp.write("\n    return output;\n");
+    tmp.write("  }\n\n");
 
-    tmp.add("  /** Return String representation of $name */\n");
-    tmp.add("  String toString() => JSON.stringify(this.toJson());\n\n");
+    tmp.write("  /** Return String representation of $name */\n");
+    tmp.write("  String toString() => JSON.stringify(this.toJson());\n\n");
 
-    tmp.add("}\n\n");
+    tmp.write("}\n\n");
 
     subSchemas.forEach((subName, value) {
-      tmp.add(_createSchemaClass(subName, value));
+      tmp.write(_createSchemaClass(subName, value));
     });
 
     return tmp.toString();
@@ -619,29 +619,29 @@ part "$srcFolder/console/$_name.dart";
 
   String _createParamComment(name, description) {
     var tmp = new StringBuffer();
-    tmp.add("   *\n");
-    tmp.add("   * [$name]");
+    tmp.write("   *\n");
+    tmp.write("   * [$name]");
     if (description.containsKey("description")) {
-      tmp.add(" - ${description["description"]}");
+      tmp.write(" - ${description["description"]}");
     }
-    tmp.add("\n");
+    tmp.write("\n");
     if (description.containsKey("default")) {
-      tmp.add("   *   Default: ${description["default"]}\n");
+      tmp.write("   *   Default: ${description["default"]}\n");
     }
     if (description.containsKey("minimum")) {
-      tmp.add("   *   Minimum: ${description["minimum"]}\n");
+      tmp.write("   *   Minimum: ${description["minimum"]}\n");
     }
     if (description.containsKey("maximum")) {
-      tmp.add("   *   Maximum: ${description["maximum"]}\n");
+      tmp.write("   *   Maximum: ${description["maximum"]}\n");
     }
     if (description.containsKey("enum")) {
-      tmp.add("   *   Allowed values:\n");
+      tmp.write("   *   Allowed values:\n");
       for (var i = 0; i < description["enum"].length; i++) {
-        tmp.add("   *     ${description["enum"][i]}");
+        tmp.write("   *     ${description["enum"][i]}");
         if (description.containsKey("enumDescriptions")) {
-          tmp.add(" - ${description["enumDescriptions"][i]}");
+          tmp.write(" - ${description["enumDescriptions"][i]}");
         }
-        tmp.add("\n");
+        tmp.write("\n");
       }
     }
 
@@ -654,9 +654,9 @@ part "$srcFolder/console/$_name.dart";
     var upload = false;
     var uploadPath;
 
-    tmp.add("  /**\n");
+    tmp.write("  /**\n");
     if (data.containsKey("description")) {
-      tmp.add("   * ${data["description"]}\n");
+      tmp.write("   * ${data["description"]}\n");
     }
 
     var params = new List<String>();
@@ -664,7 +664,7 @@ part "$srcFolder/console/$_name.dart";
 
     if (data.containsKey("request")) {
       params.add("${data["request"]["\$ref"]} request");
-      tmp.add(_createParamComment("request", {"description": "${data["request"]["\$ref"]} to send in this request"}));
+      tmp.write(_createParamComment("request", {"description": "${data["request"]["\$ref"]} to send in this request"}));
     }
     if (data.containsKey("parameterOrder") && data.containsKey("parameters")) {
       data["parameterOrder"].forEach((param) {
@@ -672,7 +672,7 @@ part "$srcFolder/console/$_name.dart";
           var type = parameterType[data["parameters"][param]["type"]];
           if (type != null) {
             var variable = cleanName(param);
-            tmp.add(_createParamComment(variable, data["parameters"][param]));
+            tmp.write(_createParamComment(variable, data["parameters"][param]));
             params.add("$type $variable");
             data["parameters"][param]["gen_included"] = true;
           }
@@ -696,8 +696,8 @@ part "$srcFolder/console/$_name.dart";
     if (upload) {
       optParams.add("String content");
       optParams.add("String contentType");
-      tmp.add(_createParamComment("content", {"description": "Base64 Data of the file content to be uploaded"}));
-      tmp.add(_createParamComment("contentType", {"description": "MimeType of the file to be uploaded"}));
+      tmp.write(_createParamComment("content", {"description": "Base64 Data of the file content to be uploaded"}));
+      tmp.write(_createParamComment("contentType", {"description": "MimeType of the file to be uploaded"}));
     }
     if (data.containsKey("parameters")) {
       data["parameters"].forEach((name, description) {
@@ -705,7 +705,7 @@ part "$srcFolder/console/$_name.dart";
           var type = parameterType[description["type"]];
           if (type != null) {
             var variable = cleanName(name);
-            tmp.add(_createParamComment(variable, description));
+            tmp.write(_createParamComment(variable, description));
             optParams.add("$type $variable");
           }
         }
@@ -713,11 +713,11 @@ part "$srcFolder/console/$_name.dart";
     }
 
     optParams.add("Map optParams");
-    tmp.add(_createParamComment("optParams", {"description": "Additional query parameters"}));
+    tmp.write(_createParamComment("optParams", {"description": "Additional query parameters"}));
 
     params.add("{${optParams.join(", ")}}");
 
-    tmp.add("   */\n");
+    tmp.write("   */\n");
     var response = null;
     if (data.containsKey("response")) {
       response = "Future<${data["response"]["\$ref"]}>";
@@ -725,15 +725,15 @@ part "$srcFolder/console/$_name.dart";
       response = "Future<Map>";
     }
 
-    tmp.add("  $response $name(${params.join(", ")}) {\n");
-    tmp.add("    var completer = new Completer();\n");
-    tmp.add("    var url = \"${data["path"]}\";\n");
+    tmp.write("  $response $name(${params.join(", ")}) {\n");
+    tmp.write("    var completer = new Completer();\n");
+    tmp.write("    var url = \"${data["path"]}\";\n");
     if (upload) {
-      tmp.add("    var uploadUrl = \"$uploadPath\";\n");
+      tmp.write("    var uploadUrl = \"$uploadPath\";\n");
     }
-    tmp.add("    var urlParams = new Map();\n");
-    tmp.add("    var queryParams = new Map();\n\n");
-    tmp.add("    var paramErrors = new List();\n");
+    tmp.write("    var urlParams = new Map();\n");
+    tmp.write("    var queryParams = new Map();\n\n");
+    tmp.write("    var paramErrors = new List();\n");
 
     if (data.containsKey("parameters")) {
       data["parameters"].forEach((name, description) {
@@ -741,26 +741,26 @@ part "$srcFolder/console/$_name.dart";
         var location = "queryParams";
         if (description["location"] == "path") { location = "urlParams"; }
         if (description["required"] == true) {
-          tmp.add("    if ($variable == null) paramErrors.add(\"$variable is required\");\n");
+          tmp.write("    if ($variable == null) paramErrors.add(\"$variable is required\");\n");
         }
         if (description["enum"] != null) {
           var list = new StringBuffer();
           var values = new StringBuffer();
           description["enum"].forEach((value) {
-            if (!list.isEmpty) list.add(", ");
-            if (!values.isEmpty) values.add(", ");
-            list.add("\"$value\"");
-            values.add(value);
+            if (!list.isEmpty) list.write(", ");
+            if (!values.isEmpty) values.write(", ");
+            list.write("\"$value\"");
+            values.write(value);
           });
-          tmp.add("    if ($variable != null && ![$list].contains($variable)) {\n");
-          tmp.add("      paramErrors.add(\"Allowed values for $variable: $values\");\n");
-          tmp.add("    }\n");
+          tmp.write("    if ($variable != null && ![$list].contains($variable)) {\n");
+          tmp.write("      paramErrors.add(\"Allowed values for $variable: $values\");\n");
+          tmp.write("    }\n");
         }
-        tmp.add("    if ($variable != null) $location[\"$name\"] = $variable;\n");
+        tmp.write("    if ($variable != null) $location[\"$name\"] = $variable;\n");
       });
     }
 
-    tmp.add("""
+    tmp.write("""
     if (optParams != null) {
       optParams.forEach((key, value) {
         if (value != null && queryParams[key] == null) {
@@ -785,27 +785,27 @@ part "$srcFolder/console/$_name.dart";
       uploadCall = "null, content, contentType, urlParams: urlParams, queryParams: queryParams";
     }
 
-    tmp.add("    var response;\n");
+    tmp.write("    var response;\n");
     if (upload) {
-      tmp.add("    if (?content && content != null) {\n");
-      tmp.add("      response = _client.upload(uploadUrl, \"${data["httpMethod"]}\", $uploadCall);\n");
-      tmp.add("    } else {\n");
-      tmp.add("      response = _client.request(url, \"${data["httpMethod"]}\", $call);\n");
-      tmp.add("    }\n");
+      tmp.write("    if (?content && content != null) {\n");
+      tmp.write("      response = _client.upload(uploadUrl, \"${data["httpMethod"]}\", $uploadCall);\n");
+      tmp.write("    } else {\n");
+      tmp.write("      response = _client.request(url, \"${data["httpMethod"]}\", $call);\n");
+      tmp.write("    }\n");
     } else {
-      tmp.add("    response = _client.request(url, \"${data["httpMethod"]}\", $call);\n");
+      tmp.write("    response = _client.request(url, \"${data["httpMethod"]}\", $call);\n");
     }
 
-    tmp.add("    response\n");
-    tmp.add("      .then((data) => ");
+    tmp.write("    response\n");
+    tmp.write("      .then((data) => ");
     if (data.containsKey("response")) {
-      tmp.add("completer.complete(new ${data["response"]["\$ref"]}.fromJson(data)))\n");
+      tmp.write("completer.complete(new ${data["response"]["\$ref"]}.fromJson(data)))\n");
     } else {
-      tmp.add("completer.complete(data))\n");
+      tmp.write("completer.complete(data))\n");
     }
-    tmp.add("      .catchError((e) { completer.completeError(e); return true; });\n");
-    tmp.add("    return completer.future;\n");
-    tmp.add("  }\n");
+    tmp.write("      .catchError((e) { completer.completeError(e); return true; });\n");
+    tmp.write("    return completer.future;\n");
+    tmp.write("  }\n");
 
     return tmp.toString();
   }
@@ -814,38 +814,38 @@ part "$srcFolder/console/$_name.dart";
     var tmp = new StringBuffer();
     var className = "${capitalize(name)}Resource";
 
-    tmp.add("class $className extends Resource {\n");
+    tmp.write("class $className extends Resource {\n");
 
     if (data.containsKey("resources")) {
-      tmp.add("\n");
+      tmp.write("\n");
       data["resources"].forEach((key, resource) {
         var subClassName = "${capitalize(name)}${capitalize(key)}Resource";
-        tmp.add("  $subClassName _$key;\n");
-        tmp.add("  $subClassName get $key => _$key;\n");
+        tmp.write("  $subClassName _$key;\n");
+        tmp.write("  $subClassName get $key => _$key;\n");
       });
     }
 
-    tmp.add("\n  $className(Client client) : super(client) {\n");
+    tmp.write("\n  $className(Client client) : super(client) {\n");
     if (data.containsKey("resources")) {
       data["resources"].forEach((key, resource) {
         var subClassName = "${capitalize(name)}${capitalize(key)}Resource";
-        tmp.add("  _$key = new $subClassName(client);\n");
+        tmp.write("  _$key = new $subClassName(client);\n");
       });
     }
-    tmp.add("  }\n");
+    tmp.write("  }\n");
 
     if (data.containsKey("methods")) {
       data["methods"].forEach((key, method) {
-        tmp.add("\n");
-        tmp.add(_createMethod(key, method));
+        tmp.write("\n");
+        tmp.write(_createMethod(key, method));
       });
     }
 
-    tmp.add("}\n\n");
+    tmp.write("}\n\n");
 
     if (data.containsKey("resources")) {
       data["resources"].forEach((key, resource) {
-        tmp.add(_createResourceClass("${capitalize(name)}${capitalize(key)}", resource));
+        tmp.write(_createResourceClass("${capitalize(name)}${capitalize(key)}", resource));
       });
     }
 
