@@ -82,7 +82,7 @@ void main() {
 
   var output = result["output"];
   if (result["date"] != null && result["date"] == true) {
-    output = "$output/${fileDate(new Date.now())}";
+    output = "$output/${fileDate(new DateTime.now())}";
   }
 
   var check = false;
