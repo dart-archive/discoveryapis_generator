@@ -1,4 +1,5 @@
 import "dart:json" as JSON;
+import "dart:io";
 import "package:args/args.dart";
 import "package:discovery_api_client_generator/generator.dart";
 
@@ -82,7 +83,7 @@ void main() {
 
   var output = result["output"];
   if (result["date"] != null && result["date"] == true) {
-    output = "$output/${fileDate(new Date.now())}";
+    output = "$output/${fileDate(new DateTime.now())}";
   }
 
   var check = false;

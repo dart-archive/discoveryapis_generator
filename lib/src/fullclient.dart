@@ -23,7 +23,7 @@ dependencies:
 
   String createFullReadme() {
     var tmp = new StringBuffer();
-    tmp.add("""
+    tmp.write("""
 # $fullLibraryName
 
 ### Description
@@ -46,26 +46,26 @@ Examples for how to use these libraries can be found here: https://github.com/da
       var libraryBrowserName = cleanName("${name}_${version}_api_browser");
       var libraryConsoleName = cleanName("${name}_${version}_api_console");
 
-      tmp.add("#### ");
+      tmp.write("#### ");
       if (item.containsKey("icons") && item["icons"].containsKey("x16")) {
-        tmp.add("![Logo](${item["icons"]["x16"]}) ");
+        tmp.write("![Logo](${item["icons"]["x16"]}) ");
       }
-      tmp.add("$title - $name $version\n\n");
-      tmp.add("$description\n\n");
+      tmp.write("$title - $name $version\n\n");
+      tmp.write("$description\n\n");
       if (link != null) {
-        tmp.add("[Official API Documentation]($link)\n\n");
+        tmp.write("[Official API Documentation]($link)\n\n");
       }
-      tmp.add("For web applications:\n```\nimport \"package:api_client/$libraryBrowserName.dart\" as ${cleanName(name).toLowerCase()}client;\n```\n\n");
-      tmp.add("For console application:\n```\nimport \"package:api_client/$libraryConsoleName.dart\" as ${cleanName(name).toLowerCase()}client;\n```\n\n");
+      tmp.write("For web applications:\n```\nimport \"package:api_client/$libraryBrowserName.dart\" as ${cleanName(name).toLowerCase()}client;\n```\n\n");
+      tmp.write("For console application:\n```\nimport \"package:api_client/$libraryConsoleName.dart\" as ${cleanName(name).toLowerCase()}client;\n```\n\n");
 
-      tmp.add("```\nvar ${cleanName(name).toLowerCase()} = new ${cleanName(name).toLowerCase()}client.${capitalize(name)}();\n```\n");
+      tmp.write("```\nvar ${cleanName(name).toLowerCase()} = new ${cleanName(name).toLowerCase()}client.${capitalize(name)}();\n```\n");
 
-      tmp.add("\n");
+      tmp.write("\n");
     });
 
-    tmp.add("### Licenses\n\n```\n");
-    tmp.add(createLicense());
-    tmp.add("```\n");
+    tmp.write("### Licenses\n\n```\n");
+    tmp.write(createLicense());
+    tmp.write("```\n");
     return tmp.toString();
   };
 
