@@ -28,16 +28,16 @@ Future<String> promptPassword() {
   var completer = new Completer<String>();
   
   // @damondouglas replacing 30 stdout.writeString:
-  stdout.addString("Warning: If you didn't run this via run_update.sh your password will be displayed here until Dart has tty control.\n");
-  stdout.addString("Watch your back...\n");
-  stdout.addString("GitHub password for $gituser: ");
+  stdout.write("Warning: If you didn't run this via run_update.sh your password will be displayed here until Dart has tty control.\n");
+  stdout.write("Watch your back...\n");
+  stdout.write("GitHub password for $gituser: ");
 
   // @damondouglas replacing 29 var stream = new StringInputStream(stdin); stream.onLine:
   stdin.listen((data){
     
     // scroll password out of view just in case...
     // @damondouglas replacing 38 stdout.writeString:
-    stdout.addString("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+    stdout.write("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
     
     // @damondouglas replacing 35 var str = stream.readLine():
     var str = new String.fromCharCodes(data);
@@ -68,7 +68,7 @@ Future<String> gitHubLogin() {
       request.headers.set(HttpHeaders.CONTENT_LENGTH, "${data.length}");
       
       // @damondouglas replacing 58 request.outputStream.writeString(data);
-      request.addString(data);
+      request.write(data);
       
       // @damondouglas replacing 63 connection.onResponse = (HttpClientResponse response) part 2 of 3:
       response = request.response;
@@ -269,7 +269,7 @@ Future<bool> createRepository(String name, String version, String gitname) {
     request.headers.set(HttpHeaders.CONTENT_LENGTH, "${data.length}");
     
     // @damondouglas replacing 201 request.outputStream.writeString(data);
-    request.addString(data);
+    request.write(data);
     
     // @damondouglas replacing 205 connection.onResponse = (HttpClientResponse response) part 2 of 3:
     response = request.response;
@@ -426,7 +426,7 @@ Future<bool> publish(String gitname) {
       // @damondouglas replacing 308 var s = new String.fromCharCodes(p.stdout.read()):
       var s = new String.fromCharCodes(data);
       
-      stdoutBuffer.add(s);
+      stdoutBuffer.write(s);
       
       if (pubVerbose) {
         print(s);
@@ -434,11 +434,11 @@ Future<bool> publish(String gitname) {
       
       if (stdoutBuffer.toString().contains(r"Are you ready to upload your package")) {
         // @damondouglas replacing 315 p.stdin.writeString('y\n'):
-        p.stdin.addString('y\n');
+        p.stdin.write('y\n');
         
       } else if (stdoutBuffer.toString().contains(r"warnings. Upload anyway")) {
         // @damondouglas replacing 317 p.stdin.writeString('y\n'):
-        p.stdin.addString('y\n');
+        p.stdin.write('y\n');
       }
       
     });
@@ -578,13 +578,13 @@ void handleAPIs(List apis, {retry: false}) {
         List completedSummary = completedUpload.map((api) => 'COMPLETED: ${api["name"]}, ${api["version"]}, ${api["gitname"]}\n');
         print("------------------------------------------------");
         print("Completed Summary");
-        sb.addAll(completedSummary);
+        sb.writeAll(completedSummary);
         print(sb.toString());
         sb = new StringBuffer();
 
         if ((retryRequest || retryAuto) && failedUpload.length > 1) {
           List failedSummary = failedUpload.map((api) => 'FAILED: ${api["name"]}, ${api["version"]}, ${api["gitname"]}\n');
-          sb.addAll(failedSummary);
+          sb.writeAll(failedSummary);
           print("------------------------------------------------");
           print("Failed Summary");
           print(sb.toString());
