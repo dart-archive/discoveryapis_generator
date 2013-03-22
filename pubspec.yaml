@@ -4,6 +4,13 @@ authors:
 - Gerwin Sturm <scarygami@gmail.com>
 - Adam Singer <financeCoding@gmail.com>
 description: Create API Client libraries based on the API's Discovery documentation
+environment:
+  sdk: '>=0.4.2+8.r20259'
+dev_dependencies:
+  bot: '>=0.16.0'
 dependencies:
-  bot: any
-  args: any
+  unittest: '>=0.4.2'
+  args: '>=0.4.2'
+  logging: '>=0.4.2+1'
+  pathos: '>=0.4.2'
+  meta: '>=0.4.2'
