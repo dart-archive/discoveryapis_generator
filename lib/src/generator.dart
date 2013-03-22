@@ -1,6 +1,9 @@
 part of discovery_api_client_generator;
 
 const String clientVersion = "0.1";
+const String dartEnvironmentVersionConstraint = '>=0.4.2+8.r20259';
+const String jsDependenciesVersionConstraint = '>=0.0.18';
+const String googleOAuth2ClientVersionConstraint = '>=0.2.5';
 
 class Generator {
   String _data;
@@ -154,10 +157,11 @@ homepage: https://github.com/dart-gde/discovery_api_dart_client_generator
 authors:
 - Gerwin Sturm <scarygami@gmail.com>
 - Adam Singer <financeCoding@gmail.com>
-
+environment:
+  sdk: '${dartEnvironmentVersionConstraint}'
 dependencies:
-  js: '>=0.0.14'
-  google_oauth2_client: '>=0.2.1'
+  js: '${jsDependenciesVersionConstraint}'
+  google_oauth2_client: '${googleOAuth2ClientVersionConstraint}'
 """;
   }
 

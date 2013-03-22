@@ -1,7 +1,4 @@
 part of discovery_api_client_generator;
-final String dartEnvironmentVersionConstraint = '>=0.4.2+8.r20259';
-final String jsDependenciesVersionConstraint = '>=0.0.18';
-final String googleOAuth2ClientVersionConstraint = '>=0.2.5';
 
 void createFullClient(Map apis, String outputDirectory) {
 
