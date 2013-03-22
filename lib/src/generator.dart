@@ -888,17 +888,17 @@ abstract class Client {
       contentType = "application/octet-stream";
     }
     multiPartBody
-    ..add(_delimiter)
-    ..add("Content-Type: application/json\\r\\n\\r\\n")
-    ..add(body)
-    ..add(_delimiter)
-    ..add("Content-Type: ")
-    ..add(contentType)
-    ..add("\\r\\n")
-    ..add("Content-Transfer-Encoding: base64\\r\\n")
-    ..add("\\r\\n")
-    ..add(content)
-    ..add(_closeDelim);
+    ..write(_delimiter)
+    ..write("Content-Type: application/json\\r\\n\\r\\n")
+    ..write(body)
+    ..write(_delimiter)
+    ..write("Content-Type: ")
+    ..write(contentType)
+    ..write("\\r\\n")
+    ..write("Content-Transfer-Encoding: base64\\r\\n")
+    ..write("\\r\\n")
+    ..write(content)
+    ..write(_closeDelim);
 
     return request(requestUrl, method, body: multiPartBody.toString(), contentType: "multipart/mixed; boundary=\\"\$_boundary\\"", urlParams: urlParams, queryParams: queryParams);
   }
