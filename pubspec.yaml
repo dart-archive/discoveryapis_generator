@@ -4,6 +4,6 @@ authors:
 - Gerwin Sturm <scarygami@gmail.com>
 - Adam Singer <financeCoding@gmail.com>
 description: Create API Client libraries based on the API's Discovery documentation
-
 dependencies:
+  bot: any
   args: any
