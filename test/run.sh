@@ -1,41 +1,53 @@
 #!/bin/bash
 
-set -e
-
-#####
-# Unit Tests
-
-# Disabled unit tests for now just doing type analysis
-#echo "DumpRenderTree test/test_runner_headless.html"
-#results=`DumpRenderTree test/test_runner_headless.html 2>&1`
-
-#echo "$results" | grep CONSOLE
-
-#echo $results | grep 'unittest-suite-success' >/dev/null
-
-#echo $results | grep -v 'Exception: Some tests failed.' >/dev/null
-
 #####
 # Type Analysis
 
-echo
-echo "dart_analyzer bin/*.dart"
-results=`dart_analyzer bin/*.dart 2>&1`
-echo "$results"
-
-if [ -n "$results" ]; then
-    exit 1
-else
-    echo "Passed bin/ analysis."
-fi
+ANA="dart_analyzer --enable_type_checks --fatal-type-errors --extended-exit-code --type-checks-for-inferred-types --incremental"
 
 echo
-echo "dart_analyzer lib/*.dart"
-results=`dart_analyzer lib/*.dart 2>&1`
-echo "$results"
+echo "Type Analysis, running dart_analyzer..."
 
-if [ -n "$results" ]; then
-    exit 1
-else
-    echo "Passed lib/ analysis."
-fi
+EXITSTATUS=0
+
+####
+# test files one at a time
+#
+for file in lib/*.dart
+do
+  results=`$ANA $file 2>&1`
+  if [ -n "$results" ]; then
+    EXITSTATUS=1
+    echo "$results"
+    echo "$file: FAILURE."
+  else
+    echo "$file: Passed analysis."
+  fi
+done
+
+exit $EXITSTATUS
+
+# This application is not ready until dependencies are updated. 
+GENERATED_OUTPUT_DIR=./ci_api_test
+
+dart bin/generate.dart --all --output ${GENERATED_OUTPUT_DIR}
+for package in ${GENERATED_OUTPUT_DIR}/*
+do
+	if [ -d "$package" ]; then
+		pub_result=`pushd $package && pub install && popd`
+		cmd="$ANA --package-root $package/packages"
+		files="${package}/lib/*.dart"
+		for file in $files
+		do
+			#echo $cmd $file
+			results=`$cmd $file 2>&1`
+			if [ -n "$results" ]; then
+			    EXITSTATUS=1
+			    echo "$results"
+			    echo "$file: FAILURE."
+			else
+			    echo "$file: Passed analysis."
+			fi
+		done
+	fi
+done
