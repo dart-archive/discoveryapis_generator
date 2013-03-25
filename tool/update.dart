@@ -27,20 +27,16 @@ List<String> uploaders = ["scarygami@gmail.com", "financeCoding@gmail.com"];
 Future<String> promptPassword() {
   var completer = new Completer<String>();
   
-  // @damondouglas replacing 30 stdout.writeString:
   stdout.write("Warning: If you didn't run this via run_update.sh your password will be displayed here until Dart has tty control.\n");
   stdout.write("Watch your back...\n");
   stdout.write("GitHub password for $gituser: ");
 
-  // @damondouglas replacing 29 var stream = new StringInputStream(stdin); stream.onLine:
   stdin.listen((data){
     
     // scroll password out of view just in case...
-    // @damondouglas replacing 38 stdout.writeString:
     stdout.write("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
     
-    // @damondouglas replacing 35 var str = stream.readLine():
-    var str = new String.fromCharCodes(data);
+    var str = new String.fromCharCodes(data).replaceAll("\r", "").replaceAll("\n", "");
     
     completer.complete(str);
   });
@@ -55,70 +51,43 @@ Future<String> gitHubLogin() {
 
     client.addCredentials(Uri.parse("https://api.github.com/authorizations"), "realm", new HttpClientBasicCredentials(gituser, pw));
 
-    // @damondouglas replacing 51 HttpClientConnection connection:
     Future<HttpClientRequest> connection = client.openUrl("POST", Uri.parse("https://api.github.com/authorizations"));
-
-    // @damondouglas replacing 63 connection.onResponse = (HttpClientResponse response) part 1 of 3:
-    Future<HttpClientResponse> response;
     
-    // On connection request set the content type and key if available.
-    connection.then((request){
-      var data = JSON.stringify({"scopes":["repo"],"note":"API Client Generator"});
-      request.headers.set(HttpHeaders.CONTENT_TYPE, "application/json");
-      request.headers.set(HttpHeaders.CONTENT_LENGTH, "${data.length}");
-      
-      // @damondouglas replacing 58 request.outputStream.writeString(data);
-      request.write(data);
-      
-      // @damondouglas replacing 63 connection.onResponse = (HttpClientResponse response) part 2 of 3:
-      response = request.response;
-      
-      // @damondouglas replacing 59 request.outputStream.close();
-      request.close();
-
-      
-      // @damondouglas replacing 87 connection.onError
-      // Handle post error
-    }, onError:(error){
-      
-      completer.completeError(new HttpException("$error"));
-      
-    });
-    
-    // @damondouglas replacing 63 connection.onResponse = (HttpClientResponse response) part 3 of 3
-    // On connection response read in data from stream, on close parse as json and return.
-    response.then((response){
-      StringBuffer onResponseBody = new StringBuffer();
-      
-      // @damondouglas replacing 66 stream.onData:
-      response.listen((data){
+    connection
+      .then((request){
+        var data = JSON.stringify({"scopes":["repo"],"note":"API Client Generator"});
+        request.headers.set(HttpHeaders.CONTENT_TYPE, "application/json");
+        request.headers.set(HttpHeaders.CONTENT_LENGTH, "${data.length}");
         
-        // @damondouglas replacing 67 onResponseBody.add(stream.read()):
-        onResponseBody.write(new String.fromCharCodes(data));
-      
-        // @damondouglas replacing 80 stream.onError:
-      // Handle stream error
-      }, onError:(error){
-      
-        //@damondouglas replacing 81 completer.completeError(new StreamException("$error")):
-        completer.completeError(new AsyncError("$error"));
-      
-        //@damondouglas replacing 70 stream.onClosed:
-      }, onDone:(){
-      
-        if (response.statusCode == 201) {
-          completer.complete(onResponseBody.toString());
-        } else {
-          completer.completeError(new HttpException("Error ${response.statusCode}: $onResponseBody"));
-        }
-        
-        // @damondouglas replacing 76 client.shutdown():
-        client.close();
-      
+        request.write(data);
+        request.response
+          .then((response) {
+            StringBuffer onResponseBody = new StringBuffer();
+            response.listen(
+              (data) {
+                onResponseBody.write(new String.fromCharCodes(data));
+              },
+              onError: (error) {
+                completer.completeError(new AsyncError("$error"));
+              },
+              onDone: () {
+                if (response.statusCode == 201) {
+                  completer.complete(onResponseBody.toString());
+                } else {
+                  completer.completeError(new HttpException("Error ${response.statusCode}: $onResponseBody"));
+                }
+                client.close();
+              }
+            );
+          })
+          .catchError((error) {
+            completer.completeError(new AsyncError("$error"));
+          });
+        request.close();
+      })
+      .catchError((error) {
+        completer.completeError(new HttpException("$error"));
       });
-      
-    });
-      
   });
   
   return completer.future;
@@ -128,71 +97,42 @@ Future<String> gitHubLogin() {
 
 Future<bool> checkCredentials(String token) {
   var completer = new Completer<bool>();
-
   var client = new HttpClient();
-  
-  // @damondouglas replacing 97 var connection:
+ 
   Future<HttpClientRequest> connection = client.openUrl("GET", Uri.parse("https://api.github.com/user/repos"));
 
-  // @damondouglas replacing 104 connection.onResponse = (HttpClientResponse response) part 1 of 3:
-  Future<HttpClientResponse> response;
-  
-  // @damondouglas replacing 99 connection.onRequest:
   connection.then((request){
     request.headers.set(HttpHeaders.AUTHORIZATION, "token $token");
     
-    // @damondouglas replacing 104 connection.onResponse = (HttpClientResponse response) part 2 of 3:
-    response = request.response;
-    
-    // @damondouglas replacing 101 request.outputStream.close():
+    request.response.then((response) {
+      response.listen((data) {
+          // No need to read data, response.statusCode is enough
+        },
+        onError: (error) {
+          completer.completeError(new AsyncError("$error"));
+        },
+        onDone: () {
+          if (response.statusCode == 200) {
+            print("GitHub authentication successful.");
+            completer.complete(true);
+          } else {
+            print("GitHub authentication failed.");
+            completer.complete(false);
+          }
+          client.close();
+        }
+      );
+    }, onError:(error){
+      completer.completeError(new HttpException("$error"));
+    });
+
     request.close();
     
-    // @damondouglas replacing 121 connection.onError:
-  }, onError:(error){
-    
-    completer.completeError(new HttpException("$error"));
-    
-  });
-  
-  // @damondouglas replacing 104 connection.onResponse = (HttpClientResponse response) part 3 of 3:
-  response.then((response){
-    
-    response.listen((data){
-      
-      // @damondouglas left this blank because didn't see anything happen with:
-      // 107 stream.onData = () => stream.read();
-      
-      // @damondouglas replacing 121 stream.onError:
-      // Handle stream error
-    }, onError:(error){
-      
-      // @damondouglas replacing 122 completer.completeError(new StreamException("$error")):
-      completer.completeError(new AsyncError("$error"));
-      
-      // @damondouglas replacing 109 stream.onClosed:
-    }, onDone:(){
-      
-      if (response.statusCode == 200) {
-        print("GitHub authentication successful.");
-        completer.complete(true);
-      } else {
-        print("GitHub authentication failed.");
-        completer.complete(false);
-      }
-      
-      // @damondouglas replacing 117 client.shutdown():
-      client.close();
-      
-    });
-    
-    // @damondouglas replacing 127 connection.onError:
-    // Handle post error
   }, onError:(error){
     completer.completeError(new HttpException("$error"));
   });
   
   return completer.future;
-  
 }
 
 Future<String> getCredentials() {
@@ -250,13 +190,8 @@ Future<bool> createRepository(String name, String version, String gitname) {
     url = "https://api.github.com/user/repos";
   }
 
-  // @damondouglas replacing 189 var connection:
   Future<HttpClientRequest> connection = client.openUrl("POST", Uri.parse(url));
 
-  // @damondouglas replacing 205 connection.onResponse = (HttpClientResponse response) part 1 of 3:
-  Future<HttpClientResponse> response;
-  
-  // @damondouglas replacing 191 connection.onRequest:
   connection.then((request){
     var data = JSON.stringify(
         {
@@ -268,54 +203,34 @@ Future<bool> createRepository(String name, String version, String gitname) {
     request.headers.set(HttpHeaders.CONTENT_TYPE, "application/json");
     request.headers.set(HttpHeaders.CONTENT_LENGTH, "${data.length}");
     
-    // @damondouglas replacing 201 request.outputStream.writeString(data);
     request.write(data);
     
-    // @damondouglas replacing 205 connection.onResponse = (HttpClientResponse response) part 2 of 3:
-    response = request.response;
-    
-    // @damondouglas replacing 202 request.outputStream.close();
+    request.response.then((response){
+      
+      StringBuffer onResponseBody = new StringBuffer();
+      
+      response.listen((data){
+        onResponseBody.write(new String.fromCharCodes(data));
+      }, onError:(error){
+        completer.completeError(new AsyncError("$error"));
+      }, onDone:(){
+        if (response.statusCode == 201) {
+          print("Repository $gitname created successfully.");
+          completer.complete(true);
+        } else {
+          print (onResponseBody.toString());
+          print("Unable to create repository $gitname.");
+          completer.complete(false);
+        }
+        client.close();
+      });
+    }, onError: (error) {
+      completer.completeError(new AsyncError("$error"));
+    });
     request.close();
     
-  }, onError:(error){});
-  
-  // @damondouglas replacing 205 connection.onResponse = (HttpClientResponse response) part 3 of 3:
-  response.then((response){
-    
-    StringBuffer onResponseBody = new StringBuffer();
-    
-    // @damondouglas replacing 209 stream.onData:
-    response.listen((data){
-      
-      // @damondouglas replacing 210 onResponseBody.add(stream.read()):
-      onResponseBody.write(new String.fromCharCodes(data));
-      
-    }, onError:(error){
-      
-      // @damondouglas replacing 213 stream.onClosed:
-    }, onDone:(){
-      
-      if (response.statusCode == 201) {
-        print("Repository $gitname created successfully.");
-        completer.complete(true);
-      } else {
-        print (onResponseBody.toString());
-        print("Unable to create repository $gitname.");
-        completer.complete(false);
-      }
-      
-      // @damondouglas replacing 222 client.shutdown():
-      client.close();
-    
-    });
-    
-    // @damondouglas replacing 226 stream.onError:
-    // Handle stream error
-  }, onError:(error){
-    
-    // @damondouglas replacing 227 completer.completeError(new StreamException("$error")):
+  }, onError: (error) {
     completer.completeError(new AsyncError("$error"));
-    
   });
 
   return completer.future;
@@ -325,65 +240,40 @@ Future<bool> findRepository(String name, String version, String gitname) {
   var completer = new Completer<bool>();
   var client = new HttpClient();
   
-  // @damondouglas replacing 242 var connection:
   Future<HttpClientRequest> connection = client.openUrl("GET", Uri.parse("https://api.github.com/repos/$repouser/$gitname"));
 
-  // @damondouglas replacing 249 connection.onResponse = (HttpClientResponse response) part 1 of 3:
-  Future<HttpClientResponse> response;
-  
-  // @damondouglas replacing 244 connection.onRequest:
   connection.then((request){
     
     request.headers.set(HttpHeaders.AUTHORIZATION, "token $token");
     
-    // @damondouglas replacing 249 connection.onResponse = (HttpClientResponse response) part 2 of 3:
-    response = request.response;
-    
-    // @damondouglas replacing 246 request.outputStream.close():
+    request.response.then((response){
+      
+      response.listen((data){
+        // No need to read data, response.statusCode is enough
+      }, onError:(error){
+        completer.completeError(new AsyncError("$error"));
+      }, onDone:(){
+        if (response.statusCode == 200) {
+          print("Repository $gitname found.");
+          completer.complete(true);
+        } else {
+          if (response.statusCode == 404) {
+            print("Repository $gitname not found. Attempting to create it...");
+            createRepository(name, version, gitname).then((success) => completer.complete(success));
+          } else {
+            completer.complete(false);
+          }
+        }
+        client.close();
+      });
+    }, onError:(error){
+      completer.completeError(new HttpException("$error"));
+    });
     request.close();
-    
-    // @damondouglas replacing 276 connection.onError:
-    // Handle post error
   }, onError:(error){
     completer.completeError(new HttpException("$error"));
   });
 
-  // @damondouglas replacing 249 connection.onResponse = (HttpClientResponse response) part 3 of 3:
-  response.then((response){
-    
-    response.listen((data){
-      
-      // @damondouglas left empty as 252 stream.onData = () => stream.read()
-      
-      
-      // @damondouglas replacing 270 stream.onError:
-    }, onError:(error){
-      
-      // @damondouglas replacing 271 completer.completeError(new StreamException("$error")):
-      completer.completeError(new AsyncError("$error"));
-      
-      // @damondouglas replacing 254 stream.onClosed:
-    }, onDone:(){
-      
-      if (response.statusCode == 200) {
-        print("Repository $gitname found.");
-        completer.complete(true);
-      } else {
-        if (response.statusCode == 404) {
-          print("Repository $gitname not found. Attempting to create it...");
-          createRepository(name, version, gitname).then((success) => completer.complete(success));
-        } else {
-          completer.complete(false);
-        }
-      }
-      
-      // @damondouglas replacing 266 client.shutdown():
-      client.close();
-      
-    });
-    
-  });
-  
   return completer.future;
 }
 
@@ -575,7 +465,7 @@ void handleAPIs(List apis, {retry: false}) {
 
       if (apis.length == 0) {
         StringBuffer sb = new StringBuffer();
-        List completedSummary = completedUpload.map((api) => 'COMPLETED: ${api["name"]}, ${api["version"]}, ${api["gitname"]}\n');
+        var completedSummary = completedUpload.map((api) => 'COMPLETED: ${api["name"]}, ${api["version"]}, ${api["gitname"]}\n');
         print("------------------------------------------------");
         print("Completed Summary");
         sb.writeAll(completedSummary);
@@ -597,12 +487,12 @@ void handleAPIs(List apis, {retry: false}) {
             stdin.listen((data){
               
               // @damondouglas replacing 466 String retry = new String.fromCharCodes(r):
-              String retry = new String.fromCharCodes(data);
+              String retry = new String.fromCharCodes(data).replaceAll("\r", "").replaceAll("\n", "");
               
               if (retry[0].toLowerCase() == 'y') {
                 handleAPIs(failedUpload, retry: true);
               }
-              
+
               // @damondouglas not sure how to handle 470 stdin.onData = null
               
             }, onError:(error){});
