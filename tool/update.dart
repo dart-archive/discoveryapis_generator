@@ -297,6 +297,8 @@ Future<bool> publish(String gitname) {
     });
     
     StringBuffer stdoutBuffer = new StringBuffer();
+    bool calledReady = false;
+    bool calledWarnings = false;
     p.stdout.transform(new StringDecoder()).listen((String data) {
       stdoutBuffer.write(data);
       
@@ -305,10 +307,15 @@ Future<bool> publish(String gitname) {
       }
       
       if (stdoutBuffer.toString().contains(r"Are you ready to upload your package")) {
-        p.stdin.write('y\n');
-        
+        if (!calledReady) {
+          calledReady = true;
+          p.stdin.write('y\n');
+        }
       } else if (stdoutBuffer.toString().contains(r"warnings. Upload anyway")) {
-        p.stdin.write('y\n');
+        if (!calledWarnings) {
+          calledWarnings = true;
+          p.stdin.write('y\n');
+        }
       }
       
     });
