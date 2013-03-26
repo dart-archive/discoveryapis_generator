@@ -7,7 +7,7 @@ description: Create API Client libraries based on the API's Discovery documentat
 environment:
   sdk: '>=0.4.3+1.r20444'
 dev_dependencies:
-  bot: '>=0.16.0'
+  bot: '>=0.16.0 <0.17.0'
 dependencies:
   unittest: '>=0.4.2'
   args: '>=0.4.2'
