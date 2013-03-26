@@ -26,20 +26,22 @@ List<String> uploaders = ["scarygami@gmail.com", "financeCoding@gmail.com"];
 
 Future<String> promptPassword() {
   var completer = new Completer<String>();
+  StreamSubscription stdinSubscription;
   
   stdout.write("Warning: If you didn't run this via run_update.sh your password will be displayed here until Dart has tty control.\n");
   stdout.write("Watch your back...\n");
   stdout.write("GitHub password for $gituser: ");
 
-  stdin.listen((data){
-    
-    // scroll password out of view just in case...
-    stdout.write("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
-    
-    var str = new String.fromCharCodes(data).replaceAll("\r", "").replaceAll("\n", "");
-    
-    completer.complete(str);
-  });
+  stdinSubscription = stdin
+      .transform(new StringDecoder())
+      .transform(new LineTransformer())
+      .listen((String line){
+        stdinSubscription.cancel();
+        // scroll password out of view just in case...
+        stdout.write("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+        var str = line.replaceAll("\r", "").replaceAll("\n", "");
+        completer.complete(str);
+      });
   
   return completer.future;
 }
@@ -64,13 +66,9 @@ Future<String> gitHubLogin() {
         request.response
           .then((response) {
             StringBuffer onResponseBody = new StringBuffer();
-            response.listen(
-              (data) {
-                onResponseBody.write(new String.fromCharCodes(data));
-              },
-              onError: (error) {
-                completer.completeError(new AsyncError("$error"));
-              },
+            response.transform(new StringDecoder())
+              .listen((String data) => onResponseBody.write(data),
+              onError: (error) => completer.completeError(new AsyncError("$error")),
               onDone: () {
                 if (response.statusCode == 201) {
                   completer.complete(onResponseBody.toString());
@@ -78,8 +76,7 @@ Future<String> gitHubLogin() {
                   completer.completeError(new HttpException("Error ${response.statusCode}: $onResponseBody"));
                 }
                 client.close();
-              }
-            );
+              });
           })
           .catchError((error) {
             completer.completeError(new AsyncError("$error"));
@@ -92,7 +89,6 @@ Future<String> gitHubLogin() {
   });
   
   return completer.future;
-
 }
 
 
@@ -210,21 +206,20 @@ Future<bool> createRepository(String name, String version, String gitname) {
       
       StringBuffer onResponseBody = new StringBuffer();
       
-      response.listen((data){
-        onResponseBody.write(new String.fromCharCodes(data));
-      }, onError:(error){
-        completer.completeError(new AsyncError("$error"));
-      }, onDone:(){
-        if (response.statusCode == 201) {
-          print("Repository $gitname created successfully.");
-          completer.complete(true);
-        } else {
-          print (onResponseBody.toString());
-          print("Unable to create repository $gitname.");
-          completer.complete(false);
-        }
-        client.close();
-      });
+      response.transform(new StringDecoder()).listen(
+          (String data) => onResponseBody.write(data), 
+          onError: (error) => completer.completeError(new AsyncError("$error")), 
+          onDone:() {
+            if (response.statusCode == 201) {
+              print("Repository $gitname created successfully.");
+              completer.complete(true);
+            } else {
+              print (onResponseBody.toString());
+              print("Unable to create repository $gitname.");
+              completer.complete(false);
+            }
+            client.close();
+          });
     }, onError: (error) {
       completer.completeError(new AsyncError("$error"));
     });
@@ -293,22 +288,20 @@ Future<bool> publish(String gitname) {
   Process.start("pub", arguments, options)
   ..then((p) {
     StringBuffer stderrBuffer = new StringBuffer();
-    p.stderr.listen((data){
-      var s = new String.fromCharCodes(data);
-      stderrBuffer.write(s);
+    p.stderr.transform(new StringDecoder()).listen((String data) {
+      stderrBuffer.write(data);
       
       if (pubVerbose) {
-        print(s);
+        print(data);
       }
     });
     
     StringBuffer stdoutBuffer = new StringBuffer();
-    p.stdout.listen((data){
-      var s = new String.fromCharCodes(data);
-      stdoutBuffer.write(s);
+    p.stdout.transform(new StringDecoder()).listen((String data) {
+      stdoutBuffer.write(data);
       
       if (pubVerbose) {
-        print(s);
+        print(data);
       }
       
       if (stdoutBuffer.toString().contains(r"Are you ready to upload your package")) {
@@ -320,7 +313,7 @@ Future<bool> publish(String gitname) {
       
     });
     
-    p.exitCode.then((code){
+    p.exitCode.then((code) {
       if (pubVerbose) {
         print("onExit: pub publish");
       }
@@ -335,7 +328,7 @@ Future<bool> publish(String gitname) {
         print("Could not tell if package was uploaded or error happened.");
         completer.complete(false);
       }
-    },onError:(error){
+    },onError: (error) {
       print("catchError = $error");
       completer.completeError(error);
     });
@@ -432,7 +425,6 @@ Future handleAPI(String name, String version, String gitname, {retry: false}) {
 
 // Force synchronous handling of APIs to prevent API Rate limits and processor overload
 void handleAPIs(List apis, {retry: false}) {
-
   if (apis.length > 0) {
     var api = apis.removeAt(0);
     print(api["gitname"]);
@@ -463,15 +455,20 @@ void handleAPIs(List apis, {retry: false}) {
             handleAPIs(failedUpload, retry: true);
           } else {
             print("Retry Failed Upload (y)?");
-            stdin.listen((data){
-              String retry = new String.fromCharCodes(data).replaceAll("\r", "").replaceAll("\n", "");
-              
-              if (retry[0].toLowerCase() == 'y') {
-                handleAPIs(failedUpload, retry: true);
-              }
-              
-            }, onError:(error){});
-            
+            StreamSubscription stdinSubscription;
+            stdinSubscription = stdin
+                .transform(new StringDecoder())
+                .transform(new LineTransformer())
+                .listen((String line) {
+                  stdinSubscription.cancel();
+                  String retry = line.replaceAll("\r", "").replaceAll("\n", "");
+                  
+                  if (retry[0].toLowerCase() == 'y') {
+                    handleAPIs(failedUpload, retry: true);
+                  }
+                }, onError: (error){
+                  print("Retry failed onError: ${error}");
+                });
           }
         } 
       } else {
