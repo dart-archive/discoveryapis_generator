@@ -48,14 +48,15 @@ Future<String> gitHubLogin() {
   var completer = new Completer<String>();
   promptPassword().then((pw) {
     var client = new HttpClient();
+    var githubAuthorizationUri = Uri.parse("https://api.github.com/authorizations");
 
-    client.addCredentials(Uri.parse("https://api.github.com/authorizations"), "realm", new HttpClientBasicCredentials(gituser, pw));
+    client.addCredentials(githubAuthorizationUri, "realm", new HttpClientBasicCredentials(gituser, pw));
 
-    Future<HttpClientRequest> connection = client.openUrl("POST", Uri.parse("https://api.github.com/authorizations"));
+    Future<HttpClientRequest> connection = client.openUrl("POST", githubAuthorizationUri);
     
     connection
       .then((request){
-        var data = JSON.stringify({"scopes":["repo"],"note":"API Client Generator"});
+        var data = JSON.stringify({"scopes": ["repo"], "note": "API Client Generator"});
         request.headers.set(HttpHeaders.CONTENT_TYPE, "application/json");
         request.headers.set(HttpHeaders.CONTENT_LENGTH, "${data.length}");
         
@@ -182,7 +183,7 @@ Future<String> getCredentials() {
 Future<bool> createRepository(String name, String version, String gitname) {
   var completer = new Completer<bool>();
   var client = new HttpClient();
-  var url;
+  String url;
 
   if (gituser != repouser) {
     url = "https://api.github.com/orgs/$repouser/repos";
@@ -292,30 +293,18 @@ Future<bool> publish(String gitname) {
   Process.start("pub", arguments, options)
   ..then((p) {
     StringBuffer stderrBuffer = new StringBuffer();
-    
-    // @damondouglas replacing 298 p.stderr.onData:
     p.stderr.listen((data){
-      
-      // @damondouglas replacing 299 var s = new String.fromCharCodes(p.stderr.read()):
       var s = new String.fromCharCodes(data);
-      
-      // @damondouglas replacing 300 stderrBuffer.add(s):
       stderrBuffer.write(s);
       
       if (pubVerbose) {
         print(s);
       }
-      
     });
     
     StringBuffer stdoutBuffer = new StringBuffer();
-    
-    // @damondouglas replacing 307 p.stdout.onData:
     p.stdout.listen((data){
-      
-      // @damondouglas replacing 308 var s = new String.fromCharCodes(p.stdout.read()):
       var s = new String.fromCharCodes(data);
-      
       stdoutBuffer.write(s);
       
       if (pubVerbose) {
@@ -323,17 +312,14 @@ Future<bool> publish(String gitname) {
       }
       
       if (stdoutBuffer.toString().contains(r"Are you ready to upload your package")) {
-        // @damondouglas replacing 315 p.stdin.writeString('y\n'):
         p.stdin.write('y\n');
         
       } else if (stdoutBuffer.toString().contains(r"warnings. Upload anyway")) {
-        // @damondouglas replacing 317 p.stdin.writeString('y\n'):
         p.stdin.write('y\n');
       }
       
     });
     
-    // @damondouglas replacing 320 p.onExit = (code):
     p.exitCode.then((code){
       if (pubVerbose) {
         print("onExit: pub publish");
@@ -349,11 +335,6 @@ Future<bool> publish(String gitname) {
         print("Could not tell if package was uploaded or error happened.");
         completer.complete(false);
       }
-
-      // @damondouglas do we still need 336?:
-      //p.stdout.close();
-      
-      // @damondouglas replacing 339 ..catchError((error):
     },onError:(error){
       print("catchError = $error");
       completer.completeError(error);
@@ -482,18 +463,12 @@ void handleAPIs(List apis, {retry: false}) {
             handleAPIs(failedUpload, retry: true);
           } else {
             print("Retry Failed Upload (y)?");
-            
-            // @damondouglas replacing 464 stdin.onData:
             stdin.listen((data){
-              
-              // @damondouglas replacing 466 String retry = new String.fromCharCodes(r):
               String retry = new String.fromCharCodes(data).replaceAll("\r", "").replaceAll("\n", "");
               
               if (retry[0].toLowerCase() == 'y') {
                 handleAPIs(failedUpload, retry: true);
               }
-
-              // @damondouglas not sure how to handle 470 stdin.onData = null
               
             }, onError:(error){});
             
@@ -579,7 +554,7 @@ void main() {
   parser.addFlag("retry-auto", help: "Auto retry failed uploads", defaultsTo: false, negatable: false);
   parser.addFlag("help", abbr: "h", help: "Display this information and exit", negatable: false);
 
-  var result;
+  ArgResults result;
   try {
     result = parser.parse(options.arguments);
   } on FormatException catch(e) {
