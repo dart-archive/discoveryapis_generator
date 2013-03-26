@@ -5,7 +5,7 @@ authors:
 - Adam Singer <financeCoding@gmail.com>
 description: Create API Client libraries based on the API's Discovery documentation
 environment:
-  sdk: '>=0.4.2+8.r20259'
+  sdk: '>=0.4.3+1.r20444'
 dev_dependencies:
   bot: '>=0.16.0'
 dependencies:
