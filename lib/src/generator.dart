@@ -363,7 +363,7 @@ part "$srcFolder/console/$_name.dart";
     if (_json.containsKey("methods")) {
       _json["methods"].forEach((key, method) {
         tmp.write("\n");
-        tmp.write(_createMethod(key, method));
+        tmp.write(_createMethod(key, method, true));
       });
     }
 
@@ -435,7 +435,7 @@ part "$srcFolder/console/$_name.dart";
     if (_json.containsKey("methods")) {
       _json["methods"].forEach((key, method) {
         tmp.write("\n");
-        tmp.write(_createMethod(key, method));
+        tmp.write(_createMethod(key, method, true));
       });
     }
 
@@ -653,7 +653,7 @@ part "$srcFolder/console/$_name.dart";
   }
 
   /// Create a method with [name] inside of a class, based on [data]
-  String _createMethod(String name, Map data) {
+  String _createMethod(String name, Map data, [bool noResource = false]) {
     var tmp = new StringBuffer();
     var upload = false;
     var uploadPath;
@@ -792,12 +792,12 @@ part "$srcFolder/console/$_name.dart";
     tmp.write("    var response;\n");
     if (upload) {
       tmp.write("    if (?content && content != null) {\n");
-      tmp.write("      response = _client.upload(uploadUrl, \"${data["httpMethod"]}\", $uploadCall);\n");
+      tmp.write("      response = ${noResource ? "this" : "_client"}.upload(uploadUrl, \"${data["httpMethod"]}\", $uploadCall);\n");
       tmp.write("    } else {\n");
-      tmp.write("      response = _client.request(url, \"${data["httpMethod"]}\", $call);\n");
+      tmp.write("      response = ${noResource ? "this" : "_client"}.request(url, \"${data["httpMethod"]}\", $call);\n");
       tmp.write("    }\n");
     } else {
-      tmp.write("    response = _client.request(url, \"${data["httpMethod"]}\", $call);\n");
+      tmp.write("    response = ${noResource ? "this" : "_client"}.request(url, \"${data["httpMethod"]}\", $call);\n");
     }
 
     tmp.write("    response\n");
