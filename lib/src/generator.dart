@@ -486,13 +486,14 @@ part "$srcFolder/console/$_name.dart";
           }
         }
         if (type != null) {
+          String propName = cleanName(key);
           if (property.containsKey("description")) {
             tmp.write("\n  /** ${property["description"]} */\n");
           }
           if (array) {
-            tmp.write("  List<$type> $key;\n");
+            tmp.write("  List<$type> $propName;\n");
           } else {
-            tmp.write("  $type $key;\n");
+            tmp.write("  $type $propName;\n");
           }
         }
       });
@@ -530,21 +531,22 @@ part "$srcFolder/console/$_name.dart";
           }
         }
         if (type != null) {
+          String propName = cleanName(key);
           tmp.write("    if (json.containsKey(\"$key\")) {\n");
           if (array) {
-            tmp.write("      $key = [];\n");
+            tmp.write("      $propName = [];\n");
             tmp.write("      json[\"$key\"].forEach((item) {\n");
             if (object) {
-              tmp.write("        $key.add(new $type.fromJson(item));\n");
+              tmp.write("        $propName.add(new $type.fromJson(item));\n");
             } else {
-              tmp.write("        $key.add(item);\n");
+              tmp.write("        $propName.add(item);\n");
             }
             tmp.write("      });\n");
           } else {
             if (object) {
-              tmp.write("      $key = new $type.fromJson(json[\"$key\"]);\n");
+              tmp.write("      $propName = new $type.fromJson(json[\"$key\"]);\n");
             } else {
-              tmp.write("      $key = json[\"$key\"];\n");
+              tmp.write("      $propName = json[\"$key\"];\n");
             }
           }
           tmp.write("    }\n");
@@ -585,10 +587,11 @@ part "$srcFolder/console/$_name.dart";
           }
         }
         if (type != null) {
-          tmp.write("    if ($key != null) {\n");
+          String propName = cleanName(key);
+          tmp.write("    if ($propName != null) {\n");
           if (array) {
             tmp.write("      output[\"$key\"] = new List();\n");
-            tmp.write("      $key.forEach((item) {\n");
+            tmp.write("      $propName.forEach((item) {\n");
             if (object) {
               tmp.write("        output[\"$key\"].add(item.toJson());\n");
             } else {
@@ -597,9 +600,9 @@ part "$srcFolder/console/$_name.dart";
             tmp.write("      });\n");
           } else {
             if (object) {
-              tmp.write("      output[\"$key\"] = $key.toJson();\n");
+              tmp.write("      output[\"$key\"] = $propName.toJson();\n");
             } else {
-              tmp.write("      output[\"$key\"] = $key;\n");
+              tmp.write("      output[\"$key\"] = $propName;\n");
             }
           }
           tmp.write("    }\n");
