@@ -40,7 +40,10 @@ done
 # This application is not ready until dependencies are updated. 
 GENERATED_OUTPUT_DIR=output_drone
 rm -rf ${GENERATED_OUTPUT_DIR}
-dart bin/generate.dart --all --output ${GENERATED_OUTPUT_DIR}
+
+# NOTE: only test one package for now until we figure out a better strategy. 
+# dart bin/generate.dart --all --output ${GENERATED_OUTPUT_DIR}
+dart bin/generate.dart -a drive -v v2 --output ${GENERATED_OUTPUT_DIR}
 for package in ${GENERATED_OUTPUT_DIR}/*
 do
 	echo
@@ -74,10 +77,11 @@ do
 	fi
 done
 
+echo
 echo "####################################################"
 echo "PASSING = $PASSING"
 echo "WARNINGS = $WARNINGS"
 echo "FAILURES = $FAILURES"
 echo "####################################################"
-
+echo 
 exit $EXITSTATUS
