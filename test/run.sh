@@ -1,41 +1,87 @@
 #!/bin/bash
 
-set -e
-
-#####
-# Unit Tests
-
-# Disabled unit tests for now just doing type analysis
-#echo "DumpRenderTree test/test_runner_headless.html"
-#results=`DumpRenderTree test/test_runner_headless.html 2>&1`
-
-#echo "$results" | grep CONSOLE
-
-#echo $results | grep 'unittest-suite-success' >/dev/null
-
-#echo $results | grep -v 'Exception: Some tests failed.' >/dev/null
-
 #####
 # Type Analysis
 
-echo
-echo "dart_analyzer bin/*.dart"
-results=`dart_analyzer bin/*.dart 2>&1`
-echo "$results"
-
-if [ -n "$results" ]; then
-    exit 1
-else
-    echo "Passed bin/ analysis."
-fi
+ANA="dart_analyzer --enable_type_checks --fatal-type-errors --extended-exit-code --type-checks-for-inferred-types --incremental"
 
 echo
-echo "dart_analyzer lib/*.dart"
-results=`dart_analyzer lib/*.dart 2>&1`
-echo "$results"
+echo "Type Analysis, running dart_analyzer..."
 
-if [ -n "$results" ]; then
-    exit 1
-else
-    echo "Passed lib/ analysis."
+EXITSTATUS=0
+WARNINGS=0
+FAILURES=0
+PASSING=0
+
+####
+# test files one at a time
+#
+for file in lib/*.dart
+do
+  results=`$ANA $file 2>&1`
+  exit_code=$?
+  if [ $exit_code -eq 2 ]; then
+  	let FAILURES++
+    EXITSTATUS=1
+    echo "$results"
+    echo "$file: FAILURE."
+  elif [ $exit_code -eq 1 ]; then
+  	let WARNINGS++
+	echo "$results"
+    echo "$file: WARNING."
+  elif [ $exit_code -eq 0 ]; then
+  	let PASSING++
+	echo "$file: Passed analysis."
+  else 
+	echo "$file: exit code = $exit_code"
 fi
+done
+
+# This application is not ready until dependencies are updated. 
+GENERATED_OUTPUT_DIR=output_drone
+rm -rf ${GENERATED_OUTPUT_DIR}
+
+# NOTE: only test one package for now until we figure out a better strategy. 
+# dart bin/generate.dart --all --output ${GENERATED_OUTPUT_DIR}
+dart bin/generate.dart -a drive -v v2 --output ${GENERATED_OUTPUT_DIR}
+for package in ${GENERATED_OUTPUT_DIR}/*
+do
+	echo
+	echo "run dart_analyzer on $package"
+	if [ -d "$package" ]; then
+		pub_result=`pushd $package && pub install && popd`
+		# we relax the analyzer here cause the 
+		# autogen packages have more dynamic nature to them. 
+		cmd="dart_analyzer --enable_type_checks --extended-exit-code --type-checks-for-inferred-types  --package-root $package/packages"
+		files="${package}/lib/*.dart"
+		for file in $files
+		do
+			results=`$cmd $file 2>&1`
+			exit_code=$?
+			if [ $exit_code -eq 2 ]; then
+				let FAILURES++
+			    EXITSTATUS=1
+			    echo "$results"
+			    echo "$file: FAILURE."
+			elif [ $exit_code -eq 1 ]; then
+				let WARNINGS++
+				echo "$results"
+			    echo "$file: WARNING."
+			elif [ $exit_code -eq 0 ]; then
+				let PASSING++
+				echo "$file: Passed analysis."
+			else 
+				echo "$file: exit code = $exit_code"
+			fi
+		done
+	fi
+done
+
+echo
+echo "####################################################"
+echo "PASSING = $PASSING"
+echo "WARNINGS = $WARNINGS"
+echo "FAILURES = $FAILURES"
+echo "####################################################"
+echo 
+exit $EXITSTATUS
