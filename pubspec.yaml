@@ -4,6 +4,7 @@ authors:
 - Gerwin Sturm <scarygami@gmail.com>
 - Adam Singer <financeCoding@gmail.com>
 description: Create API Client libraries based on the API's Discovery documentation
+homepage: https://github.com/dart-gde/discovery_api_dart_client_generator
 environment:
   sdk: '>=0.4.3+1.r20444'
 dev_dependencies:
