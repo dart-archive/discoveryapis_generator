@@ -1,6 +1,9 @@
 part of discovery_api_client_generator;
 
 const String clientVersion = "0.1";
+const String dartEnvironmentVersionConstraint = '>=0.4.3+1.r20444';
+const String jsDependenciesVersionConstraint = '>=0.0.18';
+const String googleOAuth2ClientVersionConstraint = '>=0.2.9';
 
 class Generator {
   String _data;
@@ -154,10 +157,11 @@ homepage: https://github.com/dart-gde/discovery_api_dart_client_generator
 authors:
 - Gerwin Sturm <scarygami@gmail.com>
 - Adam Singer <financeCoding@gmail.com>
-
+environment:
+  sdk: '${dartEnvironmentVersionConstraint}'
 dependencies:
-  js: '>=0.0.14'
-  google_oauth2_client: '>=0.2.1'
+  js: '${jsDependenciesVersionConstraint}'
+  google_oauth2_client: '${googleOAuth2ClientVersionConstraint}'
 """;
   }
 
@@ -359,7 +363,7 @@ part "$srcFolder/console/$_name.dart";
     if (_json.containsKey("methods")) {
       _json["methods"].forEach((key, method) {
         tmp.write("\n");
-        tmp.write(_createMethod(key, method));
+        tmp.write(_createMethod(key, method, true));
       });
     }
 
@@ -431,7 +435,7 @@ part "$srcFolder/console/$_name.dart";
     if (_json.containsKey("methods")) {
       _json["methods"].forEach((key, method) {
         tmp.write("\n");
-        tmp.write(_createMethod(key, method));
+        tmp.write(_createMethod(key, method, true));
       });
     }
 
@@ -482,13 +486,14 @@ part "$srcFolder/console/$_name.dart";
           }
         }
         if (type != null) {
+          String propName = cleanName(key);
           if (property.containsKey("description")) {
             tmp.write("\n  /** ${property["description"]} */\n");
           }
           if (array) {
-            tmp.write("  List<$type> $key;\n");
+            tmp.write("  List<$type> $propName;\n");
           } else {
-            tmp.write("  $type $key;\n");
+            tmp.write("  $type $propName;\n");
           }
         }
       });
@@ -526,21 +531,22 @@ part "$srcFolder/console/$_name.dart";
           }
         }
         if (type != null) {
+          String propName = cleanName(key);
           tmp.write("    if (json.containsKey(\"$key\")) {\n");
           if (array) {
-            tmp.write("      $key = [];\n");
+            tmp.write("      $propName = [];\n");
             tmp.write("      json[\"$key\"].forEach((item) {\n");
             if (object) {
-              tmp.write("        $key.add(new $type.fromJson(item));\n");
+              tmp.write("        $propName.add(new $type.fromJson(item));\n");
             } else {
-              tmp.write("        $key.add(item);\n");
+              tmp.write("        $propName.add(item);\n");
             }
             tmp.write("      });\n");
           } else {
             if (object) {
-              tmp.write("      $key = new $type.fromJson(json[\"$key\"]);\n");
+              tmp.write("      $propName = new $type.fromJson(json[\"$key\"]);\n");
             } else {
-              tmp.write("      $key = json[\"$key\"];\n");
+              tmp.write("      $propName = json[\"$key\"];\n");
             }
           }
           tmp.write("    }\n");
@@ -581,10 +587,11 @@ part "$srcFolder/console/$_name.dart";
           }
         }
         if (type != null) {
-          tmp.write("    if ($key != null) {\n");
+          String propName = cleanName(key);
+          tmp.write("    if ($propName != null) {\n");
           if (array) {
             tmp.write("      output[\"$key\"] = new List();\n");
-            tmp.write("      $key.forEach((item) {\n");
+            tmp.write("      $propName.forEach((item) {\n");
             if (object) {
               tmp.write("        output[\"$key\"].add(item.toJson());\n");
             } else {
@@ -593,9 +600,9 @@ part "$srcFolder/console/$_name.dart";
             tmp.write("      });\n");
           } else {
             if (object) {
-              tmp.write("      output[\"$key\"] = $key.toJson();\n");
+              tmp.write("      output[\"$key\"] = $propName.toJson();\n");
             } else {
-              tmp.write("      output[\"$key\"] = $key;\n");
+              tmp.write("      output[\"$key\"] = $propName;\n");
             }
           }
           tmp.write("    }\n");
@@ -649,7 +656,7 @@ part "$srcFolder/console/$_name.dart";
   }
 
   /// Create a method with [name] inside of a class, based on [data]
-  String _createMethod(String name, Map data) {
+  String _createMethod(String name, Map data, [bool noResource = false]) {
     var tmp = new StringBuffer();
     var upload = false;
     var uploadPath;
@@ -788,12 +795,12 @@ part "$srcFolder/console/$_name.dart";
     tmp.write("    var response;\n");
     if (upload) {
       tmp.write("    if (?content && content != null) {\n");
-      tmp.write("      response = _client.upload(uploadUrl, \"${data["httpMethod"]}\", $uploadCall);\n");
+      tmp.write("      response = ${noResource ? "this" : "_client"}.upload(uploadUrl, \"${data["httpMethod"]}\", $uploadCall);\n");
       tmp.write("    } else {\n");
-      tmp.write("      response = _client.request(url, \"${data["httpMethod"]}\", $call);\n");
+      tmp.write("      response = ${noResource ? "this" : "_client"}.request(url, \"${data["httpMethod"]}\", $call);\n");
       tmp.write("    }\n");
     } else {
-      tmp.write("    response = _client.request(url, \"${data["httpMethod"]}\", $call);\n");
+      tmp.write("    response = ${noResource ? "this" : "_client"}.request(url, \"${data["httpMethod"]}\", $call);\n");
     }
 
     tmp.write("    response\n");
@@ -888,17 +895,17 @@ abstract class Client {
       contentType = "application/octet-stream";
     }
     multiPartBody
-    ..add(_delimiter)
-    ..add("Content-Type: application/json\\r\\n\\r\\n")
-    ..add(body)
-    ..add(_delimiter)
-    ..add("Content-Type: ")
-    ..add(contentType)
-    ..add("\\r\\n")
-    ..add("Content-Transfer-Encoding: base64\\r\\n")
-    ..add("\\r\\n")
-    ..add(content)
-    ..add(_closeDelim);
+    ..write(_delimiter)
+    ..write("Content-Type: application/json\\r\\n\\r\\n")
+    ..write(body)
+    ..write(_delimiter)
+    ..write("Content-Type: ")
+    ..write(contentType)
+    ..write("\\r\\n")
+    ..write("Content-Transfer-Encoding: base64\\r\\n")
+    ..write("\\r\\n")
+    ..write(content)
+    ..write(_closeDelim);
 
     return request(requestUrl, method, body: multiPartBody.toString(), contentType: "multipart/mixed; boundary=\\"\$_boundary\\"", urlParams: urlParams, queryParams: queryParams);
   }
@@ -1142,72 +1149,48 @@ abstract class ConsoleClient extends Client {
       } else if (method.toLowerCase() == "post" || method.toLowerCase() == "put" || method.toLowerCase() == "patch") {
         // Workaround since http.Client does not properly support post for google apis
         var postHttpClient = new HttpClient();
-        HttpClientConnection postConnection = postHttpClient.openUrl(method, Uri.parse(url));
-
 
         // On connection request set the content type and key if available.
-        postConnection.onRequest = (HttpClientRequest request) {
+        postHttpClient.openUrl(method, Uri.parse(url)).then((HttpClientRequest request) {
           request.headers.set(HttpHeaders.CONTENT_TYPE, contentType);
           if (makeAuthRequests && _auth != null) {
             request.headers.set(HttpHeaders.AUTHORIZATION, "Bearer \${_auth.credentials.accessToken}");
           }
 
-          request.outputStream.writeString(body);
-          request.outputStream.close();
-        };
-
-        // On connection response read in data from stream, on close parse as json and return.
-        postConnection.onResponse = (HttpClientResponse response) {
-          StringInputStream stream = new StringInputStream(response.inputStream);
+          request.write(body);
+          return request.close();
+        }, onError: (error) => completer.completeError(new APIRequestException("POST HttpClientRequest error: \$error")))
+        .then((HttpClientResponse response) {
+          // On connection response read in data from stream, on close parse as json and return.
           StringBuffer onResponseBody = new StringBuffer();
-          stream.onData = () {
-            onResponseBody.add(stream.read());
-          };
-
-          stream.onClosed = () {
-            var data = JSON.parse(onResponseBody.toString());
-            completer.complete(data);
-            clientDummyCompleter.complete(null);
-            postHttpClient.shutdown();
-          };
-
-          // Handle stream error
-          stream.onError = (error) {
-            completer.completeError(new APIRequestException("POST stream error: \$error"));
-          };
-
-        };
-
-        // Handle post error
-        postConnection.onError = (error) {
-          completer.completeError(new APIRequestException("POST error: \$error"));
-        };
+          response.transform(new StringDecoder()).listen((String data) => onResponseBody.write(data), 
+              onError: (error) => completer.completeError(new APIRequestException("POST stream error: \$error")), 
+              onDone: () {
+                var data = JSON.parse(onResponseBody.toString());
+                completer.complete(data);
+                clientDummyCompleter.complete(null);
+                postHttpClient.close();
+              });
+        }, onError: (error) => completer.completeError(new APIRequestException("POST HttpClientResponse error: \$error")));
       } else if (method.toLowerCase() == "delete") {
         var deleteHttpClient = new HttpClient();
-        HttpClientConnection deleteConnection = deleteHttpClient.openUrl(method, Uri.parse(url));
 
-        // On connection request set the content type and key if available.
-        deleteConnection.onRequest = (HttpClientRequest request) {
+        deleteHttpClient.openUrl(method, Uri.parse(url)).then((HttpClientRequest request) {
+          // On connection request set the content type and key if available.
           request.headers.set(HttpHeaders.CONTENT_TYPE, contentType);
           if (makeAuthRequests && _auth != null) {
             request.headers.set(HttpHeaders.AUTHORIZATION, "Bearer \${_auth.credentials.accessToken}");
           }
 
-          request.outputStream.close();
-        };
-
-        // On connection response read in data from stream, on close parse as json and return.
-        deleteConnection.onResponse = (HttpClientResponse response) {
+          return request.close();
+        }, onError: (error) => completer.completeError(new APIRequestException("DELETE HttpClientRequest error: \$error")))
+        .then((HttpClientResponse response) {
+          // On connection response read in data from stream, on close parse as json and return.
           // TODO: response.statusCode should be checked for errors.
           completer.complete({});
           clientDummyCompleter.complete(null);
-          deleteHttpClient.shutdown();
-        };
-
-        // Handle delete error
-        deleteConnection.onError = (error) {
-          completer.completeError(new APIRequestException("DELETE error: \$error"));
-        };
+          deleteHttpClient.close();
+        }, onError: (error) => completer.completeError(new APIRequestException("DELETE HttpClientResponse error: \$error")));
       } else {
         // Method has not been implemented yet error
         completer.completeError(new APIRequestException("\$method Not implemented"));
