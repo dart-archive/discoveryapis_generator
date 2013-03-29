@@ -222,6 +222,7 @@ fi
     return """
 library $_libraryName;
 
+import "dart:core" as core;
 import "dart:async";
 import "dart:uri";
 import "dart:json" as JSON;
@@ -473,10 +474,10 @@ part "$srcFolder/console/$_name.dart";
               subSchemas[subSchemaName] = property;
             }
             break;
-          case "string": type = "String"; break;
-          case "number": type = "num"; break;
-          case "integer": type = "int"; break;
-          case "boolean": type = "bool"; break;
+          case "string": type = "core.String"; break;
+          case "number": type = "core.num"; break;
+          case "integer": type = "core.int"; break;
+          case "boolean": type = "core.bool"; break;
         }
         if (type == null) {
           if (array) {
@@ -491,7 +492,7 @@ part "$srcFolder/console/$_name.dart";
             tmp.write("\n  /** ${property["description"]} */\n");
           }
           if (array) {
-            tmp.write("  List<$type> $propName;\n");
+            tmp.write("  core.List<$type> $propName;\n");
           } else {
             tmp.write("  $type $propName;\n");
           }
@@ -501,7 +502,7 @@ part "$srcFolder/console/$_name.dart";
 
     tmp.write("\n");
     tmp.write("  /** Create new $name from JSON data */\n");
-    tmp.write("  ${capitalize(name)}.fromJson(Map json) {\n");
+    tmp.write("  ${capitalize(name)}.fromJson(core.Map json) {\n");
     if (data.containsKey("properties")) {
       data["properties"].forEach((key, property) {
         var schemaType = property["type"];
@@ -517,10 +518,10 @@ part "$srcFolder/console/$_name.dart";
             type = "${capitalize(name)}${capitalize(key)}";
             object = true;
             break;
-          case "string": type = "String"; break;
-          case "number": type = "num"; break;
-          case "integer": type = "int"; break;
-          case "boolean": type = "bool"; break;
+          case "string": type = "core.String"; break;
+          case "number": type = "core.num"; break;
+          case "integer": type = "core.int"; break;
+          case "boolean": type = "core.bool"; break;
         }
         if (type == null) {
           object = true;
@@ -556,8 +557,8 @@ part "$srcFolder/console/$_name.dart";
     tmp.write("  }\n\n");
 
     tmp.write("  /** Create JSON Object for $name */\n");
-    tmp.write("  Map toJson() {\n");
-    tmp.write("    var output = new Map();\n\n");
+    tmp.write("  core.Map toJson() {\n");
+    tmp.write("    var output = new core.Map();\n\n");
     if (data.containsKey("properties")) {
       data["properties"].forEach((key, property) {
         var schemaType = property["type"];
@@ -573,10 +574,10 @@ part "$srcFolder/console/$_name.dart";
             type = "${capitalize(name)}${capitalize(key)}";
             object = true;
             break;
-          case "string": type = "String"; break;
-          case "number": type = "num"; break;
-          case "integer": type = "int"; break;
-          case "boolean": type = "bool"; break;
+          case "string": type = "core.String"; break;
+          case "number": type = "core.num"; break;
+          case "integer": type = "core.int"; break;
+          case "boolean": type = "core.bool"; break;
         }
         if (type == null) {
           object = true;
@@ -590,7 +591,7 @@ part "$srcFolder/console/$_name.dart";
           String propName = cleanName(key);
           tmp.write("    if ($propName != null) {\n");
           if (array) {
-            tmp.write("      output[\"$key\"] = new List();\n");
+            tmp.write("      output[\"$key\"] = new core.List();\n");
             tmp.write("      $propName.forEach((item) {\n");
             if (object) {
               tmp.write("        output[\"$key\"].add(item.toJson());\n");
@@ -613,7 +614,7 @@ part "$srcFolder/console/$_name.dart";
     tmp.write("  }\n\n");
 
     tmp.write("  /** Return String representation of $name */\n");
-    tmp.write("  String toString() => JSON.stringify(this.toJson());\n\n");
+    tmp.write("  core.String toString() => JSON.stringify(this.toJson());\n\n");
 
     tmp.write("}\n\n");
 
@@ -701,8 +702,8 @@ part "$srcFolder/console/$_name.dart";
     }
 
     if (upload) {
-      optParams.add("String content");
-      optParams.add("String contentType");
+      optParams.add("core.String content");
+      optParams.add("core.String contentType");
       tmp.write(_createParamComment("content", {"description": "Base64 Data of the file content to be uploaded"}));
       tmp.write(_createParamComment("contentType", {"description": "MimeType of the file to be uploaded"}));
     }
@@ -719,7 +720,7 @@ part "$srcFolder/console/$_name.dart";
       });
     }
 
-    optParams.add("Map optParams");
+    optParams.add("core.Map optParams");
     tmp.write(_createParamComment("optParams", {"description": "Additional query parameters"}));
 
     params.add("{${optParams.join(", ")}}");
@@ -729,7 +730,7 @@ part "$srcFolder/console/$_name.dart";
     if (data.containsKey("response")) {
       response = "Future<${data["response"]["\$ref"]}>";
     } else {
-      response = "Future<Map>";
+      response = "Future<core.Map>";
     }
 
     tmp.write("  $response $name(${params.join(", ")}) {\n");
@@ -738,9 +739,9 @@ part "$srcFolder/console/$_name.dart";
     if (upload) {
       tmp.write("    var uploadUrl = \"$uploadPath\";\n");
     }
-    tmp.write("    var urlParams = new Map();\n");
-    tmp.write("    var queryParams = new Map();\n\n");
-    tmp.write("    var paramErrors = new List();\n");
+    tmp.write("    var urlParams = new core.Map();\n");
+    tmp.write("    var queryParams = new core.Map();\n\n");
+    tmp.write("    var paramErrors = new core.List();\n");
 
     if (data.containsKey("parameters")) {
       data["parameters"].forEach((name, description) {
@@ -867,30 +868,30 @@ part of $_libraryName;
  * Base class for all API clients, offering generic methods for HTTP Requests to the API
  */
 abstract class Client {
-  String basePath;
-  String rootUrl;
-  bool makeAuthRequests;
-  Map params;
+  core.String basePath;
+  core.String rootUrl;
+  core.bool makeAuthRequests;
+  core.Map params;
 
   static const _boundary = "-------314159265358979323846";
   static const _delimiter = "\\r\\n--\$_boundary\\r\\n";
   static const _closeDelim = "\\r\\n--\$_boundary--";
 
   Client() {
-    params = new Map();
+    params = new core.Map();
     makeAuthRequests = false;
   }
 
   /**
    * Sends a HTTPRequest using [method] (usually GET or POST) to [requestUrl] using the specified [urlParams] and [queryParams]. Optionally include a [body] in the request.
    */
-  Future request(String requestUrl, String method, {String body, String contentType:"application/json", Map urlParams, Map queryParams});
+  Future request(core.String requestUrl, core.String method, {core.String body, core.String contentType:"application/json", core.Map urlParams, core.Map queryParams});
 
   /**
    * Joins [content] (encoded as Base64-String) with specified [contentType] and additional request [body] into one multipart-body and send a HTTPRequest with [method] (usually POST) to [requestUrl]
    */
-  Future upload(String requestUrl, String method, String body, String content, String contentType, {Map urlParams, Map queryParams}) {
-    var multiPartBody = new StringBuffer();
+  Future upload(core.String requestUrl, core.String method, core.String body, core.String content, core.String contentType, {core.Map urlParams, core.Map queryParams}) {
+    var multiPartBody = new core.StringBuffer();
     if (contentType == null || contentType.isEmpty) {
       contentType = "application/octet-stream";
     }
@@ -922,9 +923,9 @@ abstract class Resource {
 
 /// Exception thrown when the HTTP Request to the API failed
 class APIRequestException implements Exception {
-  final String msg;
+  final core.String msg;
   const APIRequestException([this.msg]);
-  String toString() => (msg == null) ? "APIRequestException" : "APIRequestException: \$msg";
+  core.String toString() => (msg == null) ? "APIRequestException" : "APIRequestException: \$msg";
 }
 
 """;
