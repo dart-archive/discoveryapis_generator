@@ -223,8 +223,7 @@ fi
 library $_libraryName;
 
 import "dart:core" as core;
-import "dart:async";
-import "dart:uri";
+import "dart:async" as async;
 import "dart:json" as JSON;
 
 part "$srcFolder/common/client.dart";
@@ -241,6 +240,7 @@ library $_libraryBrowserName;
 import "$_libraryName.dart";
 export "$_libraryName.dart";
 
+import "dart:core" as core;
 import "dart:html";
 import "dart:async";
 import "dart:uri";
@@ -261,6 +261,7 @@ library $_libraryConsoleName;
 import "$_libraryName.dart";
 export "$_libraryName.dart";
 
+import "dart:core" as core;
 import "dart:io";
 import "dart:async";
 import "dart:uri";
@@ -330,7 +331,7 @@ part "$srcFolder/console/$_name.dart";
         } else {
           tmp.write("  /** OAuth Scope2 */\n");
         }
-        tmp.write("  static const String ${scopeName}_SCOPE = \"$scope\";\n");
+        tmp.write("  static const core.String ${scopeName}_SCOPE = \"$scope\";\n");
       });
     }
     if (_json.containsKey("parameters")) {
@@ -728,13 +729,13 @@ part "$srcFolder/console/$_name.dart";
     tmp.write("   */\n");
     var response = null;
     if (data.containsKey("response")) {
-      response = "Future<${data["response"]["\$ref"]}>";
+      response = "async.Future<${data["response"]["\$ref"]}>";
     } else {
-      response = "Future<core.Map>";
+      response = "async.Future<core.Map>";
     }
 
     tmp.write("  $response $name(${params.join(", ")}) {\n");
-    tmp.write("    var completer = new Completer();\n");
+    tmp.write("    var completer = new async.Completer();\n");
     tmp.write("    var url = \"${data["path"]}\";\n");
     if (upload) {
       tmp.write("    var uploadUrl = \"$uploadPath\";\n");
@@ -885,12 +886,12 @@ abstract class Client {
   /**
    * Sends a HTTPRequest using [method] (usually GET or POST) to [requestUrl] using the specified [urlParams] and [queryParams]. Optionally include a [body] in the request.
    */
-  Future request(core.String requestUrl, core.String method, {core.String body, core.String contentType:"application/json", core.Map urlParams, core.Map queryParams});
+  async.Future request(core.String requestUrl, core.String method, {core.String body, core.String contentType:"application/json", core.Map urlParams, core.Map queryParams});
 
   /**
    * Joins [content] (encoded as Base64-String) with specified [contentType] and additional request [body] into one multipart-body and send a HTTPRequest with [method] (usually POST) to [requestUrl]
    */
-  Future upload(core.String requestUrl, core.String method, core.String body, core.String content, core.String contentType, {core.Map urlParams, core.Map queryParams}) {
+  async.Future upload(core.String requestUrl, core.String method, core.String body, core.String content, core.String contentType, {core.Map urlParams, core.Map queryParams}) {
     var multiPartBody = new core.StringBuffer();
     if (contentType == null || contentType.isEmpty) {
       contentType = "application/octet-stream";
@@ -922,7 +923,7 @@ abstract class Resource {
 }
 
 /// Exception thrown when the HTTP Request to the API failed
-class APIRequestException implements Exception {
+class APIRequestException implements core.Exception {
   final core.String msg;
   const APIRequestException([this.msg]);
   core.String toString() => (msg == null) ? "APIRequestException" : "APIRequestException: \$msg";
