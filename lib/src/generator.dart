@@ -1066,7 +1066,7 @@ abstract class BrowserClient extends Client {
             var errorJson;
             try {
               errorJson = JSON.parse(request.responseText); 
-            } on FormatException {
+            } on core.FormatException {
               errorJson = null;
             }
             if (errorJson != null && errorJson.containsKey("error")) {
