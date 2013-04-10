@@ -5,10 +5,10 @@ String capitalize(String string) => "${string.substring(0,1).toUpperCase()}${str
 String cleanName(String name) => name.replaceAll(new RegExp(r"(\W)"), "_");
 
 const Map parameterType = const {
-  "string": "String",
-  "number": "num",
-  "integer": "int",
-  "boolean": "bool"
+  "string": "core.String",
+  "number": "core.num",
+  "integer": "core.int",
+  "boolean": "core.bool"
 };
 
 String createLicense() {
