@@ -2,9 +2,8 @@ library hop_runner;
 
 import 'dart:async';
 import 'dart:io';
-import 'package:bot/bot.dart';
-import 'package:bot/hop.dart';
-import 'package:bot/hop_tasks.dart';
+import 'package:hop/hop.dart';
+import 'package:hop/hop_tasks.dart';
 
 void main() {
   
