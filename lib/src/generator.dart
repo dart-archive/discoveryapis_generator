@@ -1039,7 +1039,10 @@ abstract class BrowserClient extends Client {
 
     request.onLoadEnd.listen((_) {
       if (request.status < 400) {
-        var data = JSON.parse(request.responseText);
+        var data = {};
+        if (!request.responseText.isEmpty) {
+          data = JSON.parse(request.responseText);
+        }
         completer.complete(data);
       } else {
         if (request.status == 0) {
