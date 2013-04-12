@@ -1038,7 +1038,7 @@ abstract class BrowserClient extends Client {
     var url = new oauth.UrlPattern(path).generate(urlParams, queryParams);
 
     request.onLoadEnd.listen((_) {
-      if (request.status == 200) {
+      if (request.status < 400) {
         var data = JSON.parse(request.responseText);
         completer.complete(data);
       } else {
