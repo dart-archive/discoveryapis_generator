@@ -996,7 +996,7 @@ abstract class BrowserClient extends Client {
     js.scoped(() {
       var request = js.context.gapi.client.request(js.map(requestData));
       var callback = new js.Callback.once((jsonResp, rawResp) {
-        if (jsonResp is core.bool && jsonResp == false) {
+        if (jsonResp == null || (jsonResp is core.bool && jsonResp == false)) {
           var raw = JSON.parse(rawResp);
           if (raw["gapiRequest"]["data"]["status"] >= 400) {
             completer.completeError(new APIRequestException("JS Client - \${raw["gapiRequest"]["data"]["status"]} \${raw["gapiRequest"]["data"]["statusText"]} - \${raw["gapiRequest"]["data"]["body"]}"));
