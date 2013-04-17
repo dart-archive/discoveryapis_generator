@@ -63,7 +63,7 @@ Future<String> gitHubLogin() {
         request.headers.set(HttpHeaders.CONTENT_LENGTH, "${data.length}");
 
         request.write(data);
-        request.response
+        request.done
           .then((response) {
             StringBuffer onResponseBody = new StringBuffer();
             response.transform(new StringDecoder())
@@ -101,7 +101,7 @@ Future<bool> checkCredentials(String token) {
   connection.then((request){
     request.headers.set(HttpHeaders.AUTHORIZATION, "token $token");
 
-    request.response.then((response) {
+    request.done.then((response) {
       response.listen((data) {
           // No need to read data, response.statusCode is enough
         },
@@ -202,7 +202,7 @@ Future<bool> createRepository(String name, String version, String gitname) {
 
     request.write(data);
 
-    request.response.then((response){
+    request.done.then((response){
 
       StringBuffer onResponseBody = new StringBuffer();
 
@@ -242,7 +242,7 @@ Future<bool> findRepository(String name, String version, String gitname) {
 
     request.headers.set(HttpHeaders.AUTHORIZATION, "token $token");
 
-    request.response.then((response){
+    request.done.then((response){
 
       response.listen((data){
         // No need to read data, response.statusCode is enough
