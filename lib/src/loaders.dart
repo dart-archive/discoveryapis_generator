@@ -18,7 +18,7 @@ Future<String> loadDocumentFromUrl(String url) {
   var result = new StringBuffer();
 
   connection.then((request){
-    request.response.then((response){
+    request.done.then((response){
       response.listen((data){
         result.write(new String.fromCharCodes(data));
       }, onDone:(){
