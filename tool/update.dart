@@ -27,7 +27,7 @@ List<String> uploaders = ["scarygami@gmail.com", "financeCoding@gmail.com"];
 Future<String> promptPassword() {
   var completer = new Completer<String>();
   StreamSubscription stdinSubscription;
-  
+
   stdout.write("Warning: If you didn't run this via run_update.sh your password will be displayed here until Dart has tty control.\n");
   stdout.write("Watch your back...\n");
   stdout.write("GitHub password for $gituser: ");
@@ -42,7 +42,7 @@ Future<String> promptPassword() {
         var str = line.replaceAll("\r", "").replaceAll("\n", "");
         completer.complete(str);
       });
-  
+
   return completer.future;
 }
 
@@ -55,20 +55,20 @@ Future<String> gitHubLogin() {
     client.addCredentials(githubAuthorizationUri, "realm", new HttpClientBasicCredentials(gituser, pw));
 
     Future<HttpClientRequest> connection = client.openUrl("POST", githubAuthorizationUri);
-    
+
     connection
       .then((request){
         var data = JSON.stringify({"scopes": ["repo"], "note": "API Client Generator"});
         request.headers.set(HttpHeaders.CONTENT_TYPE, "application/json");
         request.headers.set(HttpHeaders.CONTENT_LENGTH, "${data.length}");
-        
+
         request.write(data);
         request.response
           .then((response) {
             StringBuffer onResponseBody = new StringBuffer();
             response.transform(new StringDecoder())
               .listen((String data) => onResponseBody.write(data),
-              onError: (error) => completer.completeError(new AsyncError("$error")),
+              onError: (error) => completer.completeError(error),
               onDone: () {
                 if (response.statusCode == 201) {
                   completer.complete(onResponseBody.toString());
@@ -79,7 +79,7 @@ Future<String> gitHubLogin() {
               });
           })
           .catchError((error) {
-            completer.completeError(new AsyncError("$error"));
+            completer.completeError(error);
           });
         request.close();
       })
@@ -87,7 +87,7 @@ Future<String> gitHubLogin() {
         completer.completeError(new HttpException("$error"));
       });
   });
-  
+
   return completer.future;
 }
 
@@ -95,18 +95,18 @@ Future<String> gitHubLogin() {
 Future<bool> checkCredentials(String token) {
   var completer = new Completer<bool>();
   var client = new HttpClient();
- 
+
   Future<HttpClientRequest> connection = client.openUrl("GET", Uri.parse("https://api.github.com/user/repos"));
 
   connection.then((request){
     request.headers.set(HttpHeaders.AUTHORIZATION, "token $token");
-    
+
     request.response.then((response) {
       response.listen((data) {
           // No need to read data, response.statusCode is enough
         },
         onError: (error) {
-          completer.completeError(new AsyncError("$error"));
+          completer.completeError(error);
         },
         onDone: () {
           if (response.statusCode == 200) {
@@ -124,11 +124,11 @@ Future<bool> checkCredentials(String token) {
     });
 
     request.close();
-    
+
   }, onError:(error){
     completer.completeError(new HttpException("$error"));
   });
-  
+
   return completer.future;
 }
 
@@ -199,16 +199,16 @@ Future<bool> createRepository(String name, String version, String gitname) {
     request.headers.set(HttpHeaders.AUTHORIZATION, "token $token");
     request.headers.set(HttpHeaders.CONTENT_TYPE, "application/json");
     request.headers.set(HttpHeaders.CONTENT_LENGTH, "${data.length}");
-    
+
     request.write(data);
-    
+
     request.response.then((response){
-      
+
       StringBuffer onResponseBody = new StringBuffer();
-      
+
       response.transform(new StringDecoder()).listen(
-          (String data) => onResponseBody.write(data), 
-          onError: (error) => completer.completeError(new AsyncError("$error")), 
+          (String data) => onResponseBody.write(data),
+          onError: (error) => completer.completeError(error),
           onDone:() {
             if (response.statusCode == 201) {
               print("Repository $gitname created successfully.");
@@ -221,12 +221,12 @@ Future<bool> createRepository(String name, String version, String gitname) {
             client.close();
           });
     }, onError: (error) {
-      completer.completeError(new AsyncError("$error"));
+      completer.completeError(error);
     });
     request.close();
-    
+
   }, onError: (error) {
-    completer.completeError(new AsyncError("$error"));
+    completer.completeError(error);
   });
 
   return completer.future;
@@ -235,19 +235,19 @@ Future<bool> createRepository(String name, String version, String gitname) {
 Future<bool> findRepository(String name, String version, String gitname) {
   var completer = new Completer<bool>();
   var client = new HttpClient();
-  
+
   Future<HttpClientRequest> connection = client.openUrl("GET", Uri.parse("https://api.github.com/repos/$repouser/$gitname"));
 
   connection.then((request){
-    
+
     request.headers.set(HttpHeaders.AUTHORIZATION, "token $token");
-    
+
     request.response.then((response){
-      
+
       response.listen((data){
         // No need to read data, response.statusCode is enough
       }, onError:(error){
-        completer.completeError(new AsyncError("$error"));
+        completer.completeError(error);
       }, onDone:(){
         if (response.statusCode == 200) {
           print("Repository $gitname found.");
@@ -290,22 +290,22 @@ Future<bool> publish(String gitname) {
     StringBuffer stderrBuffer = new StringBuffer();
     p.stderr.transform(new StringDecoder()).listen((String data) {
       stderrBuffer.write(data);
-      
+
       if (pubVerbose) {
         print(data);
       }
     });
-    
+
     StringBuffer stdoutBuffer = new StringBuffer();
     bool calledReady = false;
     bool calledWarnings = false;
     p.stdout.transform(new StringDecoder()).listen((String data) {
       stdoutBuffer.write(data);
-      
+
       if (pubVerbose) {
         print(data);
       }
-      
+
       if (stdoutBuffer.toString().contains(r"Are you ready to upload your package")) {
         if (!calledReady) {
           calledReady = true;
@@ -317,14 +317,14 @@ Future<bool> publish(String gitname) {
           p.stdin.write('y\n');
         }
       }
-      
+
     });
-    
+
     p.exitCode.then((code) {
       if (pubVerbose) {
         print("onExit: pub publish");
       }
-      
+
       if (stderrBuffer.toString().contains(r"Failed to upload the package")) {
         print("Library $gitname upload failed.");
         completer.complete(false);
@@ -339,7 +339,7 @@ Future<bool> publish(String gitname) {
       print("catchError = $error");
       completer.completeError(error);
     });
-    
+
   });
 
   return completer.future;
@@ -469,7 +469,7 @@ void handleAPIs(List apis, {retry: false}) {
                 .listen((String line) {
                   stdinSubscription.cancel();
                   String retry = line.replaceAll("\r", "").replaceAll("\n", "");
-                  
+
                   if (retry[0].toLowerCase() == 'y') {
                     handleAPIs(failedUpload, retry: true);
                   }
@@ -477,7 +477,7 @@ void handleAPIs(List apis, {retry: false}) {
                   print("Retry failed onError: ${error}");
                 });
           }
-        } 
+        }
       } else {
         handleAPIs(apis, retry: retry);
       }
@@ -550,7 +550,7 @@ void main() {
   // TODO: Set https://pub.dartlang.org as default, not setting this until tests complete
   parser.addOption("pubserver", help: "Server to use for publishing");
   parser.addOption("prefix", abbr: "p", help: "Prefix for library name", defaultsTo: "google");
-  parser.addOption("version", abbr: "v", help: "Overwrite library version, only valid in combination with --force");  
+  parser.addOption("version", abbr: "v", help: "Overwrite library version, only valid in combination with --force");
   parser.addFlag("force", help: "Force client library update even if no changes", negatable: false);
   parser.addFlag("pub", help: "Publish library to pub", negatable: false);
   parser.addFlag("pub-verbose", help: "Make pub output verbose", negatable: false);
