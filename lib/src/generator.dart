@@ -162,6 +162,7 @@ environment:
 dependencies:
   js: '${jsDependenciesVersionConstraint}'
   google_oauth2_client: '${googleOAuth2ClientVersionConstraint}'
+  hop: any
 """;
   }
 
