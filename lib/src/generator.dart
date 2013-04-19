@@ -1,9 +1,9 @@
 part of discovery_api_client_generator;
 
 const String clientVersion = "0.1";
-const String dartEnvironmentVersionConstraint = '>=0.4.5+1.r21094';
-const String jsDependenciesVersionConstraint = '>=0.0.18';
-const String googleOAuth2ClientVersionConstraint = '>=0.2.10';
+const String dartEnvironmentVersionConstraint = '>=0.4.7+1.r21548';
+const String jsDependenciesVersionConstraint = '>=0.0.20';
+const String googleOAuth2ClientVersionConstraint = '>=0.2.11';
 
 class Generator {
   String _data;
@@ -996,7 +996,7 @@ abstract class BrowserClient extends Client {
     js.scoped(() {
       var request = js.context.gapi.client.request(js.map(requestData));
       var callback = new js.Callback.once((jsonResp, rawResp) {
-        if (jsonResp is core.bool && jsonResp == false) {
+        if (jsonResp == null || (jsonResp is core.bool && jsonResp == false)) {
           var raw = JSON.parse(rawResp);
           if (raw["gapiRequest"]["data"]["status"] >= 400) {
             completer.completeError(new APIRequestException("JS Client - \${raw["gapiRequest"]["data"]["status"]} \${raw["gapiRequest"]["data"]["statusText"]} - \${raw["gapiRequest"]["data"]["body"]}"));
@@ -1146,7 +1146,7 @@ abstract class ConsoleClient extends Client {
           var data = JSON.parse(response.body);
           completer.complete(data);
           clientDummyCompleter.complete(null);
-        }, onError: (async.AsyncError error) {
+        }, onError: (error) {
           completer.completeError(new APIRequestException("onError: \$error"));
         });
 

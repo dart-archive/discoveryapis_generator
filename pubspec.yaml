@@ -8,7 +8,7 @@ homepage: https://github.com/dart-gde/discovery_api_dart_client_generator
 environment:
   sdk: '>=0.4.7+1.r21548'
 dev_dependencies:
-  hop: '>=0.20.0 <0.21.0'
+  hop: '>=0.21.0 <0.22.0'
   unittest: '>=0.4.7+1'
 dependencies:
   args: '>=0.4.7+1'
