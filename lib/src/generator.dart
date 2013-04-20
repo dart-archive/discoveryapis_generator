@@ -38,6 +38,7 @@ class Generator {
       mainFolder = outputDirectory;
       libFolder = "$outputDirectory/lib";
       srcFolder = "src/$_shortName";
+
     } else {
       mainFolder = "$outputDirectory/$_gitName";
       libFolder = "$mainFolder/lib";
@@ -101,6 +102,7 @@ class Generator {
     (new Directory("$libFolder/$srcFolder/common")).createSync(recursive: true);
     (new Directory("$libFolder/$srcFolder/browser")).createSync(recursive: true);
     (new Directory("$libFolder/$srcFolder/console")).createSync(recursive: true);
+    (new Directory("$mainFolder/tool")).createSync(recursive: true);
 
     if (!fullLibrary) {
       (new Directory("$mainFolder/test")).createSync(recursive: true);
@@ -143,6 +145,10 @@ class Generator {
     (new File("$libFolder/$srcFolder/console/consoleclient.dart")).writeAsStringSync(_createConsoleClientClass());
 
     (new File("$libFolder/$srcFolder/console/$_name.dart")).writeAsStringSync(_createConsoleMainClass());
+    
+    // Create hop_runner for the libraries
+    (new File("$mainFolder/tool/hop_runner.dart")).writeAsStringSync(_createHopRunner());
+    //_createHopRunner
 
     print("Library $_libraryName generated successfully.");
     return true;
@@ -1217,5 +1223,34 @@ abstract class ConsoleClient extends Client {
 }
 
 """;
+  }
+  
+  String _createHopRunner() {
+    
+    return """
+
+library hop_runner;
+
+import 'dart:async';
+import 'dart:io';
+import 'package:hop/hop.dart';
+import 'package:hop/hop_tasks.dart';
+
+void main() {
+
+  List pathList = [
+     'lib/$_libraryBrowserName.dart'
+    ,'lib/$_libraryConsoleName.dart'
+    ,'lib/$_libraryName.dart'
+  ];    
+
+  addTask('docs', createDartDocTask(pathList, linkApi: true));
+
+  addTask('analyze', createDartAnalyzerTask(pathList));
+
+  runHop();
+
+}
+    """;
   }
 }
