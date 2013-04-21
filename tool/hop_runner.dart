@@ -16,6 +16,9 @@ void main() {
                                              'bin/generate.dart',
                                              'tool/update.dart'
                                              ]));
+  
+  addTask('apidocs', createDartDocTask(_getLibs(), linkApi: true));
+  
   runHop();
 }
 
@@ -28,7 +31,7 @@ void _assertKnownPath() {
 }
 
 Future<List<String>> _getLibs() {
-  return new Directory('lib').list()
+  return new Directory('output/lib').list()
       .where((FileSystemEntity fse) => fse is File)
       .map((File file) => file.path)
       .toList();
