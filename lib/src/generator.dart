@@ -85,20 +85,21 @@ class Generator {
     }
 
     // Clean contents of directory (except for .git folder)
-    var tmpDir = new Directory(mainFolder);
-    if (tmpDir.existsSync()) {
-      print("Emptying folder before library generation.");
-      tmpDir.listSync().forEach((f) {
-        if (f is File) {
-          f.deleteSync();
-        } else if (f is Directory) {
-          if (!f.path.endsWith(".git")) {
-            f.deleteSync(recursive: true);
+    if (!fullLibrary) {
+      var tmpDir = new Directory(mainFolder);
+      if (tmpDir.existsSync()) {
+        print("Emptying folder before library generation.");
+        tmpDir.listSync().forEach((f) {
+          if (f is File) {
+            f.deleteSync();
+          } else if (f is Directory) {
+            if (!f.path.endsWith(".git")) {
+              f.deleteSync(recursive: true);
+            }
           }
-        }
-      });
+        });
+      }
     }
-
     (new Directory("$libFolder/$srcFolder/common")).createSync(recursive: true);
     (new Directory("$libFolder/$srcFolder/browser")).createSync(recursive: true);
     (new Directory("$libFolder/$srcFolder/console")).createSync(recursive: true);
