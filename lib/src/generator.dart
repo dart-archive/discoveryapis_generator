@@ -321,7 +321,7 @@ part "$srcFolder/console/$_name.dart";
     if (_json.containsKey("resources")) {
       tmp.write("\n");
       _json["resources"].forEach((key, resource) {
-        var subClassName = "${capitalize(key)}Resource";
+        var subClassName = "${capitalize(key)}Resource_";
         tmp.write("  $subClassName _$key;\n");
         tmp.write("  $subClassName get $key => _$key;\n");
       });
@@ -363,7 +363,7 @@ part "$srcFolder/console/$_name.dart";
     tmp.write("    rootUrl = \"${uri.origin}/\";\n");
     if (_json.containsKey("resources")) {
       _json["resources"].forEach((key, resource) {
-        var subClassName = "${capitalize(key)}Resource";
+        var subClassName = "${capitalize(key)}Resource_";
         tmp.write("    _$key = new $subClassName(this);\n");
       });
     }
@@ -392,7 +392,7 @@ part "$srcFolder/console/$_name.dart";
     if (_json.containsKey("resources")) {
       tmp.write("\n");
       _json["resources"].forEach((key, resource) {
-        var subClassName = "${capitalize(key)}Resource";
+        var subClassName = "${capitalize(key)}Resource_";
         tmp.write("  $subClassName _$key;\n");
         tmp.write("  $subClassName get $key => _$key;\n");
       });
@@ -435,7 +435,7 @@ part "$srcFolder/console/$_name.dart";
     tmp.write("    rootUrl = \"${uri.origin}/\";\n");
     if (_json.containsKey("resources")) {
       _json["resources"].forEach((key, resource) {
-        var subClassName = "${capitalize(key)}Resource";
+        var subClassName = "${capitalize(key)}Resource_";
         tmp.write("    _$key = new $subClassName(this);\n");
       });
     }
@@ -495,7 +495,7 @@ part "$srcFolder/console/$_name.dart";
           }
         }
         if (type != null) {
-          String propName = cleanName(key);
+          String propName = escapeProperty(cleanName(key));
           if (property.containsKey("description")) {
             tmp.write("\n  /** ${property["description"]} */\n");
           }
@@ -540,11 +540,12 @@ part "$srcFolder/console/$_name.dart";
           }
         }
         if (type != null) {
-          String propName = cleanName(key);
-          tmp.write("    if (json.containsKey(\"$key\")) {\n");
+          String propName = escapeProperty(cleanName(key));
+          String jsonName = key.replaceAll("\$", "\\\$");
+          tmp.write("    if (json.containsKey(\"$jsonName\")) {\n");
           if (array) {
             tmp.write("      $propName = [];\n");
-            tmp.write("      json[\"$key\"].forEach((item) {\n");
+            tmp.write("      json[\"$jsonName\"].forEach((item) {\n");
             if (object) {
               tmp.write("        $propName.add(new $type.fromJson(item));\n");
             } else {
@@ -553,9 +554,9 @@ part "$srcFolder/console/$_name.dart";
             tmp.write("      });\n");
           } else {
             if (object) {
-              tmp.write("      $propName = new $type.fromJson(json[\"$key\"]);\n");
+              tmp.write("      $propName = new $type.fromJson(json[\"$jsonName\"]);\n");
             } else {
-              tmp.write("      $propName = json[\"$key\"];\n");
+              tmp.write("      $propName = json[\"$jsonName\"];\n");
             }
           }
           tmp.write("    }\n");
@@ -596,22 +597,23 @@ part "$srcFolder/console/$_name.dart";
           }
         }
         if (type != null) {
-          String propName = cleanName(key);
+          String propName = escapeProperty(cleanName(key));
+          String jsonName = key.replaceAll("\$", "\\\$");
           tmp.write("    if ($propName != null) {\n");
           if (array) {
-            tmp.write("      output[\"$key\"] = new core.List();\n");
+            tmp.write("      output[\"$jsonName\"] = new core.List();\n");
             tmp.write("      $propName.forEach((item) {\n");
             if (object) {
-              tmp.write("        output[\"$key\"].add(item.toJson());\n");
+              tmp.write("        output[\"$jsonName\"].add(item.toJson());\n");
             } else {
-              tmp.write("        output[\"$key\"].add(item);\n");
+              tmp.write("        output[\"$jsonName\"].add(item);\n");
             }
             tmp.write("      });\n");
           } else {
             if (object) {
-              tmp.write("      output[\"$key\"] = $propName.toJson();\n");
+              tmp.write("      output[\"$jsonName\"] = $propName.toJson();\n");
             } else {
-              tmp.write("      output[\"$key\"] = $propName;\n");
+              tmp.write("      output[\"$jsonName\"] = $propName;\n");
             }
           }
           tmp.write("    }\n");
@@ -670,6 +672,8 @@ part "$srcFolder/console/$_name.dart";
     var upload = false;
     var uploadPath;
 
+    name = escapeMethod(cleanName(name));
+    
     tmp.write("  /**\n");
     if (data.containsKey("description")) {
       tmp.write("   * ${data["description"]}\n");
@@ -687,7 +691,7 @@ part "$srcFolder/console/$_name.dart";
         if (data["parameters"].containsKey(param)) {
           var type = parameterType[data["parameters"][param]["type"]];
           if (type != null) {
-            var variable = cleanName(param);
+            var variable = escapeParameter(cleanName(param));
             tmp.write(_createParamComment(variable, data["parameters"][param]));
             params.add("$type $variable");
             data["parameters"][param]["gen_included"] = true;
@@ -720,7 +724,7 @@ part "$srcFolder/console/$_name.dart";
         if (!description.containsKey("gen_included")) {
           var type = parameterType[description["type"]];
           if (type != null) {
-            var variable = cleanName(name);
+            var variable = escapeParameter(cleanName(name));
             tmp.write(_createParamComment(variable, description));
             optParams.add("$type $variable");
           }
@@ -753,7 +757,7 @@ part "$srcFolder/console/$_name.dart";
 
     if (data.containsKey("parameters")) {
       data["parameters"].forEach((name, description) {
-        var variable = cleanName(name);
+        var variable = escapeParameter(cleanName(name));
         var location = "queryParams";
         if (description["location"] == "path") { location = "urlParams"; }
         if (description["required"] == true) {
@@ -786,7 +790,7 @@ part "$srcFolder/console/$_name.dart";
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeError(new ArgumentError(paramErrors.join(" / ")));
+      completer.completeError(new core.ArgumentError(paramErrors.join(" / ")));
       return completer.future;
     }
 
@@ -828,14 +832,14 @@ part "$srcFolder/console/$_name.dart";
 
   String _createResourceClass(String name, Map data) {
     var tmp = new StringBuffer();
-    var className = "${capitalize(name)}Resource";
+    var className = "${capitalize(name)}Resource_";
 
     tmp.write("class $className extends Resource {\n");
 
     if (data.containsKey("resources")) {
       tmp.write("\n");
       data["resources"].forEach((key, resource) {
-        var subClassName = "${capitalize(name)}${capitalize(key)}Resource";
+        var subClassName = "${capitalize(name)}${capitalize(key)}Resource_";
         tmp.write("  $subClassName _$key;\n");
         tmp.write("  $subClassName get $key => _$key;\n");
       });
@@ -844,7 +848,7 @@ part "$srcFolder/console/$_name.dart";
     tmp.write("\n  $className(Client client) : super(client) {\n");
     if (data.containsKey("resources")) {
       data["resources"].forEach((key, resource) {
-        var subClassName = "${capitalize(name)}${capitalize(key)}Resource";
+        var subClassName = "${capitalize(name)}${capitalize(key)}Resource_";
         tmp.write("  _$key = new $subClassName(client);\n");
       });
     }
