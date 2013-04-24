@@ -541,10 +541,11 @@ part "$srcFolder/console/$_name.dart";
         }
         if (type != null) {
           String propName = escapeProperty(cleanName(key));
-          tmp.write("    if (json.containsKey(\"$key\")) {\n");
+          String jsonName = key.replaceAll("\$", "\\\$");
+          tmp.write("    if (json.containsKey(\"$jsonName\")) {\n");
           if (array) {
             tmp.write("      $propName = [];\n");
-            tmp.write("      json[\"$key\"].forEach((item) {\n");
+            tmp.write("      json[\"$jsonName\"].forEach((item) {\n");
             if (object) {
               tmp.write("        $propName.add(new $type.fromJson(item));\n");
             } else {
@@ -553,9 +554,9 @@ part "$srcFolder/console/$_name.dart";
             tmp.write("      });\n");
           } else {
             if (object) {
-              tmp.write("      $propName = new $type.fromJson(json[\"$key\"]);\n");
+              tmp.write("      $propName = new $type.fromJson(json[\"$jsonName\"]);\n");
             } else {
-              tmp.write("      $propName = json[\"$key\"];\n");
+              tmp.write("      $propName = json[\"$jsonName\"];\n");
             }
           }
           tmp.write("    }\n");
@@ -597,21 +598,22 @@ part "$srcFolder/console/$_name.dart";
         }
         if (type != null) {
           String propName = escapeProperty(cleanName(key));
+          String jsonName = key.replaceAll("\$", "\\\$");
           tmp.write("    if ($propName != null) {\n");
           if (array) {
-            tmp.write("      output[\"$key\"] = new core.List();\n");
+            tmp.write("      output[\"$jsonName\"] = new core.List();\n");
             tmp.write("      $propName.forEach((item) {\n");
             if (object) {
-              tmp.write("        output[\"$key\"].add(item.toJson());\n");
+              tmp.write("        output[\"$jsonName\"].add(item.toJson());\n");
             } else {
-              tmp.write("        output[\"$key\"].add(item);\n");
+              tmp.write("        output[\"$jsonName\"].add(item);\n");
             }
             tmp.write("      });\n");
           } else {
             if (object) {
-              tmp.write("      output[\"$key\"] = $propName.toJson();\n");
+              tmp.write("      output[\"$jsonName\"] = $propName.toJson();\n");
             } else {
-              tmp.write("      output[\"$key\"] = $propName;\n");
+              tmp.write("      output[\"$jsonName\"] = $propName;\n");
             }
           }
           tmp.write("    }\n");
