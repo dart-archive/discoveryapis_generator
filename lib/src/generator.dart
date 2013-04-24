@@ -321,7 +321,7 @@ part "$srcFolder/console/$_name.dart";
     if (_json.containsKey("resources")) {
       tmp.write("\n");
       _json["resources"].forEach((key, resource) {
-        var subClassName = "${capitalize(key)}Resource";
+        var subClassName = "${capitalize(key)}Resource_";
         tmp.write("  $subClassName _$key;\n");
         tmp.write("  $subClassName get $key => _$key;\n");
       });
@@ -363,7 +363,7 @@ part "$srcFolder/console/$_name.dart";
     tmp.write("    rootUrl = \"${uri.origin}/\";\n");
     if (_json.containsKey("resources")) {
       _json["resources"].forEach((key, resource) {
-        var subClassName = "${capitalize(key)}Resource";
+        var subClassName = "${capitalize(key)}Resource_";
         tmp.write("    _$key = new $subClassName(this);\n");
       });
     }
@@ -392,7 +392,7 @@ part "$srcFolder/console/$_name.dart";
     if (_json.containsKey("resources")) {
       tmp.write("\n");
       _json["resources"].forEach((key, resource) {
-        var subClassName = "${capitalize(key)}Resource";
+        var subClassName = "${capitalize(key)}Resource_";
         tmp.write("  $subClassName _$key;\n");
         tmp.write("  $subClassName get $key => _$key;\n");
       });
@@ -435,7 +435,7 @@ part "$srcFolder/console/$_name.dart";
     tmp.write("    rootUrl = \"${uri.origin}/\";\n");
     if (_json.containsKey("resources")) {
       _json["resources"].forEach((key, resource) {
-        var subClassName = "${capitalize(key)}Resource";
+        var subClassName = "${capitalize(key)}Resource_";
         tmp.write("    _$key = new $subClassName(this);\n");
       });
     }
@@ -828,14 +828,14 @@ part "$srcFolder/console/$_name.dart";
 
   String _createResourceClass(String name, Map data) {
     var tmp = new StringBuffer();
-    var className = "${capitalize(name)}Resource";
+    var className = "${capitalize(name)}Resource_";
 
     tmp.write("class $className extends Resource {\n");
 
     if (data.containsKey("resources")) {
       tmp.write("\n");
       data["resources"].forEach((key, resource) {
-        var subClassName = "${capitalize(name)}${capitalize(key)}Resource";
+        var subClassName = "${capitalize(name)}${capitalize(key)}Resource_";
         tmp.write("  $subClassName _$key;\n");
         tmp.write("  $subClassName get $key => _$key;\n");
       });
@@ -844,7 +844,7 @@ part "$srcFolder/console/$_name.dart";
     tmp.write("\n  $className(Client client) : super(client) {\n");
     if (data.containsKey("resources")) {
       data["resources"].forEach((key, resource) {
-        var subClassName = "${capitalize(name)}${capitalize(key)}Resource";
+        var subClassName = "${capitalize(name)}${capitalize(key)}Resource_";
         tmp.write("  _$key = new $subClassName(client);\n");
       });
     }
