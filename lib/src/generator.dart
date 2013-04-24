@@ -670,6 +670,8 @@ part "$srcFolder/console/$_name.dart";
     var upload = false;
     var uploadPath;
 
+    name = escapeMethod(cleanName(name));
+    
     tmp.write("  /**\n");
     if (data.containsKey("description")) {
       tmp.write("   * ${data["description"]}\n");
