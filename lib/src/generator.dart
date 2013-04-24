@@ -689,7 +689,7 @@ part "$srcFolder/console/$_name.dart";
         if (data["parameters"].containsKey(param)) {
           var type = parameterType[data["parameters"][param]["type"]];
           if (type != null) {
-            var variable = cleanName(param);
+            var variable = escapeParameter(cleanName(param));
             tmp.write(_createParamComment(variable, data["parameters"][param]));
             params.add("$type $variable");
             data["parameters"][param]["gen_included"] = true;
@@ -722,7 +722,7 @@ part "$srcFolder/console/$_name.dart";
         if (!description.containsKey("gen_included")) {
           var type = parameterType[description["type"]];
           if (type != null) {
-            var variable = cleanName(name);
+            var variable = escapeParameter(cleanName(name));
             tmp.write(_createParamComment(variable, description));
             optParams.add("$type $variable");
           }
@@ -755,7 +755,7 @@ part "$srcFolder/console/$_name.dart";
 
     if (data.containsKey("parameters")) {
       data["parameters"].forEach((name, description) {
-        var variable = cleanName(name);
+        var variable = escapeParameter(cleanName(name));
         var location = "queryParams";
         if (description["location"] == "path") { location = "urlParams"; }
         if (description["required"] == true) {
