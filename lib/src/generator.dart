@@ -495,7 +495,7 @@ part "$srcFolder/console/$_name.dart";
           }
         }
         if (type != null) {
-          String propName = cleanName(key);
+          String propName = escapeProperty(cleanName(key));
           if (property.containsKey("description")) {
             tmp.write("\n  /** ${property["description"]} */\n");
           }
@@ -540,7 +540,7 @@ part "$srcFolder/console/$_name.dart";
           }
         }
         if (type != null) {
-          String propName = cleanName(key);
+          String propName = escapeProperty(cleanName(key));
           tmp.write("    if (json.containsKey(\"$key\")) {\n");
           if (array) {
             tmp.write("      $propName = [];\n");
@@ -596,7 +596,7 @@ part "$srcFolder/console/$_name.dart";
           }
         }
         if (type != null) {
-          String propName = cleanName(key);
+          String propName = escapeProperty(cleanName(key));
           tmp.write("    if ($propName != null) {\n");
           if (array) {
             tmp.write("      output[\"$key\"] = new core.List();\n");

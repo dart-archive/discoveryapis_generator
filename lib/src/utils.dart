@@ -1,15 +1,26 @@
 part of discovery_api_client_generator;
 
-String fileDate(DateTime date) => "${date.year}${(date.month < 10) ? 0 : ""}${date.month}${(date.day < 10) ? 0 : ""}${date.day}_${(date.hour < 10) ? 0 : ""}${date.hour}${(date.minute < 10) ? 0 : ""}${date.minute}${(date.second < 10) ? 0 : ""}${date.second}";
-String capitalize(String string) => "${string.substring(0,1).toUpperCase()}${string.substring(1)}";
-String cleanName(String name) => name.replaceAll(new RegExp(r"(\W)"), "_");
-
 const Map parameterType = const {
   "string": "core.String",
   "number": "core.num",
   "integer": "core.int",
   "boolean": "core.bool"
 };
+
+const List keywords = const [
+  "assert", "break", "case", "catch", "class", "const", "continue", 
+  "default", "do", "else", "enum", "extends", "false", "final", "finally", 
+  "for", "if", "in", "is", "new", "null", "rethrow", "return", "super", "switch", 
+  "this", "throw", "true", "try", "var", "void", "while", "with"                             
+];
+
+String fileDate(DateTime date) => "${date.year}${(date.month < 10) ? 0 : ""}${date.month}${(date.day < 10) ? 0 : ""}${date.day}_${(date.hour < 10) ? 0 : ""}${date.hour}${(date.minute < 10) ? 0 : ""}${date.minute}${(date.second < 10) ? 0 : ""}${date.second}";
+String capitalize(String string) => "${string.substring(0,1).toUpperCase()}${string.substring(1)}";
+String cleanName(String name) => name.replaceAll(new RegExp(r"(\W)"), "_");
+
+String escapeProperty(String name) => keywords.contains(name) ? "${name}Property" : name;
+String escapeMethod(String name) => keywords.contains(name) ? "${name}Method" : name;
+String escapeParameter(String name) => keywords.contains(name) ? "${name}Parameter" : name;
 
 String createLicense() {
   return """
