@@ -317,7 +317,7 @@ Future<bool> publish(String gitname) {
           calledReady = true;
           p.stdin.write('y\n');
         }
-      } else if (stdoutBuffer.toString().contains(r"warnings. Upload anyway")) {
+      } else if (stdoutBuffer.toString().contains(new RegExp("warning(s)?. Upload anyway"))) {
         if (!calledWarnings) {
           calledWarnings = true;
           p.stdin.write('y\n');
@@ -356,8 +356,11 @@ Future<bool> setPubUploaders(String gitname, {int index: 0}) {
   var options = new ProcessOptions();
   options.workingDirectory = "$outputdir/$gitname/";
   Process.run("pub", ["uploader", "--server=$pubserver", "add", uploaders[index]], options).then((p) {
+    print("---\nstderr");
     print(p.stderr);
+    print("---\nstdout");
     print(p.stdout);
+    print("Exit code ${p.exitCode}");
     index++;
     if (index < uploaders.length) {
       setPubUploaders(gitname, index: index).then((v) => completer.complete(true));
