@@ -21,6 +21,7 @@ int limit;
 List failedUpload = [];
 List completedUpload = [];
 List<String> uploaders = ["scarygami@gmail.com", "financeCoding@gmail.com"];
+String userAgent = "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/28.0.1468.0 Safari/537.36";
 
 // Authentication stuff
 
@@ -59,8 +60,10 @@ Future<String> gitHubLogin() {
     connection
       .then((request){
         var data = JSON.stringify({"scopes": ["repo"], "note": "API Client Generator"});
+        request.headers.set(HttpHeaders.USER_AGENT, userAgent);
         request.headers.set(HttpHeaders.CONTENT_TYPE, "application/json");
         request.headers.set(HttpHeaders.CONTENT_LENGTH, "${data.length}");
+        request.headers.set(HttpHeaders.USER_AGENT, userAgent);
 
         request.write(data);
         request.done
@@ -99,6 +102,7 @@ Future<bool> checkCredentials(String token) {
   Future<HttpClientRequest> connection = client.openUrl("GET", Uri.parse("https://api.github.com/user/repos"));
 
   connection.then((request){
+    request.headers.set(HttpHeaders.USER_AGENT, userAgent);
     request.headers.set(HttpHeaders.AUTHORIZATION, "token $token");
 
     request.done.then((response) {
@@ -196,6 +200,7 @@ Future<bool> createRepository(String name, String version, String gitname) {
           "description": "Auto-generated Dart client library to access the $name $version API"
         }
     );
+    request.headers.set(HttpHeaders.USER_AGENT, userAgent);
     request.headers.set(HttpHeaders.AUTHORIZATION, "token $token");
     request.headers.set(HttpHeaders.CONTENT_TYPE, "application/json");
     request.headers.set(HttpHeaders.CONTENT_LENGTH, "${data.length}");
@@ -240,6 +245,7 @@ Future<bool> findRepository(String name, String version, String gitname) {
 
   connection.then((request){
 
+    request.headers.set(HttpHeaders.USER_AGENT, userAgent);
     request.headers.set(HttpHeaders.AUTHORIZATION, "token $token");
 
     request.done.then((response){
