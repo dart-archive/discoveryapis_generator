@@ -344,6 +344,11 @@ part "$srcFolder/console/$_name.dart";
     if (_json.containsKey("parameters")) {
       _json["parameters"].forEach((key, param) {
         var type = parameterType[param["type"]];
+        if (param.containsKey("format")) {
+          if (param["type"] == "string" && param["format"] == "int64") {
+            type = "core.int";
+          }
+        }
         if (type != null) {
           tmp.write("\n");
           tmp.write("  /**\n");
@@ -415,6 +420,11 @@ part "$srcFolder/console/$_name.dart";
     if (_json.containsKey("parameters")) {
       _json["parameters"].forEach((key, param) {
         var type = parameterType[param["type"]];
+        if (param.containsKey("format")) {
+          if (param["type"] == "string" && param["format"] == "int64") {
+            type = "core.int";
+          }
+        }
         if (type != null) {
           tmp.write("\n");
           tmp.write("  /**\n");
@@ -466,11 +476,19 @@ part "$srcFolder/console/$_name.dart";
     if (data.containsKey("properties")) {
       data["properties"].forEach((key, property) {
         var schemaType = property["type"];
+        var schemaFormat = "";
+        if (property.containsKey("format")) {
+          schemaFormat = property["format"];
+        }
         bool array = false;
         var type;
         if (schemaType == "array") {
           array = true;
           schemaType = property["items"]["type"];
+          schemaFormat = "";
+          if (property["items"].containsKey("format")) {
+            schemaFormat = property["items"]["format"];
+          }
         }
         switch(schemaType) {
           case "object":
@@ -482,7 +500,12 @@ part "$srcFolder/console/$_name.dart";
               subSchemas[subSchemaName] = property;
             }
             break;
-          case "string": type = "core.String"; break;
+          case "string":
+            type = "core.String";
+            if (schemaFormat == "int64") {
+              type = "core.int";              
+            }
+            break;
           case "number": type = "core.num"; break;
           case "integer": type = "core.int"; break;
           case "boolean": type = "core.bool"; break;
@@ -514,19 +537,32 @@ part "$srcFolder/console/$_name.dart";
     if (data.containsKey("properties")) {
       data["properties"].forEach((key, property) {
         var schemaType = property["type"];
+        var schemaFormat = "";
+        if (property.containsKey("format")) {
+          schemaFormat = property["format"];
+        }
         bool array = false;
         bool object = false;
         var type;
         if (schemaType == "array") {
           array = true;
           schemaType = property["items"]["type"];
+          schemaFormat = "";
+          if (property["items"].containsKey("format")) {
+            schemaFormat = property["items"]["format"];
+          }
         }
         switch(schemaType) {
           case "object":
             type = "${capitalize(name)}${capitalize(key)}";
             object = true;
             break;
-          case "string": type = "core.String"; break;
+          case "string":
+            type = "core.String";
+            if (schemaFormat == "int64") {
+              type = "core.int";              
+            }
+            break;
           case "number": type = "core.num"; break;
           case "integer": type = "core.int"; break;
           case "boolean": type = "core.bool"; break;
@@ -571,19 +607,32 @@ part "$srcFolder/console/$_name.dart";
     if (data.containsKey("properties")) {
       data["properties"].forEach((key, property) {
         var schemaType = property["type"];
+        var schemaFormat = "";
+        if (property.containsKey("format")) {
+          schemaFormat = property["format"];
+        }
         bool array = false;
         bool object = false;
         var type;
         if (schemaType == "array") {
           array = true;
           schemaType = property["items"]["type"];
+          schemaFormat = "";
+          if (property["items"].containsKey("format")) {
+            schemaFormat = property["items"]["format"];
+          }
         }
         switch(schemaType) {
           case "object":
             type = "${capitalize(name)}${capitalize(key)}";
             object = true;
             break;
-          case "string": type = "core.String"; break;
+          case "string":
+            type = "core.String";
+            if (schemaFormat == "int64") {
+              type = "core.int";              
+            }
+            break;
           case "number": type = "core.num"; break;
           case "integer": type = "core.int"; break;
           case "boolean": type = "core.bool"; break;
@@ -690,6 +739,11 @@ part "$srcFolder/console/$_name.dart";
       data["parameterOrder"].forEach((param) {
         if (data["parameters"].containsKey(param)) {
           var type = parameterType[data["parameters"][param]["type"]];
+          if (data["parameters"][param].containsKey("format")) {
+             if (data["parameters"][param]["type"] == "string" && data["parameters"][param]["format"] == "int64") {
+               type = "core.int";
+             }
+          }
           if (type != null) {
             var variable = escapeParameter(cleanName(param));
             tmp.write(_createParamComment(variable, data["parameters"][param]));
@@ -723,6 +777,11 @@ part "$srcFolder/console/$_name.dart";
       data["parameters"].forEach((name, description) {
         if (!description.containsKey("gen_included")) {
           var type = parameterType[description["type"]];
+          if (description.containsKey("format")) {
+             if (description["type"] == "string" && description["format"] == "int64") {
+               type = "core.int";
+             }
+          }
           if (type != null) {
             var variable = escapeParameter(cleanName(name));
             tmp.write(_createParamComment(variable, description));
