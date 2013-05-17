@@ -2,12 +2,7 @@ part of discovery_api_client_generator;
 
 // Workaround for Cloud Endpoints because they don't respond to requests from HttpClient
 Future<String> loadCustomUrl(String url) {
-  var completer = new Completer();
-  Process.run("curl", ["-k", url]).then((p) {
-    completer.complete(p.stdout);
-  });
-
-  return completer.future;
+  return Process.run("curl", ["-k", url]).then((p) => p.stdout);
 }
 
 Future<String> loadDocumentFromUrl(String url) {
@@ -43,13 +38,7 @@ Future<String> loadDocumentFromFile(String fileName) {
 }
 
 Future<Map> loadGoogleAPIList() {
-  var completer = new Completer();
   final url = "https://www.googleapis.com/discovery/v1/apis";
-  loadDocumentFromUrl(url)
-    .then((data) {
-      var apis = JSON.parse(data);
-      completer.complete(apis);
-    })
-    .catchError((e) => completer.completeError(e));
-  return completer.future;
+  return loadDocumentFromUrl(url)
+    .then((data) => JSON.parse(data));
 }
