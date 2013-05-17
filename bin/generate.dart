@@ -1,3 +1,5 @@
+#!/usr/bin/env dart
+
 import "dart:json" as JSON;
 import "dart:io";
 import "package:args/args.dart";
