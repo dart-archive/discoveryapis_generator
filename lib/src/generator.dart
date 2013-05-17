@@ -146,7 +146,7 @@ class Generator {
     (new File("$libFolder/$srcFolder/console/consoleclient.dart")).writeAsStringSync(_createConsoleClientClass());
 
     (new File("$libFolder/$srcFolder/console/$_name.dart")).writeAsStringSync(_createConsoleMainClass());
-    
+
     // Create hop_runner for the libraries
     (new File("$mainFolder/tool/hop_runner.dart")).writeAsStringSync(_createHopRunner());
     //_createHopRunner
@@ -503,7 +503,7 @@ part "$srcFolder/console/$_name.dart";
           case "string":
             type = "core.String";
             if (schemaFormat == "int64") {
-              type = "core.int";              
+              type = "core.int";
             }
             break;
           case "number": type = "core.num"; break;
@@ -560,7 +560,7 @@ part "$srcFolder/console/$_name.dart";
           case "string":
             type = "core.String";
             if (schemaFormat == "int64") {
-              type = "core.int";              
+              type = "core.int";
             }
             break;
           case "number": type = "core.num"; break;
@@ -630,7 +630,7 @@ part "$srcFolder/console/$_name.dart";
           case "string":
             type = "core.String";
             if (schemaFormat == "int64") {
-              type = "core.int";              
+              type = "core.int";
             }
             break;
           case "number": type = "core.num"; break;
@@ -722,7 +722,7 @@ part "$srcFolder/console/$_name.dart";
     var uploadPath;
 
     name = escapeMethod(cleanName(name));
-    
+
     tmp.write("  /**\n");
     if (data.containsKey("description")) {
       tmp.write("   * ${data["description"]}\n");
@@ -1021,27 +1021,27 @@ abstract class BrowserClient extends Client {
    */
   async.Future<core.bool> _loadJsClient() {
     var completer = new async.Completer();
-    
+
     if (_jsClientLoaded) {
       completer.complete(true);
       return completer.future;
     }
-    
+
     js.scoped((){
       js.context.handleClientLoad =  new js.Callback.once(() {
         _jsClientLoaded = true;
         completer.complete(true);
       });
     });
-    
+
     html.ScriptElement script = new html.ScriptElement();
     script.src = "http://apis.google.com/js/client.js?onload=handleClientLoad";
     script.type = "text/javascript";
     html.document.body.children.add(script);
-    
+
     return completer.future;
   }
-  
+
   /**
    * Makes a request via the JS Client Library to circumvent CORS-problems
    */
@@ -1051,11 +1051,11 @@ abstract class BrowserClient extends Client {
     requestData["path"] = requestUrl;
     requestData["method"] = method;
     requestData["headers"] = new core.Map();
-    
+
     if (queryParams != null) {
       requestData["params"] = queryParams;
     }
-    
+
     if (body != null) {
       requestData["body"] = body;
       requestData["headers"]["Content-Type"] = contentType;
@@ -1063,7 +1063,7 @@ abstract class BrowserClient extends Client {
     if (makeAuthRequests && _auth != null && _auth.token != null) {
       requestData["headers"]["Authorization"] = "\${_auth.token.type} \${_auth.token.data}";
     }
-    
+
     js.scoped(() {
       var request = js.context.gapi.client.request(js.map(requestData));
       var callback = new js.Callback.once((jsonResp, rawResp) {
@@ -1072,7 +1072,7 @@ abstract class BrowserClient extends Client {
           if (raw["gapiRequest"]["data"]["status"] >= 400) {
             completer.completeError(new APIRequestException("JS Client - \${raw["gapiRequest"]["data"]["status"]} \${raw["gapiRequest"]["data"]["statusText"]} - \${raw["gapiRequest"]["data"]["body"]}"));
           } else {
-            completer.complete({});              
+            completer.complete({});
           }
         } else {
           completer.complete(js.context.JSON.stringify(jsonResp));
@@ -1080,7 +1080,7 @@ abstract class BrowserClient extends Client {
       });
       request.execute(callback);
     });
-    
+
     return completer.future;
   }
 
@@ -1139,7 +1139,7 @@ abstract class BrowserClient extends Client {
           if (request.responseText != null) {
             var errorJson;
             try {
-              errorJson = JSON.parse(request.responseText); 
+              errorJson = JSON.parse(request.responseText);
             } on core.FormatException {
               errorJson = null;
             }
@@ -1179,7 +1179,7 @@ part of $_libraryConsoleName;
  */
 abstract class ConsoleClient extends Client {
 
-  oauth2.OAuth2Console _auth; 
+  oauth2.OAuth2Console _auth;
 
   ConsoleClient([oauth2.OAuth2Console this._auth]) : super();
 
@@ -1238,8 +1238,8 @@ abstract class ConsoleClient extends Client {
         .then((io.HttpClientResponse response) {
           // On connection response read in data from stream, on close parse as json and return.
           core.StringBuffer onResponseBody = new core.StringBuffer();
-          response.transform(new io.StringDecoder()).listen((core.String data) => onResponseBody.write(data), 
-              onError: (error) => completer.completeError(new APIRequestException("POST stream error: \$error")), 
+          response.transform(new io.StringDecoder()).listen((core.String data) => onResponseBody.write(data),
+              onError: (error) => completer.completeError(new APIRequestException("POST stream error: \$error")),
               onDone: () {
                 var data = JSON.parse(onResponseBody.toString());
                 completer.complete(data);
@@ -1288,11 +1288,10 @@ abstract class ConsoleClient extends Client {
 
 """;
   }
-  
-  String _createHopRunner() {
-    
-    return """
 
+  String _createHopRunner() {
+
+    return """
 library hop_runner;
 
 import 'dart:async';
@@ -1303,10 +1302,10 @@ import 'package:hop/hop_tasks.dart';
 void main() {
 
   List pathList = [
-     'lib/$_libraryBrowserName.dart'
-    ,'lib/$_libraryConsoleName.dart'
-    ,'lib/$_libraryName.dart'
-  ];    
+    'lib/$_libraryBrowserName.dart',
+    'lib/$_libraryConsoleName.dart',
+    'lib/$_libraryName.dart'
+  ];
 
   addTask('docs', createDartDocTask(pathList, linkApi: true));
 
@@ -1315,6 +1314,6 @@ void main() {
   runHop();
 
 }
-    """;
+""";
   }
 }
