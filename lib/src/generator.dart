@@ -6,7 +6,8 @@ const String jsDependenciesVersionConstraint = '>=0.0.20';
 const String googleOAuth2ClientVersionConstraint = '>=0.2.11';
 
 class Generator {
-  String _data;
+  final String _data;
+  final String _prefix;
   Map _json;
   String _name;
   String _version;
@@ -16,7 +17,6 @@ class Generator {
   String _libraryBrowserName;
   String _libraryConsoleName;
   String _libraryPubspecName;
-  String _prefix;
   int _clientVersionBuild;
 
   Generator(String this._data, [String this._prefix = "google"]) {
