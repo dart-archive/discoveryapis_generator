@@ -1011,7 +1011,7 @@ part of $_libraryBrowserName;
  */
 abstract class BrowserClient extends Client {
 
-  oauth.OAuth2 _auth;
+  final oauth.OAuth2 _auth;
   core.bool _jsClientLoaded = false;
 
   BrowserClient([oauth.OAuth2 this._auth]) : super();
