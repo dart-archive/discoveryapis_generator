@@ -1,5 +1,6 @@
 #!/usr/bin/env dart
 
+import 'dart:async';
 import "dart:json" as JSON;
 import "dart:io";
 import "package:args/args.dart";
@@ -16,21 +17,34 @@ void printUsage(parser) {
   print(parser.getUsage());
 }
 
+const _argHelp = 'help';
+const _argFull = 'full';
+const _argAll = 'all';
+const _argForce = 'force';
+const _argCheck = 'check';
+const _argApi = 'api';
+const _argVersion = 'versoin';
+const _argUrl = 'url';
+const _argInput = 'input';
+const _argPrefix = 'prefix';
+const _argOutput = 'output';
+const _argDate = 'date';
+
 void main() {
   final options = new Options();
   var parser = new ArgParser();
-  parser.addOption("api", abbr: "a", help: "Short name of the Google API (plus, drive, ...)");
-  parser.addOption("version", abbr: "v", help: "Google API version (v1, v2, v1alpha, ...)");
-  parser.addOption("input", abbr: "i", help: "Local Discovery document file");
-  parser.addOption("url", abbr: "u", help: "URL of a Discovery document");
-  parser.addOption("prefix", abbr: "p", help: "Prefix for library name", defaultsTo: "google");
-  parser.addFlag("all", help: "Create client libraries for all Google APIs", negatable: false);
-  parser.addFlag("full", help: "Create one library including all Google APIs", negatable: false);
-  parser.addOption("output", abbr: "o", help: "Output Directory", defaultsTo: "output/");
-  parser.addFlag("date", help: "Create sub folder with current date", negatable: false);
-  parser.addFlag("check", help: "Check for changes against existing version if available", negatable: false);
-  parser.addFlag("force", help: "Force client version update even if no changes", negatable: false);
-  parser.addFlag("help", abbr: "h", help: "Display this information and exit", negatable: false);
+  parser.addOption(_argApi, abbr: "a", help: "Short name of the Google API (plus, drive, ...)");
+  parser.addOption(_argVersion, abbr: "v", help: "Google API version (v1, v2, v1alpha, ...)");
+  parser.addOption(_argInput, abbr: "i", help: "Local Discovery document file");
+  parser.addOption(_argUrl, abbr: "u", help: "URL of a Discovery document");
+  parser.addOption(_argPrefix, abbr: "p", help: "Prefix for library name", defaultsTo: "google");
+  parser.addFlag(_argAll, help: "Create client libraries for all Google APIs", negatable: false);
+  parser.addFlag(_argFull, help: "Create one library including all Google APIs", negatable: false);
+  parser.addOption(_argOutput, abbr: "o", help: "Output Directory", defaultsTo: "output/");
+  parser.addFlag(_argDate, help: "Create sub folder with current date", negatable: false);
+  parser.addFlag(_argCheck, help: "Check for changes against existing version if available", negatable: false);
+  parser.addFlag(_argForce, help: "Force client version update even if no changes", negatable: false);
+  parser.addFlag(_argHelp, abbr: "h", help: "Display this information and exit", negatable: false);
   var result;
   try {
     result = parser.parse(options.arguments);
@@ -40,15 +54,24 @@ void main() {
     return;
   }
 
-  if (result["help"] != null && result["help"] == true) {
+  bool help = result[_argHelp];
+
+  if (help) {
     printUsage(parser);
     return;
   }
 
-  if ((result["api"] == null || result["version"] == null)
-      && result["input"] == null && result["url"] == null
-      && (result["all"] == null || result["all"] == false)
-      && (result["full"] == null || result["full"] == false)) {
+  bool full = result[_argFull];
+  bool all = result[_argAll];
+
+  String api = result[_argApi];
+  String version = result[_argVersion];
+  String input = result[_argInput];
+  String url = result[_argUrl];
+
+  if ((api == null || version == null)
+      && input == null && url == null
+      && !all && !full) {
     print("Missing arguments\n");
     printUsage(parser);
     return;
@@ -56,71 +79,60 @@ void main() {
 
   var argumentErrors = false;
   argumentErrors = argumentErrors ||
-      (result["api"] != null &&
-        (result["input"] != null ||
-         result["url"] != null ||
-         (result["all"] != null && result["all"] == true) ||
-         (result["full"] != null && result["full"] == true))
-      );
+      (api != null &&  (input != null || url != null || all || full));
   argumentErrors = argumentErrors||
-      (result["input"] != null &&
-        (result["url"] != null ||
-         (result["all"] != null && result["all"] == true) ||
-         (result["full"] != null && result["full"] == true))
-      );
+      (input != null && (url != null || all || full));
   argumentErrors = argumentErrors ||
-      (result["url"] != null &&
-        ((result["all"] != null && result["all"] == true) ||
-         (result["full"] != null && result["full"] == true))
-      );
+      (url != null && (all || full));
   argumentErrors = argumentErrors ||
-      (result["all"] != null && result["all"] == true &&
-        ((result["full"] != null && result["full"] == true))
-      );
+      (all && full);
   if (argumentErrors) {
     print("You can only define one kind of operation.\n");
     printUsage(parser);
     return;
   }
 
-  var output = result["output"];
-  if (result["date"] != null && result["date"] == true) {
+  var output = result[_argOutput];
+  bool useDate = result[_argDate];
+  assert(useDate != null);
+
+  if (useDate) {
     output = "$output/${fileDate(new DateTime.now())}";
   }
 
-  var check = false;
-  if (result["check"] != null && result["check"] == true) {
-    check = true;
-  }
+  bool check = result[_argCheck];
+  assert(check != null);
 
-  var force = false;
-  if (result["force"] != null && result["force"] == true) {
-    force = true;
-  }
+  bool force = result[_argForce];
+  assert(force != null);
 
-  if ((result["all"] == null || result["all"] == false) &&
-      (result["full"] == null || result["full"] == false)) {
-    var loader;
-    if (result["api"] !=null)
-      loader = loadDocumentFromGoogle(result["api"], result["version"]);
-    else if (result["url"] != null)
-      loader = loadCustomUrl(result["url"]);
-    else if (result["input"] != null)
-      loader = loadDocumentFromFile(result["input"]);
+  String prefix = result[_argPrefix];
+  assert(prefix != null && !prefix.isEmpty);
+
+  if (!all && !full) {
+    Future<String> loader;
+    if (api != null) {
+      loader = loadDocumentFromGoogle(api, version);
+    } else if (url != null) {
+      loader = loadCustomUrl(url);
+    } else {
+      assert(input != null);
+      loader = loadDocumentFromFile(input);
+    }
 
     loader.then((doc) {
-      var generator = new Generator(doc, result["prefix"]);
+      var generator = new Generator(doc, prefix);
       generator.generateClient(output, check: check, force: force);
     });
   } else {
     loadGoogleAPIList().then((apis) {
-      if (result["full"] != null && result["full"] == true) {
+      if (full) {
         createFullClient(apis, output);
       }
-      if (result["all"] != null && result["all"] == true) {
+      if (all) {
         apis["items"].forEach((item) {
           loadDocumentFromUrl(item["discoveryRestUrl"]).then((doc) {
-            var generator = new Generator(doc, result["prefix"]);
+            var generator = new Generator(doc, prefix);
             generator.generateClient(output, check: check, force: force);
           });
         });
