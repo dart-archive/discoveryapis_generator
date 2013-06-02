@@ -282,8 +282,7 @@ Future<bool> findRepository(String name, String version, String gitname) {
 Future<bool> publish(String gitname) {
   var completer = new Completer<bool>();
   print("Publishing library to pub");
-  var options = new ProcessOptions();
-  options.workingDirectory = "$outputdir/$gitname/";
+  var workingDirectory = "$outputdir/$gitname/";
   var arguments = [];
   if (pubVerbose) {
     arguments.add("-v");
@@ -291,7 +290,7 @@ Future<bool> publish(String gitname) {
 
   arguments.add("publish");
   arguments.add("--server=$pubserver");
-  Process.start("pub", arguments, options)
+  Process.start("pub", arguments, workingDirectory: workingDirectory)
   ..then((p) {
     StringBuffer stderrBuffer = new StringBuffer();
     p.stderr.transform(new StringDecoder()).listen((String data) {
@@ -353,9 +352,8 @@ Future<bool> publish(String gitname) {
 
 Future<bool> setPubUploaders(String gitname, {int index: 0}) {
   var completer = new Completer();
-  var options = new ProcessOptions();
-  options.workingDirectory = "$outputdir/$gitname/";
-  Process.run("pub", ["uploader", "--server=$pubserver", "add", uploaders[index]], options).then((p) {
+  var workingDirectory = "$outputdir/$gitname/";
+  Process.run("pub", ["uploader", "--server=$pubserver", "add", uploaders[index]], workingDirectory: workingDirectory).then((p) {
     print("---\nstderr");
     print(p.stderr);
     print("---\nstdout");
@@ -390,15 +388,14 @@ Future handleAPI(String name, String version, String gitname, {retry: false}) {
           var generator = new Generator(doc, prefix);
           if (generator.generateClient(outputdir, check: true, force: force, forceVersion: forceVersion) || retry) {
             print("Committing changes to GitHub");
-            var options = new ProcessOptions();
-            options.workingDirectory = "$outputdir/$gitname/";
-            Process.run("git", ["status"], options).then((p) {
+            var workingDirectory = "$outputdir/$gitname/";
+            Process.run("git", ["status"], workingDirectory: workingDirectory).then((p) {
               print(p.stdout);
-              Process.run("git", ["add", "--all"], options).then((p) {
+              Process.run("git", ["add", "--all"], workingDirectory: workingDirectory).then((p) {
                 print(p.stdout);
-                Process.run("git", ["commit", "-m Automated update"], options).then((p) {
+                Process.run("git", ["commit", "-m Automated update"], workingDirectory: workingDirectory).then((p) {
                   print(p.stdout);
-                  Process.run("git", ["push", "https://$token@github.com/$repouser/$gitname.git", "master"], options).then((p) {
+                  Process.run("git", ["push", "https://$token@github.com/$repouser/$gitname.git", "master"], workingDirectory: workingDirectory).then((p) {
                     print(p.stdout);
                     if (pubserver != null) {
                       publish(gitname)
