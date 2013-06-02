@@ -10,7 +10,7 @@ void main() {
   //
   // Analyzer
   //
-  addTask('analyze', createDartAnalyzerTask(['lib/generator.dart',
+  addTask('analyze', createAnalyzerTask(['lib/generator.dart',
                                              'bin/generate.dart',
                                              'tool/update.dart'
                                              ]));
