@@ -1,9 +1,9 @@
 part of discovery_api_client_generator;
 
 const String clientVersion = "0.1";
-const String dartEnvironmentVersionConstraint = '>=0.4.7+1.r21548';
-const String jsDependenciesVersionConstraint = '>=0.0.20';
-const String googleOAuth2ClientVersionConstraint = '>=0.2.11';
+const String dartEnvironmentVersionConstraint = '>=0.5.13';
+const String jsDependenciesVersionConstraint = '>=0.0.22';
+const String googleOAuth2ClientVersionConstraint = '>=0.2.14';
 
 class Generator {
   final String _data;
@@ -212,9 +212,9 @@ set -e
 # Type Analysis
 
 echo
-echo "dart_analyzer lib/*.dart"
+echo "dartanalyzer lib/*.dart"
 
-results=`dart_analyzer lib/*.dart 2>&1`
+results=`dartanalyzer lib/*.dart 2>&1`
 
 echo "\$results"
 
@@ -1309,7 +1309,7 @@ void main() {
 
   addTask('docs', createDartDocTask(pathList, linkApi: true));
 
-  addTask('analyze', createDartAnalyzerTask(pathList));
+  addTask('analyze', createAnalyzerTask(pathList));
 
   runHop();
 
