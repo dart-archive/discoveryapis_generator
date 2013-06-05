@@ -3,10 +3,11 @@
 #####
 # Type Analysis
 
-ANA="dart_analyzer --enable_type_checks --fatal-type-errors --extended-exit-code --type-checks-for-inferred-types --incremental"
+# ANA="dartanalyzer --enable_type_checks --fatal-type-errors --extended-exit-code --type-checks-for-inferred-types --incremental"
+ANA="dartanalyzer"
 
 echo
-echo "Type Analysis, running dart_analyzer..."
+echo "Type Analysis, running dartanalyzer..."
 
 EXITSTATUS=0
 WARNINGS=0
@@ -47,12 +48,12 @@ dart bin/generate.dart -a drive -v v2 --output ${GENERATED_OUTPUT_DIR}
 for package in ${GENERATED_OUTPUT_DIR}/*
 do
 	echo
-	echo "run dart_analyzer on $package"
+	echo "run dartanalyzer on $package"
 	if [ -d "$package" ]; then
 		pub_result=`pushd $package && pub install && popd`
 		# we relax the analyzer here cause the
 		# autogen packages have more dynamic nature to them.
-		cmd="dart_analyzer --enable_type_checks --extended-exit-code --type-checks-for-inferred-types  --package-root $package/packages"
+		cmd="dartanalyzer --enable_type_checks --extended-exit-code --type-checks-for-inferred-types  --package-root $package/packages"
 		files="${package}/lib/*.dart"
 		for file in $files
 		do
