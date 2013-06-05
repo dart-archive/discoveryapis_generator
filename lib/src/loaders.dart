@@ -28,7 +28,7 @@ Future<String> loadDocumentFromUrl(String url) {
 }
 
 Future<String> loadDocumentFromGoogle(String api, String version) {
-  final url = "https://www.googleapis.com/discovery/v1/apis/${encodeUriComponent(api)}/${encodeUriComponent(version)}/rest";
+  final url = "https://www.googleapis.com/discovery/v1/apis/${Uri.encodeComponent(api)}/${Uri.encodeComponent(version)}/rest";
   return loadDocumentFromUrl(url);
 }
 

@@ -8,10 +8,10 @@ const Map parameterType = const {
 };
 
 const List keywords = const [
-  "assert", "break", "case", "catch", "class", "const", "continue", 
-  "default", "do", "else", "enum", "extends", "false", "final", "finally", 
-  "for", "if", "in", "is", "new", "null", "rethrow", "return", "super", "switch", 
-  "this", "throw", "true", "try", "var", "void", "while", "with"                             
+  "assert", "break", "case", "catch", "class", "const", "continue",
+  "default", "do", "else", "enum", "extends", "false", "final", "finally",
+  "for", "if", "in", "is", "new", "null", "rethrow", "return", "super", "switch",
+  "this", "throw", "true", "try", "var", "void", "while", "with"
 ];
 
 String fileDate(DateTime date) => "${date.year}${(date.month < 10) ? 0 : ""}${date.month}${(date.day < 10) ? 0 : ""}${date.day}_${(date.hour < 10) ? 0 : ""}${date.hour}${(date.minute < 10) ? 0 : ""}${date.minute}${(date.second < 10) ? 0 : ""}${date.second}";
@@ -61,6 +61,8 @@ String createContributors() {
   return """
 Adam Singer (https://github.com/financeCoding)
 Gerwin Sturm (https://github.com/Scarygami, http://scarygami.net/+)
+Damon Douglas (https://github.com/damondouglas)
+Kevin Moore (kevin@thinkpixellab.com)
 """;
 }
 
