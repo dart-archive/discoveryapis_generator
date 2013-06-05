@@ -271,7 +271,6 @@ export "$_libraryName.dart";
 import "dart:core" as core;
 import "dart:io" as io;
 import "dart:async" as async;
-import "dart:uri" as uri;
 import "dart:json" as JSON;
 import "package:http/http.dart" as http;
 import "package:google_oauth2_client/google_oauth2_console.dart" as oauth2;
@@ -1226,7 +1225,7 @@ abstract class ConsoleClient extends Client {
         var postHttpClient = new io.HttpClient();
 
         // On connection request set the content type and key if available.
-        postHttpClient.openUrl(method, uri.Uri.parse(url)).then((io.HttpClientRequest request) {
+        postHttpClient.openUrl(method, core.Uri.parse(url)).then((io.HttpClientRequest request) {
           request.headers.set(io.HttpHeaders.CONTENT_TYPE, contentType);
           if (makeAuthRequests && _auth != null) {
             request.headers.set(io.HttpHeaders.AUTHORIZATION, "Bearer \${_auth.credentials.accessToken}");
@@ -1250,7 +1249,7 @@ abstract class ConsoleClient extends Client {
       } else if (method.toLowerCase() == "delete") {
         var deleteHttpClient = new io.HttpClient();
 
-        deleteHttpClient.openUrl(method, uri.Uri.parse(url)).then((io.HttpClientRequest request) {
+        deleteHttpClient.openUrl(method, core.Uri.parse(url)).then((io.HttpClientRequest request) {
           // On connection request set the content type and key if available.
           request.headers.set(io.HttpHeaders.CONTENT_TYPE, contentType);
           if (makeAuthRequests && _auth != null) {
