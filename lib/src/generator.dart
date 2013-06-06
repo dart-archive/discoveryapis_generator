@@ -591,8 +591,11 @@ part "$srcFolder/console/$_name.dart";
             if (object) {
               tmp.write("      $propName = new $type.fromJson(json[\"$jsonName\"]);\n");
             } else {
-              tmp.write("      $propName = json[\"$jsonName\"];\n");
-            }
++              if(schemaType=="string" && schemaFormat == "int64") {
++                tmp.write("      $propName = core.int.parse(json[\"$jsonName\"]);\n");                
++              }else{            
++                tmp.write("      $propName = json[\"$jsonName\"];\n");
++              }             }
           }
           tmp.write("    }\n");
         }
