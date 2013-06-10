@@ -590,12 +590,17 @@ part "$srcFolder/console/$_name.dart";
           } else {
             if (object) {
               tmp.write("      $propName = new $type.fromJson(json[\"$jsonName\"]);\n");
-            } else {
-+              if(schemaType=="string" && schemaFormat == "int64") {
-+                tmp.write("      $propName = core.int.parse(json[\"$jsonName\"]);\n");                
-+              }else{            
-+                tmp.write("      $propName = json[\"$jsonName\"];\n");
-+              }             }
+            } else {              
+              if(schemaType=="string" && schemaFormat == "int64") {
+                tmp.write("      if(json[\"$jsonName\"] is core.String){\n");
+                tmp.write("        $propName = core.int.parse(json[\"$jsonName\"]);\n");
+                tmp.write("      }else{\n");
+                tmp.write("        $propName = json[\"$jsonName\"];\n");
+                tmp.write("      }\n");
+              }else{            
+                tmp.write("      $propName = json[\"$jsonName\"];\n");
+              }   
+            }
           }
           tmp.write("    }\n");
         }
