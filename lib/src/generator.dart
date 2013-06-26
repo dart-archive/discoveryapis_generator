@@ -956,7 +956,7 @@ abstract class Client {
 /// Base-class for all API Resources
 abstract class Resource {
   /// The [Client] to be used for all requests
-  Client _client;
+  final Client _client;
 
   /// Create a new Resource, using the specified [Client] for requests
   Resource(Client this._client);
