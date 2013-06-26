@@ -1,8 +1,8 @@
 part of discovery_api_client_generator;
 
 const String clientVersion = "0.1";
-const String dartEnvironmentVersionConstraint = '>=0.5.13';
-const String jsDependenciesVersionConstraint = '>=0.0.22';
+const String dartEnvironmentVersionConstraint = '>=0.5.20';
+const String jsDependenciesVersionConstraint = '>=0.0.23';
 const String googleOAuth2ClientVersionConstraint = '>=0.2.14';
 
 class Generator {
