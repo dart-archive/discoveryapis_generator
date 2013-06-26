@@ -135,14 +135,14 @@ class Generator {
     // Create browser versions of the libraries
     (new File("$libFolder/$_libraryBrowserName.dart")).writeAsStringSync(_createBrowserLibrary(srcFolder));
 
-    (new File("$libFolder/$srcFolder/browser/browserclient.dart")).writeAsStringSync(_createBrowserClientClass());
+    (new File("$libFolder/$srcFolder/browser/browser_client.dart")).writeAsStringSync(_createBrowserClientClass());
 
     (new File("$libFolder/$srcFolder/browser/$_name.dart")).writeAsStringSync(_createBrowserMainClass());
 
     // Create console versions of the libraries
     (new File("$libFolder/$_libraryConsoleName.dart")).writeAsStringSync(_createConsoleLibrary(srcFolder));
 
-    (new File("$libFolder/$srcFolder/console/consoleclient.dart")).writeAsStringSync(_createConsoleClientClass());
+    (new File("$libFolder/$srcFolder/console/console_client.dart")).writeAsStringSync(_createConsoleClientClass());
 
     (new File("$libFolder/$srcFolder/console/$_name.dart")).writeAsStringSync(_createConsoleMainClass());
 
@@ -254,7 +254,7 @@ import "dart:json" as JSON;
 import "package:js/js.dart" as js;
 import "package:google_oauth2_client/google_oauth2_browser.dart" as oauth;
 
-part "$srcFolder/browser/browserclient.dart";
+part "$srcFolder/browser/browser_client.dart";
 part "$srcFolder/browser/$_name.dart";
 
 """;
@@ -274,7 +274,7 @@ import "dart:json" as JSON;
 import "package:http/http.dart" as http;
 import "package:google_oauth2_client/google_oauth2_console.dart" as oauth2;
 
-part "$srcFolder/console/consoleclient.dart";
+part "$srcFolder/console/console_client.dart";
 part "$srcFolder/console/$_name.dart";
 
 """;
