@@ -1,10 +1,10 @@
 name: discovery_api_client_generator
-version: 0.2.6
+version: 0.2.7
 authors:
 - Gerwin Sturm <scarygami@gmail.com>
 - Adam Singer <financeCoding@gmail.com>
 - Kevin Moore <kevin@thinkpixellab.com>
-description: Create API Client libraries based on the API's Discovery documentation
+description: Create API Client libraries based on the APIs Discovery documentation
 homepage: https://github.com/dart-gde/discovery_api_dart_client_generator
 environment:
   sdk: '>=0.5.13'
