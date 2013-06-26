@@ -8,17 +8,16 @@ void createFullClient(Map apis, String outputDirectory) {
     return """
 name: $fullLibraryName
 version: $clientVersion.0
-description: Auto-generated client library for accessing Google APIs
-homepage: https://github.com/dart-gde/discovery_api_dart_client_generator
 authors:
 - Gerwin Sturm <scarygami@gmail.com>
 - Adam Singer <financeCoding@gmail.com>
+description: Auto-generated client library for accessing Google APIs
+homepage: https://github.com/dart-gde/discovery_api_dart_client_generator
 environment:
   sdk: '${dartEnvironmentVersionConstraint}'
 dependencies:
-  js: '${jsDependenciesVersionConstraint}'
   google_oauth2_client: '${googleOAuth2ClientVersionConstraint}'
-
+  js: '${jsDependenciesVersionConstraint}'
 """;
   }
 
