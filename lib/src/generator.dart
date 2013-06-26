@@ -38,7 +38,6 @@ class Generator {
       mainFolder = outputDirectory;
       libFolder = "$outputDirectory/lib";
       srcFolder = "src/$_shortName";
-
     } else {
       mainFolder = "$outputDirectory/$_gitName";
       libFolder = "$mainFolder/lib";
@@ -149,7 +148,6 @@ class Generator {
 
     // Create hop_runner for the libraries
     (new File("$mainFolder/tool/hop_runner.dart")).writeAsStringSync(_createHopRunner());
-    //_createHopRunner
 
     print("Library $_libraryName generated successfully.");
     return true;
@@ -159,16 +157,17 @@ class Generator {
     return """
 name: $_libraryPubspecName
 version: $clientVersion.$_clientVersionBuild
-description: Auto-generated client library for accessing the $_name $_version API
-homepage: https://github.com/dart-gde/discovery_api_dart_client_generator
 authors:
 - Gerwin Sturm <scarygami@gmail.com>
 - Adam Singer <financeCoding@gmail.com>
+description: Auto-generated client library for accessing the $_name $_version API
+homepage: https://github.com/dart-gde/discovery_api_dart_client_generator
 environment:
   sdk: '${dartEnvironmentVersionConstraint}'
 dependencies:
-  js: '${jsDependenciesVersionConstraint}'
   google_oauth2_client: '${googleOAuth2ClientVersionConstraint}'
+  js: '${jsDependenciesVersionConstraint}'
+dev_dependencies:
   hop: any
 """;
   }
