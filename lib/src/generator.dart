@@ -105,8 +105,6 @@ class Generator {
     (new Directory("$mainFolder/tool")).createSync(recursive: true);
 
     if (!fullLibrary) {
-      (new Directory("$mainFolder/test")).createSync(recursive: true);
-
       (new File("$mainFolder/pubspec.yaml")).writeAsStringSync(_createPubspec());
 
       (new File("$mainFolder/LICENSE")).writeAsStringSync(createLicense());
@@ -118,8 +116,6 @@ class Generator {
       (new File("$mainFolder/CONTRIBUTORS")).writeAsStringSync(createContributors());
 
       (new File("$mainFolder/VERSION")).writeAsStringSync(_json["etag"]);
-
-      (new File("$mainFolder/test/run.sh")).writeAsStringSync(_createTest());
     }
 
     // Create common library files
@@ -199,30 +195,6 @@ Auto-generated client library for accessing the $_name $_version API.
     tmp.write(createLicense());
     tmp.write("```\n");
     return tmp.toString();
-  }
-
-  String _createTest() {
-    return """
-#!/bin/bash
-
-set -e
-
-#####
-# Type Analysis
-
-echo
-echo "dartanalyzer lib/*.dart"
-
-results=`dartanalyzer lib/*.dart 2>&1`
-
-echo "\$results"
-
-if [ -n "\$results" ]; then
-    exit 1
-else
-    echo "Passed analysis."
-fi
-""";
   }
 
   String _createLibrary(String srcFolder) {
