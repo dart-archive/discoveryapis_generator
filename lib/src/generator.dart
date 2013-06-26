@@ -99,7 +99,7 @@ class Generator {
         });
       }
     }
-    (new Directory("$libFolder/$srcFolder/common")).createSync(recursive: true);
+    (new Directory("$libFolder/$srcFolder/client")).createSync(recursive: true);
     (new Directory("$libFolder/$srcFolder/browser")).createSync(recursive: true);
     (new Directory("$libFolder/$srcFolder/console")).createSync(recursive: true);
     (new Directory("$mainFolder/tool")).createSync(recursive: true);
@@ -122,11 +122,11 @@ class Generator {
 
     (new File("$libFolder/$_libraryName.dart")).writeAsStringSync(_createLibrary(srcFolder));
 
-    (new File("$libFolder/$srcFolder/common/client.dart")).writeAsStringSync(_createClientClass());
+    (new File("$libFolder/$srcFolder/client/client.dart")).writeAsStringSync(_createClientClass());
 
-    (new File("$libFolder/$srcFolder/common/schemas.dart")).writeAsStringSync(_createSchemas());
+    (new File("$libFolder/$srcFolder/client/schemas.dart")).writeAsStringSync(_createSchemas());
 
-    (new File("$libFolder/$srcFolder/common/resources.dart")).writeAsStringSync(_createResources());
+    (new File("$libFolder/$srcFolder/client/resources.dart")).writeAsStringSync(_createResources());
 
     // Create browser versions of the libraries
     (new File("$libFolder/$_libraryBrowserName.dart")).writeAsStringSync(_createBrowserLibrary(srcFolder));
@@ -205,10 +205,9 @@ import "dart:core" as core;
 import "dart:async" as async;
 import "dart:json" as JSON;
 
-part "$srcFolder/common/client.dart";
-part "$srcFolder/common/schemas.dart";
-part "$srcFolder/common/resources.dart";
-
+part "$srcFolder/client/client.dart";
+part "$srcFolder/client/schemas.dart";
+part "$srcFolder/client/resources.dart";
 """;
   }
 
@@ -228,7 +227,6 @@ import "package:google_oauth2_client/google_oauth2_browser.dart" as oauth;
 
 part "$srcFolder/browser/browser_client.dart";
 part "$srcFolder/browser/$_name.dart";
-
 """;
   }
 
@@ -248,7 +246,6 @@ import "package:google_oauth2_client/google_oauth2_console.dart" as oauth2;
 
 part "$srcFolder/console/console_client.dart";
 part "$srcFolder/console/$_name.dart";
-
 """;
   }
 
