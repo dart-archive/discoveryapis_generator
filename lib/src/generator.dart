@@ -780,7 +780,6 @@ part "$srcFolder/console/$_name.dart";
     }
 
     tmp.write("  $response $name(${params.join(", ")}) {\n");
-    tmp.write("    var completer = new async.Completer();\n");
     tmp.write("    var url = \"${data["path"]}\";\n");
     if (upload) {
       tmp.write("    var uploadUrl = \"$uploadPath\";\n");
@@ -824,8 +823,7 @@ part "$srcFolder/console/$_name.dart";
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeError(new core.ArgumentError(paramErrors.join(" / ")));
-      return completer.future;
+      throw new core.ArgumentError(paramErrors.join(" / "));
     }
 
 """);
@@ -850,15 +848,12 @@ part "$srcFolder/console/$_name.dart";
       tmp.write("    response = ${noResource ? "this" : "_client"}.request(url, \"${data["httpMethod"]}\", $call);\n");
     }
 
-    tmp.write("    response\n");
-    tmp.write("      .then((data) => ");
     if (data.containsKey("response")) {
-      tmp.write("completer.complete(new ${data["response"]["\$ref"]}.fromJson(data)))\n");
+      tmp.write("    return response\n");
+      tmp.write("      .then((data) => new ${data["response"]["\$ref"]}.fromJson(data));\n");
     } else {
-      tmp.write("completer.complete(data))\n");
+      tmp.write("    return response;\n");
     }
-    tmp.write("      .catchError((e) { completer.completeError(e); return true; });\n");
-    tmp.write("    return completer.future;\n");
     tmp.write("  }\n");
 
     return tmp.toString();
