@@ -68,7 +68,7 @@ Kevin Moore (kevin@thinkpixellab.com)
 
 String createGitIgnore() {
   return """
-packages/
+packages
 pubspec.lock
 """;
 }

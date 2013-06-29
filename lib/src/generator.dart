@@ -1,8 +1,8 @@
 part of discovery_api_client_generator;
 
 const String clientVersion = "0.1";
-const String dartEnvironmentVersionConstraint = '>=0.5.13';
-const String jsDependenciesVersionConstraint = '>=0.0.22';
+const String dartEnvironmentVersionConstraint = '>=0.5.20';
+const String jsDependenciesVersionConstraint = '>=0.0.23';
 const String googleOAuth2ClientVersionConstraint = '>=0.2.14';
 
 class Generator {
@@ -38,7 +38,6 @@ class Generator {
       mainFolder = outputDirectory;
       libFolder = "$outputDirectory/lib";
       srcFolder = "src/$_shortName";
-
     } else {
       mainFolder = "$outputDirectory/$_gitName";
       libFolder = "$mainFolder/lib";
@@ -100,14 +99,12 @@ class Generator {
         });
       }
     }
-    (new Directory("$libFolder/$srcFolder/common")).createSync(recursive: true);
+    (new Directory("$libFolder/$srcFolder/client")).createSync(recursive: true);
     (new Directory("$libFolder/$srcFolder/browser")).createSync(recursive: true);
     (new Directory("$libFolder/$srcFolder/console")).createSync(recursive: true);
     (new Directory("$mainFolder/tool")).createSync(recursive: true);
 
     if (!fullLibrary) {
-      (new Directory("$mainFolder/test")).createSync(recursive: true);
-
       (new File("$mainFolder/pubspec.yaml")).writeAsStringSync(_createPubspec());
 
       (new File("$mainFolder/LICENSE")).writeAsStringSync(createLicense());
@@ -119,37 +116,34 @@ class Generator {
       (new File("$mainFolder/CONTRIBUTORS")).writeAsStringSync(createContributors());
 
       (new File("$mainFolder/VERSION")).writeAsStringSync(_json["etag"]);
-
-      (new File("$mainFolder/test/run.sh")).writeAsStringSync(_createTest());
     }
 
     // Create common library files
 
     (new File("$libFolder/$_libraryName.dart")).writeAsStringSync(_createLibrary(srcFolder));
 
-    (new File("$libFolder/$srcFolder/common/client.dart")).writeAsStringSync(_createClientClass());
+    (new File("$libFolder/$srcFolder/client/client.dart")).writeAsStringSync(_createClientClass());
 
-    (new File("$libFolder/$srcFolder/common/schemas.dart")).writeAsStringSync(_createSchemas());
+    (new File("$libFolder/$srcFolder/client/schemas.dart")).writeAsStringSync(_createSchemas());
 
-    (new File("$libFolder/$srcFolder/common/resources.dart")).writeAsStringSync(_createResources());
+    (new File("$libFolder/$srcFolder/client/resources.dart")).writeAsStringSync(_createResources());
 
     // Create browser versions of the libraries
     (new File("$libFolder/$_libraryBrowserName.dart")).writeAsStringSync(_createBrowserLibrary(srcFolder));
 
-    (new File("$libFolder/$srcFolder/browser/browserclient.dart")).writeAsStringSync(_createBrowserClientClass());
+    (new File("$libFolder/$srcFolder/browser/browser_client.dart")).writeAsStringSync(_createBrowserClientClass());
 
     (new File("$libFolder/$srcFolder/browser/$_name.dart")).writeAsStringSync(_createBrowserMainClass());
 
     // Create console versions of the libraries
     (new File("$libFolder/$_libraryConsoleName.dart")).writeAsStringSync(_createConsoleLibrary(srcFolder));
 
-    (new File("$libFolder/$srcFolder/console/consoleclient.dart")).writeAsStringSync(_createConsoleClientClass());
+    (new File("$libFolder/$srcFolder/console/console_client.dart")).writeAsStringSync(_createConsoleClientClass());
 
     (new File("$libFolder/$srcFolder/console/$_name.dart")).writeAsStringSync(_createConsoleMainClass());
 
     // Create hop_runner for the libraries
     (new File("$mainFolder/tool/hop_runner.dart")).writeAsStringSync(_createHopRunner());
-    //_createHopRunner
 
     print("Library $_libraryName generated successfully.");
     return true;
@@ -159,16 +153,17 @@ class Generator {
     return """
 name: $_libraryPubspecName
 version: $clientVersion.$_clientVersionBuild
-description: Auto-generated client library for accessing the $_name $_version API
-homepage: https://github.com/dart-gde/discovery_api_dart_client_generator
 authors:
 - Gerwin Sturm <scarygami@gmail.com>
 - Adam Singer <financeCoding@gmail.com>
+description: Auto-generated client library for accessing the $_name $_version API
+homepage: https://github.com/dart-gde/discovery_api_dart_client_generator
 environment:
   sdk: '${dartEnvironmentVersionConstraint}'
 dependencies:
-  js: '${jsDependenciesVersionConstraint}'
   google_oauth2_client: '${googleOAuth2ClientVersionConstraint}'
+  js: '${jsDependenciesVersionConstraint}'
+dev_dependencies:
   hop: any
 """;
   }
@@ -202,30 +197,6 @@ Auto-generated client library for accessing the $_name $_version API.
     return tmp.toString();
   }
 
-  String _createTest() {
-    return """
-#!/bin/bash
-
-set -e
-
-#####
-# Type Analysis
-
-echo
-echo "dartanalyzer lib/*.dart"
-
-results=`dartanalyzer lib/*.dart 2>&1`
-
-echo "\$results"
-
-if [ -n "\$results" ]; then
-    exit 1
-else
-    echo "Passed analysis."
-fi
-""";
-  }
-
   String _createLibrary(String srcFolder) {
     return """
 library $_libraryName;
@@ -234,10 +205,9 @@ import "dart:core" as core;
 import "dart:async" as async;
 import "dart:json" as JSON;
 
-part "$srcFolder/common/client.dart";
-part "$srcFolder/common/schemas.dart";
-part "$srcFolder/common/resources.dart";
-
+part "$srcFolder/client/client.dart";
+part "$srcFolder/client/schemas.dart";
+part "$srcFolder/client/resources.dart";
 """;
   }
 
@@ -255,9 +225,8 @@ import "dart:json" as JSON;
 import "package:js/js.dart" as js;
 import "package:google_oauth2_client/google_oauth2_browser.dart" as oauth;
 
-part "$srcFolder/browser/browserclient.dart";
+part "$srcFolder/browser/browser_client.dart";
 part "$srcFolder/browser/$_name.dart";
-
 """;
   }
 
@@ -275,9 +244,8 @@ import "dart:json" as JSON;
 import "package:http/http.dart" as http;
 import "package:google_oauth2_client/google_oauth2_console.dart" as oauth2;
 
-part "$srcFolder/console/consoleclient.dart";
+part "$srcFolder/console/console_client.dart";
 part "$srcFolder/console/$_name.dart";
-
 """;
   }
 
@@ -590,16 +558,16 @@ part "$srcFolder/console/$_name.dart";
           } else {
             if (object) {
               tmp.write("      $propName = new $type.fromJson(json[\"$jsonName\"]);\n");
-            } else {              
+            } else {
               if(schemaType=="string" && schemaFormat == "int64") {
                 tmp.write("      if(json[\"$jsonName\"] is core.String){\n");
                 tmp.write("        $propName = core.int.parse(json[\"$jsonName\"]);\n");
                 tmp.write("      }else{\n");
                 tmp.write("        $propName = json[\"$jsonName\"];\n");
                 tmp.write("      }\n");
-              }else{            
+              }else{
                 tmp.write("      $propName = json[\"$jsonName\"];\n");
-              }   
+              }
             }
           }
           tmp.write("    }\n");
@@ -812,7 +780,6 @@ part "$srcFolder/console/$_name.dart";
     }
 
     tmp.write("  $response $name(${params.join(", ")}) {\n");
-    tmp.write("    var completer = new async.Completer();\n");
     tmp.write("    var url = \"${data["path"]}\";\n");
     if (upload) {
       tmp.write("    var uploadUrl = \"$uploadPath\";\n");
@@ -856,8 +823,7 @@ part "$srcFolder/console/$_name.dart";
     }
 
     if (!paramErrors.isEmpty) {
-      completer.completeError(new core.ArgumentError(paramErrors.join(" / ")));
-      return completer.future;
+      throw new core.ArgumentError(paramErrors.join(" / "));
     }
 
 """);
@@ -882,15 +848,12 @@ part "$srcFolder/console/$_name.dart";
       tmp.write("    response = ${noResource ? "this" : "_client"}.request(url, \"${data["httpMethod"]}\", $call);\n");
     }
 
-    tmp.write("    response\n");
-    tmp.write("      .then((data) => ");
     if (data.containsKey("response")) {
-      tmp.write("completer.complete(new ${data["response"]["\$ref"]}.fromJson(data)))\n");
+      tmp.write("    return response\n");
+      tmp.write("      .then((data) => new ${data["response"]["\$ref"]}.fromJson(data));\n");
     } else {
-      tmp.write("completer.complete(data))\n");
+      tmp.write("    return response;\n");
     }
-    tmp.write("      .catchError((e) { completer.completeError(e); return true; });\n");
-    tmp.write("    return completer.future;\n");
     tmp.write("  }\n");
 
     return tmp.toString();
@@ -993,7 +956,7 @@ abstract class Client {
 /// Base-class for all API Resources
 abstract class Resource {
   /// The [Client] to be used for all requests
-  Client _client;
+  final Client _client;
 
   /// Create a new Resource, using the specified [Client] for requests
   Resource(Client this._client);
@@ -1301,8 +1264,6 @@ abstract class ConsoleClient extends Client {
     return """
 library hop_runner;
 
-import 'dart:async';
-import 'dart:io';
 import 'package:hop/hop.dart';
 import 'package:hop/hop_tasks.dart';
 
@@ -1319,7 +1280,6 @@ void main() {
   addTask('analyze', createAnalyzerTask(pathList));
 
   runHop();
-
 }
 """;
   }
