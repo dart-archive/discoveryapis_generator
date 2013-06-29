@@ -998,7 +998,7 @@ abstract class BrowserClient extends Client {
     }
 
     js.scoped((){
-      js.context.handleClientLoad =  new js.Callback.once(() {
+      js.context["handleClientLoad"] =  new js.Callback.once(() {
         _jsClientLoaded = true;
         completer.complete(true);
       });
@@ -1035,7 +1035,7 @@ abstract class BrowserClient extends Client {
     }
 
     js.scoped(() {
-      var request = js.context.gapi.client.request(js.map(requestData));
+      var request = js.context["gapi"]["client"]["request"](js.map(requestData));
       var callback = new js.Callback.once((jsonResp, rawResp) {
         if (jsonResp == null || (jsonResp is core.bool && jsonResp == false)) {
           var raw = JSON.parse(rawResp);
@@ -1045,7 +1045,7 @@ abstract class BrowserClient extends Client {
             completer.complete({});
           }
         } else {
-          completer.complete(js.context.JSON.stringify(jsonResp));
+          completer.complete(js.context["JSON"]["stringify"](jsonResp));
         }
       });
       request.execute(callback);
