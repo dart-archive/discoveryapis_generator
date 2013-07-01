@@ -7,7 +7,7 @@ const String googleOAuth2ClientVersionConstraint = '>=0.2.14';
 
 class Generator {
   final String _data;
-  final String _prefix;
+  String _prefix;
   Map _json;
   String _name;
   String _version;
@@ -28,7 +28,10 @@ class Generator {
     _libraryName = cleanName("${_name}_${_version}_api_client").toLowerCase();
     _libraryBrowserName = cleanName("${_name}_${_version}_api_browser").toLowerCase();
     _libraryConsoleName = cleanName("${_name}_${_version}_api_console").toLowerCase();
-    _libraryPubspecName = cleanName("${_prefix}_${_name}_${_version}_api").toLowerCase();
+    if (_prefix != "") {
+      _prefix = _prefix + "_";
+    }
+    _libraryPubspecName = cleanName("${_prefix}${_name}_${_version}_api").toLowerCase();
     _clientVersionBuild = 0;
   }
 

@@ -29,6 +29,7 @@ const _argInput = 'input';
 const _argPrefix = 'prefix';
 const _argOutput = 'output';
 const _argDate = 'date';
+const _argNoPrefix = 'no-prefix';
 
 void main() {
   final options = new Options();
@@ -38,6 +39,7 @@ void main() {
   parser.addOption(_argInput, abbr: "i", help: "Local Discovery document file");
   parser.addOption(_argUrl, abbr: "u", help: "URL of a Discovery document");
   parser.addOption(_argPrefix, abbr: "p", help: "Prefix for library name", defaultsTo: "google");
+  parser.addFlag(_argNoPrefix, help: "No prefix for library name", negatable: false);
   parser.addFlag(_argAll, help: "Create client libraries for all Google APIs", negatable: false);
   parser.addFlag(_argFull, help: "Create one library including all Google APIs", negatable: false);
   parser.addOption(_argOutput, abbr: "o", help: "Output Directory", defaultsTo: "output/");
@@ -106,8 +108,15 @@ void main() {
   bool force = result[_argForce];
   assert(force != null);
 
-  String prefix = result[_argPrefix];
-  assert(prefix != null && !prefix.isEmpty);
+  String prefix = "";
+  
+  bool no_prefix = result[_argNoPrefix];
+  assert(no_prefix != null);
+  
+  if (!no_prefix) { 
+    prefix = result[_argPrefix];
+    assert(prefix != null && !prefix.isEmpty);
+  }
 
   if (!all && !full) {
     Future<String> loader;
