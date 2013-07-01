@@ -7,7 +7,7 @@ const String googleOAuth2ClientVersionConstraint = '>=0.2.14';
 
 class Generator {
   final String _data;
-  final String _prefix;
+  String _prefix;
   Map _json;
   String _name;
   String _version;
@@ -28,7 +28,10 @@ class Generator {
     _libraryName = cleanName("${_name}_${_version}_api_client").toLowerCase();
     _libraryBrowserName = cleanName("${_name}_${_version}_api_browser").toLowerCase();
     _libraryConsoleName = cleanName("${_name}_${_version}_api_console").toLowerCase();
-    _libraryPubspecName = cleanName("${_prefix}_${_name}_${_version}_api").toLowerCase();
+    if (_prefix != "") {
+      _prefix = _prefix + "_";
+    }
+    _libraryPubspecName = cleanName("${_prefix}${_name}_${_version}_api").toLowerCase();
     _clientVersionBuild = 0;
   }
 
@@ -1078,7 +1081,46 @@ abstract class BrowserClient extends Client {
     }
     var url = new oauth.UrlPattern(path).generate(urlParams, queryParams);
 
-    request.onLoadEnd.listen((_) {
+    void handleError() {
+      if (request.status == 0) {
+        _loadJsClient().then((v) {
+          if (requestUrl.substring(0,1) == "/") {
+            path = requestUrl;
+          } else {
+            path ="\$basePath\$requestUrl";
+          }
+          url = new oauth.UrlPattern(path).generate(urlParams, {});
+          _makeJsClientRequest(url, method, body: body, contentType: contentType, queryParams: queryParams)
+            .then((response) {
+              var data = JSON.parse(response);
+              completer.complete(data);
+            })
+            .catchError((e) {
+              completer.completeError(e);
+              return true;
+            });
+        });
+      } else {
+        var error = "";
+        if (request.responseText != null) {
+          var errorJson;
+          try {
+            errorJson = JSON.parse(request.responseText);
+          } on core.FormatException {
+            errorJson = null;
+          }
+          if (errorJson != null && errorJson.containsKey("error")) {
+            error = "\${errorJson["error"]["code"]} \${errorJson["error"]["message"]}";
+          }
+        }
+        if (error == "") {
+          error = "\${request.status} \${request.statusText}";
+        }
+        completer.completeError(new APIRequestException(error));
+      }
+    }
+
+    request.onLoad.listen((_) {
       if (request.status > 0 && request.status < 400) {
         var data = {};
         if (!request.responseText.isEmpty) {
@@ -1086,44 +1128,11 @@ abstract class BrowserClient extends Client {
         }
         completer.complete(data);
       } else {
-        if (request.status == 0) {
-          _loadJsClient().then((v) {
-            if (requestUrl.substring(0,1) == "/") {
-              path = requestUrl;
-            } else {
-              path ="\$basePath\$requestUrl";
-            }
-            url = new oauth.UrlPattern(path).generate(urlParams, {});
-            _makeJsClientRequest(url, method, body: body, contentType: contentType, queryParams: queryParams)
-              .then((response) {
-                var data = JSON.parse(response);
-                completer.complete(data);
-              })
-              .catchError((e) {
-                completer.completeError(e);
-                return true;
-              });
-          });
-        } else {
-          var error = "";
-          if (request.responseText != null) {
-            var errorJson;
-            try {
-              errorJson = JSON.parse(request.responseText);
-            } on core.FormatException {
-              errorJson = null;
-            }
-            if (errorJson != null && errorJson.containsKey("error")) {
-              error = "\${errorJson["error"]["code"]} \${errorJson["error"]["message"]}";
-            }
-          }
-          if (error == "") {
-            error = "\${request.status} \${request.statusText}";
-          }
-          completer.completeError(new APIRequestException(error));
-        }
+        handleError();
       }
     });
+
+    request.onError.listen((_) => handleError());
 
     request.open(method, url);
     request.setRequestHeader("Content-Type", contentType);
