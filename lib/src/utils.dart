@@ -22,7 +22,7 @@ String escapeProperty(String name) => keywords.contains(name) ? "${name}Property
 String escapeMethod(String name) => keywords.contains(name) ? "${name}Method" : name;
 String escapeParameter(String name) => keywords.contains(name) ? "${name}Parameter" : name;
 
-String createLicense() {
+String _createLicense() {
   return """
 Copyright (c) 2013 Gerwin Sturm & Adam Singer
 
@@ -57,7 +57,7 @@ the License
 """;
 }
 
-String createContributors() {
+String _createContributors() {
   return """
 Adam Singer (https://github.com/financeCoding)
 Gerwin Sturm (https://github.com/Scarygami, http://scarygami.net/+)
@@ -66,7 +66,7 @@ Kevin Moore (kevin@thinkpixellab.com)
 """;
 }
 
-String createGitIgnore() {
+String _createGitIgnore() {
   return """
 packages
 pubspec.lock

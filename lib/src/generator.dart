@@ -121,13 +121,13 @@ class Generator {
     if (!fullLibrary) {
       writeFile("$mainFolder/pubspec.yaml", _createPubspec(clientVersionBuild));
 
-      writeFile("$mainFolder/LICENSE", createLicense());
+      writeFile("$mainFolder/LICENSE", _createLicense());
 
       writeFile("$mainFolder/README.md", _createReadme());
 
-      writeFile("$mainFolder/.gitignore", createGitIgnore());
+      writeFile("$mainFolder/.gitignore", _createGitIgnore());
 
-      writeFile("$mainFolder/CONTRIBUTORS", createContributors());
+      writeFile("$mainFolder/CONTRIBUTORS", _createContributors());
 
       writeFile("$mainFolder/VERSION", _json["etag"]);
     }
@@ -206,7 +206,7 @@ Auto-generated client library for accessing the $_name $_version API.
 
     tmp.write("```\nvar ${cleanName(_name).toLowerCase()} = new ${cleanName(_name).toLowerCase()}client.${capitalize(_name)}();\n```\n\n");
     tmp.write("### Licenses\n\n```\n");
-    tmp.write(createLicense());
+    tmp.write(_createLicense());
     tmp.write("```\n");
     return tmp.toString();
   }
