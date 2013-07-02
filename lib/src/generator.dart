@@ -7,8 +7,7 @@ const String googleOAuth2ClientVersionConstraint = '>=0.2.15';
 
 class Generator {
   final String _data;
-  String _prefix;
-  Map _json;
+  final Map<String, dynamic> _json;
   String _name;
   String _version;
   String _shortName;
@@ -17,10 +16,10 @@ class Generator {
   String _libraryBrowserName;
   String _libraryConsoleName;
   String _libraryPubspecName;
-  int _clientVersionBuild;
 
-  Generator(String this._data, [String this._prefix = "google"]) {
-    _json = JSON.parse(_data);
+  Generator(String data, [String prefix = "google"]) :
+    this._data = data,
+    this._json = JSON.parse(data) {
     _name = _json["name"];
     _version = _json["version"];
     _shortName = cleanName("${_name}_${_version}").toLowerCase();
@@ -28,11 +27,10 @@ class Generator {
     _libraryName = cleanName("${_name}_${_version}_api_client").toLowerCase();
     _libraryBrowserName = cleanName("${_name}_${_version}_api_browser").toLowerCase();
     _libraryConsoleName = cleanName("${_name}_${_version}_api_console").toLowerCase();
-    if (_prefix != "") {
-      _prefix = _prefix + "_";
+    if (prefix != "") {
+      prefix = prefix + "_";
     }
-    _libraryPubspecName = cleanName("${_prefix}${_name}_${_version}_api").toLowerCase();
-    _clientVersionBuild = 0;
+    _libraryPubspecName = cleanName("${prefix}${_name}_${_version}_api").toLowerCase();
   }
 
   bool generateClient(String outputDirectory, {bool fullLibrary: false, bool check: false, bool force: false, int forceVersion}) {
@@ -47,6 +45,7 @@ class Generator {
       srcFolder = "src";
     }
 
+    int clientVersionBuild = 0;
     if (check) {
       var versionFile = new File("$mainFolder/VERSION");
       var pubFile = new File("$mainFolder/pubspec.yaml");
@@ -62,7 +61,7 @@ class Generator {
         if (force) {
           print("Forced rebuild");
           print("Regenerating library $_libraryName");
-          _clientVersionBuild = (forceVersion != null) ? forceVersion : int.parse(version.substring(clientVersion.length + 1)) + 1;
+          clientVersionBuild = (forceVersion != null) ? forceVersion : int.parse(version.substring(clientVersion.length + 1)) + 1;
         } else {
           if (version.startsWith(clientVersion)) {
             if (etag == _json["etag"]) {
@@ -71,18 +70,18 @@ class Generator {
             } else {
               print("Changes for $_libraryName");
               print("Regenerating library $_libraryName");
-              _clientVersionBuild = (forceVersion != null) ? forceVersion : int.parse(version.substring(clientVersion.length + 1)) + 1;
+              clientVersionBuild = (forceVersion != null) ? forceVersion : int.parse(version.substring(clientVersion.length + 1)) + 1;
             }
           } else {
             print("Generator version changed.");
             print("Regenerating library $_libraryName");
-            _clientVersionBuild = (forceVersion != null) ? forceVersion : 0;
+            clientVersionBuild = (forceVersion != null) ? forceVersion : 0;
           }
         }
       } else {
         print("Library $_libraryName does not exist yet.");
         print("Generating library $_libraryName");
-        _clientVersionBuild = (forceVersion != null) ? forceVersion : 0;
+        clientVersionBuild = (forceVersion != null) ? forceVersion : 0;
       }
     }
 
@@ -108,7 +107,7 @@ class Generator {
     (new Directory("$mainFolder/tool")).createSync(recursive: true);
 
     if (!fullLibrary) {
-      (new File("$mainFolder/pubspec.yaml")).writeAsStringSync(_createPubspec());
+      (new File("$mainFolder/pubspec.yaml")).writeAsStringSync(_createPubspec(clientVersionBuild));
 
       (new File("$mainFolder/LICENSE")).writeAsStringSync(createLicense());
 
@@ -152,10 +151,10 @@ class Generator {
     return true;
   }
 
-  String _createPubspec() {
+  String _createPubspec(int clientVersionBuild) {
     return """
 name: $_libraryPubspecName
-version: $clientVersion.$_clientVersionBuild
+version: $clientVersion.$clientVersionBuild
 authors:
 - Gerwin Sturm <scarygami@gmail.com>
 - Adam Singer <financeCoding@gmail.com>
