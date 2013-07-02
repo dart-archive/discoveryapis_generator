@@ -3,7 +3,7 @@ part of discovery_api_client_generator;
 const String clientVersion = "0.1";
 const String dartEnvironmentVersionConstraint = '>=0.5.20';
 const String jsDependenciesVersionConstraint = '>=0.0.23';
-const String googleOAuth2ClientVersionConstraint = '>=0.2.14';
+const String googleOAuth2ClientVersionConstraint = '>=0.2.15';
 
 class Generator {
   final String _data;
@@ -679,6 +679,9 @@ part "$srcFolder/console/$_name.dart";
     if (description.containsKey("maximum")) {
       tmp.write("   *   Maximum: ${description["maximum"]}\n");
     }
+    if (description.containsKey("repeated") && description["repeated"] == true) {
+      tmp.write("   *   Repeated values: allowed\n");
+    }
     if (description.containsKey("enum")) {
       tmp.write("   *   Allowed values:\n");
       for (var i = 0; i < description["enum"].length; i++) {
@@ -689,6 +692,7 @@ part "$srcFolder/console/$_name.dart";
         tmp.write("\n");
       }
     }
+    
 
     return tmp.toString();
   }
@@ -725,7 +729,11 @@ part "$srcFolder/console/$_name.dart";
           if (type != null) {
             var variable = escapeParameter(cleanName(param));
             tmp.write(_createParamComment(variable, data["parameters"][param]));
-            params.add("$type $variable");
+            if (data["parameters"][param].containsKey("repeated") && data["parameters"][param]["repeated"] == true) {
+              params.add("core.List<$type> $variable");
+            } else {
+              params.add("$type $variable");
+            }
             data["parameters"][param]["gen_included"] = true;
           }
         }
@@ -763,7 +771,11 @@ part "$srcFolder/console/$_name.dart";
           if (type != null) {
             var variable = escapeParameter(cleanName(name));
             tmp.write(_createParamComment(variable, description));
-            optParams.add("$type $variable");
+            if (description.containsKey("repeated") && description["repeated"] == true) {
+              optParams.add("core.List<$type> $variable");
+            } else {
+              optParams.add("$type $variable");
+            }
           }
         }
       });
