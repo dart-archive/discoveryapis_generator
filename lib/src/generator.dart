@@ -9,6 +9,7 @@ class Generator {
   final Map<String, dynamic> _json;
   final String _name;
   final String _version;
+  final String _etag;
 
   final String _shortName;
   final String _gitName;
@@ -26,11 +27,12 @@ class Generator {
     var json = JSON.parse(data);
     String name = json["name"];
     String version = json["version"];
+    String etag = json["etag"];
 
-    return new Generator.core(json, name, version, prefix);
+    return new Generator.core(json, name, version, prefix, etag);
   }
 
-  Generator.core(this._json, String name, String version, this._prefix) :
+  Generator.core(this._json, String name, String version, this._prefix, this._etag) :
     _name = name,
     _version = version,
     _shortName = cleanName("${name}_${version}").toLowerCase(),
@@ -71,7 +73,7 @@ class Generator {
           clientVersionBuild = (forceVersion != null) ? forceVersion : int.parse(version.substring(clientVersion.length + 1)) + 1;
         } else {
           if (version.startsWith(clientVersion)) {
-            if (etag == _json["etag"]) {
+            if (etag == _etag) {
               print("Nothing changed for $_libraryName");
               return false;
             } else {
@@ -129,7 +131,7 @@ class Generator {
 
       writeFile("$mainFolder/CONTRIBUTORS", _createContributors());
 
-      writeFile("$mainFolder/VERSION", _json["etag"]);
+      writeFile("$mainFolder/VERSION", _etag);
     }
 
     // Create common library files
