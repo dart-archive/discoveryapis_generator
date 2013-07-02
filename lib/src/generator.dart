@@ -6,32 +6,39 @@ const String jsDependenciesVersionConstraint = '>=0.0.23';
 const String googleOAuth2ClientVersionConstraint = '>=0.2.15';
 
 class Generator {
-  final String _data;
   final Map<String, dynamic> _json;
-  String _name;
-  String _version;
-  String _shortName;
-  String _gitName;
-  String _libraryName;
-  String _libraryBrowserName;
-  String _libraryConsoleName;
-  String _libraryPubspecName;
+  final String _name;
+  final String _version;
 
-  Generator(String data, [String prefix = "google"]) :
-    this._data = data,
-    this._json = JSON.parse(data) {
-    _name = _json["name"];
-    _version = _json["version"];
-    _shortName = cleanName("${_name}_${_version}").toLowerCase();
-    _gitName = cleanName("dart_${_name}_${_version}_api_client").toLowerCase();
-    _libraryName = cleanName("${_name}_${_version}_api_client").toLowerCase();
-    _libraryBrowserName = cleanName("${_name}_${_version}_api_browser").toLowerCase();
-    _libraryConsoleName = cleanName("${_name}_${_version}_api_console").toLowerCase();
-    if (prefix != "") {
-      prefix = prefix + "_";
-    }
-    _libraryPubspecName = cleanName("${prefix}${_name}_${_version}_api").toLowerCase();
+  final String _shortName;
+  final String _gitName;
+  final String _libraryName;
+  final String _libraryBrowserName;
+  final String _libraryConsoleName;
+  final String _prefix;
+
+  String get _libraryPubspecName {
+    var prefix = (_prefix.isEmpty) ? '' : _prefix + "_";
+    return cleanName("${prefix}${_name}_${_version}_api").toLowerCase();
   }
+
+  factory Generator(String data, [String prefix = "google"]) {
+    var json = JSON.parse(data);
+    String name = json["name"];
+    String version = json["version"];
+
+    return new Generator.core(json, name, version, prefix);
+  }
+
+  Generator.core(this._json, String name, String version, this._prefix) :
+    _name = name,
+    _version = version,
+    _shortName = cleanName("${name}_${version}").toLowerCase(),
+    _gitName = cleanName("dart_${name}_${version}_api_client").toLowerCase(),
+    _libraryName = cleanName("${name}_${version}_api_client").toLowerCase(),
+    _libraryBrowserName = cleanName("${name}_${version}_api_browser").toLowerCase(),
+    _libraryConsoleName = cleanName("${name}_${version}_api_console").toLowerCase();
+
 
   bool generateClient(String outputDirectory, {bool fullLibrary: false, bool check: false, bool force: false, int forceVersion}) {
     var mainFolder, srcFolder, libFolder;
