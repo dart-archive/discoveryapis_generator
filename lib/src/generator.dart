@@ -6,34 +6,41 @@ const String jsDependenciesVersionConstraint = '>=0.0.23';
 const String googleOAuth2ClientVersionConstraint = '>=0.2.15';
 
 class Generator {
-  final String _data;
-  String _prefix;
-  Map _json;
-  String _name;
-  String _version;
-  String _shortName;
-  String _gitName;
-  String _libraryName;
-  String _libraryBrowserName;
-  String _libraryConsoleName;
-  String _libraryPubspecName;
-  int _clientVersionBuild;
+  final Map<String, dynamic> _json;
+  final String _name;
+  final String _version;
+  final String _etag;
 
-  Generator(String this._data, [String this._prefix = "google"]) {
-    _json = JSON.parse(_data);
-    _name = _json["name"];
-    _version = _json["version"];
-    _shortName = cleanName("${_name}_${_version}").toLowerCase();
-    _gitName = cleanName("dart_${_name}_${_version}_api_client").toLowerCase();
-    _libraryName = cleanName("${_name}_${_version}_api_client").toLowerCase();
-    _libraryBrowserName = cleanName("${_name}_${_version}_api_browser").toLowerCase();
-    _libraryConsoleName = cleanName("${_name}_${_version}_api_console").toLowerCase();
-    if (_prefix != "") {
-      _prefix = _prefix + "_";
-    }
-    _libraryPubspecName = cleanName("${_prefix}${_name}_${_version}_api").toLowerCase();
-    _clientVersionBuild = 0;
+  final String _shortName;
+  final String _gitName;
+  final String _libraryName;
+  final String _libraryBrowserName;
+  final String _libraryConsoleName;
+  final String _prefix;
+
+  String get _libraryPubspecName {
+    var prefix = (_prefix.isEmpty) ? '' : _prefix + "_";
+    return cleanName("${prefix}${_name}_${_version}_api").toLowerCase();
   }
+
+  factory Generator(String data, [String prefix = "google"]) {
+    var json = JSON.parse(data);
+    String name = json["name"];
+    String version = json["version"];
+    String etag = json["etag"];
+
+    return new Generator.core(json, name, version, prefix, etag);
+  }
+
+  Generator.core(this._json, String name, String version, this._prefix, this._etag) :
+    _name = name,
+    _version = version,
+    _shortName = cleanName("${name}_${version}").toLowerCase(),
+    _gitName = cleanName("dart_${name}_${version}_api_client").toLowerCase(),
+    _libraryName = cleanName("${name}_${version}_api_client").toLowerCase(),
+    _libraryBrowserName = cleanName("${name}_${version}_api_browser").toLowerCase(),
+    _libraryConsoleName = cleanName("${name}_${version}_api_console").toLowerCase();
+
 
   bool generateClient(String outputDirectory, {bool fullLibrary: false, bool check: false, bool force: false, int forceVersion}) {
     var mainFolder, srcFolder, libFolder;
@@ -47,6 +54,7 @@ class Generator {
       srcFolder = "src";
     }
 
+    int clientVersionBuild = 0;
     if (check) {
       var versionFile = new File("$mainFolder/VERSION");
       var pubFile = new File("$mainFolder/pubspec.yaml");
@@ -62,27 +70,27 @@ class Generator {
         if (force) {
           print("Forced rebuild");
           print("Regenerating library $_libraryName");
-          _clientVersionBuild = (forceVersion != null) ? forceVersion : int.parse(version.substring(clientVersion.length + 1)) + 1;
+          clientVersionBuild = (forceVersion != null) ? forceVersion : int.parse(version.substring(clientVersion.length + 1)) + 1;
         } else {
           if (version.startsWith(clientVersion)) {
-            if (etag == _json["etag"]) {
+            if (etag == _etag) {
               print("Nothing changed for $_libraryName");
               return false;
             } else {
               print("Changes for $_libraryName");
               print("Regenerating library $_libraryName");
-              _clientVersionBuild = (forceVersion != null) ? forceVersion : int.parse(version.substring(clientVersion.length + 1)) + 1;
+              clientVersionBuild = (forceVersion != null) ? forceVersion : int.parse(version.substring(clientVersion.length + 1)) + 1;
             }
           } else {
             print("Generator version changed.");
             print("Regenerating library $_libraryName");
-            _clientVersionBuild = (forceVersion != null) ? forceVersion : 0;
+            clientVersionBuild = (forceVersion != null) ? forceVersion : 0;
           }
         }
       } else {
         print("Library $_libraryName does not exist yet.");
         print("Generating library $_libraryName");
-        _clientVersionBuild = (forceVersion != null) ? forceVersion : 0;
+        clientVersionBuild = (forceVersion != null) ? forceVersion : 0;
       }
     }
 
@@ -108,54 +116,53 @@ class Generator {
     (new Directory("$mainFolder/tool")).createSync(recursive: true);
 
     if (!fullLibrary) {
-      (new File("$mainFolder/pubspec.yaml")).writeAsStringSync(_createPubspec());
+      _writeString("$mainFolder/pubspec.yaml", _createPubspec(clientVersionBuild));
 
-      (new File("$mainFolder/LICENSE")).writeAsStringSync(createLicense());
+      _writeString("$mainFolder/LICENSE", _license);
 
-      (new File("$mainFolder/README.md")).writeAsStringSync(_createReadme());
+      _writeFile("$mainFolder/README.md", _writeReadme);
 
-      (new File("$mainFolder/.gitignore")).writeAsStringSync(createGitIgnore());
+      _writeString("$mainFolder/.gitignore", _gitIgnore);
 
-      (new File("$mainFolder/CONTRIBUTORS")).writeAsStringSync(createContributors());
+      _writeString("$mainFolder/CONTRIBUTORS", _contributors);
 
-      (new File("$mainFolder/VERSION")).writeAsStringSync(_json["etag"]);
+      _writeString("$mainFolder/VERSION", _etag);
     }
 
     // Create common library files
 
-    (new File("$libFolder/$_libraryName.dart")).writeAsStringSync(_createLibrary(srcFolder));
+    _writeString("$libFolder/$_libraryName.dart", _createLibrary(srcFolder));
 
-    (new File("$libFolder/$srcFolder/client/client.dart")).writeAsStringSync(_createClientClass());
+    _writeString("$libFolder/$srcFolder/client/client.dart", _createClientClass);
 
-    (new File("$libFolder/$srcFolder/client/schemas.dart")).writeAsStringSync(_createSchemas());
+    _writeFile("$libFolder/$srcFolder/client/schemas.dart", _writeSchemas);
 
-    (new File("$libFolder/$srcFolder/client/resources.dart")).writeAsStringSync(_createResources());
+    _writeFile("$libFolder/$srcFolder/client/resources.dart", _writeResources);
 
     // Create browser versions of the libraries
-    (new File("$libFolder/$_libraryBrowserName.dart")).writeAsStringSync(_createBrowserLibrary(srcFolder));
+    _writeString("$libFolder/$_libraryBrowserName.dart", _createBrowserLibrary(srcFolder));
 
-    (new File("$libFolder/$srcFolder/browser/browser_client.dart")).writeAsStringSync(_createBrowserClientClass());
+    _writeString("$libFolder/$srcFolder/browser/browser_client.dart", _createBrowserClientClass);
 
-    (new File("$libFolder/$srcFolder/browser/$_name.dart")).writeAsStringSync(_createBrowserMainClass());
+    _writeFile("$libFolder/$srcFolder/browser/$_name.dart", _writeBrowserMainClass);
 
     // Create console versions of the libraries
-    (new File("$libFolder/$_libraryConsoleName.dart")).writeAsStringSync(_createConsoleLibrary(srcFolder));
+    _writeString("$libFolder/$_libraryConsoleName.dart", _createConsoleLibrary(srcFolder));
 
-    (new File("$libFolder/$srcFolder/console/console_client.dart")).writeAsStringSync(_createConsoleClientClass());
+    _writeString("$libFolder/$srcFolder/console/console_client.dart", _createConsoleClientClass);
 
-    (new File("$libFolder/$srcFolder/console/$_name.dart")).writeAsStringSync(_createConsoleMainClass());
+    _writeFile("$libFolder/$srcFolder/console/$_name.dart", _writeConsoleMainClass);
 
     // Create hop_runner for the libraries
-    (new File("$mainFolder/tool/hop_runner.dart")).writeAsStringSync(_createHopRunner());
+    _writeString("$mainFolder/tool/hop_runner.dart", _createHopRunner);
 
     print("Library $_libraryName generated successfully.");
     return true;
   }
 
-  String _createPubspec() {
-    return """
+  String _createPubspec(int clientVersionBuild) => """
 name: $_libraryPubspecName
-version: $clientVersion.$_clientVersionBuild
+version: $clientVersion.$clientVersionBuild
 authors:
 - Gerwin Sturm <scarygami@gmail.com>
 - Adam Singer <financeCoding@gmail.com>
@@ -169,11 +176,9 @@ dependencies:
 dev_dependencies:
   hop: any
 """;
-  }
 
-  String _createReadme() {
-    var tmp = new StringBuffer();
-    tmp.write("""
+  void _writeReadme(StringSink sink) {
+    sink.write("""
 # $_libraryPubspecName
 
 ### Description
@@ -181,27 +186,25 @@ dev_dependencies:
 Auto-generated client library for accessing the $_name $_version API.
 
 """);
-    tmp.write("#### ");
+    sink.write("#### ");
     if (_json.containsKey("icons") && _json["icons"].containsKey("x16")) {
-      tmp.write("![Logo](${_json["icons"]["x16"]}) ");
+      sink.write("![Logo](${_json["icons"]["x16"]}) ");
     }
-    tmp.write("${_json["title"]} - $_name $_version\n\n");
-    tmp.write("${_json["description"]}\n\n");
+    sink.write("${_json["title"]} - $_name $_version\n\n");
+    sink.write("${_json["description"]}\n\n");
     if (_json.containsKey("documentationLink")) {
-      tmp.write("Official API documentation: ${_json["documentationLink"]}\n\n");
+      sink.write("Official API documentation: ${_json["documentationLink"]}\n\n");
     }
-    tmp.write("For web applications:\n```\nimport \"package:$_libraryPubspecName/$_libraryBrowserName.dart\" as ${cleanName(_name).toLowerCase()}client;\n```\n\n");
-    tmp.write("For console application:\n```\nimport \"package:$_libraryPubspecName/$_libraryConsoleName.dart\" as ${cleanName(_name).toLowerCase()}client;\n```\n\n");
+    sink.write("For web applications:\n```\nimport \"package:$_libraryPubspecName/$_libraryBrowserName.dart\" as ${cleanName(_name).toLowerCase()}client;\n```\n\n");
+    sink.write("For console application:\n```\nimport \"package:$_libraryPubspecName/$_libraryConsoleName.dart\" as ${cleanName(_name).toLowerCase()}client;\n```\n\n");
 
-    tmp.write("```\nvar ${cleanName(_name).toLowerCase()} = new ${cleanName(_name).toLowerCase()}client.${capitalize(_name)}();\n```\n\n");
-    tmp.write("### Licenses\n\n```\n");
-    tmp.write(createLicense());
-    tmp.write("```\n");
-    return tmp.toString();
+    sink.write("```\nvar ${cleanName(_name).toLowerCase()} = new ${cleanName(_name).toLowerCase()}client.${capitalize(_name)}();\n```\n\n");
+    sink.write("### Licenses\n\n```\n");
+    sink.write(_license);
+    sink.write("```\n");
   }
 
-  String _createLibrary(String srcFolder) {
-    return """
+  String _createLibrary(String srcFolder) => """
 library $_libraryName;
 
 import "dart:core" as core;
@@ -212,10 +215,8 @@ part "$srcFolder/client/client.dart";
 part "$srcFolder/client/schemas.dart";
 part "$srcFolder/client/resources.dart";
 """;
-  }
 
-  String _createBrowserLibrary(String srcFolder) {
-    return """
+  String _createBrowserLibrary(String srcFolder) => """
 library $_libraryBrowserName;
 
 import "$_libraryName.dart";
@@ -231,10 +232,8 @@ import "package:google_oauth2_client/google_oauth2_browser.dart" as oauth;
 part "$srcFolder/browser/browser_client.dart";
 part "$srcFolder/browser/$_name.dart";
 """;
-  }
 
-  String _createConsoleLibrary(String srcFolder) {
-    return """
+  String _createConsoleLibrary(String srcFolder) => """
 library $_libraryConsoleName;
 
 import "$_libraryName.dart";
@@ -250,50 +249,40 @@ import "package:google_oauth2_client/google_oauth2_console.dart" as oauth2;
 part "$srcFolder/console/console_client.dart";
 part "$srcFolder/console/$_name.dart";
 """;
-  }
 
-  String _createSchemas() {
-    var tmp = new StringBuffer();
-
-    tmp.write("part of $_libraryName;\n\n");
+  void _writeSchemas(StringSink sink) {
+    sink.write("part of $_libraryName;\n\n");
 
     if (_json.containsKey("schemas")) {
       _json["schemas"].forEach((key, schema) {
-        tmp.write(_createSchemaClass(key, schema));
+        _writeSchemaClass(sink, key, schema);
       });
     }
-
-    return tmp.toString();
   }
 
-  String _createResources() {
-    var tmp = new StringBuffer();
-
-    tmp.write("part of $_libraryName;\n\n");
+  void _writeResources(StringSink sink) {
+    sink.write("part of $_libraryName;\n\n");
 
     if (_json.containsKey("resources")) {
       _json["resources"].forEach((key, resource) {
-        tmp.write(_createResourceClass(key, resource));
+        _writeResourceClass(sink, key, resource);
       });
     }
-
-    return tmp.toString();
   }
 
-  String _createBrowserMainClass() {
-    var tmp = new StringBuffer();
-    tmp.write("part of $_libraryBrowserName;\n\n");
-    tmp.write("/** Client to access the $_name $_version API */\n");
+  void _writeBrowserMainClass(StringSink sink) {
+    sink.write("part of $_libraryBrowserName;\n\n");
+    sink.write("/** Client to access the $_name $_version API */\n");
     if (_json.containsKey("description")) {
-      tmp.write("/** ${_json["description"]} */\n");
+      sink.write("/** ${_json["description"]} */\n");
     }
-    tmp.write("class ${capitalize(_name)} extends BrowserClient {\n");
+    sink.write("class ${capitalize(_name)} extends BrowserClient {\n");
     if (_json.containsKey("resources")) {
-      tmp.write("\n");
+      sink.write("\n");
       _json["resources"].forEach((key, resource) {
         var subClassName = "${capitalize(key)}Resource_";
-        tmp.write("  $subClassName _$key;\n");
-        tmp.write("  $subClassName get $key => _$key;\n");
+        sink.write("  $subClassName _$key;\n");
+        sink.write("  $subClassName get $key => _$key;\n");
       });
     }
     if(_json.containsKey("auth") && _json["auth"].containsKey("oauth2") && _json["auth"]["oauth2"].containsKey("scopes")) {
@@ -302,13 +291,13 @@ part "$srcFolder/console/$_name.dart";
         var scopeName = scope.toUpperCase();
         if (p >= 0) scopeName = scopeName.substring(p+1);
         scopeName = cleanName(scopeName);
-        tmp.write("\n");
+        sink.write("\n");
         if (description.containsKey("description")) {
-          tmp.write("  /** OAuth Scope2: ${description["description"]} */\n");
+          sink.write("  /** OAuth Scope2: ${description["description"]} */\n");
         } else {
-          tmp.write("  /** OAuth Scope2 */\n");
+          sink.write("  /** OAuth Scope2 */\n");
         }
-        tmp.write("  static const core.String ${scopeName}_SCOPE = \"$scope\";\n");
+        sink.write("  static const core.String ${scopeName}_SCOPE = \"$scope\";\n");
       });
     }
     if (_json.containsKey("parameters")) {
@@ -320,56 +309,53 @@ part "$srcFolder/console/$_name.dart";
           }
         }
         if (type != null) {
-          tmp.write("\n");
-          tmp.write("  /**\n");
+          sink.write("\n");
+          sink.write("  /**\n");
           if (param.containsKey("description")) {
-            tmp.write("   * ${param["description"]}\n");
+            sink.write("   * ${param["description"]}\n");
           }
-          tmp.write("   * Added as queryParameter for each request.\n");
-          tmp.write("   */\n");
-          tmp.write("  $type get $key => params[\"$key\"];\n");
-          tmp.write("  set $key($type value) => params[\"$key\"] = value;\n");
+          sink.write("   * Added as queryParameter for each request.\n");
+          sink.write("   */\n");
+          sink.write("  $type get $key => params[\"$key\"];\n");
+          sink.write("  set $key($type value) => params[\"$key\"] = value;\n");
         }
       });
     }
-    tmp.write("\n  ${capitalize(_name)}([oauth.OAuth2 auth]) : super(auth) {\n");
-    tmp.write("    basePath = \"${_json["basePath"]}\";\n");
+    sink.write("\n  ${capitalize(_name)}([oauth.OAuth2 auth]) : super(auth) {\n");
+    sink.write("    basePath = \"${_json["basePath"]}\";\n");
     var uri = Uri.parse(_json["rootUrl"]);
-    tmp.write("    rootUrl = \"${uri.origin}/\";\n");
+    sink.write("    rootUrl = \"${uri.origin}/\";\n");
     if (_json.containsKey("resources")) {
       _json["resources"].forEach((key, resource) {
         var subClassName = "${capitalize(key)}Resource_";
-        tmp.write("    _$key = new $subClassName(this);\n");
+        sink.write("    _$key = new $subClassName(this);\n");
       });
     }
-    tmp.write("  }\n");
+    sink.write("  }\n");
 
     if (_json.containsKey("methods")) {
       _json["methods"].forEach((key, method) {
-        tmp.write("\n");
-        tmp.write(_createMethod(key, method, true));
+        sink.write("\n");
+        _writeMethod(sink, key, method, true);
       });
     }
 
-    tmp.write("}\n");
-
-    return tmp.toString();
+    sink.write("}\n");
   }
 
-  String _createConsoleMainClass() {
-    var tmp = new StringBuffer();
-    tmp.write("part of $_libraryConsoleName;\n\n");
-    tmp.write("/** Client to access the $_name $_version API */\n");
+  void _writeConsoleMainClass(StringSink sink) {
+    sink.write("part of $_libraryConsoleName;\n\n");
+    sink.write("/** Client to access the $_name $_version API */\n");
     if (_json.containsKey("description")) {
-      tmp.write("/** ${_json["description"]} */\n");
+      sink.write("/** ${_json["description"]} */\n");
     }
-    tmp.write("class ${capitalize(_name)} extends ConsoleClient {\n");
+    sink.write("class ${capitalize(_name)} extends ConsoleClient {\n");
     if (_json.containsKey("resources")) {
-      tmp.write("\n");
+      sink.write("\n");
       _json["resources"].forEach((key, resource) {
         var subClassName = "${capitalize(key)}Resource_";
-        tmp.write("  $subClassName _$key;\n");
-        tmp.write("  $subClassName get $key => _$key;\n");
+        sink.write("  $subClassName _$key;\n");
+        sink.write("  $subClassName get $key => _$key;\n");
       });
     }
     if(_json.containsKey("auth") && _json["auth"].containsKey("oauth2") && _json["auth"]["oauth2"].containsKey("scopes")) {
@@ -378,13 +364,13 @@ part "$srcFolder/console/$_name.dart";
         var scopeName = scope.toUpperCase();
         if (p >= 0) scopeName = scopeName.substring(p+1);
         scopeName = cleanName(scopeName);
-        tmp.write("\n");
+        sink.write("\n");
         if (description.containsKey("description")) {
-          tmp.write("  /** OAuth Scope2: ${description["description"]} */\n");
+          sink.write("  /** OAuth Scope2: ${description["description"]} */\n");
         } else {
-          tmp.write("  /** OAuth Scope2 */\n");
+          sink.write("  /** OAuth Scope2 */\n");
         }
-        tmp.write("  static const core.String ${scopeName}_SCOPE = \"$scope\";\n");
+        sink.write("  static const core.String ${scopeName}_SCOPE = \"$scope\";\n");
       });
     }
     if (_json.containsKey("parameters")) {
@@ -396,52 +382,49 @@ part "$srcFolder/console/$_name.dart";
           }
         }
         if (type != null) {
-          tmp.write("\n");
-          tmp.write("  /**\n");
+          sink.write("\n");
+          sink.write("  /**\n");
           if (param.containsKey("description")) {
-            tmp.write("   * ${param["description"]}\n");
+            sink.write("   * ${param["description"]}\n");
           }
-          tmp.write("   * Added as queryParameter for each request.\n");
-          tmp.write("   */\n");
-          tmp.write("  $type get $key => params[\"$key\"];\n");
-          tmp.write("  set $key($type value) => params[\"$key\"] = value;\n");
+          sink.write("   * Added as queryParameter for each request.\n");
+          sink.write("   */\n");
+          sink.write("  $type get $key => params[\"$key\"];\n");
+          sink.write("  set $key($type value) => params[\"$key\"] = value;\n");
         }
       });
     }
     // TODO: change this to correct OAuth class for console
-    tmp.write("\n  ${capitalize(_name)}([oauth2.OAuth2Console auth]) : super(auth) {\n");
-    tmp.write("    basePath = \"${_json["basePath"]}\";\n");
+    sink.write("\n  ${capitalize(_name)}([oauth2.OAuth2Console auth]) : super(auth) {\n");
+    sink.write("    basePath = \"${_json["basePath"]}\";\n");
     var uri = Uri.parse(_json["rootUrl"]);
-    tmp.write("    rootUrl = \"${uri.origin}/\";\n");
+    sink.write("    rootUrl = \"${uri.origin}/\";\n");
     if (_json.containsKey("resources")) {
       _json["resources"].forEach((key, resource) {
         var subClassName = "${capitalize(key)}Resource_";
-        tmp.write("    _$key = new $subClassName(this);\n");
+        sink.write("    _$key = new $subClassName(this);\n");
       });
     }
-    tmp.write("  }\n");
+    sink.write("  }\n");
 
     if (_json.containsKey("methods")) {
       _json["methods"].forEach((key, method) {
-        tmp.write("\n");
-        tmp.write(_createMethod(key, method, true));
+        sink.write("\n");
+        _writeMethod(sink, key, method, true);
       });
     }
 
-    tmp.write("}\n");
-
-    return tmp.toString();
+    sink.write("}\n");
   }
 
-  String _createSchemaClass(String name, Map data) {
-    var tmp = new StringBuffer();
+  void _writeSchemaClass(StringSink sink, String name, Map data) {
     Map subSchemas = new Map();
 
     if (data.containsKey("description")) {
-      tmp.write("/** ${data["description"]} */\n");
+      sink.write("/** ${data["description"]} */\n");
     }
 
-    tmp.write("class ${capitalize(name)} {\n");
+    sink.write("class ${capitalize(name)} {\n");
 
     if (data.containsKey("properties")) {
       data["properties"].forEach((key, property) {
@@ -490,20 +473,20 @@ part "$srcFolder/console/$_name.dart";
         if (type != null) {
           String propName = escapeProperty(cleanName(key));
           if (property.containsKey("description")) {
-            tmp.write("\n  /** ${property["description"]} */\n");
+            sink.write("\n  /** ${property["description"]} */\n");
           }
           if (array) {
-            tmp.write("  core.List<$type> $propName;\n");
+            sink.write("  core.List<$type> $propName;\n");
           } else {
-            tmp.write("  $type $propName;\n");
+            sink.write("  $type $propName;\n");
           }
         }
       });
     }
 
-    tmp.write("\n");
-    tmp.write("  /** Create new $name from JSON data */\n");
-    tmp.write("  ${capitalize(name)}.fromJson(core.Map json) {\n");
+    sink.write("\n");
+    sink.write("  /** Create new $name from JSON data */\n");
+    sink.write("  ${capitalize(name)}.fromJson(core.Map json) {\n");
     if (data.containsKey("properties")) {
       data["properties"].forEach((key, property) {
         var schemaType = property["type"];
@@ -548,40 +531,40 @@ part "$srcFolder/console/$_name.dart";
         if (type != null) {
           String propName = escapeProperty(cleanName(key));
           String jsonName = key.replaceAll("\$", "\\\$");
-          tmp.write("    if (json.containsKey(\"$jsonName\")) {\n");
+          sink.write("    if (json.containsKey(\"$jsonName\")) {\n");
           if (array) {
-            tmp.write("      $propName = [];\n");
-            tmp.write("      json[\"$jsonName\"].forEach((item) {\n");
+            sink.write("      $propName = [];\n");
+            sink.write("      json[\"$jsonName\"].forEach((item) {\n");
             if (object) {
-              tmp.write("        $propName.add(new $type.fromJson(item));\n");
+              sink.write("        $propName.add(new $type.fromJson(item));\n");
             } else {
-              tmp.write("        $propName.add(item);\n");
+              sink.write("        $propName.add(item);\n");
             }
-            tmp.write("      });\n");
+            sink.write("      });\n");
           } else {
             if (object) {
-              tmp.write("      $propName = new $type.fromJson(json[\"$jsonName\"]);\n");
+              sink.write("      $propName = new $type.fromJson(json[\"$jsonName\"]);\n");
             } else {
               if(schemaType=="string" && schemaFormat == "int64") {
-                tmp.write("      if(json[\"$jsonName\"] is core.String){\n");
-                tmp.write("        $propName = core.int.parse(json[\"$jsonName\"]);\n");
-                tmp.write("      }else{\n");
-                tmp.write("        $propName = json[\"$jsonName\"];\n");
-                tmp.write("      }\n");
+                sink.write("      if(json[\"$jsonName\"] is core.String){\n");
+                sink.write("        $propName = core.int.parse(json[\"$jsonName\"]);\n");
+                sink.write("      }else{\n");
+                sink.write("        $propName = json[\"$jsonName\"];\n");
+                sink.write("      }\n");
               }else{
-                tmp.write("      $propName = json[\"$jsonName\"];\n");
+                sink.write("      $propName = json[\"$jsonName\"];\n");
               }
             }
           }
-          tmp.write("    }\n");
+          sink.write("    }\n");
         }
       });
     }
-    tmp.write("  }\n\n");
+    sink.write("  }\n\n");
 
-    tmp.write("  /** Create JSON Object for $name */\n");
-    tmp.write("  core.Map toJson() {\n");
-    tmp.write("    var output = new core.Map();\n\n");
+    sink.write("  /** Create JSON Object for $name */\n");
+    sink.write("  core.Map toJson() {\n");
+    sink.write("    var output = new core.Map();\n\n");
     if (data.containsKey("properties")) {
       data["properties"].forEach((key, property) {
         var schemaType = property["type"];
@@ -626,88 +609,81 @@ part "$srcFolder/console/$_name.dart";
         if (type != null) {
           String propName = escapeProperty(cleanName(key));
           String jsonName = key.replaceAll("\$", "\\\$");
-          tmp.write("    if ($propName != null) {\n");
+          sink.write("    if ($propName != null) {\n");
           if (array) {
-            tmp.write("      output[\"$jsonName\"] = new core.List();\n");
-            tmp.write("      $propName.forEach((item) {\n");
+            sink.write("      output[\"$jsonName\"] = new core.List();\n");
+            sink.write("      $propName.forEach((item) {\n");
             if (object) {
-              tmp.write("        output[\"$jsonName\"].add(item.toJson());\n");
+              sink.write("        output[\"$jsonName\"].add(item.toJson());\n");
             } else {
-              tmp.write("        output[\"$jsonName\"].add(item);\n");
+              sink.write("        output[\"$jsonName\"].add(item);\n");
             }
-            tmp.write("      });\n");
+            sink.write("      });\n");
           } else {
             if (object) {
-              tmp.write("      output[\"$jsonName\"] = $propName.toJson();\n");
+              sink.write("      output[\"$jsonName\"] = $propName.toJson();\n");
             } else {
-              tmp.write("      output[\"$jsonName\"] = $propName;\n");
+              sink.write("      output[\"$jsonName\"] = $propName;\n");
             }
           }
-          tmp.write("    }\n");
+          sink.write("    }\n");
         }
       });
     }
-    tmp.write("\n    return output;\n");
-    tmp.write("  }\n\n");
+    sink.write("\n    return output;\n");
+    sink.write("  }\n\n");
 
-    tmp.write("  /** Return String representation of $name */\n");
-    tmp.write("  core.String toString() => JSON.stringify(this.toJson());\n\n");
+    sink.write("  /** Return String representation of $name */\n");
+    sink.write("  core.String toString() => JSON.stringify(this.toJson());\n\n");
 
-    tmp.write("}\n\n");
+    sink.write("}\n\n");
 
     subSchemas.forEach((subName, value) {
-      tmp.write(_createSchemaClass(subName, value));
+      _writeSchemaClass(sink, subName, value);
     });
-
-    return tmp.toString();
   }
 
-  String _createParamComment(name, description) {
-    var tmp = new StringBuffer();
-    tmp.write("   *\n");
-    tmp.write("   * [$name]");
+  void _writeParamComment(StringSink sink, String name, Map description) {
+    sink.write("   *\n");
+    sink.write("   * [$name]");
     if (description.containsKey("description")) {
-      tmp.write(" - ${description["description"]}");
+      sink.write(" - ${description["description"]}");
     }
-    tmp.write("\n");
+    sink.write("\n");
     if (description.containsKey("default")) {
-      tmp.write("   *   Default: ${description["default"]}\n");
+      sink.write("   *   Default: ${description["default"]}\n");
     }
     if (description.containsKey("minimum")) {
-      tmp.write("   *   Minimum: ${description["minimum"]}\n");
+      sink.write("   *   Minimum: ${description["minimum"]}\n");
     }
     if (description.containsKey("maximum")) {
-      tmp.write("   *   Maximum: ${description["maximum"]}\n");
+      sink.write("   *   Maximum: ${description["maximum"]}\n");
     }
     if (description.containsKey("repeated") && description["repeated"] == true) {
-      tmp.write("   *   Repeated values: allowed\n");
+      sink.write("   *   Repeated values: allowed\n");
     }
     if (description.containsKey("enum")) {
-      tmp.write("   *   Allowed values:\n");
+      sink.write("   *   Allowed values:\n");
       for (var i = 0; i < description["enum"].length; i++) {
-        tmp.write("   *     ${description["enum"][i]}");
+        sink.write("   *     ${description["enum"][i]}");
         if (description.containsKey("enumDescriptions")) {
-          tmp.write(" - ${description["enumDescriptions"][i]}");
+          sink.write(" - ${description["enumDescriptions"][i]}");
         }
-        tmp.write("\n");
+        sink.write("\n");
       }
     }
-    
-
-    return tmp.toString();
   }
 
   /// Create a method with [name] inside of a class, based on [data]
-  String _createMethod(String name, Map data, [bool noResource = false]) {
-    var tmp = new StringBuffer();
+  void _writeMethod(StringSink sink, String name, Map data, [bool noResource = false]) {
     var upload = false;
     var uploadPath;
 
     name = escapeMethod(cleanName(name));
 
-    tmp.write("  /**\n");
+    sink.write("  /**\n");
     if (data.containsKey("description")) {
-      tmp.write("   * ${data["description"]}\n");
+      sink.write("   * ${data["description"]}\n");
     }
 
     var params = new List<String>();
@@ -715,7 +691,7 @@ part "$srcFolder/console/$_name.dart";
 
     if (data.containsKey("request")) {
       params.add("${data["request"]["\$ref"]} request");
-      tmp.write(_createParamComment("request", {"description": "${data["request"]["\$ref"]} to send in this request"}));
+      _writeParamComment(sink, "request", {"description": "${data["request"]["\$ref"]} to send in this request"});
     }
     if (data.containsKey("parameterOrder") && data.containsKey("parameters")) {
       data["parameterOrder"].forEach((param) {
@@ -728,7 +704,7 @@ part "$srcFolder/console/$_name.dart";
           }
           if (type != null) {
             var variable = escapeParameter(cleanName(param));
-            tmp.write(_createParamComment(variable, data["parameters"][param]));
+            _writeParamComment(sink, variable, data["parameters"][param]);
             if (data["parameters"][param].containsKey("repeated") && data["parameters"][param]["repeated"] == true) {
               params.add("core.List<$type> $variable");
             } else {
@@ -756,8 +732,8 @@ part "$srcFolder/console/$_name.dart";
     if (upload) {
       optParams.add("core.String content");
       optParams.add("core.String contentType");
-      tmp.write(_createParamComment("content", {"description": "Base64 Data of the file content to be uploaded"}));
-      tmp.write(_createParamComment("contentType", {"description": "MimeType of the file to be uploaded"}));
+      _writeParamComment(sink, "content", {"description": "Base64 Data of the file content to be uploaded"});
+      _writeParamComment(sink, "contentType", {"description": "MimeType of the file to be uploaded"});
     }
     if (data.containsKey("parameters")) {
       data["parameters"].forEach((name, description) {
@@ -770,7 +746,7 @@ part "$srcFolder/console/$_name.dart";
           }
           if (type != null) {
             var variable = escapeParameter(cleanName(name));
-            tmp.write(_createParamComment(variable, description));
+            _writeParamComment(sink, variable, description);
             if (description.containsKey("repeated") && description["repeated"] == true) {
               optParams.add("core.List<$type> $variable");
             } else {
@@ -782,11 +758,11 @@ part "$srcFolder/console/$_name.dart";
     }
 
     optParams.add("core.Map optParams");
-    tmp.write(_createParamComment("optParams", {"description": "Additional query parameters"}));
+    _writeParamComment(sink, "optParams", {"description": "Additional query parameters"});
 
     params.add("{${optParams.join(", ")}}");
 
-    tmp.write("   */\n");
+    sink.write("   */\n");
     var response = null;
     if (data.containsKey("response")) {
       response = "async.Future<${data["response"]["\$ref"]}>";
@@ -794,14 +770,14 @@ part "$srcFolder/console/$_name.dart";
       response = "async.Future<core.Map>";
     }
 
-    tmp.write("  $response $name(${params.join(", ")}) {\n");
-    tmp.write("    var url = \"${data["path"]}\";\n");
+    sink.write("  $response $name(${params.join(", ")}) {\n");
+    sink.write("    var url = \"${data["path"]}\";\n");
     if (upload) {
-      tmp.write("    var uploadUrl = \"$uploadPath\";\n");
+      sink.write("    var uploadUrl = \"$uploadPath\";\n");
     }
-    tmp.write("    var urlParams = new core.Map();\n");
-    tmp.write("    var queryParams = new core.Map();\n\n");
-    tmp.write("    var paramErrors = new core.List();\n");
+    sink.write("    var urlParams = new core.Map();\n");
+    sink.write("    var queryParams = new core.Map();\n\n");
+    sink.write("    var paramErrors = new core.List();\n");
 
     if (data.containsKey("parameters")) {
       data["parameters"].forEach((name, description) {
@@ -809,7 +785,7 @@ part "$srcFolder/console/$_name.dart";
         var location = "queryParams";
         if (description["location"] == "path") { location = "urlParams"; }
         if (description["required"] == true) {
-          tmp.write("    if ($variable == null) paramErrors.add(\"$variable is required\");\n");
+          sink.write("    if ($variable == null) paramErrors.add(\"$variable is required\");\n");
         }
         if (description["enum"] != null) {
           var list = new StringBuffer();
@@ -820,15 +796,15 @@ part "$srcFolder/console/$_name.dart";
             list.write("\"$value\"");
             values.write(value);
           });
-          tmp.write("    if ($variable != null && ![$list].contains($variable)) {\n");
-          tmp.write("      paramErrors.add(\"Allowed values for $variable: $values\");\n");
-          tmp.write("    }\n");
+          sink.write("    if ($variable != null && ![$list].contains($variable)) {\n");
+          sink.write("      paramErrors.add(\"Allowed values for $variable: $values\");\n");
+          sink.write("    }\n");
         }
-        tmp.write("    if ($variable != null) $location[\"$name\"] = $variable;\n");
+        sink.write("    if ($variable != null) $location[\"$name\"] = $variable;\n");
       });
     }
 
-    tmp.write("""
+    sink.write("""
     if (optParams != null) {
       optParams.forEach((key, value) {
         if (value != null && queryParams[key] == null) {
@@ -852,72 +828,66 @@ part "$srcFolder/console/$_name.dart";
       uploadCall = "null, content, contentType, urlParams: urlParams, queryParams: queryParams";
     }
 
-    tmp.write("    var response;\n");
+    sink.write("    var response;\n");
     if (upload) {
-      tmp.write("    if (?content && content != null) {\n");
-      tmp.write("      response = ${noResource ? "this" : "_client"}.upload(uploadUrl, \"${data["httpMethod"]}\", $uploadCall);\n");
-      tmp.write("    } else {\n");
-      tmp.write("      response = ${noResource ? "this" : "_client"}.request(url, \"${data["httpMethod"]}\", $call);\n");
-      tmp.write("    }\n");
+      sink.write("    if (?content && content != null) {\n");
+      sink.write("      response = ${noResource ? "this" : "_client"}.upload(uploadUrl, \"${data["httpMethod"]}\", $uploadCall);\n");
+      sink.write("    } else {\n");
+      sink.write("      response = ${noResource ? "this" : "_client"}.request(url, \"${data["httpMethod"]}\", $call);\n");
+      sink.write("    }\n");
     } else {
-      tmp.write("    response = ${noResource ? "this" : "_client"}.request(url, \"${data["httpMethod"]}\", $call);\n");
+      sink.write("    response = ${noResource ? "this" : "_client"}.request(url, \"${data["httpMethod"]}\", $call);\n");
     }
 
     if (data.containsKey("response")) {
-      tmp.write("    return response\n");
-      tmp.write("      .then((data) => new ${data["response"]["\$ref"]}.fromJson(data));\n");
+      sink.write("    return response\n");
+      sink.write("      .then((data) => new ${data["response"]["\$ref"]}.fromJson(data));\n");
     } else {
-      tmp.write("    return response;\n");
+      sink.write("    return response;\n");
     }
-    tmp.write("  }\n");
-
-    return tmp.toString();
+    sink.write("  }\n");
   }
 
-  String _createResourceClass(String name, Map data) {
-    var tmp = new StringBuffer();
+  void _writeResourceClass(StringSink sink, String name, Map data) {
     var className = "${capitalize(name)}Resource_";
 
-    tmp.write("class $className extends Resource {\n");
+    sink.write("class $className extends Resource {\n");
 
     if (data.containsKey("resources")) {
-      tmp.write("\n");
+      sink.write("\n");
       data["resources"].forEach((key, resource) {
         var subClassName = "${capitalize(name)}${capitalize(key)}Resource_";
-        tmp.write("  $subClassName _$key;\n");
-        tmp.write("  $subClassName get $key => _$key;\n");
+        sink.write("  $subClassName _$key;\n");
+        sink.write("  $subClassName get $key => _$key;\n");
       });
     }
 
-    tmp.write("\n  $className(Client client) : super(client) {\n");
+    sink.write("\n  $className(Client client) : super(client) {\n");
     if (data.containsKey("resources")) {
       data["resources"].forEach((key, resource) {
         var subClassName = "${capitalize(name)}${capitalize(key)}Resource_";
-        tmp.write("  _$key = new $subClassName(client);\n");
+        sink.write("  _$key = new $subClassName(client);\n");
       });
     }
-    tmp.write("  }\n");
+    sink.write("  }\n");
 
     if (data.containsKey("methods")) {
       data["methods"].forEach((key, method) {
-        tmp.write("\n");
-        tmp.write(_createMethod(key, method));
+        sink.write("\n");
+        _writeMethod(sink, key, method);
       });
     }
 
-    tmp.write("}\n\n");
+    sink.write("}\n\n");
 
     if (data.containsKey("resources")) {
       data["resources"].forEach((key, resource) {
-        tmp.write(_createResourceClass("${capitalize(name)}${capitalize(key)}", resource));
+        _writeResourceClass(sink, "${capitalize(name)}${capitalize(key)}", resource);
       });
     }
-
-    return tmp.toString();
   }
 
-  String _createClientClass() {
-    return """
+  String get _createClientClass => """
 part of $_libraryName;
 
 /**
@@ -985,10 +955,8 @@ class APIRequestException implements core.Exception {
 }
 
 """;
-  }
 
-  String _createBrowserClientClass() {
-    return """
+  String get _createBrowserClientClass => """
 part of $_libraryBrowserName;
 
 /**
@@ -1159,10 +1127,8 @@ abstract class BrowserClient extends Client {
 }
 
 """;
-  }
 
-  String _createConsoleClientClass() {
-    return """
+  String get _createConsoleClientClass => """
 part of $_libraryConsoleName;
 
 /**
@@ -1278,11 +1244,8 @@ abstract class ConsoleClient extends Client {
 }
 
 """;
-  }
 
-  String _createHopRunner() {
-
-    return """
+  String get _createHopRunner => """
 library hop_runner;
 
 import 'package:hop/hop.dart';
@@ -1303,5 +1266,4 @@ void main() {
   runHop();
 }
 """;
-  }
 }
