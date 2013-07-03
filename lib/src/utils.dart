@@ -22,6 +22,17 @@ String escapeProperty(String name) => keywords.contains(name) ? "${name}Property
 String escapeMethod(String name) => keywords.contains(name) ? "${name}Method" : name;
 String escapeParameter(String name) => keywords.contains(name) ? "${name}Parameter" : name;
 
+void _writeString(String path, String content) {
+  var file = new File(path);
+  file.writeAsStringSync(content);
+}
+
+void _writeFile(String path, void writer(StringSink sink)) {
+  var sink = new StringBuffer();
+  writer(sink);
+  _writeString(path, sink.toString());
+}
+
 const String _license = """
 Copyright (c) 2013 Gerwin Sturm & Adam Singer
 

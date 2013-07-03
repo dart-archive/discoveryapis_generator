@@ -160,17 +160,6 @@ class Generator {
     return true;
   }
 
-  static void _writeString(String path, String content) {
-    var file = new File(path);
-    file.writeAsStringSync(content);
-  }
-
-  static void _writeFile(String path, void writer(StringSink sink)) {
-    var sink = new StringBuffer();
-    writer(sink);
-    _writeString(path, sink.toString());
-  }
-
   String _createPubspec(int clientVersionBuild) => """
 name: $_libraryPubspecName
 version: $clientVersion.$clientVersionBuild
