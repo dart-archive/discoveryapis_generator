@@ -22,8 +22,7 @@ String escapeProperty(String name) => keywords.contains(name) ? "${name}Property
 String escapeMethod(String name) => keywords.contains(name) ? "${name}Method" : name;
 String escapeParameter(String name) => keywords.contains(name) ? "${name}Parameter" : name;
 
-String _createLicense() {
-  return """
+const String _license = """
 Copyright (c) 2013 Gerwin Sturm & Adam Singer
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -55,20 +54,15 @@ License for the specific language governing permissions and limitations under
 the License
 
 """;
-}
 
-String _createContributors() {
-  return """
+const String _contributors = """
 Adam Singer (https://github.com/financeCoding)
 Gerwin Sturm (https://github.com/Scarygami, http://scarygami.net/+)
 Damon Douglas (https://github.com/damondouglas)
 Kevin Moore (kevin@thinkpixellab.com)
 """;
-}
 
-String _createGitIgnore() {
-  return """
+const String _gitIgnore ="""
 packages
 pubspec.lock
 """;
-}

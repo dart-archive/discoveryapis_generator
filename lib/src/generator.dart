@@ -115,58 +115,63 @@ class Generator {
     (new Directory("$libFolder/$srcFolder/console")).createSync(recursive: true);
     (new Directory("$mainFolder/tool")).createSync(recursive: true);
 
-    void writeFile(String path, String content) {
+    void writeString(String path, String content) {
       var file = new File(path);
       file.writeAsStringSync(content);
     }
 
+    void writeFile(String path, void writer(StringSink sink)) {
+      var sink = new StringBuffer();
+      writer(sink);
+      writeString(path, sink.toString());
+    }
+
     if (!fullLibrary) {
-      writeFile("$mainFolder/pubspec.yaml", _createPubspec(clientVersionBuild));
+      writeString("$mainFolder/pubspec.yaml", _createPubspec(clientVersionBuild));
 
-      writeFile("$mainFolder/LICENSE", _createLicense());
+      writeString("$mainFolder/LICENSE", _license);
 
-      writeFile("$mainFolder/README.md", _createReadme());
+      writeFile("$mainFolder/README.md", _createReadme);
 
-      writeFile("$mainFolder/.gitignore", _createGitIgnore());
+      writeString("$mainFolder/.gitignore", _gitIgnore);
 
-      writeFile("$mainFolder/CONTRIBUTORS", _createContributors());
+      writeString("$mainFolder/CONTRIBUTORS", _contributors);
 
-      writeFile("$mainFolder/VERSION", _etag);
+      writeString("$mainFolder/VERSION", _etag);
     }
 
     // Create common library files
 
-    writeFile("$libFolder/$_libraryName.dart", _createLibrary(srcFolder));
+    writeString("$libFolder/$_libraryName.dart", _createLibrary(srcFolder));
 
-    writeFile("$libFolder/$srcFolder/client/client.dart", _createClientClass());
+    writeString("$libFolder/$srcFolder/client/client.dart", _createClientClass);
 
-    writeFile("$libFolder/$srcFolder/client/schemas.dart", _createSchemas());
+    writeFile("$libFolder/$srcFolder/client/schemas.dart", _createSchemas);
 
-    writeFile("$libFolder/$srcFolder/client/resources.dart", _createResources());
+    writeFile("$libFolder/$srcFolder/client/resources.dart", _createResources);
 
     // Create browser versions of the libraries
-    writeFile("$libFolder/$_libraryBrowserName.dart", _createBrowserLibrary(srcFolder));
+    writeString("$libFolder/$_libraryBrowserName.dart", _createBrowserLibrary(srcFolder));
 
-    writeFile("$libFolder/$srcFolder/browser/browser_client.dart", _createBrowserClientClass());
+    writeString("$libFolder/$srcFolder/browser/browser_client.dart", _createBrowserClientClass);
 
-    writeFile("$libFolder/$srcFolder/browser/$_name.dart", _createBrowserMainClass());
+    writeFile("$libFolder/$srcFolder/browser/$_name.dart", _createBrowserMainClass);
 
     // Create console versions of the libraries
-    writeFile("$libFolder/$_libraryConsoleName.dart", _createConsoleLibrary(srcFolder));
+    writeString("$libFolder/$_libraryConsoleName.dart", _createConsoleLibrary(srcFolder));
 
-    writeFile("$libFolder/$srcFolder/console/console_client.dart", _createConsoleClientClass());
+    writeString("$libFolder/$srcFolder/console/console_client.dart", _createConsoleClientClass);
 
-    writeFile("$libFolder/$srcFolder/console/$_name.dart", _createConsoleMainClass());
+    writeFile("$libFolder/$srcFolder/console/$_name.dart", _createConsoleMainClass);
 
     // Create hop_runner for the libraries
-    writeFile("$mainFolder/tool/hop_runner.dart", _createHopRunner());
+    writeString("$mainFolder/tool/hop_runner.dart", _createHopRunner);
 
     print("Library $_libraryName generated successfully.");
     return true;
   }
 
-  String _createPubspec(int clientVersionBuild) {
-    return """
+  String _createPubspec(int clientVersionBuild) => """
 name: $_libraryPubspecName
 version: $clientVersion.$clientVersionBuild
 authors:
@@ -182,10 +187,8 @@ dependencies:
 dev_dependencies:
   hop: any
 """;
-  }
 
-  String _createReadme() {
-    var tmp = new StringBuffer();
+  void _createReadme(StringSink tmp) {
     tmp.write("""
 # $_libraryPubspecName
 
@@ -208,13 +211,11 @@ Auto-generated client library for accessing the $_name $_version API.
 
     tmp.write("```\nvar ${cleanName(_name).toLowerCase()} = new ${cleanName(_name).toLowerCase()}client.${capitalize(_name)}();\n```\n\n");
     tmp.write("### Licenses\n\n```\n");
-    tmp.write(_createLicense());
+    tmp.write(_license);
     tmp.write("```\n");
-    return tmp.toString();
   }
 
-  String _createLibrary(String srcFolder) {
-    return """
+  String _createLibrary(String srcFolder) => """
 library $_libraryName;
 
 import "dart:core" as core;
@@ -225,10 +226,8 @@ part "$srcFolder/client/client.dart";
 part "$srcFolder/client/schemas.dart";
 part "$srcFolder/client/resources.dart";
 """;
-  }
 
-  String _createBrowserLibrary(String srcFolder) {
-    return """
+  String _createBrowserLibrary(String srcFolder) => """
 library $_libraryBrowserName;
 
 import "$_libraryName.dart";
@@ -244,10 +243,8 @@ import "package:google_oauth2_client/google_oauth2_browser.dart" as oauth;
 part "$srcFolder/browser/browser_client.dart";
 part "$srcFolder/browser/$_name.dart";
 """;
-  }
 
-  String _createConsoleLibrary(String srcFolder) {
-    return """
+  String _createConsoleLibrary(String srcFolder) => """
 library $_libraryConsoleName;
 
 import "$_libraryName.dart";
@@ -263,38 +260,28 @@ import "package:google_oauth2_client/google_oauth2_console.dart" as oauth2;
 part "$srcFolder/console/console_client.dart";
 part "$srcFolder/console/$_name.dart";
 """;
-  }
 
-  String _createSchemas() {
-    var tmp = new StringBuffer();
-
+  void _createSchemas(StringSink tmp) {
     tmp.write("part of $_libraryName;\n\n");
 
     if (_json.containsKey("schemas")) {
       _json["schemas"].forEach((key, schema) {
-        tmp.write(_createSchemaClass(key, schema));
+        _createSchemaClass(tmp, key, schema);
       });
     }
-
-    return tmp.toString();
   }
 
-  String _createResources() {
-    var tmp = new StringBuffer();
-
+  void _createResources(StringSink tmp) {
     tmp.write("part of $_libraryName;\n\n");
 
     if (_json.containsKey("resources")) {
       _json["resources"].forEach((key, resource) {
-        tmp.write(_createResourceClass(key, resource));
+        _createResourceClass(tmp, key, resource);
       });
     }
-
-    return tmp.toString();
   }
 
-  String _createBrowserMainClass() {
-    var tmp = new StringBuffer();
+  void _createBrowserMainClass(StringSink tmp) {
     tmp.write("part of $_libraryBrowserName;\n\n");
     tmp.write("/** Client to access the $_name $_version API */\n");
     if (_json.containsKey("description")) {
@@ -360,17 +347,14 @@ part "$srcFolder/console/$_name.dart";
     if (_json.containsKey("methods")) {
       _json["methods"].forEach((key, method) {
         tmp.write("\n");
-        tmp.write(_createMethod(key, method, true));
+        _createMethod(tmp, key, method, true);
       });
     }
 
     tmp.write("}\n");
-
-    return tmp.toString();
   }
 
-  String _createConsoleMainClass() {
-    var tmp = new StringBuffer();
+  void _createConsoleMainClass(StringSink tmp) {
     tmp.write("part of $_libraryConsoleName;\n\n");
     tmp.write("/** Client to access the $_name $_version API */\n");
     if (_json.containsKey("description")) {
@@ -437,17 +421,14 @@ part "$srcFolder/console/$_name.dart";
     if (_json.containsKey("methods")) {
       _json["methods"].forEach((key, method) {
         tmp.write("\n");
-        tmp.write(_createMethod(key, method, true));
+        _createMethod(tmp, key, method, true);
       });
     }
 
     tmp.write("}\n");
-
-    return tmp.toString();
   }
 
-  String _createSchemaClass(String name, Map data) {
-    var tmp = new StringBuffer();
+  void _createSchemaClass(StringSink tmp, String name, Map data) {
     Map subSchemas = new Map();
 
     if (data.containsKey("description")) {
@@ -669,14 +650,11 @@ part "$srcFolder/console/$_name.dart";
     tmp.write("}\n\n");
 
     subSchemas.forEach((subName, value) {
-      tmp.write(_createSchemaClass(subName, value));
+      _createSchemaClass(tmp, subName, value);
     });
-
-    return tmp.toString();
   }
 
-  String _createParamComment(name, description) {
-    var tmp = new StringBuffer();
+  void _createParamComment(StringSink tmp, String name, Map description) {
     tmp.write("   *\n");
     tmp.write("   * [$name]");
     if (description.containsKey("description")) {
@@ -705,14 +683,10 @@ part "$srcFolder/console/$_name.dart";
         tmp.write("\n");
       }
     }
-    
-
-    return tmp.toString();
   }
 
   /// Create a method with [name] inside of a class, based on [data]
-  String _createMethod(String name, Map data, [bool noResource = false]) {
-    var tmp = new StringBuffer();
+  void _createMethod(StringSink tmp, String name, Map data, [bool noResource = false]) {
     var upload = false;
     var uploadPath;
 
@@ -728,7 +702,7 @@ part "$srcFolder/console/$_name.dart";
 
     if (data.containsKey("request")) {
       params.add("${data["request"]["\$ref"]} request");
-      tmp.write(_createParamComment("request", {"description": "${data["request"]["\$ref"]} to send in this request"}));
+      _createParamComment(tmp, "request", {"description": "${data["request"]["\$ref"]} to send in this request"});
     }
     if (data.containsKey("parameterOrder") && data.containsKey("parameters")) {
       data["parameterOrder"].forEach((param) {
@@ -741,7 +715,7 @@ part "$srcFolder/console/$_name.dart";
           }
           if (type != null) {
             var variable = escapeParameter(cleanName(param));
-            tmp.write(_createParamComment(variable, data["parameters"][param]));
+            _createParamComment(tmp, variable, data["parameters"][param]);
             if (data["parameters"][param].containsKey("repeated") && data["parameters"][param]["repeated"] == true) {
               params.add("core.List<$type> $variable");
             } else {
@@ -769,8 +743,8 @@ part "$srcFolder/console/$_name.dart";
     if (upload) {
       optParams.add("core.String content");
       optParams.add("core.String contentType");
-      tmp.write(_createParamComment("content", {"description": "Base64 Data of the file content to be uploaded"}));
-      tmp.write(_createParamComment("contentType", {"description": "MimeType of the file to be uploaded"}));
+      _createParamComment(tmp, "content", {"description": "Base64 Data of the file content to be uploaded"});
+      _createParamComment(tmp, "contentType", {"description": "MimeType of the file to be uploaded"});
     }
     if (data.containsKey("parameters")) {
       data["parameters"].forEach((name, description) {
@@ -783,7 +757,7 @@ part "$srcFolder/console/$_name.dart";
           }
           if (type != null) {
             var variable = escapeParameter(cleanName(name));
-            tmp.write(_createParamComment(variable, description));
+            _createParamComment(tmp, variable, description);
             if (description.containsKey("repeated") && description["repeated"] == true) {
               optParams.add("core.List<$type> $variable");
             } else {
@@ -795,7 +769,7 @@ part "$srcFolder/console/$_name.dart";
     }
 
     optParams.add("core.Map optParams");
-    tmp.write(_createParamComment("optParams", {"description": "Additional query parameters"}));
+    _createParamComment(tmp, "optParams", {"description": "Additional query parameters"});
 
     params.add("{${optParams.join(", ")}}");
 
@@ -883,12 +857,9 @@ part "$srcFolder/console/$_name.dart";
       tmp.write("    return response;\n");
     }
     tmp.write("  }\n");
-
-    return tmp.toString();
   }
 
-  String _createResourceClass(String name, Map data) {
-    var tmp = new StringBuffer();
+  void _createResourceClass(StringSink tmp, String name, Map data) {
     var className = "${capitalize(name)}Resource_";
 
     tmp.write("class $className extends Resource {\n");
@@ -914,7 +885,7 @@ part "$srcFolder/console/$_name.dart";
     if (data.containsKey("methods")) {
       data["methods"].forEach((key, method) {
         tmp.write("\n");
-        tmp.write(_createMethod(key, method));
+        _createMethod(tmp, key, method);
       });
     }
 
@@ -922,15 +893,12 @@ part "$srcFolder/console/$_name.dart";
 
     if (data.containsKey("resources")) {
       data["resources"].forEach((key, resource) {
-        tmp.write(_createResourceClass("${capitalize(name)}${capitalize(key)}", resource));
+        _createResourceClass(tmp, "${capitalize(name)}${capitalize(key)}", resource);
       });
     }
-
-    return tmp.toString();
   }
 
-  String _createClientClass() {
-    return """
+  String get _createClientClass => """
 part of $_libraryName;
 
 /**
@@ -998,10 +966,8 @@ class APIRequestException implements core.Exception {
 }
 
 """;
-  }
 
-  String _createBrowserClientClass() {
-    return """
+  String get _createBrowserClientClass => """
 part of $_libraryBrowserName;
 
 /**
@@ -1172,10 +1138,8 @@ abstract class BrowserClient extends Client {
 }
 
 """;
-  }
 
-  String _createConsoleClientClass() {
-    return """
+  String get _createConsoleClientClass => """
 part of $_libraryConsoleName;
 
 /**
@@ -1291,11 +1255,8 @@ abstract class ConsoleClient extends Client {
 }
 
 """;
-  }
 
-  String _createHopRunner() {
-
-    return """
+  String get _createHopRunner => """
 library hop_runner;
 
 import 'package:hop/hop.dart';
@@ -1316,5 +1277,4 @@ void main() {
   runHop();
 }
 """;
-  }
 }

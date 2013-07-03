@@ -64,7 +64,7 @@ Examples for how to use these libraries can be found here: https://github.com/da
     });
 
     tmp.write("### Licenses\n\n```\n");
-    tmp.write(_createLicense());
+    tmp.write(_license);
     tmp.write("```\n");
     return tmp.toString();
   };
@@ -73,9 +73,9 @@ Examples for how to use these libraries can be found here: https://github.com/da
 
   (new File("$outputDirectory/pubspec.yaml")).writeAsStringSync(createFullPubspec());
   (new File("$outputDirectory/README.md")).writeAsStringSync(createFullReadme());
-  (new File("$outputDirectory/LICENSE")).writeAsStringSync(_createLicense());
-  (new File("$outputDirectory/CONTRIBUTORS")).writeAsStringSync(_createContributors());
-  (new File("$outputDirectory/.gitignore")).writeAsStringSync(_createGitIgnore());
+  (new File("$outputDirectory/LICENSE")).writeAsStringSync(_license);
+  (new File("$outputDirectory/CONTRIBUTORS")).writeAsStringSync(_contributors);
+  (new File("$outputDirectory/.gitignore")).writeAsStringSync(_gitIgnore);
 
   apis["items"].forEach((item) {
     loadDocumentFromUrl(item["discoveryRestUrl"]).then((doc) {
