@@ -115,60 +115,60 @@ class Generator {
     (new Directory("$libFolder/$srcFolder/console")).createSync(recursive: true);
     (new Directory("$mainFolder/tool")).createSync(recursive: true);
 
-    void writeString(String path, String content) {
-      var file = new File(path);
-      file.writeAsStringSync(content);
-    }
-
-    void writeFile(String path, void writer(StringSink sink)) {
-      var sink = new StringBuffer();
-      writer(sink);
-      writeString(path, sink.toString());
-    }
-
     if (!fullLibrary) {
-      writeString("$mainFolder/pubspec.yaml", _createPubspec(clientVersionBuild));
+      _writeString("$mainFolder/pubspec.yaml", _createPubspec(clientVersionBuild));
 
-      writeString("$mainFolder/LICENSE", _license);
+      _writeString("$mainFolder/LICENSE", _license);
 
-      writeFile("$mainFolder/README.md", _writeReadme);
+      _writeFile("$mainFolder/README.md", _writeReadme);
 
-      writeString("$mainFolder/.gitignore", _gitIgnore);
+      _writeString("$mainFolder/.gitignore", _gitIgnore);
 
-      writeString("$mainFolder/CONTRIBUTORS", _contributors);
+      _writeString("$mainFolder/CONTRIBUTORS", _contributors);
 
-      writeString("$mainFolder/VERSION", _etag);
+      _writeString("$mainFolder/VERSION", _etag);
     }
 
     // Create common library files
 
-    writeString("$libFolder/$_libraryName.dart", _createLibrary(srcFolder));
+    _writeString("$libFolder/$_libraryName.dart", _createLibrary(srcFolder));
 
-    writeString("$libFolder/$srcFolder/client/client.dart", _createClientClass);
+    _writeString("$libFolder/$srcFolder/client/client.dart", _createClientClass);
 
-    writeFile("$libFolder/$srcFolder/client/schemas.dart", _writeSchemas);
+    _writeFile("$libFolder/$srcFolder/client/schemas.dart", _writeSchemas);
 
-    writeFile("$libFolder/$srcFolder/client/resources.dart", _writeResources);
+    _writeFile("$libFolder/$srcFolder/client/resources.dart", _writeResources);
 
     // Create browser versions of the libraries
-    writeString("$libFolder/$_libraryBrowserName.dart", _createBrowserLibrary(srcFolder));
+    _writeString("$libFolder/$_libraryBrowserName.dart", _createBrowserLibrary(srcFolder));
 
-    writeString("$libFolder/$srcFolder/browser/browser_client.dart", _createBrowserClientClass);
+    _writeString("$libFolder/$srcFolder/browser/browser_client.dart", _createBrowserClientClass);
 
-    writeFile("$libFolder/$srcFolder/browser/$_name.dart", _writeBrowserMainClass);
+    _writeFile("$libFolder/$srcFolder/browser/$_name.dart", _writeBrowserMainClass);
 
     // Create console versions of the libraries
-    writeString("$libFolder/$_libraryConsoleName.dart", _createConsoleLibrary(srcFolder));
+    _writeString("$libFolder/$_libraryConsoleName.dart", _createConsoleLibrary(srcFolder));
 
-    writeString("$libFolder/$srcFolder/console/console_client.dart", _createConsoleClientClass);
+    _writeString("$libFolder/$srcFolder/console/console_client.dart", _createConsoleClientClass);
 
-    writeFile("$libFolder/$srcFolder/console/$_name.dart", _writeConsoleMainClass);
+    _writeFile("$libFolder/$srcFolder/console/$_name.dart", _writeConsoleMainClass);
 
     // Create hop_runner for the libraries
-    writeString("$mainFolder/tool/hop_runner.dart", _createHopRunner);
+    _writeString("$mainFolder/tool/hop_runner.dart", _createHopRunner);
 
     print("Library $_libraryName generated successfully.");
     return true;
+  }
+
+  static void _writeString(String path, String content) {
+    var file = new File(path);
+    file.writeAsStringSync(content);
+  }
+
+  static void _writeFile(String path, void writer(StringSink sink)) {
+    var sink = new StringBuffer();
+    writer(sink);
+    _writeString(path, sink.toString());
   }
 
   String _createPubspec(int clientVersionBuild) => """
