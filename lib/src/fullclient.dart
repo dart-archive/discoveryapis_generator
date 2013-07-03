@@ -2,10 +2,9 @@ part of discovery_api_client_generator;
 
 void createFullClient(Map apis, String outputDirectory) {
 
-  String fullLibraryName = "api_client";
+  const fullLibraryName = "api_client";
 
-  String createFullPubspec() {
-    return """
+  final pubspec = """
 name: $fullLibraryName
 version: $clientVersion.0
 authors:
@@ -19,11 +18,9 @@ dependencies:
   google_oauth2_client: '${googleOAuth2ClientVersionConstraint}'
   js: '${jsDependenciesVersionConstraint}'
 """;
-  }
 
-  String createFullReadme() {
-    var tmp = new StringBuffer();
-    tmp.write("""
+  void writeFullReadme(StringSink sink) {
+    sink.write("""
 # $fullLibraryName
 
 ### Description
@@ -46,36 +43,37 @@ Examples for how to use these libraries can be found here: https://github.com/da
       var libraryBrowserName = cleanName("${name}_${version}_api_browser");
       var libraryConsoleName = cleanName("${name}_${version}_api_console");
 
-      tmp.write("#### ");
+      sink.write("#### ");
       if (item.containsKey("icons") && item["icons"].containsKey("x16")) {
-        tmp.write("![Logo](${item["icons"]["x16"]}) ");
+        sink.write("![Logo](${item["icons"]["x16"]}) ");
       }
-      tmp.write("$title - $name $version\n\n");
-      tmp.write("$description\n\n");
+      sink.write("$title - $name $version\n\n");
+      sink.write("$description\n\n");
       if (link != null) {
-        tmp.write("[Official API Documentation]($link)\n\n");
+        sink.write("[Official API Documentation]($link)\n\n");
       }
-      tmp.write("For web applications:\n```\nimport \"package:api_client/$libraryBrowserName.dart\" as ${cleanName(name).toLowerCase()}client;\n```\n\n");
-      tmp.write("For console application:\n```\nimport \"package:api_client/$libraryConsoleName.dart\" as ${cleanName(name).toLowerCase()}client;\n```\n\n");
+      sink.write("For web applications:\n```\nimport \"package:$fullLibraryName/$libraryBrowserName.dart\" as ${cleanName(name).toLowerCase()}client;\n```\n\n");
+      sink.write("For console application:\n```\nimport \"package:$fullLibraryName/$libraryConsoleName.dart\" as ${cleanName(name).toLowerCase()}client;\n```\n\n");
 
-      tmp.write("```\nvar ${cleanName(name).toLowerCase()} = new ${cleanName(name).toLowerCase()}client.${capitalize(name)}();\n```\n");
+      sink.write("```\nvar ${cleanName(name).toLowerCase()} = new ${cleanName(name).toLowerCase()}client.${capitalize(name)}();\n```\n");
 
-      tmp.write("\n");
+      sink.write("\n");
     });
 
-    tmp.write("### Licenses\n\n```\n");
-    tmp.write(_license);
-    tmp.write("```\n");
-    return tmp.toString();
+    sink.write("### Licenses\n\n```\n");
+    sink.write(_license);
+    sink.write("```\n");
   };
 
   (new Directory("$outputDirectory/lib/src")).createSync(recursive: true);
 
-  (new File("$outputDirectory/pubspec.yaml")).writeAsStringSync(createFullPubspec());
-  (new File("$outputDirectory/README.md")).writeAsStringSync(createFullReadme());
-  (new File("$outputDirectory/LICENSE")).writeAsStringSync(_license);
-  (new File("$outputDirectory/CONTRIBUTORS")).writeAsStringSync(_contributors);
-  (new File("$outputDirectory/.gitignore")).writeAsStringSync(_gitIgnore);
+
+  _writeString("$outputDirectory/pubspec.yaml", pubspec);
+  _writeFile("$outputDirectory/README.md", writeFullReadme);
+
+  _writeString("$outputDirectory/LICENSE", _license);
+  _writeString("$outputDirectory/CONTRIBUTORS", _contributors);
+  _writeString("$outputDirectory/.gitignore", _gitIgnore);
 
   apis["items"].forEach((item) {
     loadDocumentFromUrl(item["discoveryRestUrl"]).then((doc) {
