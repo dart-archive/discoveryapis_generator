@@ -9,7 +9,7 @@ import "package:discovery_api_client_generator/generator.dart";
 void printUsage(parser) {
   print("discovery_api_client_generator: creates a Client library based on a discovery document\n");
   print("Usage:");
-  print("   generate.dart -a <API> - v <Version> [-o <Directory>] (to load from Google Discovery API)");
+  print("   generate.dart -a <API> -v <Version> [-o <Directory>] (to load from Google Discovery API)");
   print("or generate.dart -u <URL> [-o <Directory>] (to load discovery document from specified URL)");
   print("or generate.dart -i <File> [-o <Directory>] (to load discovery document from local file)");
   print("or generate.dart --all [-o <Directory>] (to create libraries for all Google APIs)");
@@ -109,11 +109,11 @@ void main() {
   assert(force != null);
 
   String prefix = "";
-  
+
   bool no_prefix = result[_argNoPrefix];
   assert(no_prefix != null);
-  
-  if (!no_prefix) { 
+
+  if (!no_prefix) {
     prefix = result[_argPrefix];
     assert(prefix != null && !prefix.isEmpty);
   }
