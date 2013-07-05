@@ -830,7 +830,7 @@ part "$srcFolder/console/$_name.dart";
 
     sink.write("    var response;\n");
     if (upload) {
-      sink.write("    if (?content && content != null) {\n");
+      sink.write("    if (content != null) {\n");
       sink.write("      response = ${noResource ? "this" : "_client"}.upload(uploadUrl, \"${data["httpMethod"]}\", $uploadCall);\n");
       sink.write("    } else {\n");
       sink.write("      response = ${noResource ? "this" : "_client"}.request(url, \"${data["httpMethod"]}\", $call);\n");
