@@ -271,47 +271,6 @@ part "$srcFolder/console/$_name.dart";
     }
   }
 
-  void _writeMixins(StringSink sink) {
-    sink.writeln("""
-  //
-  // Resources
-  //
-""");
-    if (_json.containsKey("resources")) {
-      _json["resources"].forEach((key, resource) {
-        var subClassName = "${capitalize(key)}Resource_";
-        sink.writeln("  $subClassName get $key => new $subClassName(this);");
-      });
-    }
-    sink.writeln();
-
-    sink.writeln("""
-  //
-  // Parameters
-  //""");
-    if (_json.containsKey("parameters")) {
-      _json["parameters"].forEach((key, param) {
-        var type = parameterType[param["type"]];
-        if (param.containsKey("format")) {
-          if (param["type"] == "string" && param["format"] == "int64") {
-            type = "core.int";
-          }
-        }
-        if (type != null) {
-          sink.write("\n");
-          sink.write("  /**\n");
-          if (param.containsKey("description")) {
-            sink.write("   * ${param["description"]}\n");
-          }
-          sink.write("   * Added as queryParameter for each request.\n");
-          sink.write("   */\n");
-          sink.write("  $type get $key => params[\"$key\"];\n");
-          sink.write("  set $key($type value) => params[\"$key\"] = value;\n");
-        }
-      });
-    }
-  }
-
   void _writeScopes(StringSink sink) {
     if(_json.containsKey("auth") && _json["auth"].containsKey("oauth2") && _json["auth"]["oauth2"].containsKey("scopes")) {
       _json["auth"]["oauth2"]["scopes"].forEach((scope, description) {
@@ -343,13 +302,6 @@ part "$srcFolder/console/$_name.dart";
     sink.writeln();
     sink.writeln("  ${capitalize(_name)}([oauth.OAuth2 this.auth]);");
 
-    if (_json.containsKey("methods")) {
-      _json["methods"].forEach((key, method) {
-        sink.write("\n");
-        _writeMethod(sink, key, method, true);
-      });
-    }
-
     sink.write("}\n");
   }
 
@@ -366,13 +318,6 @@ part "$srcFolder/console/$_name.dart";
     sink.writeln('  final oauth2.OAuth2Console auth;');
     sink.writeln();
     sink.writeln("  ${capitalize(_name)}([oauth2.OAuth2Console this.auth]);");
-
-    if (_json.containsKey("methods")) {
-      _json["methods"].forEach((key, method) {
-        sink.write("\n");
-        _writeMethod(sink, key, method, true);
-      });
-    }
 
     sink.write("}\n");
   }
@@ -896,7 +841,56 @@ abstract class Client {
 
 """);
 
-    _writeMixins(sink);
+    if (_json.containsKey("resources")) {
+      sink.writeln("""
+  //
+  // Resources
+  //
+""");
+      _json["resources"].forEach((key, resource) {
+        var subClassName = "${capitalize(key)}Resource_";
+        sink.writeln("  $subClassName get $key => new $subClassName(this);");
+      });
+    }
+    sink.writeln();
+
+    if (_json.containsKey("parameters")) {
+      sink.writeln("""
+  //
+  // Parameters
+  //""");
+      _json["parameters"].forEach((key, param) {
+        var type = parameterType[param["type"]];
+        if (param.containsKey("format")) {
+          if (param["type"] == "string" && param["format"] == "int64") {
+            type = "core.int";
+          }
+        }
+        if (type != null) {
+          sink.write("\n");
+          sink.write("  /**\n");
+          if (param.containsKey("description")) {
+            sink.write("   * ${param["description"]}\n");
+          }
+          sink.write("   * Added as queryParameter for each request.\n");
+          sink.write("   */\n");
+          sink.write("  $type get $key => params[\"$key\"];\n");
+          sink.write("  set $key($type value) => params[\"$key\"] = value;\n");
+        }
+      });
+    }
+
+    if (_json.containsKey("methods")) {
+      sink.writeln("""
+
+  //
+  // Methods
+  //""");
+      _json["methods"].forEach((key, method) {
+        sink.write("\n");
+        _writeMethod(sink, key, method, true);
+      });
+    }
 
     sink.write("""
 }
