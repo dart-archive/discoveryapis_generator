@@ -6,25 +6,22 @@ Future<String> loadCustomUrl(String url) {
 }
 
 Future<String> loadDocumentFromUrl(String url) {
-  var completer = new Completer();
   var client = new HttpClient();
 
-  Future<HttpClientRequest> connection = client.getUrl(Uri.parse(url));
-  var result = new StringBuffer();
+  return client.getUrl(Uri.parse(url))
+      .then((HttpClientRequest request) => request.close())
+      .then((HttpClientResponse response) {
+        var result = new StringBuffer();
 
-  connection.then((request){
-    request.done.then((response){
-      response.listen((data){
-        result.write(new String.fromCharCodes(data));
-      }, onDone:(){
+        return response
+            .forEach((List<int> data) {
+              result.write(new String.fromCharCodes(data));
+            })
+            .then((_) => result.toString());
+      })
+      .whenComplete(() {
         client.close();
-        completer.complete(result.toString());
       });
-    });
-    request.close();
-  }, onError:(error)=> completer.complete("Unexpected error: $error"));
-
-  return completer.future;
 }
 
 Future<String> loadDocumentFromGoogle(String api, String version) {

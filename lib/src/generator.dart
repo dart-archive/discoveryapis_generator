@@ -830,7 +830,7 @@ part "$srcFolder/console/$_name.dart";
 
     sink.write("    var response;\n");
     if (upload) {
-      sink.write("    if (?content && content != null) {\n");
+      sink.write("    if (content != null) {\n");
       sink.write("      response = ${noResource ? "this" : "_client"}.upload(uploadUrl, \"${data["httpMethod"]}\", $uploadCall);\n");
       sink.write("    } else {\n");
       sink.write("      response = ${noResource ? "this" : "_client"}.request(url, \"${data["httpMethod"]}\", $call);\n");
@@ -1136,16 +1136,14 @@ part of $_libraryConsoleName;
  */
 abstract class ConsoleClient extends Client {
 
-  oauth2.OAuth2Console _auth;
+  final oauth2.OAuth2Console _auth;
 
-  ConsoleClient([oauth2.OAuth2Console this._auth]) : super();
+  ConsoleClient([oauth2.OAuth2Console this._auth]);
 
   /**
    * Sends a HTTPRequest using [method] (usually GET or POST) to [requestUrl] using the specified [urlParams] and [queryParams]. Optionally include a [body] in the request.
    */
-  async.Future request(core.String requestUrl, core.String method, {core.String body, core.String contentType:"application/json", core.Map urlParams, core.Map queryParams}) {
-    var completer = new async.Completer();
-
+  async.Future<core.Map<core.String, core.Object>> request(core.String requestUrl, core.String method, {core.String body, core.String contentType:"application/json", core.Map urlParams, core.Map queryParams}) {
     if (urlParams == null) urlParams = {};
     if (queryParams == null) queryParams = {};
 
@@ -1155,6 +1153,8 @@ abstract class ConsoleClient extends Client {
       }
     });
 
+    method = method.toLowerCase();
+
     var path;
     if (requestUrl.substring(0,1) == "/") {
       path ="\$rootUrl\${requestUrl.substring(1)}";
@@ -1163,86 +1163,39 @@ abstract class ConsoleClient extends Client {
     }
 
     var url = new oauth2.UrlPattern(path).generate(urlParams, queryParams);
-
-    async.Future clientCallback(http.Client client) {
-      // A dummy completer is used for the 'withClient' method, this should
-      // go away after refactoring withClient in oauth2 package
-      var clientDummyCompleter = new async.Completer();
-
-      if (method.toLowerCase() == "get") {
-        client.get(url).then((http.Response response) {
-          var data = JSON.parse(response.body);
-          completer.complete(data);
-          clientDummyCompleter.complete(null);
-        }, onError: (error) {
-          completer.completeError(new APIRequestException("onError: \$error"));
-        });
-
-      } else if (method.toLowerCase() == "post" || method.toLowerCase() == "put" || method.toLowerCase() == "patch") {
-        // Workaround since http.Client does not properly support post for google apis
-        var postHttpClient = new io.HttpClient();
-
-        // On connection request set the content type and key if available.
-        postHttpClient.openUrl(method, core.Uri.parse(url)).then((io.HttpClientRequest request) {
-          request.headers.set(io.HttpHeaders.CONTENT_TYPE, contentType);
-          if (makeAuthRequests && _auth != null) {
-            request.headers.set(io.HttpHeaders.AUTHORIZATION, "Bearer \${_auth.credentials.accessToken}");
-          }
-
-          request.write(body);
-          return request.close();
-        }, onError: (error) => completer.completeError(new APIRequestException("POST HttpClientRequest error: \$error")))
-        .then((io.HttpClientResponse response) {
-          // On connection response read in data from stream, on close parse as json and return.
-          core.StringBuffer onResponseBody = new core.StringBuffer();
-          response.transform(new io.StringDecoder()).listen((core.String data) => onResponseBody.write(data),
-              onError: (error) => completer.completeError(new APIRequestException("POST stream error: \$error")),
-              onDone: () {
-                var data = JSON.parse(onResponseBody.toString());
-                completer.complete(data);
-                clientDummyCompleter.complete(null);
-                postHttpClient.close();
-              });
-        }, onError: (error) => completer.completeError(new APIRequestException("POST HttpClientResponse error: \$error")));
-      } else if (method.toLowerCase() == "delete") {
-        var deleteHttpClient = new io.HttpClient();
-
-        deleteHttpClient.openUrl(method, core.Uri.parse(url)).then((io.HttpClientRequest request) {
-          // On connection request set the content type and key if available.
-          request.headers.set(io.HttpHeaders.CONTENT_TYPE, contentType);
-          if (makeAuthRequests && _auth != null) {
-            request.headers.set(io.HttpHeaders.AUTHORIZATION, "Bearer \${_auth.credentials.accessToken}");
-          }
-
-          return request.close();
-        }, onError: (error) => completer.completeError(new APIRequestException("DELETE HttpClientRequest error: \$error")))
-        .then((io.HttpClientResponse response) {
-          // On connection response read in data from stream, on close parse as json and return.
-          // TODO: response.statusCode should be checked for errors.
-          completer.complete({});
-          clientDummyCompleter.complete(null);
-          deleteHttpClient.close();
-        }, onError: (error) => completer.completeError(new APIRequestException("DELETE HttpClientResponse error: \$error")));
-      } else {
-        // Method has not been implemented yet error
-        completer.completeError(new APIRequestException("\$method Not implemented"));
-      }
-
-      return clientDummyCompleter.future;
-    };
+    var uri = core.Uri.parse(url);
 
     if (makeAuthRequests && _auth != null) {
       // Client wants an authenticated request.
-      _auth.withClient(clientCallback); // Should not care about the future here.
+      return _auth.withClient((r) => _request(r, method, uri, contentType, body));
     } else {
       // Client wants a non authenticated request.
-      clientCallback(new http.Client()); // Should not care about the future here.
+      return _request(new http.Client(), method, uri, contentType, body);
+    }
+  }
+
+  async.Future<core.Map<core.String, core.Object>> _request(http.Client client, core.String method, core.Uri uri,
+                        core.String contentType, core.String body) {
+    var request = new http.Request(method, uri)
+      ..headers[io.HttpHeaders.CONTENT_TYPE] = contentType;
+
+    if(body != null) {
+      request.body = body;
     }
 
-    return completer.future;
+    return client.send(request)
+        .then(http.Response.fromStream)
+        .then((http.Response response) {
+          if(response.body.isEmpty) {
+            return null;
+          }
+          return JSON.parse(response.body);
+        })
+        .whenComplete(() {
+          client.close();
+        });
   }
 }
-
 """;
 
   String get _createHopRunner => """
