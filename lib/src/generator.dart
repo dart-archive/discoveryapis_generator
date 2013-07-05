@@ -133,7 +133,7 @@ class Generator {
 
     _writeString("$libFolder/$_libraryName.dart", _createLibrary(srcFolder));
 
-    _writeString("$libFolder/$srcFolder/client/client.dart", _createClientClass);
+    _writeFile("$libFolder/$srcFolder/client/client.dart", _writeClientClass);
 
     _writeFile("$libFolder/$srcFolder/client/schemas.dart", _writeSchemas);
 
@@ -261,11 +261,30 @@ part "$srcFolder/console/$_name.dart";
   }
 
   void _writeResources(StringSink sink) {
-    sink.write("part of $_libraryName;\n\n");
+    sink.writeln("part of $_libraryName;");
+    sink.writeln();
 
     if (_json.containsKey("resources")) {
       _json["resources"].forEach((key, resource) {
         _writeResourceClass(sink, key, resource);
+      });
+    }
+  }
+
+  void _writeScopes(StringSink sink) {
+    if(_json.containsKey("auth") && _json["auth"].containsKey("oauth2") && _json["auth"]["oauth2"].containsKey("scopes")) {
+      _json["auth"]["oauth2"]["scopes"].forEach((scope, description) {
+        var p = scope.lastIndexOf("/");
+        var scopeName = scope.toUpperCase();
+        if (p >= 0) scopeName = scopeName.substring(p+1);
+        scopeName = cleanName(scopeName);
+        sink.write("\n");
+        if (description.containsKey("description")) {
+          sink.write("  /** OAuth Scope2: ${description["description"]} */\n");
+        } else {
+          sink.write("  /** OAuth Scope2 */\n");
+        }
+        sink.write("  static const core.String ${scopeName}_SCOPE = \"$scope\";\n");
       });
     }
   }
@@ -277,68 +296,11 @@ part "$srcFolder/console/$_name.dart";
       sink.write("/** ${_json["description"]} */\n");
     }
     sink.write("class ${capitalize(_name)} extends BrowserClient {\n");
-    if (_json.containsKey("resources")) {
-      sink.write("\n");
-      _json["resources"].forEach((key, resource) {
-        var subClassName = "${capitalize(key)}Resource_";
-        sink.write("  $subClassName _$key;\n");
-        sink.write("  $subClassName get $key => _$key;\n");
-      });
-    }
-    if(_json.containsKey("auth") && _json["auth"].containsKey("oauth2") && _json["auth"]["oauth2"].containsKey("scopes")) {
-      _json["auth"]["oauth2"]["scopes"].forEach((scope, description) {
-        var p = scope.lastIndexOf("/");
-        var scopeName = scope.toUpperCase();
-        if (p >= 0) scopeName = scopeName.substring(p+1);
-        scopeName = cleanName(scopeName);
-        sink.write("\n");
-        if (description.containsKey("description")) {
-          sink.write("  /** OAuth Scope2: ${description["description"]} */\n");
-        } else {
-          sink.write("  /** OAuth Scope2 */\n");
-        }
-        sink.write("  static const core.String ${scopeName}_SCOPE = \"$scope\";\n");
-      });
-    }
-    if (_json.containsKey("parameters")) {
-      _json["parameters"].forEach((key, param) {
-        var type = parameterType[param["type"]];
-        if (param.containsKey("format")) {
-          if (param["type"] == "string" && param["format"] == "int64") {
-            type = "core.int";
-          }
-        }
-        if (type != null) {
-          sink.write("\n");
-          sink.write("  /**\n");
-          if (param.containsKey("description")) {
-            sink.write("   * ${param["description"]}\n");
-          }
-          sink.write("   * Added as queryParameter for each request.\n");
-          sink.write("   */\n");
-          sink.write("  $type get $key => params[\"$key\"];\n");
-          sink.write("  set $key($type value) => params[\"$key\"] = value;\n");
-        }
-      });
-    }
-    sink.write("\n  ${capitalize(_name)}([oauth.OAuth2 auth]) : super(auth) {\n");
-    sink.write("    basePath = \"${_json["basePath"]}\";\n");
-    var uri = Uri.parse(_json["rootUrl"]);
-    sink.write("    rootUrl = \"${uri.origin}/\";\n");
-    if (_json.containsKey("resources")) {
-      _json["resources"].forEach((key, resource) {
-        var subClassName = "${capitalize(key)}Resource_";
-        sink.write("    _$key = new $subClassName(this);\n");
-      });
-    }
-    sink.write("  }\n");
-
-    if (_json.containsKey("methods")) {
-      _json["methods"].forEach((key, method) {
-        sink.write("\n");
-        _writeMethod(sink, key, method, true);
-      });
-    }
+    _writeScopes(sink);
+    sink.writeln();
+    sink.writeln('  final oauth.OAuth2 auth;');
+    sink.writeln();
+    sink.writeln("  ${capitalize(_name)}([oauth.OAuth2 this.auth]);");
 
     sink.write("}\n");
   }
@@ -350,69 +312,12 @@ part "$srcFolder/console/$_name.dart";
       sink.write("/** ${_json["description"]} */\n");
     }
     sink.write("class ${capitalize(_name)} extends ConsoleClient {\n");
-    if (_json.containsKey("resources")) {
-      sink.write("\n");
-      _json["resources"].forEach((key, resource) {
-        var subClassName = "${capitalize(key)}Resource_";
-        sink.write("  $subClassName _$key;\n");
-        sink.write("  $subClassName get $key => _$key;\n");
-      });
-    }
-    if(_json.containsKey("auth") && _json["auth"].containsKey("oauth2") && _json["auth"]["oauth2"].containsKey("scopes")) {
-      _json["auth"]["oauth2"]["scopes"].forEach((scope, description) {
-        var p = scope.lastIndexOf("/");
-        var scopeName = scope.toUpperCase();
-        if (p >= 0) scopeName = scopeName.substring(p+1);
-        scopeName = cleanName(scopeName);
-        sink.write("\n");
-        if (description.containsKey("description")) {
-          sink.write("  /** OAuth Scope2: ${description["description"]} */\n");
-        } else {
-          sink.write("  /** OAuth Scope2 */\n");
-        }
-        sink.write("  static const core.String ${scopeName}_SCOPE = \"$scope\";\n");
-      });
-    }
-    if (_json.containsKey("parameters")) {
-      _json["parameters"].forEach((key, param) {
-        var type = parameterType[param["type"]];
-        if (param.containsKey("format")) {
-          if (param["type"] == "string" && param["format"] == "int64") {
-            type = "core.int";
-          }
-        }
-        if (type != null) {
-          sink.write("\n");
-          sink.write("  /**\n");
-          if (param.containsKey("description")) {
-            sink.write("   * ${param["description"]}\n");
-          }
-          sink.write("   * Added as queryParameter for each request.\n");
-          sink.write("   */\n");
-          sink.write("  $type get $key => params[\"$key\"];\n");
-          sink.write("  set $key($type value) => params[\"$key\"] = value;\n");
-        }
-      });
-    }
-    // TODO: change this to correct OAuth class for console
-    sink.write("\n  ${capitalize(_name)}([oauth2.OAuth2Console auth]) : super(auth) {\n");
-    sink.write("    basePath = \"${_json["basePath"]}\";\n");
-    var uri = Uri.parse(_json["rootUrl"]);
-    sink.write("    rootUrl = \"${uri.origin}/\";\n");
-    if (_json.containsKey("resources")) {
-      _json["resources"].forEach((key, resource) {
-        var subClassName = "${capitalize(key)}Resource_";
-        sink.write("    _$key = new $subClassName(this);\n");
-      });
-    }
-    sink.write("  }\n");
+    _writeScopes(sink);
 
-    if (_json.containsKey("methods")) {
-      _json["methods"].forEach((key, method) {
-        sink.write("\n");
-        _writeMethod(sink, key, method, true);
-      });
-    }
+    sink.writeln();
+    sink.writeln('  final oauth2.OAuth2Console auth;');
+    sink.writeln();
+    sink.writeln("  ${capitalize(_name)}([oauth2.OAuth2Console this.auth]);");
 
     sink.write("}\n");
   }
@@ -887,26 +792,23 @@ part "$srcFolder/console/$_name.dart";
     }
   }
 
-  String get _createClientClass => """
-part of $_libraryName;
+  String get _rootUriOrigin => Uri.parse(_json['rootUrl']).origin;
+
+  void _writeClientClass(StringSink sink) {
+    sink.write("""part of $_libraryName;
 
 /**
  * Base class for all API clients, offering generic methods for HTTP Requests to the API
  */
 abstract class Client {
-  core.String basePath;
-  core.String rootUrl;
-  core.bool makeAuthRequests;
-  core.Map params;
+  core.String basePath = \"${_json["basePath"]}\";
+  core.String rootUrl = \"${_rootUriOrigin}/\";
+  core.bool makeAuthRequests = false;
+  final core.Map params = {};
 
   static const _boundary = "-------314159265358979323846";
   static const _delimiter = "\\r\\n--\$_boundary\\r\\n";
   static const _closeDelim = "\\r\\n--\$_boundary--";
-
-  Client() {
-    params = new core.Map();
-    makeAuthRequests = false;
-  }
 
   /**
    * Sends a HTTPRequest using [method] (usually GET or POST) to [requestUrl] using the specified [urlParams] and [queryParams]. Optionally include a [body] in the request.
@@ -936,6 +838,61 @@ abstract class Client {
 
     return request(requestUrl, method, body: multiPartBody.toString(), contentType: "multipart/mixed; boundary=\\"\$_boundary\\"", urlParams: urlParams, queryParams: queryParams);
   }
+
+""");
+
+    if (_json.containsKey("resources")) {
+      sink.writeln("""
+  //
+  // Resources
+  //
+""");
+      _json["resources"].forEach((key, resource) {
+        var subClassName = "${capitalize(key)}Resource_";
+        sink.writeln("  $subClassName get $key => new $subClassName(this);");
+      });
+    }
+    sink.writeln();
+
+    if (_json.containsKey("parameters")) {
+      sink.writeln("""
+  //
+  // Parameters
+  //""");
+      _json["parameters"].forEach((key, param) {
+        var type = parameterType[param["type"]];
+        if (param.containsKey("format")) {
+          if (param["type"] == "string" && param["format"] == "int64") {
+            type = "core.int";
+          }
+        }
+        if (type != null) {
+          sink.write("\n");
+          sink.write("  /**\n");
+          if (param.containsKey("description")) {
+            sink.write("   * ${param["description"]}\n");
+          }
+          sink.write("   * Added as queryParameter for each request.\n");
+          sink.write("   */\n");
+          sink.write("  $type get $key => params[\"$key\"];\n");
+          sink.write("  set $key($type value) => params[\"$key\"] = value;\n");
+        }
+      });
+    }
+
+    if (_json.containsKey("methods")) {
+      sink.writeln("""
+
+  //
+  // Methods
+  //""");
+      _json["methods"].forEach((key, method) {
+        sink.write("\n");
+        _writeMethod(sink, key, method, true);
+      });
+    }
+
+    sink.write("""
 }
 
 /// Base-class for all API Resources
@@ -953,8 +910,8 @@ class APIRequestException implements core.Exception {
   const APIRequestException([this.msg]);
   core.String toString() => (msg == null) ? "APIRequestException" : "APIRequestException: \$msg";
 }
-
-""";
+""");
+  }
 
   String get _createBrowserClientClass => """
 part of $_libraryBrowserName;
@@ -964,10 +921,8 @@ part of $_libraryBrowserName;
  */
 abstract class BrowserClient extends Client {
 
-  final oauth.OAuth2 _auth;
+  oauth.OAuth2 get auth;
   core.bool _jsClientLoaded = false;
-
-  BrowserClient([oauth.OAuth2 this._auth]) : super();
 
   /**
    * Loads the JS Client Library to make CORS-Requests
@@ -1013,8 +968,8 @@ abstract class BrowserClient extends Client {
       requestData["body"] = body;
       requestData["headers"]["Content-Type"] = contentType;
     }
-    if (makeAuthRequests && _auth != null && _auth.token != null) {
-      requestData["headers"]["Authorization"] = "\${_auth.token.type} \${_auth.token.data}";
+    if (makeAuthRequests && auth != null && auth.token != null) {
+      requestData["headers"]["Authorization"] = "\${auth.token.type} \${auth.token.data}";
     }
 
     js.scoped(() {
@@ -1116,8 +1071,8 @@ abstract class BrowserClient extends Client {
 
     request.open(method, url);
     request.setRequestHeader("Content-Type", contentType);
-    if (makeAuthRequests && _auth != null) {
-      _auth.authenticate(request).then((request) => request.send(body));
+    if (makeAuthRequests && auth != null) {
+      auth.authenticate(request).then((request) => request.send(body));
     } else {
       request.send(body);
     }
@@ -1125,7 +1080,6 @@ abstract class BrowserClient extends Client {
     return completer.future;
   }
 }
-
 """;
 
   String get _createConsoleClientClass => """
@@ -1136,9 +1090,7 @@ part of $_libraryConsoleName;
  */
 abstract class ConsoleClient extends Client {
 
-  final oauth2.OAuth2Console _auth;
-
-  ConsoleClient([oauth2.OAuth2Console this._auth]);
+  oauth2.OAuth2Console get auth;
 
   /**
    * Sends a HTTPRequest using [method] (usually GET or POST) to [requestUrl] using the specified [urlParams] and [queryParams]. Optionally include a [body] in the request.
@@ -1165,9 +1117,9 @@ abstract class ConsoleClient extends Client {
     var url = new oauth2.UrlPattern(path).generate(urlParams, queryParams);
     var uri = core.Uri.parse(url);
 
-    if (makeAuthRequests && _auth != null) {
+    if (makeAuthRequests && auth != null) {
       // Client wants an authenticated request.
-      return _auth.withClient((r) => _request(r, method, uri, contentType, body));
+      return auth.withClient((r) => _request(r, method, uri, contentType, body));
     } else {
       // Client wants a non authenticated request.
       return _request(new http.Client(), method, uri, contentType, body);
