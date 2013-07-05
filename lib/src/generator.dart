@@ -322,9 +322,6 @@ part "$srcFolder/console/$_name.dart";
       });
     }
     sink.write("\n  ${capitalize(_name)}([oauth.OAuth2 auth]) : super(auth) {\n");
-    sink.write("    basePath = \"${_json["basePath"]}\";\n");
-    var uri = Uri.parse(_json["rootUrl"]);
-    sink.write("    rootUrl = \"${uri.origin}/\";\n");
     if (_json.containsKey("resources")) {
       _json["resources"].forEach((key, resource) {
         var subClassName = "${capitalize(key)}Resource_";
@@ -396,9 +393,6 @@ part "$srcFolder/console/$_name.dart";
     }
     // TODO: change this to correct OAuth class for console
     sink.write("\n  ${capitalize(_name)}([oauth2.OAuth2Console auth]) : super(auth) {\n");
-    sink.write("    basePath = \"${_json["basePath"]}\";\n");
-    var uri = Uri.parse(_json["rootUrl"]);
-    sink.write("    rootUrl = \"${uri.origin}/\";\n");
     if (_json.containsKey("resources")) {
       _json["resources"].forEach((key, resource) {
         var subClassName = "${capitalize(key)}Resource_";
@@ -887,6 +881,8 @@ part "$srcFolder/console/$_name.dart";
     }
   }
 
+  String get _rootUriOrigin => Uri.parse(_json['rootUrl']).origin;
+
   String get _createClientClass => """
 part of $_libraryName;
 
@@ -894,19 +890,14 @@ part of $_libraryName;
  * Base class for all API clients, offering generic methods for HTTP Requests to the API
  */
 abstract class Client {
-  core.String basePath;
-  core.String rootUrl;
-  core.bool makeAuthRequests;
-  core.Map params;
+  core.String basePath = \"${_json["basePath"]}\";
+  core.String rootUrl = \"${_rootUriOrigin}/\";
+  core.bool makeAuthRequests = false;
+  final core.Map params = {};
 
   static const _boundary = "-------314159265358979323846";
   static const _delimiter = "\\r\\n--\$_boundary\\r\\n";
   static const _closeDelim = "\\r\\n--\$_boundary--";
-
-  Client() {
-    params = new core.Map();
-    makeAuthRequests = false;
-  }
 
   /**
    * Sends a HTTPRequest using [method] (usually GET or POST) to [requestUrl] using the specified [urlParams] and [queryParams]. Optionally include a [body] in the request.
