@@ -321,7 +321,10 @@ part "$srcFolder/console/$_name.dart";
         }
       });
     }
-    sink.write("\n  ${capitalize(_name)}([oauth.OAuth2 auth]) : super(auth) {\n");
+    sink.writeln();
+    sink.writeln('  final oauth.OAuth2 auth;');
+    sink.writeln();
+    sink.writeln("  ${capitalize(_name)}([oauth.OAuth2 this.auth]) {");
     if (_json.containsKey("resources")) {
       _json["resources"].forEach((key, resource) {
         var subClassName = "${capitalize(key)}Resource_";
@@ -392,7 +395,10 @@ part "$srcFolder/console/$_name.dart";
       });
     }
     // TODO: change this to correct OAuth class for console
-    sink.write("\n  ${capitalize(_name)}([oauth2.OAuth2Console auth]) : super(auth) {\n");
+    sink.writeln();
+    sink.writeln('  final oauth2.OAuth2Console auth;');
+    sink.writeln();
+    sink.writeln("  ${capitalize(_name)}([oauth2.OAuth2Console this.auth]) {");
     if (_json.containsKey("resources")) {
       _json["resources"].forEach((key, resource) {
         var subClassName = "${capitalize(key)}Resource_";
@@ -955,10 +961,8 @@ part of $_libraryBrowserName;
  */
 abstract class BrowserClient extends Client {
 
-  final oauth.OAuth2 _auth;
+  oauth.OAuth2 get auth;
   core.bool _jsClientLoaded = false;
-
-  BrowserClient([oauth.OAuth2 this._auth]) : super();
 
   /**
    * Loads the JS Client Library to make CORS-Requests
@@ -1004,8 +1008,8 @@ abstract class BrowserClient extends Client {
       requestData["body"] = body;
       requestData["headers"]["Content-Type"] = contentType;
     }
-    if (makeAuthRequests && _auth != null && _auth.token != null) {
-      requestData["headers"]["Authorization"] = "\${_auth.token.type} \${_auth.token.data}";
+    if (makeAuthRequests && auth != null && auth.token != null) {
+      requestData["headers"]["Authorization"] = "\${auth.token.type} \${auth.token.data}";
     }
 
     js.scoped(() {
@@ -1107,8 +1111,8 @@ abstract class BrowserClient extends Client {
 
     request.open(method, url);
     request.setRequestHeader("Content-Type", contentType);
-    if (makeAuthRequests && _auth != null) {
-      _auth.authenticate(request).then((request) => request.send(body));
+    if (makeAuthRequests && auth != null) {
+      auth.authenticate(request).then((request) => request.send(body));
     } else {
       request.send(body);
     }
@@ -1127,9 +1131,7 @@ part of $_libraryConsoleName;
  */
 abstract class ConsoleClient extends Client {
 
-  final oauth2.OAuth2Console _auth;
-
-  ConsoleClient([oauth2.OAuth2Console this._auth]);
+  oauth2.OAuth2Console get auth;
 
   /**
    * Sends a HTTPRequest using [method] (usually GET or POST) to [requestUrl] using the specified [urlParams] and [queryParams]. Optionally include a [body] in the request.
@@ -1156,9 +1158,9 @@ abstract class ConsoleClient extends Client {
     var url = new oauth2.UrlPattern(path).generate(urlParams, queryParams);
     var uri = core.Uri.parse(url);
 
-    if (makeAuthRequests && _auth != null) {
+    if (makeAuthRequests && auth != null) {
       // Client wants an authenticated request.
-      return _auth.withClient((r) => _request(r, method, uri, contentType, body));
+      return auth.withClient((r) => _request(r, method, uri, contentType, body));
     } else {
       // Client wants a non authenticated request.
       return _request(new http.Client(), method, uri, contentType, body);
