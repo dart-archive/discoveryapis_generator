@@ -312,13 +312,7 @@ part "$srcFolder/console/$_name.dart";
     }
   }
 
-  void _writeBrowserMainClass(StringSink sink) {
-    sink.write("part of $_libraryBrowserName;\n\n");
-    sink.write("/** Client to access the $_name $_version API */\n");
-    if (_json.containsKey("description")) {
-      sink.write("/** ${_json["description"]} */\n");
-    }
-    sink.write("class ${capitalize(_name)} extends BrowserClient {\n");
+  void _writeScopes(StringSink sink) {
     if(_json.containsKey("auth") && _json["auth"].containsKey("oauth2") && _json["auth"]["oauth2"].containsKey("scopes")) {
       _json["auth"]["oauth2"]["scopes"].forEach((scope, description) {
         var p = scope.lastIndexOf("/");
@@ -334,6 +328,16 @@ part "$srcFolder/console/$_name.dart";
         sink.write("  static const core.String ${scopeName}_SCOPE = \"$scope\";\n");
       });
     }
+  }
+
+  void _writeBrowserMainClass(StringSink sink) {
+    sink.write("part of $_libraryBrowserName;\n\n");
+    sink.write("/** Client to access the $_name $_version API */\n");
+    if (_json.containsKey("description")) {
+      sink.write("/** ${_json["description"]} */\n");
+    }
+    sink.write("class ${capitalize(_name)} extends BrowserClient {\n");
+    _writeScopes(sink);
     sink.writeln();
     sink.writeln('  final oauth.OAuth2 auth;');
     sink.writeln();
@@ -356,21 +360,7 @@ part "$srcFolder/console/$_name.dart";
       sink.write("/** ${_json["description"]} */\n");
     }
     sink.write("class ${capitalize(_name)} extends ConsoleClient {\n");
-    if(_json.containsKey("auth") && _json["auth"].containsKey("oauth2") && _json["auth"]["oauth2"].containsKey("scopes")) {
-      _json["auth"]["oauth2"]["scopes"].forEach((scope, description) {
-        var p = scope.lastIndexOf("/");
-        var scopeName = scope.toUpperCase();
-        if (p >= 0) scopeName = scopeName.substring(p+1);
-        scopeName = cleanName(scopeName);
-        sink.write("\n");
-        if (description.containsKey("description")) {
-          sink.write("  /** OAuth Scope2: ${description["description"]} */\n");
-        } else {
-          sink.write("  /** OAuth Scope2 */\n");
-        }
-        sink.write("  static const core.String ${scopeName}_SCOPE = \"$scope\";\n");
-      });
-    }
+    _writeScopes(sink);
 
     sink.writeln();
     sink.writeln('  final oauth2.OAuth2Console auth;');
