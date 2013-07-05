@@ -950,7 +950,6 @@ class APIRequestException implements core.Exception {
   const APIRequestException([this.msg]);
   core.String toString() => (msg == null) ? "APIRequestException" : "APIRequestException: \$msg";
 }
-
 """;
 
   String get _createBrowserClientClass => """
@@ -1120,7 +1119,6 @@ abstract class BrowserClient extends Client {
     return completer.future;
   }
 }
-
 """;
 
   String get _createConsoleClientClass => """
