@@ -13,12 +13,10 @@ void printUsage(parser) {
   print("or generate.dart -u <URL> [-o <Directory>] (to load discovery document from specified URL)");
   print("or generate.dart -i <File> [-o <Directory>] (to load discovery document from local file)");
   print("or generate.dart --all [-o <Directory>] (to create libraries for all Google APIs)");
-  print("or generate.dart --full [-o <Directory>] (to create one library including all Google APIs)\n");
   print(parser.getUsage());
 }
 
 const _argHelp = 'help';
-const _argFull = 'full';
 const _argAll = 'all';
 const _argForce = 'force';
 const _argCheck = 'check';
@@ -41,7 +39,6 @@ void main() {
   parser.addOption(_argPrefix, abbr: "p", help: "Prefix for library name", defaultsTo: "google");
   parser.addFlag(_argNoPrefix, help: "No prefix for library name", negatable: false);
   parser.addFlag(_argAll, help: "Create client libraries for all Google APIs", negatable: false);
-  parser.addFlag(_argFull, help: "Create one library including all Google APIs", negatable: false);
   parser.addOption(_argOutput, abbr: "o", help: "Output Directory", defaultsTo: "output/");
   parser.addFlag(_argDate, help: "Create sub folder with current date", negatable: false);
   parser.addFlag(_argCheck, help: "Check for changes against existing version if available", negatable: false);
@@ -63,7 +60,6 @@ void main() {
     return;
   }
 
-  bool full = result[_argFull];
   bool all = result[_argAll];
 
   String api = result[_argApi];
@@ -73,7 +69,7 @@ void main() {
 
   if ((api == null || version == null)
       && input == null && url == null
-      && !all && !full) {
+      && !all) {
     print("Missing arguments\n");
     printUsage(parser);
     return;
@@ -81,13 +77,11 @@ void main() {
 
   var argumentErrors = false;
   argumentErrors = argumentErrors ||
-      (api != null &&  (input != null || url != null || all || full));
+      (api != null &&  (input != null || url != null || all));
   argumentErrors = argumentErrors||
-      (input != null && (url != null || all || full));
+      (input != null && (url != null || all));
   argumentErrors = argumentErrors ||
-      (url != null && (all || full));
-  argumentErrors = argumentErrors ||
-      (all && full);
+      (url != null && all);
   if (argumentErrors) {
     print("You can only define one kind of operation.\n");
     printUsage(parser);
@@ -118,7 +112,7 @@ void main() {
     assert(prefix != null && !prefix.isEmpty);
   }
 
-  if (!all && !full) {
+  if (!all) {
     Future<String> loader;
     if (api != null) {
       loader = loadDocumentFromGoogle(api, version);
@@ -135,9 +129,6 @@ void main() {
     });
   } else {
     loadGoogleAPIList().then((apis) {
-      if (full) {
-        createFullClient(apis, output);
-      }
       if (all) {
         apis["items"].forEach((item) {
           loadDocumentFromUrl(item["discoveryRestUrl"]).then((doc) {

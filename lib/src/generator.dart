@@ -42,17 +42,10 @@ class Generator {
     _libraryConsoleName = cleanName("${name}_${version}_api_console").toLowerCase();
 
 
-  bool generateClient(String outputDirectory, {bool fullLibrary: false, bool check: false, bool force: false, int forceVersion}) {
-    var mainFolder, srcFolder, libFolder;
-    if (fullLibrary) {
-      mainFolder = outputDirectory;
-      libFolder = "$outputDirectory/lib";
-      srcFolder = "src/$_shortName";
-    } else {
-      mainFolder = "$outputDirectory/$_gitName";
-      libFolder = "$mainFolder/lib";
-      srcFolder = "src";
-    }
+  bool generateClient(String outputDirectory, {bool check: false, bool force: false, int forceVersion}) {
+    var mainFolder = "$outputDirectory/$_gitName";
+    var libFolder = "$mainFolder/lib";
+    var srcFolder = "src";
 
     int clientVersionBuild = 0;
     if (check) {
@@ -95,39 +88,36 @@ class Generator {
     }
 
     // Clean contents of directory (except for .git folder)
-    if (!fullLibrary) {
-      var tmpDir = new Directory(mainFolder);
-      if (tmpDir.existsSync()) {
-        print("Emptying folder before library generation.");
-        tmpDir.listSync().forEach((f) {
-          if (f is File) {
-            f.deleteSync();
-          } else if (f is Directory) {
-            if (!f.path.endsWith(".git")) {
-              f.deleteSync(recursive: true);
-            }
+    var tmpDir = new Directory(mainFolder);
+    if (tmpDir.existsSync()) {
+      print("Emptying folder before library generation.");
+      tmpDir.listSync().forEach((f) {
+        if (f is File) {
+          f.deleteSync();
+        } else if (f is Directory) {
+          if (!f.path.endsWith(".git")) {
+            f.deleteSync(recursive: true);
           }
-        });
-      }
+        }
+      });
     }
+
     (new Directory("$libFolder/$srcFolder/client")).createSync(recursive: true);
     (new Directory("$libFolder/$srcFolder/browser")).createSync(recursive: true);
     (new Directory("$libFolder/$srcFolder/console")).createSync(recursive: true);
     (new Directory("$mainFolder/tool")).createSync(recursive: true);
 
-    if (!fullLibrary) {
-      _writeString("$mainFolder/pubspec.yaml", _createPubspec(clientVersionBuild));
+    _writeString("$mainFolder/pubspec.yaml", _createPubspec(clientVersionBuild));
 
-      _writeString("$mainFolder/LICENSE", _license);
+    _writeString("$mainFolder/LICENSE", _license);
 
-      _writeFile("$mainFolder/README.md", _writeReadme);
+    _writeFile("$mainFolder/README.md", _writeReadme);
 
-      _writeString("$mainFolder/.gitignore", _gitIgnore);
+    _writeString("$mainFolder/.gitignore", _gitIgnore);
 
-      _writeString("$mainFolder/CONTRIBUTORS", _contributors);
+    _writeString("$mainFolder/CONTRIBUTORS", _contributors);
 
-      _writeString("$mainFolder/VERSION", _etag);
-    }
+    _writeString("$mainFolder/VERSION", _etag);
 
     // Create common library files
 
