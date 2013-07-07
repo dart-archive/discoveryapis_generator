@@ -324,7 +324,9 @@ part "$srcFolder/console/$_name.dart";
     if(data.containsKey('properties')) {
       data['properties'].forEach((key, property) {
         var prop = new _SchemaProp.parse(name, key, property);
-        props.add(prop);
+        if(prop != null) {
+          props.add(prop);
+        }
       });
     }
 
@@ -1049,78 +1051,79 @@ class _SchemaProp {
       }
     }
 
+    if(type == null) {
+      print('\tWARNING: could not calculate property for $parentName - $key');
+      return null;
+    }
+
     return new _SchemaProp(array, object, key, schemaType, schemaFormat, type, subSchemas, property['description']);
   }
 
   _SchemaProp(this.isArray, this.isObject, String sourceName, this.schemaType, this.schemaFormat, this.type, this.subSchemas, this.description) :
     this.sourceName = sourceName,
     propName = escapeProperty(cleanName(sourceName)),
-    jsonName = sourceName.replaceAll("\$", "\\\$");
+    jsonName = sourceName.replaceAll("\$", "\\\$") {
+    assert(this.type != null);
+  }
 
   void writeField(StringSink sink) {
-    if(type != null) {
-      if (description != null) {
-        sink.write("\n  /** $description */\n");
-      }
-      if (isArray) {
-        sink.write("  core.List<$type> $propName;\n");
-      } else {
-        sink.write("  $type $propName;\n");
-      }
+    if (description != null) {
+      sink.write("\n  /** $description */\n");
+    }
+    if (isArray) {
+      sink.write("  core.List<$type> $propName;\n");
+    } else {
+      sink.write("  $type $propName;\n");
     }
   }
 
   void writeToJson(StringSink sink) {
-    if(type != null) {
-      sink.write("    if ($propName != null) {\n");
-      if (isArray) {
-        sink.write("      output[\"$jsonName\"] = new core.List();\n");
-        sink.write("      $propName.forEach((item) {\n");
-        if (isObject) {
-          sink.write("        output[\"$jsonName\"].add(item.toJson());\n");
-        } else {
-          sink.write("        output[\"$jsonName\"].add(item);\n");
-        }
-        sink.write("      });\n");
+    sink.write("    if ($propName != null) {\n");
+    if (isArray) {
+      sink.write("      output[\"$jsonName\"] = new core.List();\n");
+      sink.write("      $propName.forEach((item) {\n");
+      if (isObject) {
+        sink.write("        output[\"$jsonName\"].add(item.toJson());\n");
       } else {
-        if (isObject) {
-          sink.write("      output[\"$jsonName\"] = $propName.toJson();\n");
-        } else {
-          sink.write("      output[\"$jsonName\"] = $propName;\n");
-        }
+        sink.write("        output[\"$jsonName\"].add(item);\n");
       }
-      sink.write("    }\n");
+      sink.write("      });\n");
+    } else {
+      if (isObject) {
+        sink.write("      output[\"$jsonName\"] = $propName.toJson();\n");
+      } else {
+        sink.write("      output[\"$jsonName\"] = $propName;\n");
+      }
     }
+    sink.write("    }\n");
   }
 
   void writeFromJson(StringSink sink) {
-    if (type != null) {
-      sink.write("    if (json.containsKey(\"$jsonName\")) {\n");
-      if (isArray) {
-        sink.write("      $propName = [];\n");
-        sink.write("      json[\"$jsonName\"].forEach((item) {\n");
-        if (isObject) {
-          sink.write("        $propName.add(new $type.fromJson(item));\n");
-        } else {
-          sink.write("        $propName.add(item);\n");
-        }
-        sink.write("      });\n");
+    sink.write("    if (json.containsKey(\"$jsonName\")) {\n");
+    if (isArray) {
+      sink.write("      $propName = [];\n");
+      sink.write("      json[\"$jsonName\"].forEach((item) {\n");
+      if (isObject) {
+        sink.write("        $propName.add(new $type.fromJson(item));\n");
       } else {
-        if (isObject) {
-          sink.write("      $propName = new $type.fromJson(json[\"$jsonName\"]);\n");
-        } else {
-          if(schemaType=="string" && schemaFormat == "int64") {
-            sink.write("      if(json[\"$jsonName\"] is core.String){\n");
-            sink.write("        $propName = core.int.parse(json[\"$jsonName\"]);\n");
-            sink.write("      }else{\n");
-            sink.write("        $propName = json[\"$jsonName\"];\n");
-            sink.write("      }\n");
-          } else{
-            sink.write("      $propName = json[\"$jsonName\"];\n");
-          }
+        sink.write("        $propName.add(item);\n");
+      }
+      sink.write("      });\n");
+    } else {
+      if (isObject) {
+        sink.write("      $propName = new $type.fromJson(json[\"$jsonName\"]);\n");
+      } else {
+        if(schemaType=="string" && schemaFormat == "int64") {
+          sink.write("      if(json[\"$jsonName\"] is core.String){\n");
+          sink.write("        $propName = core.int.parse(json[\"$jsonName\"]);\n");
+          sink.write("      }else{\n");
+          sink.write("        $propName = json[\"$jsonName\"];\n");
+          sink.write("      }\n");
+        } else{
+          sink.write("      $propName = json[\"$jsonName\"];\n");
         }
       }
-      sink.write("    }\n");
     }
+    sink.write("    }\n");
   }
 }
