@@ -328,6 +328,8 @@ part "$srcFolder/console/$_name.dart";
           props.add(prop);
         }
       });
+    } else {
+      print('\tWARNING: no props for $name. Need a JSON-only solution');
     }
 
     props.forEach((property) {
