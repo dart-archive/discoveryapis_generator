@@ -313,218 +313,42 @@ part "$srcFolder/console/$_name.dart";
   }
 
   void _writeSchemaClass(StringSink sink, String name, Map data) {
-    Map subSchemas = new Map();
-
     if (data.containsKey("description")) {
       sink.write("/** ${data["description"]} */\n");
     }
 
     sink.write("class ${capitalize(name)} {\n");
 
-    if (data.containsKey("properties")) {
-      data["properties"].forEach((key, property) {
-        var schemaType = property["type"];
-        var schemaFormat = "";
-        if (property.containsKey("format")) {
-          schemaFormat = property["format"];
-        }
-        bool array = false;
-        var type;
-        if (schemaType == "array") {
-          array = true;
-          schemaType = property["items"]["type"];
-          schemaFormat = "";
-          if (property["items"].containsKey("format")) {
-            schemaFormat = property["items"]["format"];
-          }
-        }
-        switch(schemaType) {
-          case "object":
-            var subSchemaName = "${capitalize(name)}${capitalize(key)}";
-            type = subSchemaName;
-            if (array) {
-              subSchemas[subSchemaName] = property["items"];
-            } else {
-              subSchemas[subSchemaName] = property;
-            }
-            break;
-          case "string":
-            type = "core.String";
-            if (schemaFormat == "int64") {
-              type = "core.int";
-            }
-            break;
-          case "number": type = "core.num"; break;
-          case "integer": type = "core.int"; break;
-          case "boolean": type = "core.bool"; break;
-        }
-        if (type == null) {
-          if (array) {
-            type = property["items"]["\$ref"];
-          } else {
-            type = property["\$ref"];
-          }
-        }
-        if (type != null) {
-          String propName = escapeProperty(cleanName(key));
-          if (property.containsKey("description")) {
-            sink.write("\n  /** ${property["description"]} */\n");
-          }
-          if (array) {
-            sink.write("  core.List<$type> $propName;\n");
-          } else {
-            sink.write("  $type $propName;\n");
-          }
+    var props = new List<_SchemaProp>();
+
+    if(data.containsKey('properties')) {
+      data['properties'].forEach((key, property) {
+        var prop = new _SchemaProp.parse(name, key, property);
+        if(prop != null) {
+          props.add(prop);
         }
       });
     }
 
+    props.forEach((property) {
+      property.writeField(sink);
+    });
+
     sink.write("\n");
     sink.write("  /** Create new $name from JSON data */\n");
     sink.write("  ${capitalize(name)}.fromJson(core.Map json) {\n");
-    if (data.containsKey("properties")) {
-      data["properties"].forEach((key, property) {
-        var schemaType = property["type"];
-        var schemaFormat = "";
-        if (property.containsKey("format")) {
-          schemaFormat = property["format"];
-        }
-        bool array = false;
-        bool object = false;
-        var type;
-        if (schemaType == "array") {
-          array = true;
-          schemaType = property["items"]["type"];
-          schemaFormat = "";
-          if (property["items"].containsKey("format")) {
-            schemaFormat = property["items"]["format"];
-          }
-        }
-        switch(schemaType) {
-          case "object":
-            type = "${capitalize(name)}${capitalize(key)}";
-            object = true;
-            break;
-          case "string":
-            type = "core.String";
-            if (schemaFormat == "int64") {
-              type = "core.int";
-            }
-            break;
-          case "number": type = "core.num"; break;
-          case "integer": type = "core.int"; break;
-          case "boolean": type = "core.bool"; break;
-        }
-        if (type == null) {
-          object = true;
-          if (array) {
-            type = property["items"]["\$ref"];
-          } else {
-            type = property["\$ref"];
-          }
-        }
-        if (type != null) {
-          String propName = escapeProperty(cleanName(key));
-          String jsonName = key.replaceAll("\$", "\\\$");
-          sink.write("    if (json.containsKey(\"$jsonName\")) {\n");
-          if (array) {
-            sink.write("      $propName = [];\n");
-            sink.write("      json[\"$jsonName\"].forEach((item) {\n");
-            if (object) {
-              sink.write("        $propName.add(new $type.fromJson(item));\n");
-            } else {
-              sink.write("        $propName.add(item);\n");
-            }
-            sink.write("      });\n");
-          } else {
-            if (object) {
-              sink.write("      $propName = new $type.fromJson(json[\"$jsonName\"]);\n");
-            } else {
-              if(schemaType=="string" && schemaFormat == "int64") {
-                sink.write("      if(json[\"$jsonName\"] is core.String){\n");
-                sink.write("        $propName = core.int.parse(json[\"$jsonName\"]);\n");
-                sink.write("      }else{\n");
-                sink.write("        $propName = json[\"$jsonName\"];\n");
-                sink.write("      }\n");
-              }else{
-                sink.write("      $propName = json[\"$jsonName\"];\n");
-              }
-            }
-          }
-          sink.write("    }\n");
-        }
-      });
-    }
+    props.forEach((property) {
+      property.writeFromJson(sink);
+    });
+
     sink.write("  }\n\n");
 
     sink.write("  /** Create JSON Object for $name */\n");
     sink.write("  core.Map toJson() {\n");
     sink.write("    var output = new core.Map();\n\n");
-    if (data.containsKey("properties")) {
-      data["properties"].forEach((key, property) {
-        var schemaType = property["type"];
-        var schemaFormat = "";
-        if (property.containsKey("format")) {
-          schemaFormat = property["format"];
-        }
-        bool array = false;
-        bool object = false;
-        var type;
-        if (schemaType == "array") {
-          array = true;
-          schemaType = property["items"]["type"];
-          schemaFormat = "";
-          if (property["items"].containsKey("format")) {
-            schemaFormat = property["items"]["format"];
-          }
-        }
-        switch(schemaType) {
-          case "object":
-            type = "${capitalize(name)}${capitalize(key)}";
-            object = true;
-            break;
-          case "string":
-            type = "core.String";
-            if (schemaFormat == "int64") {
-              type = "core.int";
-            }
-            break;
-          case "number": type = "core.num"; break;
-          case "integer": type = "core.int"; break;
-          case "boolean": type = "core.bool"; break;
-        }
-        if (type == null) {
-          object = true;
-          if (array) {
-            type = property["items"]["\$ref"];
-          } else {
-            type = property["\$ref"];
-          }
-        }
-        if (type != null) {
-          String propName = escapeProperty(cleanName(key));
-          String jsonName = key.replaceAll("\$", "\\\$");
-          sink.write("    if ($propName != null) {\n");
-          if (array) {
-            sink.write("      output[\"$jsonName\"] = new core.List();\n");
-            sink.write("      $propName.forEach((item) {\n");
-            if (object) {
-              sink.write("        output[\"$jsonName\"].add(item.toJson());\n");
-            } else {
-              sink.write("        output[\"$jsonName\"].add(item);\n");
-            }
-            sink.write("      });\n");
-          } else {
-            if (object) {
-              sink.write("      output[\"$jsonName\"] = $propName.toJson();\n");
-            } else {
-              sink.write("      output[\"$jsonName\"] = $propName;\n");
-            }
-          }
-          sink.write("    }\n");
-        }
-      });
-    }
+    props.forEach((property) {
+      property.writeToJson(sink);
+    });
     sink.write("\n    return output;\n");
     sink.write("  }\n\n");
 
@@ -533,8 +357,10 @@ part "$srcFolder/console/$_name.dart";
 
     sink.write("}\n\n");
 
-    subSchemas.forEach((subName, value) {
-      _writeSchemaClass(sink, subName, value);
+    props.forEach((property) {
+      property.subSchemas.forEach((key, value) {
+        _writeSchemaClass(sink, key, value);
+      });
     });
   }
 
@@ -1161,4 +987,143 @@ void main() {
   runHop();
 }
 """;
+}
+
+class _SchemaProp {
+  final bool isArray;
+  final bool isObject;
+  final schemaType;
+  final schemaFormat;
+  final String sourceName;
+  final type;
+  final Map subSchemas;
+  final String description;
+
+  final String propName;
+  final String jsonName;
+
+  factory _SchemaProp.parse(String parentName, String key, Map<String, dynamic> property) {
+    Map subSchemas = new Map();
+
+    var schemaType = property["type"];
+    var schemaFormat = "";
+    if (property.containsKey("format")) {
+      schemaFormat = property["format"];
+    }
+    bool array = false;
+    bool object = false;
+    var type;
+    if (schemaType == "array") {
+      array = true;
+      schemaType = property["items"]["type"];
+      schemaFormat = "";
+      if (property["items"].containsKey("format")) {
+        schemaFormat = property["items"]["format"];
+      }
+    }
+    switch(schemaType) {
+      case "object":
+        object = true;
+        var subSchemaName = "${capitalize(parentName)}${capitalize(key)}";
+        type = subSchemaName;
+        if (array) {
+          subSchemas[subSchemaName] = property["items"];
+        } else {
+          subSchemas[subSchemaName] = property;
+        }
+        break;
+      case "string":
+        type = "core.String";
+        if (schemaFormat == "int64") {
+          type = "core.int";
+        }
+        break;
+      case "number": type = "core.num"; break;
+      case "integer": type = "core.int"; break;
+      case "boolean": type = "core.bool"; break;
+    }
+    if (type == null) {
+      object = true;
+      if (array) {
+        type = property["items"]["\$ref"];
+      } else {
+        type = property["\$ref"];
+      }
+    }
+
+    if(type == null) {
+      print('\tWARNING: could not calculate property for $parentName - $key');
+      return null;
+    }
+
+    return new _SchemaProp(array, object, key, schemaType, schemaFormat, type, subSchemas, property['description']);
+  }
+
+  _SchemaProp(this.isArray, this.isObject, String sourceName, this.schemaType, this.schemaFormat, this.type, this.subSchemas, this.description) :
+    this.sourceName = sourceName,
+    propName = escapeProperty(cleanName(sourceName)),
+    jsonName = sourceName.replaceAll("\$", "\\\$") {
+    assert(this.type != null);
+  }
+
+  void writeField(StringSink sink) {
+    if (description != null) {
+      sink.write("\n  /** $description */\n");
+    }
+    if (isArray) {
+      sink.write("  core.List<$type> $propName;\n");
+    } else {
+      sink.write("  $type $propName;\n");
+    }
+  }
+
+  void writeToJson(StringSink sink) {
+    sink.write("    if ($propName != null) {\n");
+    if (isArray) {
+      sink.write("      output[\"$jsonName\"] = new core.List();\n");
+      sink.write("      $propName.forEach((item) {\n");
+      if (isObject) {
+        sink.write("        output[\"$jsonName\"].add(item.toJson());\n");
+      } else {
+        sink.write("        output[\"$jsonName\"].add(item);\n");
+      }
+      sink.write("      });\n");
+    } else {
+      if (isObject) {
+        sink.write("      output[\"$jsonName\"] = $propName.toJson();\n");
+      } else {
+        sink.write("      output[\"$jsonName\"] = $propName;\n");
+      }
+    }
+    sink.write("    }\n");
+  }
+
+  void writeFromJson(StringSink sink) {
+    sink.write("    if (json.containsKey(\"$jsonName\")) {\n");
+    if (isArray) {
+      sink.write("      $propName = [];\n");
+      sink.write("      json[\"$jsonName\"].forEach((item) {\n");
+      if (isObject) {
+        sink.write("        $propName.add(new $type.fromJson(item));\n");
+      } else {
+        sink.write("        $propName.add(item);\n");
+      }
+      sink.write("      });\n");
+    } else {
+      if (isObject) {
+        sink.write("      $propName = new $type.fromJson(json[\"$jsonName\"]);\n");
+      } else {
+        if(schemaType=="string" && schemaFormat == "int64") {
+          sink.write("      if(json[\"$jsonName\"] is core.String){\n");
+          sink.write("        $propName = core.int.parse(json[\"$jsonName\"]);\n");
+          sink.write("      }else{\n");
+          sink.write("        $propName = json[\"$jsonName\"];\n");
+          sink.write("      }\n");
+        } else{
+          sink.write("      $propName = json[\"$jsonName\"];\n");
+        }
+      }
+    }
+    sink.write("    }\n");
+  }
 }
