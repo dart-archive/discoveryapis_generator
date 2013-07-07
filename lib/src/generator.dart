@@ -313,8 +313,6 @@ part "$srcFolder/console/$_name.dart";
   }
 
   void _writeSchemaClass(StringSink sink, String name, Map data) {
-    Map subSchemas = new Map();
-
     if (data.containsKey("description")) {
       sink.write("/** ${data["description"]} */\n");
     }
@@ -327,9 +325,6 @@ part "$srcFolder/console/$_name.dart";
       data['properties'].forEach((key, property) {
         var prop = new _SchemaProp.parse(name, key, property);
         props.add(prop);
-        prop.subSchemas.forEach((sskey, ssprop) {
-          subSchemas[sskey] = ssprop;
-        });
       });
     }
 
@@ -360,8 +355,10 @@ part "$srcFolder/console/$_name.dart";
 
     sink.write("}\n\n");
 
-    subSchemas.forEach((subName, value) {
-      _writeSchemaClass(sink, subName, value);
+    props.forEach((property) {
+      property.subSchemas.forEach((key, value) {
+        _writeSchemaClass(sink, key, value);
+      });
     });
   }
 
