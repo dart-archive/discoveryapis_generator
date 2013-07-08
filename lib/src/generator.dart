@@ -200,6 +200,7 @@ library $_libraryName;
 import "dart:core" as core;
 import "dart:async" as async;
 import "dart:json" as JSON;
+import 'dart:collection' as dart_collection;
 
 part "$srcFolder/client/client.dart";
 part "$srcFolder/client/schemas.dart";
@@ -247,6 +248,8 @@ part "$srcFolder/console/$_name.dart";
       _json["schemas"].forEach((key, schema) {
         _writeSchemaClass(sink, key, schema);
       });
+
+      sink.write(_mapMapFunction);
     }
   }
 
@@ -319,17 +322,19 @@ part "$srcFolder/console/$_name.dart";
 
     sink.write("class ${capitalize(name)} {\n");
 
-    var props = new List<_SchemaProp>();
+    var props = new List<CoreSchemaProp>();
 
     if(data.containsKey('properties')) {
       data['properties'].forEach((key, property) {
-        var prop = new _SchemaProp.parse(name, key, property);
+        var prop = new CoreSchemaProp.parse(name, key, property);
         if(prop != null) {
           props.add(prop);
         }
       });
     } else {
-      print('\tWARNING: no props for $name. Need a JSON-only solution');
+      assert(data['properties'] == null);
+      print('\tWeird to get no properties for $name');
+      print('\t\t${JSON.stringify(data)}');
     }
 
     props.forEach((property) {
@@ -360,7 +365,7 @@ part "$srcFolder/console/$_name.dart";
     sink.write("}\n\n");
 
     props.forEach((property) {
-      property.subSchemas.forEach((key, value) {
+      property.getSubSchemas().forEach((key, value) {
         _writeSchemaClass(sink, key, value);
       });
     });
@@ -968,6 +973,22 @@ abstract class ConsoleClient extends Client {
 }
 """;
 
+  static const String _mapMapFunction = """
+core.Map _mapMap(core.Map source, [core.Object convert(core.Object source) = null]) {
+  assert(source != null);
+  var result = new dart_collection.LinkedHashMap();
+  source.forEach((core.String key, value) {
+    assert(key != null);
+    if(convert == null) {
+      result[key] = value;
+    } else {
+      result[key] = convert(value);
+    }
+  });
+  return result;
+}
+""";
+
   String get _createHopRunner => """
 library hop_runner;
 
@@ -989,143 +1010,4 @@ void main() {
   runHop();
 }
 """;
-}
-
-class _SchemaProp {
-  final bool isArray;
-  final bool isObject;
-  final schemaType;
-  final schemaFormat;
-  final String sourceName;
-  final type;
-  final Map subSchemas;
-  final String description;
-
-  final String propName;
-  final String jsonName;
-
-  factory _SchemaProp.parse(String parentName, String key, Map<String, dynamic> property) {
-    Map subSchemas = new Map();
-
-    var schemaType = property["type"];
-    var schemaFormat = "";
-    if (property.containsKey("format")) {
-      schemaFormat = property["format"];
-    }
-    bool array = false;
-    bool object = false;
-    var type;
-    if (schemaType == "array") {
-      array = true;
-      schemaType = property["items"]["type"];
-      schemaFormat = "";
-      if (property["items"].containsKey("format")) {
-        schemaFormat = property["items"]["format"];
-      }
-    }
-    switch(schemaType) {
-      case "object":
-        object = true;
-        var subSchemaName = "${capitalize(parentName)}${capitalize(key)}";
-        type = subSchemaName;
-        if (array) {
-          subSchemas[subSchemaName] = property["items"];
-        } else {
-          subSchemas[subSchemaName] = property;
-        }
-        break;
-      case "string":
-        type = "core.String";
-        if (schemaFormat == "int64") {
-          type = "core.int";
-        }
-        break;
-      case "number": type = "core.num"; break;
-      case "integer": type = "core.int"; break;
-      case "boolean": type = "core.bool"; break;
-    }
-    if (type == null) {
-      object = true;
-      if (array) {
-        type = property["items"]["\$ref"];
-      } else {
-        type = property["\$ref"];
-      }
-    }
-
-    if(type == null) {
-      print('\tWARNING: could not calculate property for $parentName - $key');
-      return null;
-    }
-
-    return new _SchemaProp(array, object, key, schemaType, schemaFormat, type, subSchemas, property['description']);
-  }
-
-  _SchemaProp(this.isArray, this.isObject, String sourceName, this.schemaType, this.schemaFormat, this.type, this.subSchemas, this.description) :
-    this.sourceName = sourceName,
-    propName = escapeProperty(cleanName(sourceName)),
-    jsonName = sourceName.replaceAll("\$", "\\\$") {
-    assert(this.type != null);
-  }
-
-  void writeField(StringSink sink) {
-    if (description != null) {
-      sink.write("\n  /** $description */\n");
-    }
-    if (isArray) {
-      sink.write("  core.List<$type> $propName;\n");
-    } else {
-      sink.write("  $type $propName;\n");
-    }
-  }
-
-  void writeToJson(StringSink sink) {
-    sink.write("    if ($propName != null) {\n");
-    if (isArray) {
-      sink.write("      output[\"$jsonName\"] = new core.List();\n");
-      sink.write("      $propName.forEach((item) {\n");
-      if (isObject) {
-        sink.write("        output[\"$jsonName\"].add(item.toJson());\n");
-      } else {
-        sink.write("        output[\"$jsonName\"].add(item);\n");
-      }
-      sink.write("      });\n");
-    } else {
-      if (isObject) {
-        sink.write("      output[\"$jsonName\"] = $propName.toJson();\n");
-      } else {
-        sink.write("      output[\"$jsonName\"] = $propName;\n");
-      }
-    }
-    sink.write("    }\n");
-  }
-
-  void writeFromJson(StringSink sink) {
-    sink.write("    if (json.containsKey(\"$jsonName\")) {\n");
-    if (isArray) {
-      sink.write("      $propName = [];\n");
-      sink.write("      json[\"$jsonName\"].forEach((item) {\n");
-      if (isObject) {
-        sink.write("        $propName.add(new $type.fromJson(item));\n");
-      } else {
-        sink.write("        $propName.add(item);\n");
-      }
-      sink.write("      });\n");
-    } else {
-      if (isObject) {
-        sink.write("      $propName = new $type.fromJson(json[\"$jsonName\"]);\n");
-      } else {
-        if(schemaType=="string" && schemaFormat == "int64") {
-          sink.write("      if(json[\"$jsonName\"] is core.String){\n");
-          sink.write("        $propName = core.int.parse(json[\"$jsonName\"]);\n");
-          sink.write("      }else{\n");
-          sink.write("        $propName = json[\"$jsonName\"];\n");
-          sink.write("      }\n");
-        } else{
-          sink.write("      $propName = json[\"$jsonName\"];\n");
-        }
-      }
-    }
-    sink.write("    }\n");
-  }
 }
