@@ -1,5 +1,11 @@
 part of discovery_api_client_generator;
 
+// TODO: remove this once issue #61 is fixed
+// https://github.com/dart-gde/discovery_api_dart_client_generator/issues/61
+String _getRef(withToJson) {
+  var json = withToJson.toJson();
+  return json['\$ref'];
+}
 
 class PropClass {
   final String name;
@@ -12,14 +18,14 @@ class PropClass {
 
   const PropClass._internal(this.name);
 
-  static PropClass getPropClass(Map<String, dynamic> propDef) {
-    String schemaType = propDef['type'];
+  static PropClass getPropClass(JsonSchema propDef) {
+    String schemaType = propDef.type;
     if(schemaType == null) {
-      assert(propDef['\$ref'] != null);
+      assert(_getRef(propDef) != null);
       schemaType = 'ref';
     } else if(schemaType == 'object') {
-      if(propDef['properties'] == null) {
-        assert(propDef.containsKey('additionalProperties'));
+      if(propDef.properties == null) {
+        assert(propDef.additionalProperties != null);
         schemaType = 'typedMap';
       }
     }
@@ -58,7 +64,7 @@ abstract class CoreSchemaProp {
     jsonName = schemaName.replaceAll("\$", "\\\$");
 
 
-  factory CoreSchemaProp.parse(String parentName, String schemaName, Map<String, dynamic> property) {
+  factory CoreSchemaProp.parse(String parentName, String schemaName, JsonSchema property) {
     var propClass = PropClass.getPropClass(property);
 
     if(propClass == null) {
@@ -146,14 +152,14 @@ Map<String, Object> _mapMap(Map<String, Object> source, [Object convert(Object s
 class MapSchemaProp extends CoreSchemaProp {
   final CoreSchemaProp itemType;
 
-  factory MapSchemaProp.parse(String parentName, String schemaName, Map<String, dynamic> property) {
-    var itemProp = new CoreSchemaProp.parse(parentName, schemaName, property['additionalProperties']);
+  factory MapSchemaProp.parse(String parentName, String schemaName, JsonSchema property) {
+    var itemProp = new CoreSchemaProp.parse(parentName, schemaName, property.additionalProperties);
     if(itemProp == null) {
       print("\tCannot generate array because child type is null: $parentName $schemaName");
       print('\t' + JSON.stringify(property));
       return null;
     }
-    return new MapSchemaProp(schemaName, property['description'], itemProp);
+    return new MapSchemaProp(schemaName, property.description, itemProp);
   }
 
   MapSchemaProp(String schemaName, String description, this.itemType)
@@ -214,14 +220,14 @@ class MapSchemaProp extends CoreSchemaProp {
 class ArraySchemaProp extends CoreSchemaProp {
   final CoreSchemaProp itemType;
 
-  factory ArraySchemaProp.parse(String parentName, String schemaName, Map<String, dynamic> prop) {
-    var itemProp = new CoreSchemaProp.parse(parentName, schemaName, prop['items']);
+  factory ArraySchemaProp.parse(String parentName, String schemaName, JsonSchema prop) {
+    var itemProp = new CoreSchemaProp.parse(parentName, schemaName, prop.items);
     if(itemProp == null) {
       print("\tCannot generate array because child type is null: $parentName $schemaName");
       print('\t' + JSON.stringify(prop));
       return null;
     }
-    return new ArraySchemaProp(schemaName, prop['description'], itemProp);
+    return new ArraySchemaProp(schemaName, prop.description, itemProp);
   }
 
   ArraySchemaProp(String schemaName, String description, this.itemType)
@@ -282,8 +288,8 @@ class SimpleSchemaProp extends CoreSchemaProp {
   final String schemaFormat;
   static const SIMPLE_TYPES = const ['string', 'boolean', 'integer', 'any', 'number'];
 
-  factory SimpleSchemaProp.parse(String schemaName, Map<String, dynamic> prop) {
-    return new SimpleSchemaProp(schemaName, prop['type'], prop['format'], prop['description']);
+  factory SimpleSchemaProp.parse(String schemaName, JsonSchema prop) {
+    return new SimpleSchemaProp(schemaName, prop.type, prop.format, prop.description);
   }
 
   SimpleSchemaProp(String schemaName, this.schemaType, this.schemaFormat, String description)
@@ -327,11 +333,11 @@ class SimpleSchemaProp extends CoreSchemaProp {
 
 class RefSchemaProp extends ComplexSchemaProp {
 
-  factory RefSchemaProp.parse(String parentName, String schemaName, Map<String, dynamic> property) {
+  factory RefSchemaProp.parse(String parentName, String schemaName, JsonSchema property) {
     assert(PropClass.getPropClass(property) == PropClass.REF);
 
-    var sourceType = property["\$ref"];
-    return new RefSchemaProp(schemaName, sourceType, property['description']);
+    var sourceType = _getRef(property);
+    return new RefSchemaProp(schemaName, sourceType, property.description);
   }
 
   RefSchemaProp(String sourceName, String dartType, String description) :
@@ -339,14 +345,14 @@ class RefSchemaProp extends ComplexSchemaProp {
 }
 
 class ObjectSchemaProp extends ComplexSchemaProp {
-  final Map propDefinition;
+  final JsonSchema propDefinition;
 
-  factory ObjectSchemaProp.parse(String parentName, String schemaName, Map<String, dynamic> property) {
+  factory ObjectSchemaProp.parse(String parentName, String schemaName, JsonSchema property) {
     assert(PropClass.getPropClass(property) == PropClass.OBJECT);
 
     var dartType = "${capitalize(parentName)}${capitalize(schemaName)}";
 
-    return new ObjectSchemaProp(schemaName, dartType, property, property['description']);
+    return new ObjectSchemaProp(schemaName, dartType, property, property.description);
   }
 
   ObjectSchemaProp(String sourceName, String dartType, this.propDefinition, String description) :
