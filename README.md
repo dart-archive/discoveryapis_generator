@@ -15,7 +15,6 @@ Examples for how to use the generated client libraries can be found here: https:
 or generate.dart -u <URL> [-o <Directory>] (to load discovery document from specified URL)
 or generate.dart -i <File> [-o <Directory>] (to load discovery document from local file)
 or generate.dart --all [-o <Directory>] (to create libraries for all Google APIs)
-or generate.dart --full [-o <Directory>] (to create one library including all Google APIs)
 
 -a, --api          Short name of the Google API (plus, drive, ...)
 -v, --version      Google API version (v1, v2, v1alpha, ...)
@@ -23,7 +22,6 @@ or generate.dart --full [-o <Directory>] (to create one library including all Go
 -u, --url          URL of a Discovery document
 -p, --prefix       Prefix for library name (defaults to "google")
     --all          Create client libraries for all Google APIs
-    --full         Create one library including all Google APIs
 -o, --output       Output Directory (defaults to "output/")
 
     --date         Create sub folder with current date (otherwise files might be overwritten)
