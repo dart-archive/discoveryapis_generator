@@ -129,14 +129,13 @@ void main() {
     });
   } else {
     loadGoogleAPIList().then((apis) {
-      if (all) {
-        apis["items"].forEach((item) {
-          loadDocumentFromUrl(item["discoveryRestUrl"]).then((doc) {
-            var generator = new Generator(doc, prefix);
-            generator.generateClient(output, check: check, force: force);
-          });
-        });
-      }
+      Future.forEach(apis["items"], (item) {
+        return loadDocumentFromUrl(item["discoveryRestUrl"])
+            .then((doc) {
+              var generator = new Generator(doc, prefix);
+              generator.generateClient(output, check: check, force: force);
+            });
+      });
     });
   }
 }
