@@ -67,9 +67,7 @@ abstract class CoreSchemaProp {
   factory CoreSchemaProp.parse(String parentName, String schemaName, JsonSchema property) {
     var propClass = PropClass.getPropClass(property);
 
-    if(propClass == null) {
-      return null;
-    } else if(propClass == PropClass.SIMPLE) {
+    if(propClass == PropClass.SIMPLE) {
       return new SimpleSchemaProp.parse(schemaName, property);
     } else if(propClass == PropClass.ARRAY) {
       return new ArraySchemaProp.parse(parentName, schemaName, property);
@@ -140,11 +138,6 @@ class MapSchemaProp extends CoreSchemaProp {
 
   factory MapSchemaProp.parse(String parentName, String schemaName, JsonSchema property) {
     var itemProp = new CoreSchemaProp.parse(parentName, schemaName, property.additionalProperties);
-    if(itemProp == null) {
-      print("\tCannot generate array because child type is null: $parentName $schemaName");
-      print('\t' + JSON.stringify(property));
-      return null;
-    }
     return new MapSchemaProp(schemaName, property.description, itemProp);
   }
 
@@ -208,11 +201,6 @@ class ArraySchemaProp extends CoreSchemaProp {
 
   factory ArraySchemaProp.parse(String parentName, String schemaName, JsonSchema prop) {
     var itemProp = new CoreSchemaProp.parse(parentName, schemaName, prop.items);
-    if(itemProp == null) {
-      print("\tCannot generate array because child type is null: $parentName $schemaName");
-      print('\t' + JSON.stringify(prop));
-      return null;
-    }
     return new ArraySchemaProp(schemaName, prop.description, itemProp);
   }
 

@@ -12,9 +12,7 @@ void _writeSchemaClass(StringSink sink, String name, JsonSchema data) {
   if(data.properties != null) {
     data.properties.forEach((key, JsonSchema property) {
       var prop = new CoreSchemaProp.parse(name, key, property);
-      if(prop != null) {
-        props.add(prop);
-      }
+      props.add(prop);
     });
   } else {
     print('\tWeird to get no properties for $name');
