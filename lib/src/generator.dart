@@ -419,22 +419,15 @@ part "$srcFolder/console/$_name.dart";
       data.parameterOrder.forEach((param) {
         if (data.parameters.containsKey(param)) {
           var paramSchema = data.parameters[param];
-          var type = parameterType[paramSchema.type];
-          if (paramSchema.format != null) {
-             if (paramSchema.type == "string" && paramSchema.format == "int64") {
-               type = "core.int";
-             }
+          var type = _getDartType(paramSchema);
+          var variable = escapeParameter(cleanName(param));
+          _writeParamComment(sink, variable, paramSchema.toJson());
+          if (paramSchema.repeated == true) {
+            params.add("core.List<$type> $variable");
+          } else {
+            params.add("$type $variable");
           }
-          if (type != null) {
-            var variable = escapeParameter(cleanName(param));
-            _writeParamComment(sink, variable, paramSchema.toJson());
-            if (paramSchema.repeated == true) {
-              params.add("core.List<$type> $variable");
-            } else {
-              params.add("$type $variable");
-            }
-            genIncluded.add(paramSchema);
-          }
+          genIncluded.add(paramSchema);
         }
       });
     }
@@ -452,20 +445,13 @@ part "$srcFolder/console/$_name.dart";
     if (data.parameters != null) {
       data.parameters.forEach((name, JsonSchema description) {
         if (!genIncluded.contains(description)) {
-          var type = parameterType[description.type];
-          if (description.format!= null) {
-             if (description.type == "string" && description.format == "int64") {
-               type = "core.int";
-             }
-          }
-          if (type != null) {
-            var variable = escapeParameter(cleanName(name));
-            _writeParamComment(sink, variable, description.toJson());
-            if (description.repeated == true) {
-              optParams.add("core.List<$type> $variable");
-            } else {
-              optParams.add("$type $variable");
-            }
+          var type = _getDartType(description);
+          var variable = escapeParameter(cleanName(name));
+          _writeParamComment(sink, variable, description.toJson());
+          if (description.repeated == true) {
+            optParams.add("core.List<$type> $variable");
+          } else {
+            optParams.add("$type $variable");
           }
         }
       });
@@ -663,21 +649,16 @@ abstract class Client {
   // Parameters
   //""");
       _json.parameters.forEach((String key, JsonSchema param) {
-        var type = parameterType[param.type];
-        if (param.type == "string" && param.format == "int64") {
-          type = "core.int";
+        var type = _getDartType(param);
+        sink.write("\n");
+        sink.write("  /**\n");
+        if (param.description != null) {
+          sink.write("   * ${param.description}\n");
         }
-        if (type != null) {
-          sink.write("\n");
-          sink.write("  /**\n");
-          if (param.description != null) {
-            sink.write("   * ${param.description}\n");
-          }
-          sink.write("   * Added as queryParameter for each request.\n");
-          sink.write("   */\n");
-          sink.write("  $type get $key => params[\"$key\"];\n");
-          sink.write("  set $key($type value) => params[\"$key\"] = value;\n");
-        }
+        sink.write("   * Added as queryParameter for each request.\n");
+        sink.write("   */\n");
+        sink.write("  $type get $key => params[\"$key\"];\n");
+        sink.write("  set $key($type value) => params[\"$key\"] = value;\n");
       });
     }
 

@@ -135,20 +135,6 @@ abstract class CoreSchemaProp {
   }
 }
 
-Map<String, Object> _mapMap(Map<String, Object> source, [Object convert(Object source) = null]) {
-  assert(source != null);
-  var result = new Map<String, Object>();
-  source.forEach((String key, value) {
-    assert(key != null);
-    if(convert == null) {
-      result[key] = value;
-    } else {
-      result[key] = convert(value);
-    }
-  });
-  return result;
-}
-
 class MapSchemaProp extends CoreSchemaProp {
   final CoreSchemaProp itemType;
 
@@ -283,35 +269,37 @@ class ArraySchemaProp extends CoreSchemaProp {
   }
 }
 
+String _getDartType(JsonSchema schema) {
+  switch(schema.type) {
+    case "string":
+      return (schema.format == "int64") ? "core.int" : 'core.String';
+    case "number":
+      return "core.num";
+    case "integer":
+      return "core.int";
+    case "boolean":
+      return "core.bool";
+    case 'any':
+      return 'core.Object';
+    default:
+      return schema.type;
+  }
+}
+
 class SimpleSchemaProp extends CoreSchemaProp {
   final String schemaType;
   final String schemaFormat;
+  final String dartType;
   static const SIMPLE_TYPES = const ['string', 'boolean', 'integer', 'any', 'number'];
 
   factory SimpleSchemaProp.parse(String schemaName, JsonSchema prop) {
-    return new SimpleSchemaProp(schemaName, prop.type, prop.format, prop.description);
+    var dt = _getDartType(prop);
+    return new SimpleSchemaProp(schemaName, prop.type, prop.format, dt, prop.description);
   }
 
-  SimpleSchemaProp(String schemaName, this.schemaType, this.schemaFormat, String description)
+  SimpleSchemaProp(String schemaName, this.schemaType, this.schemaFormat, this.dartType, String description)
       : super(schemaName, description) {
     assert(SIMPLE_TYPES.contains(schemaType));
-  }
-
-  String get dartType {
-    switch(schemaType) {
-      case "string":
-        return (schemaFormat == "int64") ? "core.int" : 'core.String';
-      case "number":
-        return "core.num";
-       case "integer":
-         return "core.int";
-       case "boolean":
-         return "core.bool";
-       case 'any':
-         return 'core.Object';
-       default:
-         throw 'Have not implemented type support for "$schemaType".';
-    }
   }
 
   @override
