@@ -28,7 +28,6 @@ class Generator {
 
   String get _name => _description.name;
   String get _version => _description.version;
-  String get _etag => _description.etag;
 
   String get _shortName => cleanName("${_name}_${_version}").toLowerCase();
   String get _gitName => cleanName("dart_${_name}_${_version}_api_client").toLowerCase();
@@ -61,7 +60,7 @@ class Generator {
           clientVersionBuild = (forceVersion != null) ? forceVersion : int.parse(version.substring(clientVersion.length + 1)) + 1;
         } else {
           if (version.startsWith(clientVersion)) {
-            if (etag == _etag) {
+            if (etag == _description.etag) {
               print("Nothing changed for $_libraryName");
               return false;
             } else {
@@ -112,7 +111,7 @@ class Generator {
 
     _writeString("$mainFolder/CONTRIBUTORS", _contributors);
 
-    _writeString("$mainFolder/VERSION", _etag);
+    _writeString("$mainFolder/VERSION", _description.etag);
 
     // Create common library files
 
