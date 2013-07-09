@@ -8,5 +8,6 @@ import 'schemas.dart';
 
 part "src/generator.dart";
 part "src/loaders.dart";
+part "src/writers.dart";
 part "src/properties.dart";
 part "src/utils.dart";
