@@ -11,14 +11,11 @@ Future<String> loadDocumentFromUrl(String url) {
   return client.getUrl(Uri.parse(url))
       .then((HttpClientRequest request) => request.close())
       .then((HttpClientResponse response) {
-        var result = new StringBuffer();
-
         return response
-            .forEach((List<int> data) {
-              result.write(new String.fromCharCodes(data));
-            })
-            .then((_) => result.toString());
+          .transform(new StringDecoder(Encoding.UTF_8))
+          .fold(new StringBuffer(), (buffer, data) => buffer..write(data));
       })
+      .then((StringBuffer buffer) => buffer.toString())
       .whenComplete(() {
         client.close();
       });
