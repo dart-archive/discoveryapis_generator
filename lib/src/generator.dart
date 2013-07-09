@@ -364,31 +364,35 @@ part "$srcFolder/console/$_name.dart";
     });
   }
 
-  void _writeParamComment(StringSink sink, String name, Map description) {
+  void _writeParamCommentHeader(StringSink sink, String name, String description) {
     sink.write("   *\n");
     sink.write("   * [$name]");
-    if (description.containsKey("description")) {
-      sink.write(" - ${description["description"]}");
+    if (description != null) {
+      sink.write(" - ${description}");
     }
     sink.write("\n");
-    if (description.containsKey("default")) {
-      sink.write("   *   Default: ${description["default"]}\n");
+  }
+
+  void _writeParamComment(StringSink sink, String name, JsonSchema description) {
+    _writeParamCommentHeader(sink, name, description.description);
+    if (description.defaultProperty != null) {
+      sink.write("   *   Default: ${description.defaultProperty}\n");
     }
-    if (description.containsKey("minimum")) {
-      sink.write("   *   Minimum: ${description["minimum"]}\n");
+    if (description.minimum != null) {
+      sink.write("   *   Minimum: ${description.minimum}\n");
     }
-    if (description.containsKey("maximum")) {
-      sink.write("   *   Maximum: ${description["maximum"]}\n");
+    if (description.maximum != null) {
+      sink.write("   *   Maximum: ${description.maximum}\n");
     }
-    if (description.containsKey("repeated") && description["repeated"] == true) {
+    if (description.repeated == true) {
       sink.write("   *   Repeated values: allowed\n");
     }
-    if (description.containsKey("enum")) {
+    if (description.enumProperty != null) {
       sink.write("   *   Allowed values:\n");
-      for (var i = 0; i < description["enum"].length; i++) {
-        sink.write("   *     ${description["enum"][i]}");
-        if (description.containsKey("enumDescriptions")) {
-          sink.write(" - ${description["enumDescriptions"][i]}");
+      for (var i = 0; i < description.enumProperty.length; i++) {
+        sink.write("   *     ${description.enumProperty[i]}");
+        if (description.enumDescriptions != null) {
+          sink.write(" - ${description.enumDescriptions[i]}");
         }
         sink.write("\n");
       }
@@ -413,7 +417,7 @@ part "$srcFolder/console/$_name.dart";
 
     if (data.request != null) {
       params.add("${_getRef(data.request)} request");
-      _writeParamComment(sink, "request", {"description": "${_getRef(data.request)} to send in this request"});
+      _writeParamCommentHeader(sink, "request", "${_getRef(data.request)} to send in this request");
     }
     if (data.parameterOrder != null && data.parameters != null) {
       data.parameterOrder.forEach((param) {
@@ -421,7 +425,7 @@ part "$srcFolder/console/$_name.dart";
           var paramSchema = data.parameters[param];
           var type = _getDartType(paramSchema);
           var variable = escapeParameter(cleanName(param));
-          _writeParamComment(sink, variable, paramSchema.toJson());
+          _writeParamComment(sink, variable, paramSchema);
           if (paramSchema.repeated == true) {
             params.add("core.List<$type> $variable");
           } else {
@@ -439,15 +443,15 @@ part "$srcFolder/console/$_name.dart";
     if (uploadPath != null) {
       optParams.add("core.String content");
       optParams.add("core.String contentType");
-      _writeParamComment(sink, "content", {"description": "Base64 Data of the file content to be uploaded"});
-      _writeParamComment(sink, "contentType", {"description": "MimeType of the file to be uploaded"});
+      _writeParamCommentHeader(sink, "content", "Base64 Data of the file content to be uploaded");
+      _writeParamCommentHeader(sink, "contentType", "MimeType of the file to be uploaded");
     }
     if (data.parameters != null) {
       data.parameters.forEach((name, JsonSchema description) {
         if (!genIncluded.contains(description)) {
           var type = _getDartType(description);
           var variable = escapeParameter(cleanName(name));
-          _writeParamComment(sink, variable, description.toJson());
+          _writeParamComment(sink, variable, description);
           if (description.repeated == true) {
             optParams.add("core.List<$type> $variable");
           } else {
@@ -458,7 +462,7 @@ part "$srcFolder/console/$_name.dart";
     }
 
     optParams.add("core.Map optParams");
-    _writeParamComment(sink, "optParams", {"description": "Additional query parameters"});
+    _writeParamCommentHeader(sink, "optParams", "Additional query parameters");
 
     params.add("{${optParams.join(", ")}}");
 
