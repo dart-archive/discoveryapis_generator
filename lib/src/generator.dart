@@ -6,7 +6,7 @@ const String jsDependenciesVersionConstraint = '>=0.0.23';
 const String googleOAuth2ClientVersionConstraint = '>=0.2.15';
 
 class Generator {
-  final RestDescription _json;
+  final RestDescription _description;
   final String _prefix;
 
   String get _libraryPubspecName {
@@ -23,11 +23,11 @@ class Generator {
     return new Generator.core(description, prefix);
   }
 
-  Generator.core(this._json, this._prefix);
+  Generator.core(this._description, this._prefix);
 
-  String get _name => _json.name;
-  String get _version => _json.version;
-  String get _etag => _json.etag;
+  String get _name => _description.name;
+  String get _version => _description.version;
+  String get _etag => _description.etag;
 
   String get _shortName => cleanName("${_name}_${_version}").toLowerCase();
   String get _gitName => cleanName("dart_${_name}_${_version}_api_client").toLowerCase();
@@ -171,13 +171,13 @@ Auto-generated client library for accessing the $_name $_version API.
 
 """);
     sink.write("#### ");
-    if (_json.icons != null && _json.icons.x16 != null) {
-      sink.write("![Logo](${_json.icons.x16}) ");
+    if (_description.icons != null && _description.icons.x16 != null) {
+      sink.write("![Logo](${_description.icons.x16}) ");
     }
-    sink.write("${_json.title} - $_name $_version\n\n");
-    sink.write("${_json.description}\n\n");
-    if (_json.documentationLink != null) {
-      sink.write("Official API documentation: ${_json.documentationLink}\n\n");
+    sink.write("${_description.title} - $_name $_version\n\n");
+    sink.write("${_description.description}\n\n");
+    if (_description.documentationLink != null) {
+      sink.write("Official API documentation: ${_description.documentationLink}\n\n");
     }
     sink.write("For web applications:\n```\nimport \"package:$_libraryPubspecName/$_libraryBrowserName.dart\" as ${cleanName(_name).toLowerCase()}client;\n```\n\n");
     sink.write("For console application:\n```\nimport \"package:$_libraryPubspecName/$_libraryConsoleName.dart\" as ${cleanName(_name).toLowerCase()}client;\n```\n\n");
@@ -238,8 +238,8 @@ part "$srcFolder/console/$_name.dart";
   void _writeSchemas(StringSink sink) {
     sink.write("part of $_libraryName;\n\n");
 
-    if (_json.schemas != null) {
-      _json.schemas.forEach((String key, JsonSchema schema) {
+    if (_description.schemas != null) {
+      _description.schemas.forEach((String key, JsonSchema schema) {
         _writeSchemaClass(sink, key, schema);
       });
 
@@ -251,16 +251,16 @@ part "$srcFolder/console/$_name.dart";
     sink.writeln("part of $_libraryName;");
     sink.writeln();
 
-    if (_json.resources != null) {
-      _json.resources.forEach((String key, RestResource resource) {
+    if (_description.resources != null) {
+      _description.resources.forEach((String key, RestResource resource) {
         _writeResourceClass(sink, key, resource);
       });
     }
   }
 
   void _writeScopes(StringSink sink) {
-    if(_json.auth != null && _json.auth.oauth2 != null && _json.auth.oauth2.scopes != null) {
-      _json.auth.oauth2.scopes.forEach((String name, RestDescriptionAuthOauth2Scopes scopes) {
+    if(_description.auth != null && _description.auth.oauth2 != null && _description.auth.oauth2.scopes != null) {
+      _description.auth.oauth2.scopes.forEach((String name, RestDescriptionAuthOauth2Scopes scopes) {
         var p = name.lastIndexOf("/");
         var scopeName = name.toUpperCase();
         if (p >= 0) scopeName = scopeName.substring(p+1);
@@ -279,8 +279,8 @@ part "$srcFolder/console/$_name.dart";
   void _writeBrowserMainClass(StringSink sink) {
     sink.write("part of $_libraryBrowserName;\n\n");
     sink.write("/** Client to access the $_name $_version API */\n");
-    if (_json.description != null) {
-      sink.write("/** ${_json.description} */\n");
+    if (_description.description != null) {
+      sink.write("/** ${_description.description} */\n");
     }
     sink.write("class ${capitalize(_name)} extends BrowserClient {\n");
     _writeScopes(sink);
@@ -295,8 +295,8 @@ part "$srcFolder/console/$_name.dart";
   void _writeConsoleMainClass(StringSink sink) {
     sink.write("part of $_libraryConsoleName;\n\n");
     sink.write("/** Client to access the $_name $_version API */\n");
-    if (_json.description != null) {
-      sink.write("/** ${_json.description} */\n");
+    if (_description.description != null) {
+      sink.write("/** ${_description.description} */\n");
     }
     sink.write("class ${capitalize(_name)} extends ConsoleClient {\n");
     _writeScopes(sink);
@@ -581,7 +581,7 @@ part "$srcFolder/console/$_name.dart";
     }
   }
 
-  String get _rootUriOrigin => Uri.parse(_json.rootUrl).origin;
+  String get _rootUriOrigin => Uri.parse(_description.rootUrl).origin;
 
   void _writeClientClass(StringSink sink) {
     sink.write("""part of $_libraryName;
@@ -590,7 +590,7 @@ part "$srcFolder/console/$_name.dart";
  * Base class for all API clients, offering generic methods for HTTP Requests to the API
  */
 abstract class Client {
-  core.String basePath = \"${_json.basePath}\";
+  core.String basePath = \"${_description.basePath}\";
   core.String rootUrl = \"${_rootUriOrigin}/\";
   core.bool makeAuthRequests = false;
   final core.Map params = {};
@@ -630,25 +630,25 @@ abstract class Client {
 
 """);
 
-    if (_json.resources != null) {
+    if (_description.resources != null) {
       sink.writeln("""
   //
   // Resources
   //
 """);
-      _json.resources.forEach((key, resource) {
+      _description.resources.forEach((key, resource) {
         var subClassName = "${capitalize(key)}Resource_";
         sink.writeln("  $subClassName get $key => new $subClassName(this);");
       });
     }
     sink.writeln();
 
-    if (_json.parameters!= null) {
+    if (_description.parameters!= null) {
       sink.writeln("""
   //
   // Parameters
   //""");
-      _json.parameters.forEach((String key, JsonSchema param) {
+      _description.parameters.forEach((String key, JsonSchema param) {
         var type = _getDartType(param);
         sink.write("\n");
         sink.write("  /**\n");
@@ -662,13 +662,13 @@ abstract class Client {
       });
     }
 
-    if (_json.methods != null) {
+    if (_description.methods != null) {
       sink.writeln("""
 
   //
   // Methods
   //""");
-      _json.methods.forEach((String key, RestMethod method) {
+      _description.methods.forEach((String key, RestMethod method) {
         sink.write("\n");
         _writeMethod(sink, key, method, true);
       });
