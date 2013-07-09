@@ -1,5 +1,7 @@
 part of discovery_api_client_generator;
 
+const _discoveryUrl = "https://www.googleapis.com/discovery/v1/apis";
+
 // Workaround for Cloud Endpoints because they don't respond to requests from HttpClient
 Future<String> loadCustomUrl(String url) {
   return Process.run("curl", ["-k", url]).then((p) => p.stdout);
@@ -22,7 +24,7 @@ Future<String> loadDocumentFromUrl(String url) {
 }
 
 Future<String> loadDocumentFromGoogle(String api, String version) {
-  final url = "https://www.googleapis.com/discovery/v1/apis/${Uri.encodeComponent(api)}/${Uri.encodeComponent(version)}/rest";
+  final url = "$_discoveryUrl/${Uri.encodeComponent(api)}/${Uri.encodeComponent(version)}/rest";
   return loadDocumentFromUrl(url);
 }
 
@@ -31,8 +33,5 @@ Future<String> loadDocumentFromFile(String fileName) {
   return file.readAsString();
 }
 
-Future<Map> loadGoogleAPIList() {
-  final url = "https://www.googleapis.com/discovery/v1/apis";
-  return loadDocumentFromUrl(url)
-    .then((data) => JSON.parse(data));
-}
+Future<Map> loadGoogleAPIList() => loadDocumentFromUrl(_discoveryUrl)
+  .then((data) => JSON.parse(data));
