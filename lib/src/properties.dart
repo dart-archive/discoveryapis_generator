@@ -83,7 +83,7 @@ abstract class CoreSchemaProp {
     }
   }
 
-  Map getSubSchemas() => {};
+  Map<String, JsonSchema> getSubSchemas() => {};
 
   void writeField(StringSink sink) {
     if (description != null) {
@@ -346,12 +346,13 @@ class ObjectSchemaProp extends ComplexSchemaProp {
   ObjectSchemaProp(String sourceName, String dartType, this.propDefinition, String description) :
     super(sourceName, dartType, description);
 
-  Map getSubSchemas() => new Map()
+  @override
+  Map<String, JsonSchema> getSubSchemas() => new Map()
     ..[dartType] = propDefinition;
 }
 
 abstract class ComplexSchemaProp extends CoreSchemaProp {
-  final dartType;
+  final String dartType;
 
   ComplexSchemaProp(String schemaName, this.dartType, String description) :
     super(schemaName, description) {
