@@ -15,10 +15,11 @@ class Generator {
   }
 
   factory Generator(String data, [String prefix = "google"]) {
-
     var json = JSON.parse(data);
-
     var description = new RestDescription.fromJson(json);
+
+    // paranoid check of input
+    assert(description.name != null);
 
     return new Generator.core(description, prefix);
   }
