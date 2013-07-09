@@ -1,12 +1,5 @@
 part of discovery_api_client_generator;
 
-const Map parameterType = const {
-  "string": "core.String",
-  "number": "core.num",
-  "integer": "core.int",
-  "boolean": "core.bool"
-};
-
 const List keywords = const [
   "assert", "break", "case", "catch", "class", "const", "continue",
   "default", "do", "else", "enum", "extends", "false", "final", "finally",

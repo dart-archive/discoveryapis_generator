@@ -6,16 +6,7 @@ const String jsDependenciesVersionConstraint = '>=0.0.23';
 const String googleOAuth2ClientVersionConstraint = '>=0.2.15';
 
 class Generator {
-  final Map<String, dynamic> _json;
-  final String _name;
-  final String _version;
-  final String _etag;
-
-  final String _shortName;
-  final String _gitName;
-  final String _libraryName;
-  final String _libraryBrowserName;
-  final String _libraryConsoleName;
+  final RestDescription _description;
   final String _prefix;
 
   String get _libraryPubspecName {
@@ -24,23 +15,26 @@ class Generator {
   }
 
   factory Generator(String data, [String prefix = "google"]) {
-    var json = JSON.parse(data);
-    String name = json["name"];
-    String version = json["version"];
-    String etag = json["etag"];
 
-    return new Generator.core(json, name, version, prefix, etag);
+    var json = JSON.parse(data);
+
+    var description = new RestDescription.fromJson(json);
+
+    return new Generator.core(description, prefix);
   }
 
-  Generator.core(this._json, String name, String version, this._prefix, this._etag) :
-    _name = name,
-    _version = version,
-    _shortName = cleanName("${name}_${version}").toLowerCase(),
-    _gitName = cleanName("dart_${name}_${version}_api_client").toLowerCase(),
-    _libraryName = cleanName("${name}_${version}_api_client").toLowerCase(),
-    _libraryBrowserName = cleanName("${name}_${version}_api_browser").toLowerCase(),
-    _libraryConsoleName = cleanName("${name}_${version}_api_console").toLowerCase();
+  Generator.core(this._description, this._prefix);
 
+  String get _name => _description.name;
+  String get _version => _description.version;
+  String get _etag => _description.etag;
+
+  String get _shortName => cleanName("${_name}_${_version}").toLowerCase();
+  String get _gitName => cleanName("dart_${_name}_${_version}_api_client").toLowerCase();
+
+  String get _libraryName => cleanName("${_name}_${_version}_api_client").toLowerCase();
+  String get _libraryBrowserName => cleanName("${_name}_${_version}_api_browser").toLowerCase();
+  String get _libraryConsoleName => cleanName("${_name}_${_version}_api_console").toLowerCase();
 
   bool generateClient(String outputDirectory, {bool check: false, bool force: false, int forceVersion}) {
     var mainFolder = "$outputDirectory/$_gitName";
@@ -177,13 +171,13 @@ Auto-generated client library for accessing the $_name $_version API.
 
 """);
     sink.write("#### ");
-    if (_json.containsKey("icons") && _json["icons"].containsKey("x16")) {
-      sink.write("![Logo](${_json["icons"]["x16"]}) ");
+    if (_description.icons != null && _description.icons.x16 != null) {
+      sink.write("![Logo](${_description.icons.x16}) ");
     }
-    sink.write("${_json["title"]} - $_name $_version\n\n");
-    sink.write("${_json["description"]}\n\n");
-    if (_json.containsKey("documentationLink")) {
-      sink.write("Official API documentation: ${_json["documentationLink"]}\n\n");
+    sink.write("${_description.title} - $_name $_version\n\n");
+    sink.write("${_description.description}\n\n");
+    if (_description.documentationLink != null) {
+      sink.write("Official API documentation: ${_description.documentationLink}\n\n");
     }
     sink.write("For web applications:\n```\nimport \"package:$_libraryPubspecName/$_libraryBrowserName.dart\" as ${cleanName(_name).toLowerCase()}client;\n```\n\n");
     sink.write("For console application:\n```\nimport \"package:$_libraryPubspecName/$_libraryConsoleName.dart\" as ${cleanName(_name).toLowerCase()}client;\n```\n\n");
@@ -200,6 +194,7 @@ library $_libraryName;
 import "dart:core" as core;
 import "dart:async" as async;
 import "dart:json" as JSON;
+import 'dart:collection' as dart_collection;
 
 part "$srcFolder/client/client.dart";
 part "$srcFolder/client/schemas.dart";
@@ -243,10 +238,12 @@ part "$srcFolder/console/$_name.dart";
   void _writeSchemas(StringSink sink) {
     sink.write("part of $_libraryName;\n\n");
 
-    if (_json.containsKey("schemas")) {
-      _json["schemas"].forEach((key, schema) {
+    if (_description.schemas != null) {
+      _description.schemas.forEach((String key, JsonSchema schema) {
         _writeSchemaClass(sink, key, schema);
       });
+
+      sink.write(_mapMapFunction);
     }
   }
 
@@ -254,27 +251,27 @@ part "$srcFolder/console/$_name.dart";
     sink.writeln("part of $_libraryName;");
     sink.writeln();
 
-    if (_json.containsKey("resources")) {
-      _json["resources"].forEach((key, resource) {
+    if (_description.resources != null) {
+      _description.resources.forEach((String key, RestResource resource) {
         _writeResourceClass(sink, key, resource);
       });
     }
   }
 
   void _writeScopes(StringSink sink) {
-    if(_json.containsKey("auth") && _json["auth"].containsKey("oauth2") && _json["auth"]["oauth2"].containsKey("scopes")) {
-      _json["auth"]["oauth2"]["scopes"].forEach((scope, description) {
-        var p = scope.lastIndexOf("/");
-        var scopeName = scope.toUpperCase();
+    if(_description.auth != null && _description.auth.oauth2 != null && _description.auth.oauth2.scopes != null) {
+      _description.auth.oauth2.scopes.forEach((String name, RestDescriptionAuthOauth2Scopes scopes) {
+        var p = name.lastIndexOf("/");
+        var scopeName = name.toUpperCase();
         if (p >= 0) scopeName = scopeName.substring(p+1);
         scopeName = cleanName(scopeName);
         sink.write("\n");
-        if (description.containsKey("description")) {
-          sink.write("  /** OAuth Scope2: ${description["description"]} */\n");
+        if (scopes.description != null) {
+          sink.write("  /** OAuth Scope2: ${scopes.description} */\n");
         } else {
           sink.write("  /** OAuth Scope2 */\n");
         }
-        sink.write("  static const core.String ${scopeName}_SCOPE = \"$scope\";\n");
+        sink.write("  static const core.String ${scopeName}_SCOPE = \"$name\";\n");
       });
     }
   }
@@ -282,8 +279,8 @@ part "$srcFolder/console/$_name.dart";
   void _writeBrowserMainClass(StringSink sink) {
     sink.write("part of $_libraryBrowserName;\n\n");
     sink.write("/** Client to access the $_name $_version API */\n");
-    if (_json.containsKey("description")) {
-      sink.write("/** ${_json["description"]} */\n");
+    if (_description.description != null) {
+      sink.write("/** ${_description.description} */\n");
     }
     sink.write("class ${capitalize(_name)} extends BrowserClient {\n");
     _writeScopes(sink);
@@ -298,8 +295,8 @@ part "$srcFolder/console/$_name.dart";
   void _writeConsoleMainClass(StringSink sink) {
     sink.write("part of $_libraryConsoleName;\n\n");
     sink.write("/** Client to access the $_name $_version API */\n");
-    if (_json.containsKey("description")) {
-      sink.write("/** ${_json["description"]} */\n");
+    if (_description.description != null) {
+      sink.write("/** ${_description.description} */\n");
     }
     sink.write("class ${capitalize(_name)} extends ConsoleClient {\n");
     _writeScopes(sink);
@@ -312,22 +309,25 @@ part "$srcFolder/console/$_name.dart";
     sink.write("}\n");
   }
 
-  void _writeSchemaClass(StringSink sink, String name, Map data) {
-    if (data.containsKey("description")) {
-      sink.write("/** ${data["description"]} */\n");
+  void _writeSchemaClass(StringSink sink, String name, JsonSchema data) {
+    if (data.description != null) {
+      sink.write("/** ${data.description} */\n");
     }
 
     sink.write("class ${capitalize(name)} {\n");
 
-    var props = new List<_SchemaProp>();
+    var props = new List<CoreSchemaProp>();
 
-    if(data.containsKey('properties')) {
-      data['properties'].forEach((key, property) {
-        var prop = new _SchemaProp.parse(name, key, property);
+    if(data.properties != null) {
+      data.properties.forEach((key, JsonSchema property) {
+        var prop = new CoreSchemaProp.parse(name, key, property);
         if(prop != null) {
           props.add(prop);
         }
       });
+    } else {
+      print('\tWeird to get no properties for $name');
+      print('\t\t${JSON.stringify(data)}');
     }
 
     props.forEach((property) {
@@ -358,7 +358,7 @@ part "$srcFolder/console/$_name.dart";
     sink.write("}\n\n");
 
     props.forEach((property) {
-      property.subSchemas.forEach((key, value) {
+      property.getSubSchemas().forEach((String key, JsonSchema value) {
         _writeSchemaClass(sink, key, value);
       });
     });
@@ -396,83 +396,62 @@ part "$srcFolder/console/$_name.dart";
   }
 
   /// Create a method with [name] inside of a class, based on [data]
-  void _writeMethod(StringSink sink, String name, Map data, [bool noResource = false]) {
-    var upload = false;
-    var uploadPath;
+  void _writeMethod(StringSink sink, String name, RestMethod data, [bool noResource = false]) {
+    String uploadPath = null;
 
     name = escapeMethod(cleanName(name));
 
     sink.write("  /**\n");
-    if (data.containsKey("description")) {
-      sink.write("   * ${data["description"]}\n");
+    if (data.description != null) {
+      sink.write("   * ${data.description}\n");
     }
+
+    var genIncluded = new Set<JsonSchema>();
 
     var params = new List<String>();
     var optParams = new List<String>();
 
-    if (data.containsKey("request")) {
-      params.add("${data["request"]["\$ref"]} request");
-      _writeParamComment(sink, "request", {"description": "${data["request"]["\$ref"]} to send in this request"});
+    if (data.request != null) {
+      params.add("${_getRef(data.request)} request");
+      _writeParamComment(sink, "request", {"description": "${_getRef(data.request)} to send in this request"});
     }
-    if (data.containsKey("parameterOrder") && data.containsKey("parameters")) {
-      data["parameterOrder"].forEach((param) {
-        if (data["parameters"].containsKey(param)) {
-          var type = parameterType[data["parameters"][param]["type"]];
-          if (data["parameters"][param].containsKey("format")) {
-             if (data["parameters"][param]["type"] == "string" && data["parameters"][param]["format"] == "int64") {
-               type = "core.int";
-             }
+    if (data.parameterOrder != null && data.parameters != null) {
+      data.parameterOrder.forEach((param) {
+        if (data.parameters.containsKey(param)) {
+          var paramSchema = data.parameters[param];
+          var type = _getDartType(paramSchema);
+          var variable = escapeParameter(cleanName(param));
+          _writeParamComment(sink, variable, paramSchema.toJson());
+          if (paramSchema.repeated == true) {
+            params.add("core.List<$type> $variable");
+          } else {
+            params.add("$type $variable");
           }
-          if (type != null) {
-            var variable = escapeParameter(cleanName(param));
-            _writeParamComment(sink, variable, data["parameters"][param]);
-            if (data["parameters"][param].containsKey("repeated") && data["parameters"][param]["repeated"] == true) {
-              params.add("core.List<$type> $variable");
-            } else {
-              params.add("$type $variable");
-            }
-            data["parameters"][param]["gen_included"] = true;
-          }
+          genIncluded.add(paramSchema);
         }
       });
     }
 
-    if (data.containsKey("mediaUpload")) {
-      if (data["mediaUpload"].containsKey("protocols")) {
-        if (data["mediaUpload"]["protocols"].containsKey("simple")) {
-          if (data["mediaUpload"]["protocols"]["simple"].containsKey("multipart")) {
-            if (data["mediaUpload"]["protocols"]["simple"]["multipart"] == true) {
-              upload = true;
-              uploadPath = data["mediaUpload"]["protocols"]["simple"]["path"];
-            }
-          }
-        }
-      }
+    if (data.mediaUpload != null) {
+      uploadPath = data.mediaUpload.protocols.simple.path;
     }
 
-    if (upload) {
+    if (uploadPath != null) {
       optParams.add("core.String content");
       optParams.add("core.String contentType");
       _writeParamComment(sink, "content", {"description": "Base64 Data of the file content to be uploaded"});
       _writeParamComment(sink, "contentType", {"description": "MimeType of the file to be uploaded"});
     }
-    if (data.containsKey("parameters")) {
-      data["parameters"].forEach((name, description) {
-        if (!description.containsKey("gen_included")) {
-          var type = parameterType[description["type"]];
-          if (description.containsKey("format")) {
-             if (description["type"] == "string" && description["format"] == "int64") {
-               type = "core.int";
-             }
-          }
-          if (type != null) {
-            var variable = escapeParameter(cleanName(name));
-            _writeParamComment(sink, variable, description);
-            if (description.containsKey("repeated") && description["repeated"] == true) {
-              optParams.add("core.List<$type> $variable");
-            } else {
-              optParams.add("$type $variable");
-            }
+    if (data.parameters != null) {
+      data.parameters.forEach((name, JsonSchema description) {
+        if (!genIncluded.contains(description)) {
+          var type = _getDartType(description);
+          var variable = escapeParameter(cleanName(name));
+          _writeParamComment(sink, variable, description.toJson());
+          if (description.repeated == true) {
+            optParams.add("core.List<$type> $variable");
+          } else {
+            optParams.add("$type $variable");
           }
         }
       });
@@ -485,38 +464,32 @@ part "$srcFolder/console/$_name.dart";
 
     sink.write("   */\n");
     var response = null;
-    if (data.containsKey("response")) {
-      response = "async.Future<${data["response"]["\$ref"]}>";
+    if (data.response != null) {
+      response = "async.Future<${_getRef(data.response)}>";
     } else {
       response = "async.Future<core.Map>";
     }
 
     sink.write("  $response $name(${params.join(", ")}) {\n");
-    sink.write("    var url = \"${data["path"]}\";\n");
-    if (upload) {
+    sink.write("    var url = \"${data.path}\";\n");
+    if (uploadPath != null) {
       sink.write("    var uploadUrl = \"$uploadPath\";\n");
     }
     sink.write("    var urlParams = new core.Map();\n");
     sink.write("    var queryParams = new core.Map();\n\n");
     sink.write("    var paramErrors = new core.List();\n");
 
-    if (data.containsKey("parameters")) {
-      data["parameters"].forEach((name, description) {
+    if (data.parameters != null) {
+      data.parameters.forEach((name, JsonSchema description) {
         var variable = escapeParameter(cleanName(name));
         var location = "queryParams";
-        if (description["location"] == "path") { location = "urlParams"; }
-        if (description["required"] == true) {
+        if (description.location == "path") { location = "urlParams"; }
+        if (description.required == true) {
           sink.write("    if ($variable == null) paramErrors.add(\"$variable is required\");\n");
         }
-        if (description["enum"] != null) {
-          var list = new StringBuffer();
-          var values = new StringBuffer();
-          description["enum"].forEach((value) {
-            if (!list.isEmpty) list.write(", ");
-            if (!values.isEmpty) values.write(", ");
-            list.write("\"$value\"");
-            values.write(value);
-          });
+        if(description.enumProperty != null) {
+          var list = description.enumProperty.map((i) => "\"$i\"").join(', ');
+          var values = description.enumProperty.join(', ');
           sink.write("    if ($variable != null && ![$list].contains($variable)) {\n");
           sink.write("      paramErrors.add(\"Allowed values for $variable: $values\");\n");
           sink.write("    }\n");
@@ -541,7 +514,7 @@ part "$srcFolder/console/$_name.dart";
 """);
 
     var call, uploadCall;
-    if (data.containsKey("request")) {
+    if (data.request != null) {
       call = "body: request.toString(), urlParams: urlParams, queryParams: queryParams";
       uploadCall = "request.toString(), content, contentType, urlParams: urlParams, queryParams: queryParams";
     } else {
@@ -550,33 +523,33 @@ part "$srcFolder/console/$_name.dart";
     }
 
     sink.write("    var response;\n");
-    if (upload) {
+    if (uploadPath != null) {
       sink.write("    if (content != null) {\n");
-      sink.write("      response = ${noResource ? "this" : "_client"}.upload(uploadUrl, \"${data["httpMethod"]}\", $uploadCall);\n");
+      sink.write("      response = ${noResource ? "this" : "_client"}.upload(uploadUrl, \"${data.httpMethod}\", $uploadCall);\n");
       sink.write("    } else {\n");
-      sink.write("      response = ${noResource ? "this" : "_client"}.request(url, \"${data["httpMethod"]}\", $call);\n");
+      sink.write("      response = ${noResource ? "this" : "_client"}.request(url, \"${data.httpMethod}\", $call);\n");
       sink.write("    }\n");
     } else {
-      sink.write("    response = ${noResource ? "this" : "_client"}.request(url, \"${data["httpMethod"]}\", $call);\n");
+      sink.write("    response = ${noResource ? "this" : "_client"}.request(url, \"${data.httpMethod}\", $call);\n");
     }
 
-    if (data.containsKey("response")) {
+    if (data.response != null) {
       sink.write("    return response\n");
-      sink.write("      .then((data) => new ${data["response"]["\$ref"]}.fromJson(data));\n");
+      sink.write("      .then((data) => new ${_getRef(data.response)}.fromJson(data));\n");
     } else {
       sink.write("    return response;\n");
     }
     sink.write("  }\n");
   }
 
-  void _writeResourceClass(StringSink sink, String name, Map data) {
+  void _writeResourceClass(StringSink sink, String name, RestResource data) {
     var className = "${capitalize(name)}Resource_";
 
     sink.write("class $className extends Resource {\n");
 
-    if (data.containsKey("resources")) {
+    if (data.resources != null) {
       sink.write("\n");
-      data["resources"].forEach((key, resource) {
+      data.resources.forEach((key, RestResource resource) {
         var subClassName = "${capitalize(name)}${capitalize(key)}Resource_";
         sink.write("  $subClassName _$key;\n");
         sink.write("  $subClassName get $key => _$key;\n");
@@ -584,16 +557,16 @@ part "$srcFolder/console/$_name.dart";
     }
 
     sink.write("\n  $className(Client client) : super(client) {\n");
-    if (data.containsKey("resources")) {
-      data["resources"].forEach((key, resource) {
+    if (data.resources != null) {
+      data.resources.forEach((key, RestResource resource) {
         var subClassName = "${capitalize(name)}${capitalize(key)}Resource_";
         sink.write("  _$key = new $subClassName(client);\n");
       });
     }
     sink.write("  }\n");
 
-    if (data.containsKey("methods")) {
-      data["methods"].forEach((key, method) {
+    if (data.methods != null) {
+      data.methods.forEach((key, RestMethod method) {
         sink.write("\n");
         _writeMethod(sink, key, method);
       });
@@ -601,14 +574,14 @@ part "$srcFolder/console/$_name.dart";
 
     sink.write("}\n\n");
 
-    if (data.containsKey("resources")) {
-      data["resources"].forEach((key, resource) {
+    if (data.resources != null) {
+      data.resources.forEach((key, RestResource resource) {
         _writeResourceClass(sink, "${capitalize(name)}${capitalize(key)}", resource);
       });
     }
   }
 
-  String get _rootUriOrigin => Uri.parse(_json['rootUrl']).origin;
+  String get _rootUriOrigin => Uri.parse(_description.rootUrl).origin;
 
   void _writeClientClass(StringSink sink) {
     sink.write("""part of $_libraryName;
@@ -617,7 +590,7 @@ part "$srcFolder/console/$_name.dart";
  * Base class for all API clients, offering generic methods for HTTP Requests to the API
  */
 abstract class Client {
-  core.String basePath = \"${_json["basePath"]}\";
+  core.String basePath = \"${_description.basePath}\";
   core.String rootUrl = \"${_rootUriOrigin}/\";
   core.bool makeAuthRequests = false;
   final core.Map params = {};
@@ -657,52 +630,45 @@ abstract class Client {
 
 """);
 
-    if (_json.containsKey("resources")) {
+    if (_description.resources != null) {
       sink.writeln("""
   //
   // Resources
   //
 """);
-      _json["resources"].forEach((key, resource) {
+      _description.resources.forEach((key, resource) {
         var subClassName = "${capitalize(key)}Resource_";
         sink.writeln("  $subClassName get $key => new $subClassName(this);");
       });
     }
     sink.writeln();
 
-    if (_json.containsKey("parameters")) {
+    if (_description.parameters!= null) {
       sink.writeln("""
   //
   // Parameters
   //""");
-      _json["parameters"].forEach((key, param) {
-        var type = parameterType[param["type"]];
-        if (param.containsKey("format")) {
-          if (param["type"] == "string" && param["format"] == "int64") {
-            type = "core.int";
-          }
+      _description.parameters.forEach((String key, JsonSchema param) {
+        var type = _getDartType(param);
+        sink.write("\n");
+        sink.write("  /**\n");
+        if (param.description != null) {
+          sink.write("   * ${param.description}\n");
         }
-        if (type != null) {
-          sink.write("\n");
-          sink.write("  /**\n");
-          if (param.containsKey("description")) {
-            sink.write("   * ${param["description"]}\n");
-          }
-          sink.write("   * Added as queryParameter for each request.\n");
-          sink.write("   */\n");
-          sink.write("  $type get $key => params[\"$key\"];\n");
-          sink.write("  set $key($type value) => params[\"$key\"] = value;\n");
-        }
+        sink.write("   * Added as queryParameter for each request.\n");
+        sink.write("   */\n");
+        sink.write("  $type get $key => params[\"$key\"];\n");
+        sink.write("  set $key($type value) => params[\"$key\"] = value;\n");
       });
     }
 
-    if (_json.containsKey("methods")) {
+    if (_description.methods != null) {
       sink.writeln("""
 
   //
   // Methods
   //""");
-      _json["methods"].forEach((key, method) {
+      _description.methods.forEach((String key, RestMethod method) {
         sink.write("\n");
         _writeMethod(sink, key, method, true);
       });
@@ -966,6 +932,22 @@ abstract class ConsoleClient extends Client {
 }
 """;
 
+  static const String _mapMapFunction = """
+core.Map _mapMap(core.Map source, [core.Object convert(core.Object source) = null]) {
+  assert(source != null);
+  var result = new dart_collection.LinkedHashMap();
+  source.forEach((core.String key, value) {
+    assert(key != null);
+    if(convert == null) {
+      result[key] = value;
+    } else {
+      result[key] = convert(value);
+    }
+  });
+  return result;
+}
+""";
+
   String get _createHopRunner => """
 library hop_runner;
 
@@ -987,143 +969,4 @@ void main() {
   runHop();
 }
 """;
-}
-
-class _SchemaProp {
-  final bool isArray;
-  final bool isObject;
-  final schemaType;
-  final schemaFormat;
-  final String sourceName;
-  final type;
-  final Map subSchemas;
-  final String description;
-
-  final String propName;
-  final String jsonName;
-
-  factory _SchemaProp.parse(String parentName, String key, Map<String, dynamic> property) {
-    Map subSchemas = new Map();
-
-    var schemaType = property["type"];
-    var schemaFormat = "";
-    if (property.containsKey("format")) {
-      schemaFormat = property["format"];
-    }
-    bool array = false;
-    bool object = false;
-    var type;
-    if (schemaType == "array") {
-      array = true;
-      schemaType = property["items"]["type"];
-      schemaFormat = "";
-      if (property["items"].containsKey("format")) {
-        schemaFormat = property["items"]["format"];
-      }
-    }
-    switch(schemaType) {
-      case "object":
-        object = true;
-        var subSchemaName = "${capitalize(parentName)}${capitalize(key)}";
-        type = subSchemaName;
-        if (array) {
-          subSchemas[subSchemaName] = property["items"];
-        } else {
-          subSchemas[subSchemaName] = property;
-        }
-        break;
-      case "string":
-        type = "core.String";
-        if (schemaFormat == "int64") {
-          type = "core.int";
-        }
-        break;
-      case "number": type = "core.num"; break;
-      case "integer": type = "core.int"; break;
-      case "boolean": type = "core.bool"; break;
-    }
-    if (type == null) {
-      object = true;
-      if (array) {
-        type = property["items"]["\$ref"];
-      } else {
-        type = property["\$ref"];
-      }
-    }
-
-    if(type == null) {
-      print('\tWARNING: could not calculate property for $parentName - $key');
-      return null;
-    }
-
-    return new _SchemaProp(array, object, key, schemaType, schemaFormat, type, subSchemas, property['description']);
-  }
-
-  _SchemaProp(this.isArray, this.isObject, String sourceName, this.schemaType, this.schemaFormat, this.type, this.subSchemas, this.description) :
-    this.sourceName = sourceName,
-    propName = escapeProperty(cleanName(sourceName)),
-    jsonName = sourceName.replaceAll("\$", "\\\$") {
-    assert(this.type != null);
-  }
-
-  void writeField(StringSink sink) {
-    if (description != null) {
-      sink.write("\n  /** $description */\n");
-    }
-    if (isArray) {
-      sink.write("  core.List<$type> $propName;\n");
-    } else {
-      sink.write("  $type $propName;\n");
-    }
-  }
-
-  void writeToJson(StringSink sink) {
-    sink.write("    if ($propName != null) {\n");
-    if (isArray) {
-      sink.write("      output[\"$jsonName\"] = new core.List();\n");
-      sink.write("      $propName.forEach((item) {\n");
-      if (isObject) {
-        sink.write("        output[\"$jsonName\"].add(item.toJson());\n");
-      } else {
-        sink.write("        output[\"$jsonName\"].add(item);\n");
-      }
-      sink.write("      });\n");
-    } else {
-      if (isObject) {
-        sink.write("      output[\"$jsonName\"] = $propName.toJson();\n");
-      } else {
-        sink.write("      output[\"$jsonName\"] = $propName;\n");
-      }
-    }
-    sink.write("    }\n");
-  }
-
-  void writeFromJson(StringSink sink) {
-    sink.write("    if (json.containsKey(\"$jsonName\")) {\n");
-    if (isArray) {
-      sink.write("      $propName = [];\n");
-      sink.write("      json[\"$jsonName\"].forEach((item) {\n");
-      if (isObject) {
-        sink.write("        $propName.add(new $type.fromJson(item));\n");
-      } else {
-        sink.write("        $propName.add(item);\n");
-      }
-      sink.write("      });\n");
-    } else {
-      if (isObject) {
-        sink.write("      $propName = new $type.fromJson(json[\"$jsonName\"]);\n");
-      } else {
-        if(schemaType=="string" && schemaFormat == "int64") {
-          sink.write("      if(json[\"$jsonName\"] is core.String){\n");
-          sink.write("        $propName = core.int.parse(json[\"$jsonName\"]);\n");
-          sink.write("      }else{\n");
-          sink.write("        $propName = json[\"$jsonName\"];\n");
-          sink.write("      }\n");
-        } else{
-          sink.write("      $propName = json[\"$jsonName\"];\n");
-        }
-      }
-    }
-    sink.write("    }\n");
-  }
 }
