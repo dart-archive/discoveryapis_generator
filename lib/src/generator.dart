@@ -30,11 +30,12 @@ class Generator {
   String get _version => _description.version;
 
   String get _shortName => cleanName("${_name}_${_version}").toLowerCase();
-  String get _gitName => cleanName("dart_${_name}_${_version}_api_client").toLowerCase();
 
-  String get _libraryName => cleanName("${_name}_${_version}_api_client").toLowerCase();
-  String get _libraryBrowserName => cleanName("${_name}_${_version}_api_browser").toLowerCase();
-  String get _libraryConsoleName => cleanName("${_name}_${_version}_api_console").toLowerCase();
+  String get _libraryName => "${_shortName}_api_client";
+  String get _gitName => "dart_${_libraryName}";
+
+  String get _libraryBrowserName => "${_shortName}_api_browser";
+  String get _libraryConsoleName => "${_shortName}_api_console";
 
   bool generateClient(String outputDirectory, {bool check: false, bool force: false, int forceVersion}) {
     var mainFolder = "$outputDirectory/$_gitName";
