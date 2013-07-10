@@ -129,11 +129,11 @@ void main() {
     assert(prefix != null && !prefix.isEmpty);
   }
 
-  if (!all) {
+  if(api != null) {
+    generateLibrary(api, version, output, prefix: prefix, check: check, force: force);
+  } else if(!all) {
     Future<String> loader;
-    if (api != null) {
-      loader = loadDocumentFromGoogle(api, version);
-    } else if (url != null) {
+    if (url != null) {
       loader = loadCustomUrl(url);
     } else {
       assert(input != null);
@@ -141,19 +141,9 @@ void main() {
     }
 
     loader.then((String doc) {
-      var generator = new Generator(doc, prefix);
-      generator.generateClient(output, check: check, force: force);
+      generateLibraryFromSource(doc, output, prefix: prefix, check: check, force: force);
     });
   } else {
-    loadGoogleAPIList()
-      .then((DirectoryList list) {
-        Future.forEach(list.items, (DirectoryListItems item) {
-          return loadDocumentFromUrl(item.discoveryRestUrl)
-              .then((String doc) {
-                var generator = new Generator(doc, prefix);
-                generator.generateClient(output, check: check, force: force);
-              });
-        });
-      });
+    generateAllLibraries(output, prefix: prefix, check: check, force: force);
   }
 }

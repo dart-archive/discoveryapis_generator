@@ -9,22 +9,16 @@ class Generator {
   final RestDescription _description;
   final String _prefix;
 
+  Generator(this._description, this._prefix) {
+    assert(this._description != null);
+    assert(this._description.name != null);
+    assert(this._prefix != null);
+  }
+
   String get _libraryPubspecName {
     var prefix = (_prefix.isEmpty) ? '' : _prefix + "_";
-    return cleanName("${prefix}${_name}_${_version}_api").toLowerCase();
+    return cleanName("${prefix}${_shortName}_api").toLowerCase();
   }
-
-  factory Generator(String data, [String prefix = "google"]) {
-    var json = JSON.parse(data);
-    var description = new RestDescription.fromJson(json);
-
-    // paranoid check of input
-    assert(description.name != null);
-
-    return new Generator.core(description, prefix);
-  }
-
-  Generator.core(this._description, this._prefix);
 
   String get _name => _description.name;
   String get _version => _description.version;
