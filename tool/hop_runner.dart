@@ -9,14 +9,18 @@ void main() {
 
   addTask('test', createUnitTestTask(test_console.testCore));
 
-  addTask('docs', createDartDocTask(['lib/generator.dart'], linkApi: true));
+  addTask('docs', createDartDocTask(
+      ['lib/generator.dart', 'lib/schemas.dart'],
+      linkApi: true));
 
   //
   // Analyzer
   //
-  addTask('analyze', createAnalyzerTask(['lib/generator.dart',
-                                             'bin/generate.dart',
-                                             'tool/update.dart'
-                                             ]));
+  addTask('analyze', createAnalyzerTask(
+      [
+       'lib/generator.dart',
+       'lib/schemas.dart',
+       'bin/generate.dart',
+       'tool/update.dart']));
   runHop();
 }
