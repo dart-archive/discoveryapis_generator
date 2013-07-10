@@ -14,5 +14,6 @@ dependencies:
   meta: '>=0.6.0'
   pathos: '>=0.6.0'
 dev_dependencies:
+  bot_io: '>=0.21.2'
   hop: '>=0.22.2'
   unittest: '>=0.6.0'
