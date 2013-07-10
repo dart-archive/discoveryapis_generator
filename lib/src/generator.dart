@@ -15,10 +15,11 @@ class Generator {
   }
 
   factory Generator(String data, [String prefix = "google"]) {
-
     var json = JSON.parse(data);
-
     var description = new RestDescription.fromJson(json);
+
+    // paranoid check of input
+    assert(description.name != null);
 
     return new Generator.core(description, prefix);
   }
@@ -27,14 +28,14 @@ class Generator {
 
   String get _name => _description.name;
   String get _version => _description.version;
-  String get _etag => _description.etag;
 
   String get _shortName => cleanName("${_name}_${_version}").toLowerCase();
-  String get _gitName => cleanName("dart_${_name}_${_version}_api_client").toLowerCase();
 
-  String get _libraryName => cleanName("${_name}_${_version}_api_client").toLowerCase();
-  String get _libraryBrowserName => cleanName("${_name}_${_version}_api_browser").toLowerCase();
-  String get _libraryConsoleName => cleanName("${_name}_${_version}_api_console").toLowerCase();
+  String get _libraryName => "${_shortName}_api_client";
+  String get _gitName => "dart_${_libraryName}";
+
+  String get _libraryBrowserName => "${_shortName}_api_browser";
+  String get _libraryConsoleName => "${_shortName}_api_console";
 
   bool generateClient(String outputDirectory, {bool check: false, bool force: false, int forceVersion}) {
     var mainFolder = "$outputDirectory/$_gitName";
@@ -60,7 +61,7 @@ class Generator {
           clientVersionBuild = (forceVersion != null) ? forceVersion : int.parse(version.substring(clientVersion.length + 1)) + 1;
         } else {
           if (version.startsWith(clientVersion)) {
-            if (etag == _etag) {
+            if (etag == _description.etag) {
               print("Nothing changed for $_libraryName");
               return false;
             } else {
@@ -111,7 +112,7 @@ class Generator {
 
     _writeString("$mainFolder/CONTRIBUTORS", _contributors);
 
-    _writeString("$mainFolder/VERSION", _etag);
+    _writeString("$mainFolder/VERSION", _description.etag);
 
     // Create common library files
 
@@ -307,278 +308,6 @@ part "$srcFolder/console/$_name.dart";
     sink.writeln("  ${capitalize(_name)}([oauth2.OAuth2Console this.auth]);");
 
     sink.write("}\n");
-  }
-
-  void _writeSchemaClass(StringSink sink, String name, JsonSchema data) {
-    if (data.description != null) {
-      sink.write("/** ${data.description} */\n");
-    }
-
-    sink.write("class ${capitalize(name)} {\n");
-
-    var props = new List<CoreSchemaProp>();
-
-    if(data.properties != null) {
-      data.properties.forEach((key, JsonSchema property) {
-        var prop = new CoreSchemaProp.parse(name, key, property);
-        if(prop != null) {
-          props.add(prop);
-        }
-      });
-    } else {
-      print('\tWeird to get no properties for $name');
-      print('\t\t${JSON.stringify(data)}');
-    }
-
-    props.forEach((property) {
-      property.writeField(sink);
-    });
-
-    sink.write("\n");
-    sink.write("  /** Create new $name from JSON data */\n");
-    sink.write("  ${capitalize(name)}.fromJson(core.Map json) {\n");
-    props.forEach((property) {
-      property.writeFromJson(sink);
-    });
-
-    sink.write("  }\n\n");
-
-    sink.write("  /** Create JSON Object for $name */\n");
-    sink.write("  core.Map toJson() {\n");
-    sink.write("    var output = new core.Map();\n\n");
-    props.forEach((property) {
-      property.writeToJson(sink);
-    });
-    sink.write("\n    return output;\n");
-    sink.write("  }\n\n");
-
-    sink.write("  /** Return String representation of $name */\n");
-    sink.write("  core.String toString() => JSON.stringify(this.toJson());\n\n");
-
-    sink.write("}\n\n");
-
-    props.forEach((property) {
-      property.getSubSchemas().forEach((String key, JsonSchema value) {
-        _writeSchemaClass(sink, key, value);
-      });
-    });
-  }
-
-  void _writeParamComment(StringSink sink, String name, Map description) {
-    sink.write("   *\n");
-    sink.write("   * [$name]");
-    if (description.containsKey("description")) {
-      sink.write(" - ${description["description"]}");
-    }
-    sink.write("\n");
-    if (description.containsKey("default")) {
-      sink.write("   *   Default: ${description["default"]}\n");
-    }
-    if (description.containsKey("minimum")) {
-      sink.write("   *   Minimum: ${description["minimum"]}\n");
-    }
-    if (description.containsKey("maximum")) {
-      sink.write("   *   Maximum: ${description["maximum"]}\n");
-    }
-    if (description.containsKey("repeated") && description["repeated"] == true) {
-      sink.write("   *   Repeated values: allowed\n");
-    }
-    if (description.containsKey("enum")) {
-      sink.write("   *   Allowed values:\n");
-      for (var i = 0; i < description["enum"].length; i++) {
-        sink.write("   *     ${description["enum"][i]}");
-        if (description.containsKey("enumDescriptions")) {
-          sink.write(" - ${description["enumDescriptions"][i]}");
-        }
-        sink.write("\n");
-      }
-    }
-  }
-
-  /// Create a method with [name] inside of a class, based on [data]
-  void _writeMethod(StringSink sink, String name, RestMethod data, [bool noResource = false]) {
-    String uploadPath = null;
-
-    name = escapeMethod(cleanName(name));
-
-    sink.write("  /**\n");
-    if (data.description != null) {
-      sink.write("   * ${data.description}\n");
-    }
-
-    var genIncluded = new Set<JsonSchema>();
-
-    var params = new List<String>();
-    var optParams = new List<String>();
-
-    if (data.request != null) {
-      params.add("${_getRef(data.request)} request");
-      _writeParamComment(sink, "request", {"description": "${_getRef(data.request)} to send in this request"});
-    }
-    if (data.parameterOrder != null && data.parameters != null) {
-      data.parameterOrder.forEach((param) {
-        if (data.parameters.containsKey(param)) {
-          var paramSchema = data.parameters[param];
-          var type = _getDartType(paramSchema);
-          var variable = escapeParameter(cleanName(param));
-          _writeParamComment(sink, variable, paramSchema.toJson());
-          if (paramSchema.repeated == true) {
-            params.add("core.List<$type> $variable");
-          } else {
-            params.add("$type $variable");
-          }
-          genIncluded.add(paramSchema);
-        }
-      });
-    }
-
-    if (data.mediaUpload != null) {
-      uploadPath = data.mediaUpload.protocols.simple.path;
-    }
-
-    if (uploadPath != null) {
-      optParams.add("core.String content");
-      optParams.add("core.String contentType");
-      _writeParamComment(sink, "content", {"description": "Base64 Data of the file content to be uploaded"});
-      _writeParamComment(sink, "contentType", {"description": "MimeType of the file to be uploaded"});
-    }
-    if (data.parameters != null) {
-      data.parameters.forEach((name, JsonSchema description) {
-        if (!genIncluded.contains(description)) {
-          var type = _getDartType(description);
-          var variable = escapeParameter(cleanName(name));
-          _writeParamComment(sink, variable, description.toJson());
-          if (description.repeated == true) {
-            optParams.add("core.List<$type> $variable");
-          } else {
-            optParams.add("$type $variable");
-          }
-        }
-      });
-    }
-
-    optParams.add("core.Map optParams");
-    _writeParamComment(sink, "optParams", {"description": "Additional query parameters"});
-
-    params.add("{${optParams.join(", ")}}");
-
-    sink.write("   */\n");
-    var response = null;
-    if (data.response != null) {
-      response = "async.Future<${_getRef(data.response)}>";
-    } else {
-      response = "async.Future<core.Map>";
-    }
-
-    sink.write("  $response $name(${params.join(", ")}) {\n");
-    sink.write("    var url = \"${data.path}\";\n");
-    if (uploadPath != null) {
-      sink.write("    var uploadUrl = \"$uploadPath\";\n");
-    }
-    sink.write("    var urlParams = new core.Map();\n");
-    sink.write("    var queryParams = new core.Map();\n\n");
-    sink.write("    var paramErrors = new core.List();\n");
-
-    if (data.parameters != null) {
-      data.parameters.forEach((name, JsonSchema description) {
-        var variable = escapeParameter(cleanName(name));
-        var location = "queryParams";
-        if (description.location == "path") { location = "urlParams"; }
-        if (description.required == true) {
-          sink.write("    if ($variable == null) paramErrors.add(\"$variable is required\");\n");
-        }
-        if(description.enumProperty != null) {
-          var list = description.enumProperty.map((i) => "\"$i\"").join(', ');
-          var values = description.enumProperty.join(', ');
-          sink.write("    if ($variable != null && ![$list].contains($variable)) {\n");
-          sink.write("      paramErrors.add(\"Allowed values for $variable: $values\");\n");
-          sink.write("    }\n");
-        }
-        sink.write("    if ($variable != null) $location[\"$name\"] = $variable;\n");
-      });
-    }
-
-    sink.write("""
-    if (optParams != null) {
-      optParams.forEach((key, value) {
-        if (value != null && queryParams[key] == null) {
-          queryParams[key] = value;
-        }
-      });
-    }
-
-    if (!paramErrors.isEmpty) {
-      throw new core.ArgumentError(paramErrors.join(" / "));
-    }
-
-""");
-
-    var call, uploadCall;
-    if (data.request != null) {
-      call = "body: request.toString(), urlParams: urlParams, queryParams: queryParams";
-      uploadCall = "request.toString(), content, contentType, urlParams: urlParams, queryParams: queryParams";
-    } else {
-      call = "urlParams: urlParams, queryParams: queryParams";
-      uploadCall = "null, content, contentType, urlParams: urlParams, queryParams: queryParams";
-    }
-
-    sink.write("    var response;\n");
-    if (uploadPath != null) {
-      sink.write("    if (content != null) {\n");
-      sink.write("      response = ${noResource ? "this" : "_client"}.upload(uploadUrl, \"${data.httpMethod}\", $uploadCall);\n");
-      sink.write("    } else {\n");
-      sink.write("      response = ${noResource ? "this" : "_client"}.request(url, \"${data.httpMethod}\", $call);\n");
-      sink.write("    }\n");
-    } else {
-      sink.write("    response = ${noResource ? "this" : "_client"}.request(url, \"${data.httpMethod}\", $call);\n");
-    }
-
-    if (data.response != null) {
-      sink.write("    return response\n");
-      sink.write("      .then((data) => new ${_getRef(data.response)}.fromJson(data));\n");
-    } else {
-      sink.write("    return response;\n");
-    }
-    sink.write("  }\n");
-  }
-
-  void _writeResourceClass(StringSink sink, String name, RestResource data) {
-    var className = "${capitalize(name)}Resource_";
-
-    sink.write("class $className extends Resource {\n");
-
-    if (data.resources != null) {
-      sink.write("\n");
-      data.resources.forEach((key, RestResource resource) {
-        var subClassName = "${capitalize(name)}${capitalize(key)}Resource_";
-        sink.write("  $subClassName _$key;\n");
-        sink.write("  $subClassName get $key => _$key;\n");
-      });
-    }
-
-    sink.write("\n  $className(Client client) : super(client) {\n");
-    if (data.resources != null) {
-      data.resources.forEach((key, RestResource resource) {
-        var subClassName = "${capitalize(name)}${capitalize(key)}Resource_";
-        sink.write("  _$key = new $subClassName(client);\n");
-      });
-    }
-    sink.write("  }\n");
-
-    if (data.methods != null) {
-      data.methods.forEach((key, RestMethod method) {
-        sink.write("\n");
-        _writeMethod(sink, key, method);
-      });
-    }
-
-    sink.write("}\n\n");
-
-    if (data.resources != null) {
-      data.resources.forEach((key, RestResource resource) {
-        _writeResourceClass(sink, "${capitalize(name)}${capitalize(key)}", resource);
-      });
-    }
   }
 
   String get _rootUriOrigin => Uri.parse(_description.rootUrl).origin;
