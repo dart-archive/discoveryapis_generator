@@ -4,6 +4,7 @@ import 'dart:async';
 import "dart:json" as JSON;
 import "dart:io";
 import "package:args/args.dart";
+import 'package:discovery_api_client_generator/schemas.dart';
 import "package:discovery_api_client_generator/generator.dart";
 
 void printUsage(parser) {
@@ -144,14 +145,15 @@ void main() {
       generator.generateClient(output, check: check, force: force);
     });
   } else {
-    loadGoogleAPIList().then((Map apis) {
-      Future.forEach(apis["items"], (Map item) {
-        return loadDocumentFromUrl(item["discoveryRestUrl"])
-            .then((String doc) {
-              var generator = new Generator(doc, prefix);
-              generator.generateClient(output, check: check, force: force);
-            });
+    loadGoogleAPIList()
+      .then((DirectoryList list) {
+        Future.forEach(list.items, (DirectoryListItems item) {
+          return loadDocumentFromUrl(item.discoveryRestUrl)
+              .then((String doc) {
+                var generator = new Generator(doc, prefix);
+                generator.generateClient(output, check: check, force: force);
+              });
+        });
       });
-    });
   }
 }

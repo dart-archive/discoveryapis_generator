@@ -33,5 +33,7 @@ Future<String> loadDocumentFromFile(String fileName) {
   return file.readAsString();
 }
 
-Future<Map<String, Map>> loadGoogleAPIList() => loadDocumentFromUrl(_discoveryUrl)
-  .then((data) => JSON.parse(data));
+Future<DirectoryList> loadGoogleAPIList() =>
+    loadDocumentFromUrl(_discoveryUrl)
+    .then(JSON.parse)
+    .then((Map json) => new DirectoryList.fromJson(json));
