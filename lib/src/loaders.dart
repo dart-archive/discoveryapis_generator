@@ -33,5 +33,5 @@ Future<String> loadDocumentFromFile(String fileName) {
   return file.readAsString();
 }
 
-Future<Map> loadGoogleAPIList() => loadDocumentFromUrl(_discoveryUrl)
+Future<Map<String, Map>> loadGoogleAPIList() => loadDocumentFromUrl(_discoveryUrl)
   .then((data) => JSON.parse(data));

@@ -102,7 +102,9 @@ void main() {
     return;
   }
 
-  var output = result[_argOutput];
+  String output = result[_argOutput];
+  // TODO: validate valid path?
+
   bool useDate = result[_argDate];
   assert(useDate != null);
 
@@ -137,15 +139,15 @@ void main() {
       loader = loadDocumentFromFile(input);
     }
 
-    loader.then((doc) {
+    loader.then((String doc) {
       var generator = new Generator(doc, prefix);
       generator.generateClient(output, check: check, force: force);
     });
   } else {
-    loadGoogleAPIList().then((apis) {
-      Future.forEach(apis["items"], (item) {
+    loadGoogleAPIList().then((Map apis) {
+      Future.forEach(apis["items"], (Map item) {
         return loadDocumentFromUrl(item["discoveryRestUrl"])
-            .then((doc) {
+            .then((String doc) {
               var generator = new Generator(doc, prefix);
               generator.generateClient(output, check: check, force: force);
             });
