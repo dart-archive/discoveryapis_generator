@@ -7,12 +7,15 @@ import "package:args/args.dart";
 import "package:discovery_api_client_generator/generator.dart";
 
 void printUsage(parser) {
-  print("discovery_api_client_generator: creates a Client library based on a discovery document\n");
-  print("Usage:");
-  print("   generate.dart -a <API> -v <Version> [-o <Directory>] (to load from Google Discovery API)");
-  print("or generate.dart -u <URL> [-o <Directory>] (to load discovery document from specified URL)");
-  print("or generate.dart -i <File> [-o <Directory>] (to load discovery document from local file)");
-  print("or generate.dart --all [-o <Directory>] (to create libraries for all Google APIs)");
+  print("""
+discovery_api_client_generator: creates a Client library based on a discovery document
+
+Usage:
+   generate.dart -a <API> -v <Version> [-o <Directory>] (to load from Google Discovery API)
+or generate.dart -u <URL> [-o <Directory>] (to load discovery document from specified URL)
+or generate.dart -i <File> [-o <Directory>] (to load discovery document from local file)
+or generate.dart --all [-o <Directory>] (to create libraries for all Google APIs)
+""");
   print(parser.getUsage());
 }
 
@@ -29,29 +32,34 @@ const _argOutput = 'output';
 const _argDate = 'date';
 const _argNoPrefix = 'no-prefix';
 
-void main() {
+ArgParser _getParser() => new ArgParser()
+  ..addOption(_argApi, abbr: "a", help: "Short name of the Google API (plus, drive, ...)")
+  ..addOption(_argVersion, abbr: "v", help: "Google API version (v1, v2, v1alpha, ...)")
+  ..addOption(_argInput, abbr: "i", help: "Local Discovery document file")
+  ..addOption(_argUrl, abbr: "u", help: "URL of a Discovery document")
+  ..addOption(_argPrefix, abbr: "p", help: "Prefix for library name", defaultsTo: "google")
+  ..addFlag(_argNoPrefix, help: "No prefix for library name", negatable: false)
+  ..addFlag(_argAll, help: "Create client libraries for all Google APIs", negatable: false)
+  ..addOption(_argOutput, abbr: "o", help: "Output Directory", defaultsTo: "output/")
+  ..addFlag(_argDate, help: "Create sub folder with current date", negatable: false)
+  ..addFlag(_argCheck, help: "Check for changes against existing version if available", negatable: false)
+  ..addFlag(_argForce, help: "Force client version update even if no changes", negatable: false)
+  ..addFlag(_argHelp, abbr: "h", help: "Display this information and exit", negatable: false);
+
+ArgResults _getParserResults(ArgParser parser) {
   final options = new Options();
-  var parser = new ArgParser();
-  parser.addOption(_argApi, abbr: "a", help: "Short name of the Google API (plus, drive, ...)");
-  parser.addOption(_argVersion, abbr: "v", help: "Google API version (v1, v2, v1alpha, ...)");
-  parser.addOption(_argInput, abbr: "i", help: "Local Discovery document file");
-  parser.addOption(_argUrl, abbr: "u", help: "URL of a Discovery document");
-  parser.addOption(_argPrefix, abbr: "p", help: "Prefix for library name", defaultsTo: "google");
-  parser.addFlag(_argNoPrefix, help: "No prefix for library name", negatable: false);
-  parser.addFlag(_argAll, help: "Create client libraries for all Google APIs", negatable: false);
-  parser.addOption(_argOutput, abbr: "o", help: "Output Directory", defaultsTo: "output/");
-  parser.addFlag(_argDate, help: "Create sub folder with current date", negatable: false);
-  parser.addFlag(_argCheck, help: "Check for changes against existing version if available", negatable: false);
-  parser.addFlag(_argForce, help: "Force client version update even if no changes", negatable: false);
-  parser.addFlag(_argHelp, abbr: "h", help: "Display this information and exit", negatable: false);
-  var result;
   try {
-    result = parser.parse(options.arguments);
+    return parser.parse(options.arguments);
   } on FormatException catch(e) {
     print("Error parsing arguments:\n${e.message}\n");
     printUsage(parser);
-    return;
+    exit(1);
   }
+}
+
+void main() {
+  var parser = _getParser();
+  var result = _getParserResults(parser);
 
   bool help = result[_argHelp];
 
@@ -72,6 +80,9 @@ void main() {
       && !all) {
     print("Missing arguments\n");
     printUsage(parser);
+
+    exit(1);
+    // unneeded, but paranoid
     return;
   }
 
@@ -85,6 +96,9 @@ void main() {
   if (argumentErrors) {
     print("You can only define one kind of operation.\n");
     printUsage(parser);
+
+    exit(1);
+    // unneeded, but paranoid
     return;
   }
 
