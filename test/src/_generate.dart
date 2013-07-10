@@ -44,13 +44,27 @@ Future _testSingleLibraryGeneration() {
       .then((bool success) {
         expect(success, isTrue);
 
-        // TODO: a lot more validation here...
+        var expectedMap = _createLibValidate(libName, libVer);
+
+        return IoHelpers.verifyContents(tmpDir.dir, expectedMap);
+      })
+      .then((bool validates) {
+        expect(validates, isTrue);
       })
       .whenComplete(() {
         if(tmpDir != null) {
           return tmpDir.dispose();
         }
       });
+}
+
+Map _createLibValidate(String libName, String libVersion) {
+  final rootDir = 'dart_${libName}_${libVersion}_api_client';
+
+  var expectedMap = {};
+  expectedMap[rootDir] = new EntityExistsValidator(FileSystemEntityType.DIRECTORY);
+
+  return expectedMap;
 }
 
 final Matcher _hasUsageInStdOut = predicate((ProcessResult pr) => pr.stdout.contains("""Usage:
