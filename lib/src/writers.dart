@@ -238,25 +238,30 @@ void _writeMethod(StringSink sink, String name, RestMethod data, [bool noResourc
 void _writeResourceClass(StringSink sink, String name, RestResource data) {
   var className = "${capitalize(name)}Resource_";
 
-  sink.write("class $className extends Resource {\n");
+  sink.writeln("class $className {");
+  sink.writeln();
+  sink.writeln('  final Client _client;');
 
   if (data.resources != null) {
-    sink.write("\n");
+    sink.writeln('');
     data.resources.forEach((key, RestResource resource) {
       var subClassName = "${capitalize(name)}${capitalize(key)}Resource_";
-      sink.write("  $subClassName _$key;\n");
-      sink.write("  $subClassName get $key => _$key;\n");
+      sink.writeln('  final $subClassName $key;');
     });
   }
 
-  sink.write("\n  $className(Client client) : super(client) {\n");
-  if (data.resources != null) {
+  sink.writeln("\n  $className(Client client) :");
+  sink.write('      _client = client');
+  if (data.resources == null) {
+    sink.writeln(";");
+  } else {
     data.resources.forEach((key, RestResource resource) {
+      sink.writeln(",");
       var subClassName = "${capitalize(name)}${capitalize(key)}Resource_";
-      sink.write("  _$key = new $subClassName(client);\n");
+      sink.write('      $key = new $subClassName(client)');
     });
+    sink.writeln(";");
   }
-  sink.write("  }\n");
 
   if (data.methods != null) {
     data.methods.forEach((key, RestMethod method) {
