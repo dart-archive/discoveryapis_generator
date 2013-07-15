@@ -1,6 +1,6 @@
 part of discovery_api_client_generator;
 
-const String clientVersion = "0.1";
+const String clientVersion = "0.2";
 const String dartEnvironmentVersionConstraint = '>=0.5.20';
 const String jsDependenciesVersionConstraint = '>=0.0.23';
 const String googleOAuth2ClientVersionConstraint = '>=0.2.15';
@@ -141,7 +141,7 @@ class Generator {
 
   String _createPubspec(int clientVersionBuild) => """
 name: $_libraryPubspecName
-version: $clientVersion.$clientVersionBuild
+version: $clientVersion.${clientVersionBuild}-dev
 authors:
 - Gerwin Sturm <scarygami@gmail.com>
 - Adam Singer <financeCoding@gmail.com>
