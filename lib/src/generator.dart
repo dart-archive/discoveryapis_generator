@@ -165,18 +165,24 @@ Auto-generated client library for accessing the $_name $_version API.
     if (_description.icons != null && _description.icons.x16 != null) {
       sink.write("![Logo](${_description.icons.x16}) ");
     }
-    sink.write("${_description.title} - $_name $_version\n\n");
-    sink.write("${_description.description}\n\n");
+    sink.writeln('${_description.title} - $_name $_version');
+    sink.writeln();
+    sink.writeln('${_description.description}');
+    sink.writeln();
     if (_description.documentationLink != null) {
-      sink.write("Official API documentation: ${_description.documentationLink}\n\n");
+      sink.writeln('Official API documentation: ${_description.documentationLink}');
+      sink.writeln();
     }
-    sink.write("For web applications:\n```\nimport \"package:$_libraryPubspecName/$_libraryBrowserName.dart\" as ${cleanName(_name).toLowerCase()}client;\n```\n\n");
-    sink.write("For console application:\n```\nimport \"package:$_libraryPubspecName/$_libraryConsoleName.dart\" as ${cleanName(_name).toLowerCase()}client;\n```\n\n");
+    sink.writeln('For web applications:\n```\nimport \"package:$_libraryPubspecName/$_libraryBrowserName.dart\" as ${cleanName(_name).toLowerCase()}client;\n```');
+    sink.writeln();
+    sink.writeln('For console application:\n```\nimport \"package:$_libraryPubspecName/$_libraryConsoleName.dart\" as ${cleanName(_name).toLowerCase()}client;\n```');
+    sink.writeln();
 
-    sink.write("```\nvar ${cleanName(_name).toLowerCase()} = new ${cleanName(_name).toLowerCase()}client.${capitalize(_name)}();\n```\n\n");
-    sink.write("### Licenses\n\n```\n");
+    sink.writeln('```\nvar ${cleanName(_name).toLowerCase()} = new ${cleanName(_name).toLowerCase()}client.${capitalize(_name)}();\n```');
+    sink.writeln();
+    sink.writeln('### Licenses\n\n```');
     sink.write(_license);
-    sink.write("```\n");
+    sink.writeln('```');
   }
 
   String get _createLibrary => """
@@ -209,18 +215,18 @@ export "package:$_libraryPubspecName/src/$_libraryName.dart";
 """);
 
     if (_description.description != null) {
-      sink.write("/** ${_description.description} */\n");
+      sink.writeln('/** ${_description.description} */');
     } else {
-      sink.write("/** Client to access the $_name $_version API */\n");
+      sink.writeln('/** Client to access the $_name $_version API */');
     }
-    sink.write("class ${capitalize(_name)} extends Client with BrowserClient {\n");
+    sink.writeln('class ${capitalize(_name)} extends Client with BrowserClient {');
     _writeScopes(sink);
     sink.writeln();
     sink.writeln('  final oauth.OAuth2 auth;');
     sink.writeln();
     sink.writeln("  ${capitalize(_name)}([oauth.OAuth2 this.auth]);");
 
-    sink.write("}\n");
+    sink.writeln('}');
   }
 
   void _writeConsoleLibrary(StringSink sink) {
@@ -237,11 +243,11 @@ export "package:$_libraryPubspecName/src/$_libraryName.dart";
 """);
 
     if (_description.description != null) {
-      sink.write("/** ${_description.description} */\n");
+      sink.writeln('/** ${_description.description} */');
     } else {
-      sink.write("/** Client to access the $_name $_version API */\n");
+      sink.writeln('/** Client to access the $_name $_version API */');
     }
-    sink.write("class ${capitalize(_name)} extends Client with ConsoleClient {\n");
+    sink.writeln('class ${capitalize(_name)} extends Client with ConsoleClient {');
     _writeScopes(sink);
 
     sink.writeln();
@@ -249,7 +255,7 @@ export "package:$_libraryPubspecName/src/$_libraryName.dart";
     sink.writeln();
     sink.writeln("  ${capitalize(_name)}([oauth2.OAuth2Console this.auth]);");
 
-    sink.write("}\n");
+    sink.writeln('}');
   }
 
   void _writeSchemas(StringSink sink) {
@@ -283,13 +289,13 @@ export "package:$_libraryPubspecName/src/$_libraryName.dart";
         var scopeName = name.toUpperCase();
         if (p >= 0) scopeName = scopeName.substring(p+1);
         scopeName = cleanName(scopeName);
-        sink.write("\n");
+        sink.writeln();
         if (scopes.description != null) {
-          sink.write("  /** OAuth Scope2: ${scopes.description} */\n");
+          sink.writeln('  /** OAuth Scope2: ${scopes.description} */');
         } else {
-          sink.write("  /** OAuth Scope2 */\n");
+          sink.writeln('  /** OAuth Scope2 */');
         }
-        sink.write("  static const String ${scopeName}_SCOPE = \"$name\";\n");
+        sink.writeln('  static const String ${scopeName}_SCOPE = \"$name\";');
       });
     }
   }
@@ -325,15 +331,15 @@ abstract class Client extends ClientBase {
   //""");
       _description.parameters.forEach((String key, JsonSchema param) {
         var type = _getDartType(param);
-        sink.write("\n");
-        sink.write("  /**\n");
+        sink.writeln();
+        sink.writeln('  /**');
         if (param.description != null) {
-          sink.write("   * ${param.description}\n");
+          sink.writeln('   * ${param.description}');
         }
-        sink.write("   * Added as queryParameter for each request.\n");
-        sink.write("   */\n");
-        sink.write("  $type get $key => params[\"$key\"];\n");
-        sink.write("  set $key($type value) => params[\"$key\"] = value;\n");
+        sink.writeln('   * Added as queryParameter for each request.');
+        sink.writeln('   */');
+        sink.writeln('  $type get $key => params[\"$key\"];');
+        sink.writeln('  set $key($type value) => params[\"$key\"] = value;');
       });
     }
 
@@ -344,7 +350,7 @@ abstract class Client extends ClientBase {
   // Methods
   //""");
       _description.methods.forEach((String key, RestMethod method) {
-        sink.write("\n");
+        sink.writeln();
         _writeMethod(sink, key, method, true);
       });
     }

@@ -2,10 +2,10 @@ part of discovery_api_client_generator;
 
 void _writeSchemaClass(StringSink sink, String name, JsonSchema data) {
   if (data.description != null) {
-    sink.write("/** ${data.description} */\n");
+    sink.writeln('/** ${data.description} */');
   }
 
-  sink.write("class ${capitalize(name)} {\n");
+  sink.writeln('class ${capitalize(name)} {');
 
   var props = new List<CoreSchemaProp>();
 
@@ -23,28 +23,33 @@ void _writeSchemaClass(StringSink sink, String name, JsonSchema data) {
     property.writeField(sink);
   });
 
-  sink.write("\n");
-  sink.write("  /** Create new $name from JSON data */\n");
-  sink.write("  ${capitalize(name)}.fromJson(core.Map json) {\n");
+  sink.writeln();
+  sink.writeln('  /** Create new $name from JSON data */');
+  sink.writeln('  ${capitalize(name)}.fromJson(core.Map json) {');
   props.forEach((property) {
     property.writeFromJson(sink);
   });
 
-  sink.write("  }\n\n");
+  sink.writeln('  }');
+  sink.writeln();
 
-  sink.write("  /** Create JSON Object for $name */\n");
-  sink.write("  core.Map toJson() {\n");
-  sink.write("    var output = new core.Map();\n\n");
+  sink.writeln('  /** Create JSON Object for $name */');
+  sink.writeln('  core.Map toJson() {');
+  sink.writeln('    var output = new core.Map();');
+  sink.writeln();
   props.forEach((property) {
     property.writeToJson(sink);
   });
-  sink.write("\n    return output;\n");
-  sink.write("  }\n\n");
+  sink.writeln('\n    return output;');
+  sink.writeln('  }');
+  sink.writeln();
 
-  sink.write("  /** Return String representation of $name */\n");
-  sink.write("  core.String toString() => JSON.stringify(this.toJson());\n\n");
+  sink.writeln('  /** Return String representation of $name */');
+  sink.writeln('  core.String toString() => JSON.stringify(this.toJson());');
+  sink.writeln();
 
-  sink.write("}\n\n");
+  sink.writeln('}');
+  sink.writeln();
 
   props.forEach((property) {
     property.getSubSchemas().forEach((String key, JsonSchema value) {
@@ -54,36 +59,36 @@ void _writeSchemaClass(StringSink sink, String name, JsonSchema data) {
 }
 
 void _writeParamCommentHeader(StringSink sink, String name, String description) {
-  sink.write("   *\n");
+  sink.writeln('   *');
   sink.write("   * [$name]");
   if (description != null) {
     sink.write(" - ${description}");
   }
-  sink.write("\n");
+  sink.writeln();
 }
 
 void _writeParamComment(StringSink sink, String name, JsonSchema description) {
   _writeParamCommentHeader(sink, name, description.description);
   if (description.defaultProperty != null) {
-    sink.write("   *   Default: ${description.defaultProperty}\n");
+    sink.writeln('   *   Default: ${description.defaultProperty}');
   }
   if (description.minimum != null) {
-    sink.write("   *   Minimum: ${description.minimum}\n");
+    sink.writeln('   *   Minimum: ${description.minimum}');
   }
   if (description.maximum != null) {
-    sink.write("   *   Maximum: ${description.maximum}\n");
+    sink.writeln('   *   Maximum: ${description.maximum}');
   }
   if (description.repeated == true) {
-    sink.write("   *   Repeated values: allowed\n");
+    sink.writeln('   *   Repeated values: allowed');
   }
   if (description.enumProperty != null) {
-    sink.write("   *   Allowed values:\n");
+    sink.writeln('   *   Allowed values:');
     for (var i = 0; i < description.enumProperty.length; i++) {
       sink.write("   *     ${description.enumProperty[i]}");
       if (description.enumDescriptions != null) {
         sink.write(" - ${description.enumDescriptions[i]}");
       }
-      sink.write("\n");
+      sink.writeln();
     }
   }
 }
@@ -94,9 +99,9 @@ void _writeMethod(StringSink sink, String name, RestMethod data, [bool noResourc
 
   name = escapeMethod(cleanName(name));
 
-  sink.write("  /**\n");
+  sink.writeln('  /**');
   if (data.description != null) {
-    sink.write("   * ${data.description}\n");
+    sink.writeln('   * ${data.description}');
   }
 
   var genIncluded = new Set<JsonSchema>();
@@ -155,7 +160,7 @@ void _writeMethod(StringSink sink, String name, RestMethod data, [bool noResourc
 
   params.add("{${optParams.join(", ")}}");
 
-  sink.write("   */\n");
+  sink.writeln('   */');
   var response = null;
   if (data.response != null) {
     response = "async.Future<${_getRef(data.response)}>";
@@ -163,14 +168,15 @@ void _writeMethod(StringSink sink, String name, RestMethod data, [bool noResourc
     response = "async.Future<core.Map>";
   }
 
-  sink.write("  $response $name(${params.join(", ")}) {\n");
-  sink.write("    var url = \"${data.path}\";\n");
+  sink.writeln('  $response $name(${params.join(", ")}) {');
+  sink.writeln('    var url = \"${data.path}\";');
   if (uploadPath != null) {
-    sink.write("    var uploadUrl = \"$uploadPath\";\n");
+    sink.writeln('    var uploadUrl = \"$uploadPath\";');
   }
-  sink.write("    var urlParams = new core.Map();\n");
-  sink.write("    var queryParams = new core.Map();\n\n");
-  sink.write("    var paramErrors = new core.List();\n");
+  sink.writeln('    var urlParams = new core.Map();');
+  sink.writeln('    var queryParams = new core.Map();');
+  sink.writeln();
+  sink.writeln('    var paramErrors = new core.List();');
 
   if (data.parameters != null) {
     data.parameters.forEach((name, JsonSchema description) {
@@ -178,16 +184,16 @@ void _writeMethod(StringSink sink, String name, RestMethod data, [bool noResourc
       var location = "queryParams";
       if (description.location == "path") { location = "urlParams"; }
       if (description.required == true) {
-        sink.write("    if ($variable == null) paramErrors.add(\"$variable is required\");\n");
+        sink.writeln('    if ($variable == null) paramErrors.add(\"$variable is required\");');
       }
       if(description.enumProperty != null) {
         var list = description.enumProperty.map((i) => "\"$i\"").join(', ');
         var values = description.enumProperty.join(', ');
-        sink.write("    if ($variable != null && ![$list].contains($variable)) {\n");
-        sink.write("      paramErrors.add(\"Allowed values for $variable: $values\");\n");
-        sink.write("    }\n");
+        sink.writeln('    if ($variable != null && ![$list].contains($variable)) {');
+        sink.writeln('      paramErrors.add(\"Allowed values for $variable: $values\");');
+        sink.writeln('    }');
       }
-      sink.write("    if ($variable != null) $location[\"$name\"] = $variable;\n");
+      sink.writeln('    if ($variable != null) $location[\"$name\"] = $variable;');
     });
   }
 
@@ -215,24 +221,24 @@ void _writeMethod(StringSink sink, String name, RestMethod data, [bool noResourc
     uploadCall = "null, content, contentType, urlParams: urlParams, queryParams: queryParams";
   }
 
-  sink.write("    var response;\n");
+  sink.writeln('    var response;');
   if (uploadPath != null) {
-    sink.write("    if (content != null) {\n");
-    sink.write("      response = ${noResource ? "this" : "_client"}.upload(uploadUrl, \"${data.httpMethod}\", $uploadCall);\n");
-    sink.write("    } else {\n");
-    sink.write("      response = ${noResource ? "this" : "_client"}.request(url, \"${data.httpMethod}\", $call);\n");
-    sink.write("    }\n");
+    sink.writeln('    if (content != null) {');
+    sink.writeln('      response = ${noResource ? "this" : "_client"}.upload(uploadUrl, \"${data.httpMethod}\", $uploadCall);');
+    sink.writeln('    } else {');
+    sink.writeln('      response = ${noResource ? "this" : "_client"}.request(url, \"${data.httpMethod}\", $call);');
+    sink.writeln('    }');
   } else {
-    sink.write("    response = ${noResource ? "this" : "_client"}.request(url, \"${data.httpMethod}\", $call);\n");
+    sink.writeln('    response = ${noResource ? "this" : "_client"}.request(url, \"${data.httpMethod}\", $call);');
   }
 
   if (data.response != null) {
-    sink.write("    return response\n");
-    sink.write("      .then((data) => new ${_getRef(data.response)}.fromJson(data));\n");
+    sink.writeln('    return response');
+    sink.writeln('      .then((data) => new ${_getRef(data.response)}.fromJson(data));');
   } else {
-    sink.write("    return response;\n");
+    sink.writeln('    return response;');
   }
-  sink.write("  }\n");
+  sink.writeln('  }');
 }
 
 void _writeResourceClass(StringSink sink, String name, RestResource data) {
@@ -243,7 +249,7 @@ void _writeResourceClass(StringSink sink, String name, RestResource data) {
   sink.writeln('  final Client _client;');
 
   if (data.resources != null) {
-    sink.writeln('');
+    sink.writeln();
     data.resources.forEach((key, RestResource resource) {
       var subClassName = "${capitalize(name)}${capitalize(key)}Resource_";
       sink.writeln('  final $subClassName $key;');
@@ -265,12 +271,13 @@ void _writeResourceClass(StringSink sink, String name, RestResource data) {
 
   if (data.methods != null) {
     data.methods.forEach((key, RestMethod method) {
-      sink.write("\n");
+      sink.writeln();
       _writeMethod(sink, key, method);
     });
   }
 
-  sink.write("}\n\n");
+  sink.writeln('}');
+  sink.writeln();
 
   if (data.resources != null) {
     data.resources.forEach((key, RestResource resource) {
