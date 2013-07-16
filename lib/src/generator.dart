@@ -1,15 +1,12 @@
 part of discovery_api_client_generator;
 
-const String clientVersion = "0.2";
-const String dartEnvironmentVersionConstraint = '>=0.5.20';
-const String jsDependenciesVersionConstraint = '>=0.0.23';
-const String googleOAuth2ClientVersionConstraint = '>=0.2.15';
 
 class Generator {
   final RestDescription _description;
   final String _prefix;
+  final Config _config;
 
-  Generator(this._description, this._prefix) {
+  Generator(this._description, this._prefix, [this._config = const Config()]) {
     assert(this._description != null);
     assert(this._description.name != null);
     assert(this._prefix != null);
@@ -37,6 +34,7 @@ class Generator {
     var libFolder = "$mainFolder/lib";
 
     int clientVersionBuild = 0;
+    var clientVersion = _config.clientVersion;
     if (check) {
       var versionFile = new File("$mainFolder/VERSION");
       var pubFile = new File("$mainFolder/pubspec.yaml");
@@ -94,7 +92,7 @@ class Generator {
     (new Directory("$libFolder/src/client")).createSync(recursive: true);
     (new Directory("$mainFolder/tool")).createSync(recursive: true);
 
-    _writeString("$mainFolder/pubspec.yaml", _createPubspec(clientVersionBuild));
+    _writeFile("$mainFolder/pubspec.yaml", (sink) => _writePubspec(sink, clientVersionBuild));
 
     _writeString("$mainFolder/LICENSE", _license);
 
@@ -135,22 +133,30 @@ class Generator {
     return true;
   }
 
-  String _createPubspec(int clientVersionBuild) => """
-name: $_libraryPubspecName
-version: $clientVersion.${clientVersionBuild}-dev
-authors:
-- Gerwin Sturm <scarygami@gmail.com>
-- Adam Singer <financeCoding@gmail.com>
-description: Auto-generated client library for accessing the $_name $_version API
-homepage: https://github.com/dart-gde/discovery_api_dart_client_generator
-environment:
-  sdk: '${dartEnvironmentVersionConstraint}'
-dependencies:
-  google_oauth2_client: '${googleOAuth2ClientVersionConstraint}'
-  js: '${jsDependenciesVersionConstraint}'
-dev_dependencies:
-  hop: any
-""";
+  void _writePubspec(StringSink sink, int clientVersionBuild) {
+    sink.writeln("name: $_libraryPubspecName");
+    sink.writeln("version: ${_config.getLibraryVersion(clientVersionBuild)}");
+
+    sink.writeln("authors:");
+    forEachOrdered(_config.authors, (String name, String email) {
+      sink.writeln("- $name <$email>");
+    });
+
+    sink.writeln("description: Auto-generated client library for accessing the $_name $_version API");
+    sink.writeln("homepage: https://github.com/dart-gde/discovery_api_dart_client_generator");
+    sink.writeln("environment:");
+    sink.writeln("  sdk: '${_config.dartEnvironmentVersionConstraint}'");
+
+    sink.writeln("dependencies:");
+    forEachOrdered(_config.dependencyVersions, (String lib, String constraint) {
+      sink.writeln("  $lib: '$constraint'");
+    });
+
+    sink.writeln("dev_dependencies:");
+    forEachOrdered(_config.devDependencyVersions, (String lib, String constraint) {
+      sink.writeln("  $lib: '$constraint'");
+    });
+  }
 
   void _writeReadme(StringSink sink) {
     sink.write("""

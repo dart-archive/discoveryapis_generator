@@ -15,6 +15,15 @@ String escapeProperty(String name) => keywords.contains(name) ? "${name}Property
 String escapeMethod(String name) => keywords.contains(name) ? "${name}Method" : name;
 String escapeParameter(String name) => keywords.contains(name) ? "${name}Parameter" : name;
 
+void forEachOrdered(Map<String, dynamic> source, void func(String k, dynamic v)) {
+  var orderdKeys = source.keys.toList()
+      ..sort();
+
+  for(var k in orderdKeys) {
+    func(k, source[k]);
+  }
+}
+
 void _writeString(String path, String content) {
   var file = new File(path);
   file.writeAsStringSync(content);
