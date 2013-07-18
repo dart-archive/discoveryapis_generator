@@ -44,9 +44,6 @@ class PropClass {
     }
   }
 
-  int get hashCode => name.hashCode;
-  bool operator ==(other) => other is PropClass && other.name == name;
-
   String toString() => 'PropClass:$name';
 }
 
@@ -63,21 +60,22 @@ abstract class CoreSchemaProp {
     dartName = escapeProperty(cleanName(schemaName)),
     jsonName = schemaName.replaceAll("\$", "\\\$");
 
-
   factory CoreSchemaProp.parse(String parentName, String schemaName, JsonSchema property) {
     var propClass = PropClass.getPropClass(property);
 
-    if(propClass == PropClass.SIMPLE) {
-      return new SimpleSchemaProp.parse(schemaName, property);
-    } else if(propClass == PropClass.ARRAY) {
-      return new ArraySchemaProp.parse(parentName, schemaName, property);
-    } else if(propClass == PropClass.REF) {
-      return new RefSchemaProp.parse(parentName, schemaName, property);
-    } else if(propClass == PropClass.TYPED_MAP) {
-      return new MapSchemaProp.parse(parentName, schemaName, property);
-    } else {
-      assert(propClass == PropClass.OBJECT);
-      return new ObjectSchemaProp.parse(parentName, schemaName, property);
+    switch(propClass) {
+      case PropClass.SIMPLE:
+        return new SimpleSchemaProp.parse(schemaName, property);
+      case PropClass.ARRAY:
+        return new ArraySchemaProp.parse(parentName, schemaName, property);
+      case PropClass.REF:
+        return new RefSchemaProp.parse(parentName, schemaName, property);
+      case PropClass.TYPED_MAP:
+        return new MapSchemaProp.parse(parentName, schemaName, property);
+      case PropClass.OBJECT:
+        return new ObjectSchemaProp.parse(parentName, schemaName, property);
+      default:
+        throw 'Case for $propClass not supported';
     }
   }
 
