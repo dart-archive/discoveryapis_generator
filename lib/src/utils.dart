@@ -7,9 +7,11 @@ const List keywords = const [
   "this", "throw", "true", "try", "var", "void", "while", "with"
 ];
 
+final _cleanRegEx = new RegExp(r"[^\w$]");
+
 String fileDate(DateTime date) => "${date.year}${(date.month < 10) ? 0 : ""}${date.month}${(date.day < 10) ? 0 : ""}${date.day}_${(date.hour < 10) ? 0 : ""}${date.hour}${(date.minute < 10) ? 0 : ""}${date.minute}${(date.second < 10) ? 0 : ""}${date.second}";
 String capitalize(String string) => "${string.substring(0,1).toUpperCase()}${string.substring(1)}";
-String cleanName(String name) => name.replaceAll(new RegExp(r"(\W)"), "_");
+String cleanName(String name) => name.replaceAll(_cleanRegEx, "_");
 
 String escapeProperty(String name) => keywords.contains(name) ? "${name}Property" : name;
 String escapeMethod(String name) => keywords.contains(name) ? "${name}Method" : name;

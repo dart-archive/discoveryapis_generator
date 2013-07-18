@@ -1,12 +1,5 @@
 part of discovery_api_client_generator;
 
-// TODO: remove this once issue #61 is fixed
-// https://github.com/dart-gde/discovery_api_dart_client_generator/issues/61
-String _getRef(withToJson) {
-  var json = withToJson.toJson();
-  return json['\$ref'];
-}
-
 class PropClass {
   final String name;
 
@@ -21,7 +14,7 @@ class PropClass {
   static PropClass getPropClass(JsonSchema propDef) {
     String schemaType = propDef.type;
     if(schemaType == null) {
-      assert(_getRef(propDef) != null);
+      assert(propDef.$ref != null);
       schemaType = 'ref';
     } else if(schemaType == 'object') {
       if(propDef.properties == null) {
@@ -311,8 +304,7 @@ class RefSchemaProp extends ComplexSchemaProp {
   factory RefSchemaProp.parse(String parentName, String schemaName, JsonSchema property) {
     assert(PropClass.getPropClass(property) == PropClass.REF);
 
-    var sourceType = _getRef(property);
-    return new RefSchemaProp(schemaName, sourceType, property.description);
+    return new RefSchemaProp(schemaName, property.$ref, property.description);
   }
 
   RefSchemaProp(String sourceName, String dartType, String description) :

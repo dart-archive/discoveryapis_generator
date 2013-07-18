@@ -218,7 +218,7 @@ class DirectoryListItemsIcons {
 class JsonSchema {
 
   /** A reference to another schema. The value of this property is the "id" of another schema. */
-  core.String _ref;
+  core.String $ref;
 
   /** If this is a schema for an object, this property is the schema for any additional properties with dynamic keys on this object. */
   JsonSchema additionalProperties;
@@ -277,7 +277,7 @@ class JsonSchema {
   /** Create new JsonSchema from JSON data */
   JsonSchema.fromJson(core.Map json) {
     if (json.containsKey("\$ref")) {
-      _ref = json["\$ref"];
+      $ref = json["\$ref"];
     }
     if (json.containsKey("additionalProperties")) {
       additionalProperties = new JsonSchema.fromJson(json["additionalProperties"]);
@@ -339,8 +339,8 @@ class JsonSchema {
   core.Map toJson() {
     var output = new core.Map();
 
-    if (_ref != null) {
-      output["\$ref"] = _ref;
+    if ($ref != null) {
+      output["\$ref"] = $ref;
     }
     if (additionalProperties != null) {
       output["additionalProperties"] = additionalProperties.toJson();
@@ -1140,12 +1140,18 @@ class RestMethodMediaUploadProtocolsSimple {
 class RestMethodRequest {
 
   /** Schema ID for the request schema. */
-  core.String _ref;
+  core.String $ref;
+
+  /** parameter name. */
+  core.String parameterName;
 
   /** Create new RestMethodRequest from JSON data */
   RestMethodRequest.fromJson(core.Map json) {
     if (json.containsKey("\$ref")) {
-      _ref = json["\$ref"];
+      $ref = json["\$ref"];
+    }
+    if (json.containsKey("parameterName")) {
+      parameterName = json["parameterName"];
     }
   }
 
@@ -1153,8 +1159,11 @@ class RestMethodRequest {
   core.Map toJson() {
     var output = new core.Map();
 
-    if (_ref != null) {
-      output["\$ref"] = _ref;
+    if ($ref != null) {
+      output["\$ref"] = $ref;
+    }
+    if (parameterName != null) {
+      output["parameterName"] = parameterName;
     }
 
     return output;
@@ -1169,12 +1178,12 @@ class RestMethodRequest {
 class RestMethodResponse {
 
   /** Schema ID for the response schema. */
-  core.String _ref;
+  core.String $ref;
 
   /** Create new RestMethodResponse from JSON data */
   RestMethodResponse.fromJson(core.Map json) {
     if (json.containsKey("\$ref")) {
-      _ref = json["\$ref"];
+      $ref = json["\$ref"];
     }
   }
 
@@ -1182,8 +1191,8 @@ class RestMethodResponse {
   core.Map toJson() {
     var output = new core.Map();
 
-    if (_ref != null) {
-      output["\$ref"] = _ref;
+    if ($ref != null) {
+      output["\$ref"] = $ref;
     }
 
     return output;

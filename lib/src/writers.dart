@@ -110,8 +110,8 @@ void _writeMethod(StringSink sink, String name, RestMethod data, [bool noResourc
   var optParams = new List<String>();
 
   if (data.request != null) {
-    params.add("${_getRef(data.request)} request");
-    _writeParamCommentHeader(sink, "request", "${_getRef(data.request)} to send in this request");
+    params.add("${data.request.$ref} request");
+    _writeParamCommentHeader(sink, "request", "${data.request.$ref} to send in this request");
   }
   if (data.parameterOrder != null && data.parameters != null) {
     data.parameterOrder.forEach((param) {
@@ -163,7 +163,7 @@ void _writeMethod(StringSink sink, String name, RestMethod data, [bool noResourc
   sink.writeln('   */');
   var response = null;
   if (data.response != null) {
-    response = "async.Future<${_getRef(data.response)}>";
+    response = "async.Future<${data.response.$ref}>";
   } else {
     response = "async.Future<core.Map>";
   }
@@ -234,7 +234,7 @@ void _writeMethod(StringSink sink, String name, RestMethod data, [bool noResourc
 
   if (data.response != null) {
     sink.writeln('    return response');
-    sink.writeln('      .then((data) => new ${_getRef(data.response)}.fromJson(data));');
+    sink.writeln('      .then((data) => new ${data.response.$ref}.fromJson(data));');
   } else {
     sink.writeln('    return response;');
   }
