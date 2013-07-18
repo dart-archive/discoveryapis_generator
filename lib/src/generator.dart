@@ -147,15 +147,7 @@ class Generator {
     sink.writeln("environment:");
     sink.writeln("  sdk: '${_config.dartEnvironmentVersionConstraint}'");
 
-    sink.writeln("dependencies:");
-    forEachOrdered(_config.dependencyVersions, (String lib, String constraint) {
-      sink.writeln("  $lib: '$constraint'");
-    });
-
-    sink.writeln("dev_dependencies:");
-    forEachOrdered(_config.devDependencyVersions, (String lib, String constraint) {
-      sink.writeln("  $lib: '$constraint'");
-    });
+    _config.writeAllDependencies(sink);
   }
 
   void _writeReadme(StringSink sink) {
