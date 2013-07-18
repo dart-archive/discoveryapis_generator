@@ -218,6 +218,11 @@ import 'package:$_libraryPubspecName/src/cloud_api_browser.dart';
 import "package:$_libraryPubspecName/src/$_libraryName.dart";
 export "package:$_libraryPubspecName/src/$_libraryName.dart";
 
+// Superfluous imports to work around DARTBUG
+// https://code.google.com/p/dart/issues/detail?id=11891
+import "dart:html" as html;
+import "dart:json" as JSON;
+
 """);
 
     if (_description.description != null) {
