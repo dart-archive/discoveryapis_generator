@@ -84,8 +84,9 @@ abstract class CoreSchemaProp {
   Map<String, JsonSchema> getSubSchemas() => {};
 
   void writeField(StringSink sink) {
+    sink.writeln();
     if (description != null) {
-      sink.writeln("\n  /** $description */");
+      sink.writeln("  /** $description */");
     }
     sink.writeln("  $dartType $dartName;");
   }
