@@ -1,7 +1,3 @@
-packages/
 pubspec.lock
-output/
-tool/githubtoken
-out
-output_drone
 packages
+tool/githubtoken

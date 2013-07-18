@@ -1,12 +1,5 @@
 part of discovery_api_client_generator;
 
-// TODO: remove this once issue #61 is fixed
-// https://github.com/dart-gde/discovery_api_dart_client_generator/issues/61
-String _getRef(withToJson) {
-  var json = withToJson.toJson();
-  return json['\$ref'];
-}
-
 class PropClass {
   final String name;
 
@@ -21,7 +14,7 @@ class PropClass {
   static PropClass getPropClass(JsonSchema propDef) {
     String schemaType = propDef.type;
     if(schemaType == null) {
-      assert(_getRef(propDef) != null);
+      assert(propDef.$ref != null);
       schemaType = 'ref';
     } else if(schemaType == 'object') {
       if(propDef.properties == null) {
@@ -44,9 +37,6 @@ class PropClass {
     }
   }
 
-  int get hashCode => name.hashCode;
-  bool operator ==(other) => other is PropClass && other.name == name;
-
   String toString() => 'PropClass:$name';
 }
 
@@ -63,29 +53,31 @@ abstract class CoreSchemaProp {
     dartName = escapeProperty(cleanName(schemaName)),
     jsonName = schemaName.replaceAll("\$", "\\\$");
 
-
   factory CoreSchemaProp.parse(String parentName, String schemaName, JsonSchema property) {
     var propClass = PropClass.getPropClass(property);
 
-    if(propClass == PropClass.SIMPLE) {
-      return new SimpleSchemaProp.parse(schemaName, property);
-    } else if(propClass == PropClass.ARRAY) {
-      return new ArraySchemaProp.parse(parentName, schemaName, property);
-    } else if(propClass == PropClass.REF) {
-      return new RefSchemaProp.parse(parentName, schemaName, property);
-    } else if(propClass == PropClass.TYPED_MAP) {
-      return new MapSchemaProp.parse(parentName, schemaName, property);
-    } else {
-      assert(propClass == PropClass.OBJECT);
-      return new ObjectSchemaProp.parse(parentName, schemaName, property);
+    switch(propClass) {
+      case PropClass.SIMPLE:
+        return new SimpleSchemaProp.parse(schemaName, property);
+      case PropClass.ARRAY:
+        return new ArraySchemaProp.parse(parentName, schemaName, property);
+      case PropClass.REF:
+        return new RefSchemaProp.parse(parentName, schemaName, property);
+      case PropClass.TYPED_MAP:
+        return new MapSchemaProp.parse(parentName, schemaName, property);
+      case PropClass.OBJECT:
+        return new ObjectSchemaProp.parse(parentName, schemaName, property);
+      default:
+        throw 'Case for $propClass not supported';
     }
   }
 
   Map<String, JsonSchema> getSubSchemas() => {};
 
   void writeField(StringSink sink) {
+    sink.writeln();
     if (description != null) {
-      sink.writeln("\n  /** $description */");
+      sink.writeln("  /** $description */");
     }
     sink.writeln("  $dartType $dartName;");
   }
@@ -312,8 +304,7 @@ class RefSchemaProp extends ComplexSchemaProp {
   factory RefSchemaProp.parse(String parentName, String schemaName, JsonSchema property) {
     assert(PropClass.getPropClass(property) == PropClass.REF);
 
-    var sourceType = _getRef(property);
-    return new RefSchemaProp(schemaName, sourceType, property.description);
+    return new RefSchemaProp(schemaName, property.$ref, property.description);
   }
 
   RefSchemaProp(String sourceName, String dartType, String description) :
