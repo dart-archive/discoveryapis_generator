@@ -501,7 +501,7 @@ abstract class BrowserClient implements ClientBase {
     });
 
     html.ScriptElement script = new html.ScriptElement();
-    script.src = "http://apis.google.com/js/client.js?onload=handleClientLoad";
+    script.src = "https://apis.google.com/js/client.js?onload=handleClientLoad";
     script.type = "text/javascript";
     html.document.body.children.add(script);
 
