@@ -212,6 +212,9 @@ export "package:$_libraryPubspecName/src/$_libraryName.dart";
 
 // Superfluous imports to work around DARTBUG
 // https://code.google.com/p/dart/issues/detail?id=11891
+//
+// Waiting for fix to land in an official release
+// https://code.google.com/p/dart/source/detail?r=25233
 import "dart:html" as html;
 import "dart:json" as JSON;
 
