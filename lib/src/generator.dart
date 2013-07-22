@@ -112,7 +112,7 @@ class Generator {
 
     // Create common library files
 
-    _writeString("$libFolder/src/$_libraryName.dart", _createLibrary);
+    _writeString("$libFolder/$_libraryName.dart", _createLibrary);
 
     _writeFile("$libFolder/src/client/client.dart", _writeClientClass);
 
@@ -194,9 +194,9 @@ import 'dart:collection' as dart_collection;
 import 'package:$_libraryPubspecName/src/cloud_api.dart';
 export 'package:$_libraryPubspecName/src/cloud_api.dart' show APIRequestException;
 
-part 'client/client.dart';
-part 'client/schemas.dart';
-part 'client/resources.dart';
+part 'src/client/client.dart';
+part 'src/client/schemas.dart';
+part 'src/client/resources.dart';
 """;
 
   void _writeBrowserLibrary(StringSink sink) {
@@ -207,8 +207,7 @@ import "package:google_oauth2_client/google_oauth2_browser.dart" as oauth;
 
 import 'package:$_libraryPubspecName/src/cloud_api_browser.dart';
 
-import "package:$_libraryPubspecName/src/$_libraryName.dart";
-export "package:$_libraryPubspecName/src/$_libraryName.dart";
+import "package:$_libraryPubspecName/$_libraryName.dart";
 
 // Superfluous imports to work around DARTBUG
 // https://code.google.com/p/dart/issues/detail?id=11891
@@ -243,8 +242,7 @@ import "package:google_oauth2_client/google_oauth2_console.dart" as oauth2;
 
 import 'package:$_libraryPubspecName/src/cloud_api_console.dart';
 
-import "package:$_libraryPubspecName/src/$_libraryName.dart";
-export "package:$_libraryPubspecName/src/$_libraryName.dart";
+import "package:$_libraryPubspecName/$_libraryName.dart";
 
 """);
 
@@ -479,29 +477,31 @@ import 'cloud_api.dart';
  */
 abstract class BrowserClient implements ClientBase {
 
+  static const _corsCallback = 'handleCLientLoad';
+
   oauth.OAuth2 get auth;
   bool _jsClientLoaded = false;
 
   /**
    * Loads the JS Client Library to make CORS-Requests
    */
-  Future<bool> _loadJsClient() {
-    var completer = new Completer();
+  Future _loadJsClient() {
 
     if (_jsClientLoaded) {
-      completer.complete(true);
-      return completer.future;
+      return new Future.value();
     }
 
+    var completer = new Completer();
+
     js.scoped((){
-      js.context["handleClientLoad"] =  new js.Callback.once(() {
+      js.context[_corsCallback] =  new js.Callback.once(() {
         _jsClientLoaded = true;
-        completer.complete(true);
+        completer.complete();
       });
     });
 
     html.ScriptElement script = new html.ScriptElement();
-    script.src = "https://apis.google.com/js/client.js?onload=handleClientLoad";
+    script.src = "https://apis.google.com/js/client.js?onload=$_corsCallback";
     script.type = "text/javascript";
     html.document.body.children.add(script);
 
