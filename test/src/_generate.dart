@@ -51,6 +51,26 @@ void main() {
             }
           });
     });
+
+    test('missing output directory should throw', () {
+      TempDir tmpDir;
+
+      return TempDir.create()
+          .then((value) {
+            tmpDir = value;
+
+            return _runGenerate(['--api', _testLibName, '-v', _testLibVer]);
+          })
+          .then((ProcessResult pr) {
+            expect(pr.exitCode, 1);
+            expect(pr, _hasUsageInStdOut);
+          })
+          .whenComplete(() {
+            if(tmpDir != null) {
+              return tmpDir.dispose();
+            }
+          });
+    });
   });
 }
 

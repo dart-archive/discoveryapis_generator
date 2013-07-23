@@ -41,7 +41,7 @@ ArgParser _getParser() => new ArgParser()
   ..addOption(_argPrefix, abbr: "p", help: "Prefix for library name", defaultsTo: "google")
   ..addFlag(_argNoPrefix, help: "No prefix for library name", negatable: false)
   ..addFlag(_argAll, help: "Create client libraries for all Google APIs", negatable: false)
-  ..addOption(_argOutput, abbr: "o", help: "Output Directory", defaultsTo: "output/")
+  ..addOption(_argOutput, abbr: "o", help: "Output Directory")
   ..addFlag(_argDate, help: "Create sub folder with current date", negatable: false)
   ..addFlag(_argCheck, help: "Check for changes against existing version if available", negatable: false)
   ..addFlag(_argForce, help: "Force client version update even if no changes", negatable: false)
@@ -113,6 +113,15 @@ void main() {
   }
 
   String output = result[_argOutput];
+  if(output == null || output.isEmpty) {
+    print('Must provide an ouput directory');
+    printUsage(parser);
+
+    exit(1);
+    // unneeded, but paranoid
+    return;
+  }
+
   // TODO: validate valid path?
 
   bool useDate = result[_argDate];
