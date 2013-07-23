@@ -425,12 +425,12 @@ abstract class ClientBase {
   /**
    * Sends a HTTPRequest using [method] (usually GET or POST) to [requestUrl] using the specified [urlParams] and [queryParams]. Optionally include a [body] in the request.
    */
-  Future request(String requestUrl, String method, {String body, String contentType:"application/json", Map urlParams, Map queryParams});
+  Future<Map<String, dynamic>> request(String requestUrl, String method, {String body, String contentType:"application/json", Map urlParams, Map queryParams});
 
   /**
    * Joins [content] (encoded as Base64-String) with specified [contentType] and additional request [body] into one multipart-body and send a HTTPRequest with [method] (usually POST) to [requestUrl]
    */
-  Future upload(String requestUrl, String method, String body, String content, String contentType, {Map urlParams, Map queryParams}) {
+  Future<Map<String, dynamic>> upload(String requestUrl, String method, String body, String content, String contentType, {Map urlParams, Map queryParams}) {
     var multiPartBody = new StringBuffer();
     if (contentType == null || contentType.isEmpty) {
       contentType = "application/octet-stream";
@@ -511,8 +511,7 @@ abstract class BrowserClient implements ClientBase {
   /**
    * Makes a request via the JS Client Library to circumvent CORS-problems
    */
-  Future _makeJsClientRequest(String requestUrl, String method, {String body, String contentType, Map queryParams}) {
-    var completer = new Completer();
+  Future<Map<String, dynamic>> _makeJsClientRequest(String requestUrl, String method, {String body, String contentType, Map queryParams}) {
     var requestData = new Map();
     requestData["path"] = requestUrl;
     requestData["method"] = method;
@@ -530,6 +529,7 @@ abstract class BrowserClient implements ClientBase {
       requestData["headers"]["Authorization"] = "${auth.token.type} ${auth.token.data}";
     }
 
+    var completer = new Completer();
     js.scoped(() {
       var request = js.context["gapi"]["client"]["request"](js.map(requestData));
       var callback = new js.Callback.once((jsonResp, rawResp) {
@@ -553,9 +553,7 @@ abstract class BrowserClient implements ClientBase {
   /**
    * Sends a HTTPRequest using [method] (usually GET or POST) to [requestUrl] using the specified [urlParams] and [queryParams]. Optionally include a [body] in the request.
    */
-  Future request(String requestUrl, String method, {String body, String contentType:"application/json", Map urlParams, Map queryParams}) {
-    var request = new html.HttpRequest();
-    var completer = new Completer();
+  Future<Map<String, dynamic>> request(String requestUrl, String method, {String body, String contentType:"application/json", Map urlParams, Map queryParams}) {
 
     if (urlParams == null) urlParams = {};
     if (queryParams == null) queryParams = {};
@@ -572,7 +570,10 @@ abstract class BrowserClient implements ClientBase {
     } else {
       path ="$rootUrl${basePath.substring(1)}$requestUrl";
     }
-    var url = new oauth.UrlPattern(path).generate(urlParams, queryParams);
+    var url = oauth.UrlPattern.generatePattern(path, urlParams, queryParams);
+
+    var request = new html.HttpRequest();
+    var completer = new Completer();
 
     void handleError() {
       if (request.status == 0) {
@@ -582,7 +583,7 @@ abstract class BrowserClient implements ClientBase {
           } else {
             path ="$basePath$requestUrl";
           }
-          url = new oauth.UrlPattern(path).generate(urlParams, {});
+          url = oauth.UrlPattern.generatePattern(path, urlParams, {});
           _makeJsClientRequest(url, method, body: body, contentType: contentType, queryParams: queryParams)
             .then((response) {
               var data = JSON.parse(response);
