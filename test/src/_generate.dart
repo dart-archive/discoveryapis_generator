@@ -4,7 +4,8 @@ import 'dart:async';
 import 'dart:io';
 import 'package:unittest/unittest.dart';
 import 'package:bot_io/bot_io.dart';
-import "package:discovery_api_client_generator/generator.dart";
+import 'package:path/path.dart' as pathos;
+import 'package:discovery_api_client_generator/generator.dart';
 
 const _testLibName = 'discovery';
 const _testLibVer = 'v1';
@@ -46,9 +47,9 @@ void main() {
           });
     });
 
-    test('validate library', _testWithTempDir(_testSingleLibraryGeneration));
+    test('generate library via API and analyze', _testWithTempDir(_testSingleLibraryGeneration));
 
-    test('validate generate via cli', _testWithTempDir(_testSingleLibraryGenerationViaCLI));
+    test('generate library via CLI', _testWithTempDir(_testSingleLibraryGenerationViaCLI));
 
     test('"rest" args should throw', _testWithTempDir((tmpDir) {
       return _runGenerate(['--api', _testLibName, '-v', _testLibVer, '-o', tmpDir.path, 'silly_extra_arg'])
@@ -73,7 +74,7 @@ Future _testSingleLibraryGeneration(TempDir tmpDir) {
       .then((bool success) {
         expect(success, isTrue);
 
-        return _validateDirectory(tmpDir.dir, _testLibName, _testLibVer);
+        return _validateDirectory(tmpDir.path, _testLibName, _testLibVer);
       });
 }
 
@@ -82,26 +83,43 @@ Future _testSingleLibraryGenerationViaCLI(TempDir tmpDir) {
       .then((ProcessResult pr) {
         expect(pr.exitCode, 0);
 
-        return _validateDirectory(tmpDir.dir, _testLibName, _testLibVer);
+        return _validateDirectory(tmpDir.path, _testLibName, _testLibVer);
       });
 }
 
-Future _validateDirectory(Directory dir, String libName, String libVer) {
-  var expectedMap = _createLibValidate(libName, libVer);
+Future _validateDirectory(String packageDir, String libName, String libVer) {
+  var libraryPaths = _getLibraryPaths(packageDir, libName, libVer);
 
-  return IoHelpers.verifyContents(dir, expectedMap)
-    .then((bool validates) {
-      expect(validates, isTrue, reason: 'Directory structure should be valid');
-    });
+  expect(libraryPaths, hasLength(6));
+
+  return _validateFilesExist(libraryPaths);
 }
 
-Map _createLibValidate(String libName, String libVersion) {
-  final rootDir = 'dart_${libName}_${libVersion}_api_client';
+Future _validateFilesExist(List<String> files) {
+  return Future.forEach(files, (filePath) {
+    var file = new File(filePath);
+    return file.exists()
+        .then((bool exists) {
+          expect(exists, isTrue, reason: '$filePath should exist');
+        });
+  });
+}
 
-  var expectedMap = {};
-  expectedMap[rootDir] = new EntityExistsValidator(FileSystemEntityType.DIRECTORY);
+List<String> _getLibraryPaths(String packageDir, String libName, String libVersion) {
+  final name = '${libName}_${libVersion}_api';
+  final libDir = 'dart_${name}_client/lib';
 
-  return expectedMap;
+  var files = [];
+
+  files.addAll(['', '_browser', '_console']
+    .map((k) => 'src/cloud_api${k}.dart'));
+
+  files.addAll(['console', 'browser', 'client']
+    .map((k) => '${name}_${k}.dart'));
+
+  return files
+      .map((f) => pathos.join(packageDir, libDir, f))
+      .toList(growable: false);
 }
 
 final Matcher _hasUsageInStdOut = predicate((ProcessResult pr) => pr.stdout.contains("""Usage:
