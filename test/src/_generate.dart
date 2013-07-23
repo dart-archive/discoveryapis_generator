@@ -26,6 +26,8 @@ void main() {
     });
 
     test('validate library', _testSingleLibraryGeneration);
+
+    test('validate generate via cli', _testSingleLibraryGenerationViaCLI);
   });
 }
 
@@ -44,18 +46,46 @@ Future _testSingleLibraryGeneration() {
       .then((bool success) {
         expect(success, isTrue);
 
-        var expectedMap = _createLibValidate(libName, libVer);
-
-        return IoHelpers.verifyContents(tmpDir.dir, expectedMap);
-      })
-      .then((bool validates) {
-        expect(validates, isTrue);
+        return _validateDirectory(tmpDir.dir, libName, libVer);
       })
       .whenComplete(() {
         if(tmpDir != null) {
           return tmpDir.dispose();
         }
       });
+}
+
+Future _testSingleLibraryGenerationViaCLI() {
+  TempDir tmpDir;
+
+  const libName = 'discovery';
+  const libVer = 'v1';
+
+  return TempDir.create()
+      .then((value) {
+        tmpDir = value;
+
+        return _runGenerate(['--api', libName, '-v', libVer, '-o', tmpDir.path]);
+      })
+      .then((ProcessResult pr) {
+        expect(pr.exitCode, 0);
+
+        return _validateDirectory(tmpDir.dir, libName, libVer);
+      })
+      .whenComplete(() {
+        if(tmpDir != null) {
+          return tmpDir.dispose();
+        }
+      });
+}
+
+Future _validateDirectory(Directory dir, String libName, String libVer) {
+  var expectedMap = _createLibValidate(libName, libVer);
+
+  return IoHelpers.verifyContents(dir, expectedMap)
+    .then((bool validates) {
+      expect(validates, isTrue, reason: 'Directory structure should be valid');
+    });
 }
 
 Map _createLibValidate(String libName, String libVersion) {
