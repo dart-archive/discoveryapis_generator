@@ -6,6 +6,9 @@ import 'package:unittest/unittest.dart';
 import 'package:bot_io/bot_io.dart';
 import "package:discovery_api_client_generator/generator.dart";
 
+const _testLibName = 'discovery';
+const _testLibVer = 'v1';
+
 void main() {
   group('generate', () {
     test('no args', () {
@@ -28,25 +31,42 @@ void main() {
     test('validate library', _testSingleLibraryGeneration);
 
     test('validate generate via cli', _testSingleLibraryGenerationViaCLI);
+
+    test('"rest" args should throw', () {
+      TempDir tmpDir;
+
+      return TempDir.create()
+          .then((value) {
+            tmpDir = value;
+
+            return _runGenerate(['--api', _testLibName, '-v', _testLibVer, '-o', tmpDir.path, 'silly_extra_arg']);
+          })
+          .then((ProcessResult pr) {
+            expect(pr.exitCode, 1);
+            expect(pr, _hasUsageInStdOut);
+          })
+          .whenComplete(() {
+            if(tmpDir != null) {
+              return tmpDir.dispose();
+            }
+          });
+    });
   });
 }
 
 Future _testSingleLibraryGeneration() {
   TempDir tmpDir;
 
-  const libName = 'discovery';
-  const libVer = 'v1';
-
   return TempDir.create()
       .then((value) {
         tmpDir = value;
 
-        return generateLibrary(libName, libVer, tmpDir.path);
+        return generateLibrary(_testLibName, _testLibVer, tmpDir.path);
       })
       .then((bool success) {
         expect(success, isTrue);
 
-        return _validateDirectory(tmpDir.dir, libName, libVer);
+        return _validateDirectory(tmpDir.dir, _testLibName, _testLibVer);
       })
       .whenComplete(() {
         if(tmpDir != null) {
@@ -58,19 +78,16 @@ Future _testSingleLibraryGeneration() {
 Future _testSingleLibraryGenerationViaCLI() {
   TempDir tmpDir;
 
-  const libName = 'discovery';
-  const libVer = 'v1';
-
   return TempDir.create()
       .then((value) {
         tmpDir = value;
 
-        return _runGenerate(['--api', libName, '-v', libVer, '-o', tmpDir.path]);
+        return _runGenerate(['--api', _testLibName, '-v', _testLibVer, '-o', tmpDir.path]);
       })
       .then((ProcessResult pr) {
         expect(pr.exitCode, 0);
 
-        return _validateDirectory(tmpDir.dir, libName, libVer);
+        return _validateDirectory(tmpDir.dir, _testLibName, _testLibVer);
       })
       .whenComplete(() {
         if(tmpDir != null) {

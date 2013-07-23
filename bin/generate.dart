@@ -64,6 +64,15 @@ void main() {
 
   bool help = result[_argHelp];
 
+  if(result.rest.isNotEmpty) {
+    print('Unexpected arguments: ${result.rest}');
+    printUsage(parser);
+
+    exit(1);
+    // unneeded, but paranoid
+    return;
+  }
+
   if (help) {
     printUsage(parser);
     return;
