@@ -9,6 +9,24 @@ import "package:discovery_api_client_generator/generator.dart";
 const _testLibName = 'discovery';
 const _testLibVer = 'v1';
 
+Function _testWithTempDir(Future func(TempDir dir)) {
+  return () {
+    TempDir tmpDir;
+
+    return TempDir.create()
+        .then((value) {
+          tmpDir = value;
+
+          return func(tmpDir);
+        })
+        .whenComplete(() {
+          if(tmpDir != null) {
+            tmpDir.dispose();
+          }
+        });
+  };
+}
+
 void main() {
   group('generate', () {
     test('no args', () {
@@ -28,91 +46,43 @@ void main() {
           });
     });
 
-    test('validate library', _testSingleLibraryGeneration);
+    test('validate library', _testWithTempDir(_testSingleLibraryGeneration));
 
-    test('validate generate via cli', _testSingleLibraryGenerationViaCLI);
+    test('validate generate via cli', _testWithTempDir(_testSingleLibraryGenerationViaCLI));
 
-    test('"rest" args should throw', () {
-      TempDir tmpDir;
-
-      return TempDir.create()
-          .then((value) {
-            tmpDir = value;
-
-            return _runGenerate(['--api', _testLibName, '-v', _testLibVer, '-o', tmpDir.path, 'silly_extra_arg']);
-          })
+    test('"rest" args should throw', _testWithTempDir((tmpDir) {
+      return _runGenerate(['--api', _testLibName, '-v', _testLibVer, '-o', tmpDir.path, 'silly_extra_arg'])
           .then((ProcessResult pr) {
             expect(pr.exitCode, 1);
             expect(pr, _hasUsageInStdOut);
-          })
-          .whenComplete(() {
-            if(tmpDir != null) {
-              return tmpDir.dispose();
-            }
           });
-    });
+    }));
 
-    test('missing output directory should throw', () {
-      TempDir tmpDir;
-
-      return TempDir.create()
-          .then((value) {
-            tmpDir = value;
-
-            return _runGenerate(['--api', _testLibName, '-v', _testLibVer]);
-          })
+    test('missing output directory should throw', _testWithTempDir((tmpDir) {
+        return _runGenerate(['--api', _testLibName, '-v', _testLibVer])
           .then((ProcessResult pr) {
             expect(pr.exitCode, 1);
             expect(pr, _hasUsageInStdOut);
-          })
-          .whenComplete(() {
-            if(tmpDir != null) {
-              return tmpDir.dispose();
-            }
           });
-    });
+    }));
   });
 }
 
-Future _testSingleLibraryGeneration() {
-  TempDir tmpDir;
-
-  return TempDir.create()
-      .then((value) {
-        tmpDir = value;
-
-        return generateLibrary(_testLibName, _testLibVer, tmpDir.path);
-      })
+Future _testSingleLibraryGeneration(TempDir tmpDir) {
+  return generateLibrary(_testLibName, _testLibVer, tmpDir.path)
       .then((bool success) {
         expect(success, isTrue);
 
         return _validateDirectory(tmpDir.dir, _testLibName, _testLibVer);
-      })
-      .whenComplete(() {
-        if(tmpDir != null) {
-          return tmpDir.dispose();
-        }
       });
 }
 
-Future _testSingleLibraryGenerationViaCLI() {
-  TempDir tmpDir;
-
-  return TempDir.create()
-      .then((value) {
-        tmpDir = value;
-
-        return _runGenerate(['--api', _testLibName, '-v', _testLibVer, '-o', tmpDir.path]);
-      })
+Future _testSingleLibraryGenerationViaCLI(TempDir tmpDir) {
+  return _runGenerate(['--api', _testLibName, '-v', _testLibVer, '-o', tmpDir.path])
       .then((ProcessResult pr) {
         expect(pr.exitCode, 0);
 
         return _validateDirectory(tmpDir.dir, _testLibName, _testLibVer);
-      })
-      .whenComplete(() {
-        if(tmpDir != null) {
-          return tmpDir.dispose();
-        }
       });
 }
 
