@@ -3,30 +3,12 @@ library test.generate;
 import 'dart:async';
 import 'dart:io';
 import 'package:unittest/unittest.dart';
-import 'package:bot_io/bot_io.dart';
-import 'package:path/path.dart' as pathos;
 import 'package:discovery_api_client_generator/generator.dart';
+
+import '../../tool/util.dart';
 
 const _testLibName = 'discovery';
 const _testLibVer = 'v1';
-
-Function _testWithTempDir(Future func(TempDir dir)) {
-  return () {
-    TempDir tmpDir;
-
-    return TempDir.create()
-        .then((value) {
-          tmpDir = value;
-
-          return func(tmpDir);
-        })
-        .whenComplete(() {
-          if(tmpDir != null) {
-            tmpDir.dispose();
-          }
-        });
-  };
-}
 
 void main() {
   group('generate', () {
@@ -47,11 +29,11 @@ void main() {
           });
     });
 
-    test('generate library via API and analyze', _testWithTempDir(_testSingleLibraryGeneration));
+    test('generate library via API and analyze', withTempDir(_testSingleLibraryGeneration));
 
-    test('generate library via CLI', _testWithTempDir(_testSingleLibraryGenerationViaCLI));
+    test('generate library via CLI', withTempDir(_testSingleLibraryGenerationViaCLI));
 
-    test('"rest" args should throw', _testWithTempDir((tmpDir) {
+    test('"rest" args should throw', withTempDir((tmpDir) {
       return _runGenerate(['--api', _testLibName, '-v', _testLibVer, '-o', tmpDir.path, 'silly_extra_arg'])
           .then((ProcessResult pr) {
             expect(pr.exitCode, 1);
@@ -59,7 +41,7 @@ void main() {
           });
     }));
 
-    test('missing output directory should throw', _testWithTempDir((tmpDir) {
+    test('missing output directory should throw', withTempDir((tmpDir) {
         return _runGenerate(['--api', _testLibName, '-v', _testLibVer])
           .then((ProcessResult pr) {
             expect(pr.exitCode, 1);
@@ -69,17 +51,17 @@ void main() {
   });
 }
 
-Future _testSingleLibraryGeneration(TempDir tmpDir) {
+Future _testSingleLibraryGeneration(Directory tmpDir) {
   return generateLibrary(_testLibName, _testLibVer, tmpDir.path)
       .then((bool success) {
         expect(success, isTrue);
 
         return _validateDirectory(tmpDir.path, _testLibName, _testLibVer);
       })
-      .then((_) => _analyzePackage(tmpDir.path, _testLibName, _testLibVer));
+      .then((_) => analyzePackage(tmpDir.path, _testLibName, _testLibVer, false));
 }
 
-Future _testSingleLibraryGenerationViaCLI(TempDir tmpDir) {
+Future _testSingleLibraryGenerationViaCLI(Directory tmpDir) {
   return _runGenerate(['--api', _testLibName, '-v', _testLibVer, '-o', tmpDir.path])
       .then((ProcessResult pr) {
         expect(pr.exitCode, 0);
@@ -89,7 +71,7 @@ Future _testSingleLibraryGenerationViaCLI(TempDir tmpDir) {
 }
 
 Future _validateDirectory(String packageDir, String libName, String libVer) {
-  var libraryPaths = _getLibraryPaths(packageDir, libName, libVer);
+  var libraryPaths = getLibraryPaths(packageDir, libName, libVer);
 
   expect(libraryPaths, hasLength(6));
 
@@ -106,23 +88,6 @@ Future _validateFilesExist(List<String> files) {
   });
 }
 
-List<String> _getLibraryPaths(String rootDir, String libName, String libVersion) {
-  final name = '${libName}_${libVersion}_api';
-  final libDir = 'dart_${name}_client/lib';
-
-  var files = [];
-
-  files.addAll(['', '_browser', '_console']
-    .map((k) => 'src/cloud_api${k}.dart'));
-
-  files.addAll(['console', 'browser', 'client']
-    .map((k) => '${name}_${k}.dart'));
-
-  return files
-      .map((f) => pathos.join(rootDir, libDir, f))
-      .toList(growable: false);
-}
-
 final Matcher _hasUsageInStdOut = predicate((ProcessResult pr) => pr.stdout.contains("""Usage:
    generate.dart"""));
 
@@ -132,38 +97,4 @@ Future<ProcessResult> _runGenerate(Iterable<String> args) {
     ..addAll(args);
 
   return Process.run('dart', theArgs);
-}
-
-Future _analyzePackage(String rootDir, String libName, String libVer) {
-
-  var libraryPaths = _getLibraryPaths(rootDir, libName, libVer);
-
-  expect(libraryPaths, hasLength(6));
-
-  final packageDir = pathos.join(rootDir, 'dart_${libName}_${libVer}_api_client');
-
-  logMessage('installing packages at $packageDir');
-
-  return Process.run('pub', ['install'], workingDirectory: packageDir)
-      .then((ProcessResult pr) {
-        logMessage('pub install worked');
-
-        final packagesDir = pathos.join(packageDir, 'packages');
-
-        return Future.forEach(libraryPaths, (path) {
-          return _analyzeLib(packagesDir, path);
-        });
-      });
-}
-
-Future _analyzeLib(String packageDir, String libPath) {
-  logMessage('analyzing $libPath');
-
-  var args = ['--package-root', packageDir, libPath];
-
-  return Process.run('dartanalyzer', args)
-      .then((ProcessResult pr) {
-        expect(pr.exitCode, 0);
-        logMessage('analyze completed');
-      });
 }
