@@ -29,7 +29,7 @@ class Generator {
   String get _libraryBrowserName => "${_shortName}_api_browser";
   String get _libraryConsoleName => "${_shortName}_api_console";
 
-  bool generateClient(String outputDirectory, {bool check: false, bool force: false, int forceVersion}) {
+  GenerateResult generateClient(String outputDirectory, {bool check: false, bool force: false, int forceVersion}) {
     var mainFolder = "$outputDirectory/$_gitName";
     var libFolder = "$mainFolder/lib";
 
@@ -54,8 +54,9 @@ class Generator {
         } else {
           if (version.startsWith(clientVersion)) {
             if (etag == _description.etag) {
-              print("Nothing changed for $_libraryName");
-              return false;
+              var msg = "Nothing changed for $_libraryName";
+              print(msg);
+              return new GenerateResult._(_name, _version, mainFolder, msg);
             } else {
               print("Changes for $_libraryName");
               print("Regenerating library $_libraryName");
@@ -130,7 +131,7 @@ class Generator {
     _writeString("$mainFolder/tool/hop_runner.dart", _createHopRunner);
 
     print("Library $_libraryName generated successfully.");
-    return true;
+    return new GenerateResult._(_name, _version, mainFolder);
   }
 
   void _writePubspec(StringSink sink, int clientVersionBuild) {

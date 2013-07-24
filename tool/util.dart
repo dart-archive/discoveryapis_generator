@@ -6,27 +6,26 @@ import 'package:path/path.dart' as pathos;
 import 'package:bot_io/bot_io.dart';
 import 'package:hop/hop.dart';
 
-Function withTempDir(Future func(Directory dir)) {
-  return () {
-    TempDir tmpDir;
+// TODO: put this in bot_io
+// https://github.com/kevmoo/bot_io.dart/issues/4
+Future withTempDir(Future func(Directory dir)) {
+  TempDir tmpDir;
 
-    return TempDir.create()
-        .then((value) {
-          tmpDir = value;
+  return TempDir.create()
+      .then((value) {
+        tmpDir = value;
 
-          return func(tmpDir.dir);
-        })
-        .whenComplete(() {
-          if(tmpDir != null) {
-            tmpDir.dispose();
-          }
-        });
-  };
+        return func(tmpDir.dir);
+      })
+      .whenComplete(() {
+        if(tmpDir != null) {
+          tmpDir.dispose();
+        }
+      });
 }
 
-List<String> getLibraryPaths(String rootDir, String libName, String libVersion) {
-  final name = '${libName}_${libVersion}_api';
-  final libDir = 'dart_${name}_client/lib';
+List<String> getLibraryPaths(String rootDir, String shortName) {
+  final libDir = 'dart_${shortName}_client/lib';
 
   var files = [];
 
@@ -34,21 +33,20 @@ List<String> getLibraryPaths(String rootDir, String libName, String libVersion) 
     .map((k) => 'src/cloud_api${k}.dart'));
 
   files.addAll(['console', 'browser', 'client']
-    .map((k) => '${name}_${k}.dart'));
+    .map((k) => '${shortName}_${k}.dart'));
 
   return files
       .map((f) => pathos.join(rootDir, libDir, f))
       .toList(growable: false);
 }
 
-Future analyzePackage(String rootDir, String libName, String libVer,
+Future analyzePackage(String rootDir, String shortName,
                       bool continueOnFail) {
-
-  var libraryPaths = getLibraryPaths(rootDir, libName, libVer);
+  var libraryPaths = getLibraryPaths(rootDir, shortName);
 
   assert(libraryPaths.length == 6);
 
-  final packageDir = pathos.join(rootDir, 'dart_${libName}_${libVer}_api_client');
+  final packageDir = pathos.join(rootDir, 'dart_${shortName}_client');
 
   _logMessage('installing packages at $packageDir');
 

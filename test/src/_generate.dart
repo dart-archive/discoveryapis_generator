@@ -10,6 +10,8 @@ import '../../tool/util.dart';
 const _testLibName = 'discovery';
 const _testLibVer = 'v1';
 
+String get _shortName => cleanName("${_testLibName}_${_testLibVer}_api").toLowerCase();
+
 void main() {
   group('generate', () {
     test('no args', () {
@@ -29,11 +31,11 @@ void main() {
           });
     });
 
-    test('generate library via API and analyze', withTempDir(_testSingleLibraryGeneration));
+    test('generate library via API and analyze', () => withTempDir(_testSingleLibraryGeneration));
 
-    test('generate library via CLI', withTempDir(_testSingleLibraryGenerationViaCLI));
+    test('generate library via CLI', () => withTempDir(_testSingleLibraryGenerationViaCLI));
 
-    test('"rest" args should throw', withTempDir((tmpDir) {
+    test('"rest" args should throw', () => withTempDir((tmpDir) {
       return _runGenerate(['--api', _testLibName, '-v', _testLibVer, '-o', tmpDir.path, 'silly_extra_arg'])
           .then((ProcessResult pr) {
             expect(pr.exitCode, 1);
@@ -41,7 +43,7 @@ void main() {
           });
     }));
 
-    test('missing output directory should throw', withTempDir((tmpDir) {
+    test('missing output directory should throw', () => withTempDir((tmpDir) {
         return _runGenerate(['--api', _testLibName, '-v', _testLibVer])
           .then((ProcessResult pr) {
             expect(pr.exitCode, 1);
@@ -53,12 +55,12 @@ void main() {
 
 Future _testSingleLibraryGeneration(Directory tmpDir) {
   return generateLibrary(_testLibName, _testLibVer, tmpDir.path)
-      .then((bool success) {
-        expect(success, isTrue);
+      .then((GenerateResult result) {
+        expect(result.success, isTrue);
 
-        return _validateDirectory(tmpDir.path, _testLibName, _testLibVer);
+        return _validateDirectory(tmpDir.path, _shortName);
       })
-      .then((_) => analyzePackage(tmpDir.path, _testLibName, _testLibVer, false));
+      .then((_) => analyzePackage(tmpDir.path, _shortName, false));
 }
 
 Future _testSingleLibraryGenerationViaCLI(Directory tmpDir) {
@@ -66,12 +68,12 @@ Future _testSingleLibraryGenerationViaCLI(Directory tmpDir) {
       .then((ProcessResult pr) {
         expect(pr.exitCode, 0);
 
-        return _validateDirectory(tmpDir.path, _testLibName, _testLibVer);
+        return _validateDirectory(tmpDir.path, _shortName);
       });
 }
 
-Future _validateDirectory(String packageDir, String libName, String libVer) {
-  var libraryPaths = getLibraryPaths(packageDir, libName, libVer);
+Future _validateDirectory(String packageDir, String shortName) {
+  var libraryPaths = getLibraryPaths(packageDir, shortName);
 
   expect(libraryPaths, hasLength(6));
 
