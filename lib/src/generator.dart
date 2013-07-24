@@ -206,16 +206,7 @@ library ${_shortName}_api.browser;
 import "package:google_oauth2_client/google_oauth2_browser.dart" as oauth;
 
 import 'package:$_libraryPubspecName/src/cloud_api_browser.dart';
-
 import "package:$_libraryPubspecName/$_libraryName.dart";
-
-// Superfluous imports to work around DARTBUG
-// https://code.google.com/p/dart/issues/detail?id=11891
-//
-// Waiting for fix to land in an official release
-// https://code.google.com/p/dart/source/detail?r=25233
-import "dart:html" as html;
-import "dart:json" as JSON;
 
 """);
 
