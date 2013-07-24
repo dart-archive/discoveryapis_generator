@@ -1,10 +1,8 @@
 #!/usr/bin/env dart
 
 import 'dart:async';
-import "dart:json" as JSON;
 import "dart:io";
 import "package:args/args.dart";
-import 'package:discovery_api_client_generator/schemas.dart';
 import "package:discovery_api_client_generator/generator.dart";
 
 void printUsage(parser) {
