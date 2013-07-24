@@ -12,10 +12,10 @@ void printUsage(parser) {
 discovery_api_client_generator: creates a Client library based on a discovery document
 
 Usage:
-   generate.dart -a <API> -v <Version> [-o <Directory>] (to load from Google Discovery API)
-or generate.dart -u <URL> [-o <Directory>] (to load discovery document from specified URL)
-or generate.dart -i <File> [-o <Directory>] (to load discovery document from local file)
-or generate.dart --all [-o <Directory>] (to create libraries for all Google APIs)
+   generate.dart -a <API> -v <Version> -o <Directory> (to load from Google Discovery API)
+or generate.dart -u <URL> -o <Directory> (to load discovery document from specified URL)
+or generate.dart -i <File> -o <Directory> (to load discovery document from local file)
+or generate.dart --all -o <Directory> (to create libraries for all Google APIs)
 """);
   print(parser.getUsage());
 }
@@ -25,7 +25,7 @@ const _argAll = 'all';
 const _argForce = 'force';
 const _argCheck = 'check';
 const _argApi = 'api';
-const _argVersion = 'versoin';
+const _argVersion = 'version';
 const _argUrl = 'url';
 const _argInput = 'input';
 const _argPrefix = 'prefix';
