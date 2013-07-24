@@ -6,6 +6,26 @@ import 'package:path/path.dart' as pathos;
 import 'package:bot_io/bot_io.dart';
 import 'package:hop/hop.dart';
 
+import "package:discovery_api_client_generator/generator.dart";
+
+Future<bool> generateAnalyzeAll(TaskContext ctx) {
+  return withTempDir((Directory dir) {
+    return generateAllLibraries(dir.path)
+        .then((List<GenerateResult> results) {
+          return _analyzeGeneratedResults(ctx, dir.path, results);
+        });
+  });
+}
+
+Future<bool> _analyzeGeneratedResults(TaskContext ctx, String rootPath, List<GenerateResult> results) {
+  return Future.forEach(results, (GenerateResult result) {
+
+    return analyzePackage(rootPath, result.shortName, true);
+
+  })
+  .then((_) => true);
+}
+
 // TODO: put this in bot_io
 // https://github.com/kevmoo/bot_io.dart/issues/4
 Future withTempDir(Future func(Directory dir)) {
@@ -67,19 +87,28 @@ ${pr.stderr}''');
       });
 }
 
-Future<bool> _analyzeLib(String packageDir, String libPath,
+Future _analyzeLib(String packageDir, String libPath,
     bool continueOnFail) {
-  _logMessage('analyzing $libPath');
 
-  var args = ['--package-root', packageDir, libPath];
+  var args = ['--verbose', '--package-root', packageDir, libPath];
 
   return Process.run('dartanalyzer', args)
       .then((ProcessResult pr) {
+        _logMessage(pr.stdout);
+        _logMessage(pr.stderr);
+
         var success = pr.exitCode == 0;
-        if(!success && !continueOnFail) {
-            throw new Exception('Analysis failed for $libPath');
+
+        if(success) {
+          _logMessage('analyze succeeded for $libPath');
+        } else {
+          var message = 'Analysis failed for $libPath';
+          if(continueOnFail) {
+            _logMessage(message);
+          } else {
+            throw new Exception(message);
+          }
         }
-        _logMessage('analyze completed');
       });
 }
 
