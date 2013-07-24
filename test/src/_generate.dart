@@ -75,7 +75,8 @@ Future _testSingleLibraryGeneration(TempDir tmpDir) {
         expect(success, isTrue);
 
         return _validateDirectory(tmpDir.path, _testLibName, _testLibVer);
-      });
+      })
+      .then((_) => _analyzePackage(tmpDir.path, _testLibName, _testLibVer));
 }
 
 Future _testSingleLibraryGenerationViaCLI(TempDir tmpDir) {
@@ -105,7 +106,7 @@ Future _validateFilesExist(List<String> files) {
   });
 }
 
-List<String> _getLibraryPaths(String packageDir, String libName, String libVersion) {
+List<String> _getLibraryPaths(String rootDir, String libName, String libVersion) {
   final name = '${libName}_${libVersion}_api';
   final libDir = 'dart_${name}_client/lib';
 
@@ -118,7 +119,7 @@ List<String> _getLibraryPaths(String packageDir, String libName, String libVersi
     .map((k) => '${name}_${k}.dart'));
 
   return files
-      .map((f) => pathos.join(packageDir, libDir, f))
+      .map((f) => pathos.join(rootDir, libDir, f))
       .toList(growable: false);
 }
 
@@ -131,4 +132,38 @@ Future<ProcessResult> _runGenerate(Iterable<String> args) {
     ..addAll(args);
 
   return Process.run('dart', theArgs);
+}
+
+Future _analyzePackage(String rootDir, String libName, String libVer) {
+
+  var libraryPaths = _getLibraryPaths(rootDir, libName, libVer);
+
+  expect(libraryPaths, hasLength(6));
+
+  final packageDir = pathos.join(rootDir, 'dart_${libName}_${libVer}_api_client');
+
+  logMessage('installing packages at $packageDir');
+
+  return Process.run('pub', ['install'], workingDirectory: packageDir)
+      .then((ProcessResult pr) {
+        logMessage('pub install worked');
+
+        final packagesDir = pathos.join(packageDir, 'packages');
+
+        return Future.forEach(libraryPaths, (path) {
+          return _analyzeLib(packagesDir, path);
+        });
+      });
+}
+
+Future _analyzeLib(String packageDir, String libPath) {
+  logMessage('analyzing $libPath');
+
+  var args = ['--package-root', packageDir, libPath];
+
+  return Process.run('dartanalyzer', args)
+      .then((ProcessResult pr) {
+        expect(pr.exitCode, 0);
+        logMessage('analyze completed');
+      });
 }
