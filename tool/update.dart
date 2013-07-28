@@ -19,7 +19,8 @@ bool recreate = false;
 int limit;
 List failedUpload = [];
 List completedUpload = [];
-List<String> uploaders = ["scarygami@gmail.com", "financeCoding@gmail.com"];
+List<String> uploaders = ["scarygami@gmail.com", "financeCoding@gmail.com",
+                          "kevin@thinkpixellab.com"];
 String userAgent = "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/28.0.1468.0 Safari/537.36";
 
 // Authentication stuff
