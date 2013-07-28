@@ -97,7 +97,7 @@ class Generator {
 
     _writeString("$mainFolder/LICENSE", _license);
 
-    _writeFile("$mainFolder/README.md", _writeReadme);
+    _writeFile("$mainFolder/README.md", (sink) => _writeReadme(sink, clientVersionBuild));
 
     _writeString("$mainFolder/.gitignore", _gitIgnore);
 
@@ -151,7 +151,7 @@ class Generator {
     _config.writeAllDependencies(sink);
   }
 
-  void _writeReadme(StringSink sink) {
+  void _writeReadme(StringSink sink, int clientVersionBuild) {
     sink.write("""
 # $_libraryPubspecName
 
@@ -172,14 +172,17 @@ Auto-generated client library for accessing the $_name $_version API.
       sink.writeln('Official API documentation: ${_description.documentationLink}');
       sink.writeln();
     }
-    sink.writeln('Adding dependency to pubspec.yaml\n\n```\n  dependencies:\n    $_libraryPubspecName: \'>=$_version\'\n```');
+    sink.writeln('Adding dependency to pubspec.yaml\n\n```\n  dependencies:\n    $_libraryPubspecName: \'>=${_config.getLibraryVersion(clientVersionBuild)}\'\n```');
     sink.writeln();
     sink.writeln('For web applications:\n\n```\n  import \"package:$_libraryPubspecName/$_libraryBrowserName.dart\" as ${cleanName(_name).toLowerCase()}client;\n```');
     sink.writeln();
     sink.writeln('For console application:\n\n```\n  import \"package:$_libraryPubspecName/$_libraryConsoleName.dart\" as ${cleanName(_name).toLowerCase()}client;\n```');
     sink.writeln();
 
-    sink.writeln('```\nvar ${cleanName(_name).toLowerCase()} = new ${cleanName(_name).toLowerCase()}client.${capitalize(_name)}();\n```');
+    sink.writeln('Working with out authentication the following constructor can be called:\n\n```\n  var ${cleanName(_name).toLowerCase()} = new ${cleanName(_name).toLowerCase()}client.${capitalize(_name)}();\n```');
+    sink.writeln();
+    sink.writeln('Working with authentication then create a new `GoogleOAuth2` object and pass it to the constructor:\n\n');
+    sink.writeln('```\n  GoogleOAuth2 auth = new GoogleOAuth2(CLIENT_ID, SCOPES);\n  var ${cleanName(_name).toLowerCase()} = new ${cleanName(_name).toLowerCase()}client.${capitalize(_name)}(auth);\n```');
     sink.writeln();
     sink.writeln('### Licenses\n\n```');
     sink.write(_license);
