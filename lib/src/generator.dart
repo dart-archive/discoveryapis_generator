@@ -172,9 +172,9 @@ Auto-generated client library for accessing the $_name $_version API.
       sink.writeln('Official API documentation: ${_description.documentationLink}');
       sink.writeln();
     }
-    sink.writeln('For web applications:\n```\nimport \"package:$_libraryPubspecName/$_libraryBrowserName.dart\" as ${cleanName(_name).toLowerCase()}client;\n```');
+    sink.writeln('For web applications:\n\n```\nimport \"package:$_libraryPubspecName/$_libraryBrowserName.dart\" as ${cleanName(_name).toLowerCase()}client;\n```');
     sink.writeln();
-    sink.writeln('For console application:\n```\nimport \"package:$_libraryPubspecName/$_libraryConsoleName.dart\" as ${cleanName(_name).toLowerCase()}client;\n```');
+    sink.writeln('For console application:\n\n```\nimport \"package:$_libraryPubspecName/$_libraryConsoleName.dart\" as ${cleanName(_name).toLowerCase()}client;\n```');
     sink.writeln();
 
     sink.writeln('```\nvar ${cleanName(_name).toLowerCase()} = new ${cleanName(_name).toLowerCase()}client.${capitalize(_name)}();\n```');
