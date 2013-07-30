@@ -9,7 +9,7 @@ import 'package:hop/hop.dart';
 import "package:discovery_api_client_generator/generator.dart";
 
 Future<bool> generateAnalyzeAll(TaskContext ctx) {
-  return withTempDir((Directory dir) {
+  return TempDir.then((Directory dir) {
     return generateAllLibraries(dir.path)
         .then((List<GenerateResult> results) {
           return _analyzeGeneratedResults(ctx, dir.path, results);
@@ -24,24 +24,6 @@ Future<bool> _analyzeGeneratedResults(TaskContext ctx, String rootPath, List<Gen
 
   })
   .then((_) => true);
-}
-
-// TODO: put this in bot_io
-// https://github.com/kevmoo/bot_io.dart/issues/4
-Future withTempDir(Future func(Directory dir)) {
-  TempDir tmpDir;
-
-  return TempDir.create()
-      .then((value) {
-        tmpDir = value;
-
-        return func(tmpDir.dir);
-      })
-      .whenComplete(() {
-        if(tmpDir != null) {
-          tmpDir.dispose();
-        }
-      });
 }
 
 List<String> getLibraryPaths(String rootDir, String shortName) {

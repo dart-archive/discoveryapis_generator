@@ -14,6 +14,6 @@ dependencies:
   meta: '>=0.6.9'
   path: '>=0.6.9'
 dev_dependencies:
-  bot_io: '>=0.23.0'
+  bot_io: '>=0.23.1'
   hop: '>=0.24.1'
   unittest: '>=0.6.9'
