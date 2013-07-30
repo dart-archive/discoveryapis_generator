@@ -1,5 +1,5 @@
 name: discovery_api_client_generator
-version: 0.3.0-dev
+version: 0.2.0
 authors:
 - Gerwin Sturm <scarygami@gmail.com>
 - Adam Singer <financeCoding@gmail.com>
