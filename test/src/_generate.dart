@@ -3,6 +3,7 @@ library test.generate;
 import 'dart:async';
 import 'dart:io';
 import 'package:unittest/unittest.dart';
+import 'package:bot_io/bot_io.dart';
 import 'package:discovery_api_client_generator/generator.dart';
 
 import '../../tool/util.dart';
@@ -31,11 +32,11 @@ void main() {
           });
     });
 
-    test('generate library via API and analyze', () => withTempDir(_testSingleLibraryGeneration));
+    test('generate library via API and analyze', () => TempDir.then(_testSingleLibraryGeneration));
 
-    test('generate library via CLI', () => withTempDir(_testSingleLibraryGenerationViaCLI));
+    test('generate library via CLI', () => TempDir.then(_testSingleLibraryGenerationViaCLI));
 
-    test('"rest" args should throw', () => withTempDir((tmpDir) {
+    test('"rest" args should throw', () => TempDir.then((tmpDir) {
       return _runGenerate(['--api', _testLibName, '-v', _testLibVer, '-o', tmpDir.path, 'silly_extra_arg'])
           .then((ProcessResult pr) {
             expect(pr.exitCode, 1);
@@ -43,7 +44,7 @@ void main() {
           });
     }));
 
-    test('missing output directory should throw', () => withTempDir((tmpDir) {
+    test('missing output directory should throw', () => TempDir.then((tmpDir) {
         return _runGenerate(['--api', _testLibName, '-v', _testLibVer])
           .then((ProcessResult pr) {
             expect(pr.exitCode, 1);
