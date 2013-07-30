@@ -3,6 +3,7 @@ import "dart:async";
 import "dart:json" as JSON;
 import "package:args/args.dart";
 import "package:discovery_api_client_generator/generator.dart";
+import "package:discovery_api_client_generator/schemas.dart";
 
 String gituser;
 String repouser;
@@ -515,18 +516,18 @@ void runUpdate() {
       }
       print("Fetching list of currently available Google APIs...");
       loadGoogleAPIList()
-        .then((json) {
+        .then((DirectoryList list) {
           var count = 0;
-          if (limit == null) limit = json["items"].length;
+          if (limit == null) limit = list.items.length;
           var apis = new List();
 
-          json["items"].forEach((item) {
+          list.items.forEach((DirectoryListItems item) {
             count++;
             if (count <= limit) {
               var api = new Map();
-              api["name"] = item["name"];
-              api["version"] = item["version"];
-              api["gitname"] = cleanName("dart_${item["name"]}_${item["version"]}_api_client").toLowerCase();
+              api["name"] = item.name;
+              api["version"] = item.version;
+              api["gitname"] = cleanName("dart_${item.name}_${item.version}_api_client").toLowerCase();
               apis.add(api);
             }
           });
