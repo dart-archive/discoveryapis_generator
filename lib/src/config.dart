@@ -3,7 +3,7 @@ part of discovery_api_client_generator;
 class Config {
   String get clientVersion => "0.2";
 
-  bool get isDev => true;
+  bool get isDev => false;
 
   String get dartEnvironmentVersionConstraint => '>=0.6.9';
 
@@ -19,7 +19,7 @@ class Config {
   };
 
   Map<String, String> get devDependencyVersions => const {
-    'hop': " '>=0.24.0'"
+    'hop': " '>=0.24.1'"
   };
 
   const Config();
