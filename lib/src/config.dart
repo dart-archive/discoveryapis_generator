@@ -1,7 +1,7 @@
 part of discovery_api_client_generator;
 
 class Config {
-  String get clientVersion => "0.2";
+  String get clientVersion => "0.3";
 
   bool get isDev => false;
 
