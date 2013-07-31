@@ -386,8 +386,19 @@ Future handleAPI(String name, String version, String gitname, {retry: false}) {
         print("Fetching API Description");
         loadDocumentFromGoogle(name, version).then((doc) {
           print("Checking for updates and regenerating library if necessary.");
+          //XXX: Ripped form generateLibraryFromSource
+          if(doc is String) {
+            doc = JSON.parse(doc);
+          }
+
+          if(doc is Map) {
+            doc = new RestDescription.fromJson(doc);
+          }
+
           var generator = new Generator(doc, prefix);
-          if (generator.generateClient(outputdir, check: true, force: force, forceVersion: forceVersion) || retry) {
+          GenerateResult generatedResult = generator.generateClient(outputdir, check: true, force: force, forceVersion: forceVersion);
+          print("Library generated ${generatedResult.success}");
+          if (generatedResult.success || retry) {
             print("Committing changes to GitHub");
             var workingDirectory = "$outputdir/$gitname/";
             Process.run("git", ["status"], workingDirectory: workingDirectory).then((p) {
