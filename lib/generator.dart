@@ -4,7 +4,7 @@ import "dart:io";
 import "dart:async";
 import "dart:json" as JSON;
 import 'package:meta/meta.dart';
-import 'package:discovery_api_client_generator/schemas.dart';
+import 'package:google_discovery_v1_api/discovery_v1_api_client.dart';
 
 part "src/config.dart";
 part "src/generator.dart";

@@ -2,8 +2,8 @@ import "dart:io";
 import "dart:async";
 import "dart:json" as JSON;
 import "package:args/args.dart";
+import 'package:google_discovery_v1_api/discovery_v1_api_client.dart';
 import "package:discovery_api_client_generator/generator.dart";
-import "package:discovery_api_client_generator/schemas.dart";
 
 String gituser;
 String repouser;

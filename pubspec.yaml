@@ -1,5 +1,5 @@
 name: discovery_api_client_generator
-version: 0.3.0
+version: 0.3.1-dev
 authors:
 - Gerwin Sturm <scarygami@gmail.com>
 - Adam Singer <financeCoding@gmail.com>
@@ -10,6 +10,7 @@ environment:
   sdk: '>=0.6.9'
 dependencies:
   args: '>=0.6.9'
+  google_discovery_v1_api: 0.3.8
   logging: '>=0.6.9'
   meta: '>=0.6.9'
   path: '>=0.6.9'
