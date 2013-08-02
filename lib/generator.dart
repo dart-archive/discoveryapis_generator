@@ -20,7 +20,7 @@ part "src/writers.dart";
  *  * A [Map] representing the parsed JSON content of a [RestDescription]
  *  * An instance of [RestDescription]
  */
-GenerateResult generateLibraryFromSource(source, String output,
+GenerateResult generateLibraryFromSource(source, String outputDirectory,
     {String prefix:'', bool check: false, bool force: false}) {
 
   if(source is String) {
@@ -35,7 +35,7 @@ GenerateResult generateLibraryFromSource(source, String output,
 
   var generator = new Generator(source, prefix);
 
-  return generator.generateClient(output, check: check, force: force);
+  return generator.generateClient(outputDirectory, check: check, force: force);
 }
 
 Future<GenerateResult> generateLibrary(String apiName, String apiVersion, String output,
