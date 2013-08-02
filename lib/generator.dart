@@ -5,10 +5,10 @@ import "dart:async";
 import "dart:json" as JSON;
 import 'package:meta/meta.dart';
 import 'package:google_discovery_v1_api/discovery_v1_api_client.dart';
+import 'package:google_discovery_v1_api/discovery_v1_api_console.dart';
 
 part "src/config.dart";
 part "src/generator.dart";
-part "src/loaders.dart";
 part "src/properties.dart";
 part "src/utils.dart";
 part "src/writers.dart";
@@ -40,8 +40,8 @@ GenerateResult generateLibraryFromSource(source, String outputDirectory,
 
 Future<GenerateResult> generateLibrary(String apiName, String apiVersion, String output,
     {String prefix:'', bool check: false, bool force: false}) {
-  return loadDocumentFromGoogle(apiName, apiVersion)
-      .then((String doc) => generateLibraryFromSource(doc, output,
+  return _discoveryClient.apis.getRest(apiName, apiVersion)
+      .then((RestDescription doc) => generateLibraryFromSource(doc, output,
                   prefix: prefix, check: check, force: force));
 }
 
@@ -49,11 +49,11 @@ Future<List<GenerateResult>> generateAllLibraries(String output,
     {String prefix:'', bool check: false, bool force: false}) {
 
   var results = new List<GenerateResult>();
-  return loadGoogleAPIList()
+  return _discoveryClient.apis.list()
       .then((DirectoryList list) {
         return Future.forEach(list.items, (DirectoryListItems item) {
-          return loadDocumentFromUrl(item.discoveryRestUrl)
-              .then((String doc) => generateLibraryFromSource(doc, output,
+          return _discoveryClient.apis.getRest(item.name, item.version)
+              .then((RestDescription doc) => generateLibraryFromSource(doc, output,
                   prefix: prefix, check: check, force: force))
               .then(results.add);
           });
@@ -83,3 +83,5 @@ class GenerateResult {
     return '$apiName $apiVersion @ $packagePath $flag';
   }
 }
+
+final _discoveryClient = new Discovery();

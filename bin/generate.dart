@@ -150,10 +150,10 @@ void main() {
   } else if(!all) {
     Future<String> loader;
     if (url != null) {
-      loader = loadCustomUrl(url);
+      loader = _loadDocumentFromUrl(url);
     } else {
       assert(input != null);
-      loader = loadDocumentFromFile(input);
+      loader = _loadDocumentFromFile(input);
     }
 
     loader.then((String doc) {
@@ -162,4 +162,26 @@ void main() {
   } else {
     generateAllLibraries(output, prefix: prefix, check: check, force: force);
   }
+}
+
+
+Future<String> _loadDocumentFromUrl(String url) {
+  var client = new HttpClient();
+
+  return client.getUrl(Uri.parse(url))
+      .then((HttpClientRequest request) => request.close())
+      .then((HttpClientResponse response) {
+        return response
+          .transform(new StringDecoder(Encoding.UTF_8))
+          .fold(new StringBuffer(), (buffer, data) => buffer..write(data));
+      })
+      .then((StringBuffer buffer) => buffer.toString())
+      .whenComplete(() {
+        client.close();
+      });
+}
+
+Future<String> _loadDocumentFromFile(String fileName) {
+  final file = new File(fileName);
+  return file.readAsString();
 }
