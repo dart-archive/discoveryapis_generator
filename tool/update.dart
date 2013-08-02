@@ -353,9 +353,8 @@ Future<bool> publish(String gitname) {
 }
 
 Future<bool> setPubUploaders(String gitname, {int index: 0}) {
-  var completer = new Completer();
   var workingDirectory = "$outputdir/$gitname/";
-  Process.run("pub", ["uploader", "--server=$pubserver", "add", uploaders[index]], workingDirectory: workingDirectory).then((p) {
+  return Process.run("pub", ["uploader", "--server=$pubserver", "add", uploaders[index]], workingDirectory: workingDirectory).then((p) {
     print("---\nstderr");
     print(p.stderr);
     print("---\nstdout");
@@ -363,12 +362,12 @@ Future<bool> setPubUploaders(String gitname, {int index: 0}) {
     print("Exit code ${p.exitCode}");
     index++;
     if (index < uploaders.length) {
-      setPubUploaders(gitname, index: index).then((v) => completer.complete(true));
+      return setPubUploaders(gitname, index: index)
+          .then((v) => true);
     } else {
-      completer.complete(true);
+      return true;
     }
   });
-  return completer.future;
 }
 
 // API generation and push
