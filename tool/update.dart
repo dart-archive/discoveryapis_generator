@@ -3,6 +3,7 @@ import "dart:async";
 import "dart:json" as JSON;
 import "package:args/args.dart";
 import 'package:google_discovery_v1_api/discovery_v1_api_client.dart';
+import 'package:google_discovery_v1_api/discovery_v1_api_console.dart';
 import "package:discovery_api_client_generator/generator.dart";
 
 String gituser;
@@ -372,6 +373,9 @@ Future<bool> setPubUploaders(String gitname, {int index: 0}) {
 
 // API generation and push
 Future handleAPI(String name, String version, String gitname, {retry: false}) {
+
+  var apis = (new Discovery()).apis;
+
   var completer = new Completer();
   print("");
   print("------------------------------------------------");
@@ -384,7 +388,7 @@ Future handleAPI(String name, String version, String gitname, {retry: false}) {
         print(p.stdout);
 
         print("Fetching API Description");
-        loadDocumentFromGoogle(name, version).then((doc) {
+        apis.getRest(name, version).then((doc) {
           print("Checking for updates and regenerating library if necessary.");
           //XXX: Ripped form generateLibraryFromSource
           if(doc is String) {
@@ -511,6 +515,8 @@ void runUpdate() {
   print("------------------------------------------------");
   print("");
 
+  var apis = (new Discovery()).apis;
+
   getCredentials()
     .then((tok) {
       token = tok;
@@ -526,7 +532,7 @@ void runUpdate() {
         });
       }
       print("Fetching list of currently available Google APIs...");
-      loadGoogleAPIList()
+      apis.list()
         .then((DirectoryList list) {
           var count = 0;
           if (limit == null) limit = list.items.length;
