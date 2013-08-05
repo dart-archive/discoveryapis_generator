@@ -1,6 +1,5 @@
 library generator.hop;
 
-import 'dart:async';
 import 'package:hop/hop.dart';
 import 'package:hop/hop_tasks.dart';
 
