@@ -1,6 +1,7 @@
 import "dart:io";
 import "dart:async";
 import "dart:json" as JSON;
+import "dart:convert";
 import "package:args/args.dart";
 import 'package:google_discovery_v1_api/discovery_v1_api_client.dart';
 import 'package:google_discovery_v1_api/discovery_v1_api_console.dart';
@@ -36,7 +37,7 @@ Future<String> promptPassword() {
   stdout.write("GitHub password for $gituser: ");
 
   stdinSubscription = stdin
-      .transform(new StringDecoder())
+      .transform(UTF8.decoder)
       .transform(new LineTransformer())
       .listen((String line){
         stdinSubscription.cancel();
