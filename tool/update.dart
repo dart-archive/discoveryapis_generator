@@ -1,8 +1,9 @@
 import "dart:io";
-import "dart:uri";
 import "dart:async";
 import "dart:json" as JSON;
 import "package:args/args.dart";
+import 'package:google_discovery_v1_api/discovery_v1_api_client.dart';
+import 'package:google_discovery_v1_api/discovery_v1_api_console.dart';
 import "package:discovery_api_client_generator/generator.dart";
 
 String gituser;
@@ -20,7 +21,9 @@ bool recreate = false;
 int limit;
 List failedUpload = [];
 List completedUpload = [];
-List<String> uploaders = ["scarygami@gmail.com", "financeCoding@gmail.com"];
+List<String> uploaders = ["scarygami@gmail.com", "financeCoding@gmail.com",
+                          "kevin@thinkpixellab.com"];
+String userAgent = "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/28.0.1468.0 Safari/537.36";
 
 // Authentication stuff
 
@@ -59,8 +62,10 @@ Future<String> gitHubLogin() {
     connection
       .then((request){
         var data = JSON.stringify({"scopes": ["repo"], "note": "API Client Generator"});
+        request.headers.set(HttpHeaders.USER_AGENT, userAgent);
         request.headers.set(HttpHeaders.CONTENT_TYPE, "application/json");
         request.headers.set(HttpHeaders.CONTENT_LENGTH, "${data.length}");
+        request.headers.set(HttpHeaders.USER_AGENT, userAgent);
 
         request.write(data);
         request.done
@@ -99,6 +104,7 @@ Future<bool> checkCredentials(String token) {
   Future<HttpClientRequest> connection = client.openUrl("GET", Uri.parse("https://api.github.com/user/repos"));
 
   connection.then((request){
+    request.headers.set(HttpHeaders.USER_AGENT, userAgent);
     request.headers.set(HttpHeaders.AUTHORIZATION, "token $token");
 
     request.done.then((response) {
@@ -196,6 +202,7 @@ Future<bool> createRepository(String name, String version, String gitname) {
           "description": "Auto-generated Dart client library to access the $name $version API"
         }
     );
+    request.headers.set(HttpHeaders.USER_AGENT, userAgent);
     request.headers.set(HttpHeaders.AUTHORIZATION, "token $token");
     request.headers.set(HttpHeaders.CONTENT_TYPE, "application/json");
     request.headers.set(HttpHeaders.CONTENT_LENGTH, "${data.length}");
@@ -240,6 +247,7 @@ Future<bool> findRepository(String name, String version, String gitname) {
 
   connection.then((request){
 
+    request.headers.set(HttpHeaders.USER_AGENT, userAgent);
     request.headers.set(HttpHeaders.AUTHORIZATION, "token $token");
 
     request.done.then((response){
@@ -276,8 +284,7 @@ Future<bool> findRepository(String name, String version, String gitname) {
 Future<bool> publish(String gitname) {
   var completer = new Completer<bool>();
   print("Publishing library to pub");
-  var options = new ProcessOptions();
-  options.workingDirectory = "$outputdir/$gitname/";
+  var workingDirectory = "$outputdir/$gitname/";
   var arguments = [];
   if (pubVerbose) {
     arguments.add("-v");
@@ -285,7 +292,7 @@ Future<bool> publish(String gitname) {
 
   arguments.add("publish");
   arguments.add("--server=$pubserver");
-  Process.start("pub", arguments, options)
+  Process.start("pub", arguments, workingDirectory: workingDirectory)
   ..then((p) {
     StringBuffer stderrBuffer = new StringBuffer();
     p.stderr.transform(new StringDecoder()).listen((String data) {
@@ -311,7 +318,7 @@ Future<bool> publish(String gitname) {
           calledReady = true;
           p.stdin.write('y\n');
         }
-      } else if (stdoutBuffer.toString().contains(r"warnings. Upload anyway")) {
+      } else if (stdoutBuffer.toString().contains(new RegExp("warning(s)?. Upload anyway"))) {
         if (!calledWarnings) {
           calledWarnings = true;
           p.stdin.write('y\n');
@@ -346,24 +353,28 @@ Future<bool> publish(String gitname) {
 }
 
 Future<bool> setPubUploaders(String gitname, {int index: 0}) {
-  var completer = new Completer();
-  var options = new ProcessOptions();
-  options.workingDirectory = "$outputdir/$gitname/";
-  Process.run("pub", ["uploader", "--server=$pubserver", "add", uploaders[index]], options).then((p) {
+  var workingDirectory = "$outputdir/$gitname/";
+  return Process.run("pub", ["uploader", "--server=$pubserver", "add", uploaders[index]], workingDirectory: workingDirectory).then((p) {
+    print("---\nstderr");
     print(p.stderr);
+    print("---\nstdout");
     print(p.stdout);
+    print("Exit code ${p.exitCode}");
     index++;
     if (index < uploaders.length) {
-      setPubUploaders(gitname, index: index).then((v) => completer.complete(true));
+      return setPubUploaders(gitname, index: index)
+          .then((v) => true);
     } else {
-      completer.complete(true);
+      return true;
     }
   });
-  return completer.future;
 }
 
 // API generation and push
 Future handleAPI(String name, String version, String gitname, {retry: false}) {
+
+  var apis = (new Discovery()).apis;
+
   var completer = new Completer();
   print("");
   print("------------------------------------------------");
@@ -376,20 +387,30 @@ Future handleAPI(String name, String version, String gitname, {retry: false}) {
         print(p.stdout);
 
         print("Fetching API Description");
-        loadDocumentFromGoogle(name, version).then((doc) {
+        apis.getRest(name, version).then((doc) {
           print("Checking for updates and regenerating library if necessary.");
+          //XXX: Ripped form generateLibraryFromSource
+          if(doc is String) {
+            doc = JSON.parse(doc);
+          }
+
+          if(doc is Map) {
+            doc = new RestDescription.fromJson(doc);
+          }
+
           var generator = new Generator(doc, prefix);
-          if (generator.generateClient(outputdir, check: true, force: force, forceVersion: forceVersion) || retry) {
+          GenerateResult generatedResult = generator.generateClient(outputdir, check: true, force: force, forceVersion: forceVersion);
+          print("Library generated ${generatedResult.success}");
+          if (generatedResult.success || retry) {
             print("Committing changes to GitHub");
-            var options = new ProcessOptions();
-            options.workingDirectory = "$outputdir/$gitname/";
-            Process.run("git", ["status"], options).then((p) {
+            var workingDirectory = "$outputdir/$gitname/";
+            Process.run("git", ["status"], workingDirectory: workingDirectory).then((p) {
               print(p.stdout);
-              Process.run("git", ["add", "--all"], options).then((p) {
+              Process.run("git", ["add", "--all"], workingDirectory: workingDirectory).then((p) {
                 print(p.stdout);
-                Process.run("git", ["commit", "-m Automated update"], options).then((p) {
+                Process.run("git", ["commit", "-m Automated update"], workingDirectory: workingDirectory).then((p) {
                   print(p.stdout);
-                  Process.run("git", ["push", "https://$token@github.com/$repouser/$gitname.git", "master"], options).then((p) {
+                  Process.run("git", ["push", "https://$token@github.com/$repouser/$gitname.git", "master"], workingDirectory: workingDirectory).then((p) {
                     print(p.stdout);
                     if (pubserver != null) {
                       publish(gitname)
@@ -493,6 +514,8 @@ void runUpdate() {
   print("------------------------------------------------");
   print("");
 
+  var apis = (new Discovery()).apis;
+
   getCredentials()
     .then((tok) {
       token = tok;
@@ -508,19 +531,19 @@ void runUpdate() {
         });
       }
       print("Fetching list of currently available Google APIs...");
-      loadGoogleAPIList()
-        .then((json) {
+      apis.list()
+        .then((DirectoryList list) {
           var count = 0;
-          if (limit == null) limit = json["items"].length;
+          if (limit == null) limit = list.items.length;
           var apis = new List();
 
-          json["items"].forEach((item) {
+          list.items.forEach((DirectoryListItems item) {
             count++;
             if (count <= limit) {
               var api = new Map();
-              api["name"] = item["name"];
-              api["version"] = item["version"];
-              api["gitname"] = cleanName("dart_${item["name"]}_${item["version"]}_api_client").toLowerCase();
+              api["name"] = item.name;
+              api["version"] = item.version;
+              api["gitname"] = cleanName("dart_${item.name}_${item.version}_api_client").toLowerCase();
               apis.add(api);
             }
           });

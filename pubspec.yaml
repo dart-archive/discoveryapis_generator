@@ -1,16 +1,20 @@
 name: discovery_api_client_generator
-version: 0.2.5
+version: 0.3.1-dev
 authors:
 - Gerwin Sturm <scarygami@gmail.com>
 - Adam Singer <financeCoding@gmail.com>
-description: Create API Client libraries based on the API's Discovery documentation
+- Kevin Moore <kevin@thinkpixellab.com>
+description: Create API Client libraries based on the APIs Discovery documentation
 homepage: https://github.com/dart-gde/discovery_api_dart_client_generator
 environment:
-  sdk: '>=0.5.0+1.r21823'
-dev_dependencies:
-  hop: '>=0.21.0 <0.22.0'
-  unittest: '>=0.4.7+1'
+  sdk: '>=0.6.9'
 dependencies:
-  args: '>=0.4.7+1'
-  logging: '>=0.4.7+1'
-  pathos: '>=0.4.7+1'
+  args: '>=0.6.9'
+  google_discovery_v1_api: 0.3.8
+  logging: '>=0.6.9'
+  meta: '>=0.6.9'
+  path: '>=0.6.9'
+dev_dependencies:
+  bot_io: '>=0.23.1'
+  hop: '>=0.24.1'
+  unittest: '>=0.6.9'

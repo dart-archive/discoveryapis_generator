@@ -1,17 +1,30 @@
-library hop_runner;
+library generator.hop;
 
-import 'dart:async';
-import 'dart:io';
 import 'package:hop/hop.dart';
 import 'package:hop/hop_tasks.dart';
 
+import 'util.dart';
+
+import '../test/harness_console.dart' as test_console;
+
 void main() {
-  
-  addTask('docs', createDartDocTask(['lib/generator.dart'], linkApi: true));
-  
+
+  addTask('test', createUnitTestTask(test_console.testCore));
+
+  addTask('docs', createDartDocTask(
+      ['lib/generator.dart', 'lib/schemas.dart'],
+      linkApi: true));
+
+  //
+  // Generate and analyze all libraries
+  //
+  addTask('generate_and_analyze', new Task.async(generateAnalyzeAll,
+      description: 'Generate all of the apis and run the analyzer against them'));
+
   //
   // Analyzer
   //
+<<<<<<< HEAD
   addTask('analyze', createDartAnalyzerTask(['lib/generator.dart', 
                                              'bin/generate.dart',
                                              'tool/update.dart'
@@ -36,3 +49,13 @@ Future<List<String>> _getLibs() {
       .map((File file) => file.path)
       .toList();
 }
+=======
+  addTask('analyze', createAnalyzerTask(
+      [
+       'lib/generator.dart',
+       'lib/schemas.dart',
+       'bin/generate.dart',
+       'tool/update.dart']));
+  runHop();
+}
+>>>>>>> cbd0cad2287fae0fb2260078fa261caf4060fc68
