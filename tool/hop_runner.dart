@@ -28,6 +28,7 @@ void main() {
       [
        'lib/generator.dart',
        'bin/generate.dart',
-       'tool/update.dart']));
+       'tool/update.dart',
+       'tool/util.dart']));
   runHop();
 }
