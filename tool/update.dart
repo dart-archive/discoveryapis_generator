@@ -38,7 +38,7 @@ Future<String> promptPassword() {
 
   stdinSubscription = stdin
       .transform(UTF8.decoder)
-      .transform(new LineTransformer())
+      .transform(new LineSplitter())
       .listen((String line){
         stdinSubscription.cancel();
         // scroll password out of view just in case...
@@ -72,7 +72,7 @@ Future<String> gitHubLogin() {
         request.done
           .then((response) {
             StringBuffer onResponseBody = new StringBuffer();
-            response.transform(new StringDecoder())
+            response.transform(UTF8.decoder)
               .listen((String data) => onResponseBody.write(data),
               onError: (error) => completer.completeError(error),
               onDone: () {
@@ -214,7 +214,7 @@ Future<bool> createRepository(String name, String version, String gitname) {
 
       StringBuffer onResponseBody = new StringBuffer();
 
-      response.transform(new StringDecoder()).listen(
+      response.transform(UTF8.decoder).listen(
           (String data) => onResponseBody.write(data),
           onError: (error) => completer.completeError(error),
           onDone:() {
@@ -296,7 +296,7 @@ Future<bool> publish(String gitname) {
   Process.start("pub", arguments, workingDirectory: workingDirectory)
   ..then((p) {
     StringBuffer stderrBuffer = new StringBuffer();
-    p.stderr.transform(new StringDecoder()).listen((String data) {
+    p.stderr.transform(UTF8.decoder).listen((String data) {
       stderrBuffer.write(data);
 
       if (pubVerbose) {
@@ -307,7 +307,7 @@ Future<bool> publish(String gitname) {
     StringBuffer stdoutBuffer = new StringBuffer();
     bool calledReady = false;
     bool calledWarnings = false;
-    p.stdout.transform(new StringDecoder()).listen((String data) {
+    p.stdout.transform(UTF8.decoder).listen((String data) {
       stdoutBuffer.write(data);
 
       if (pubVerbose) {
@@ -486,8 +486,8 @@ void handleAPIs(List apis, {retry: false}) {
             print("Retry Failed Upload (y)?");
             StreamSubscription stdinSubscription;
             stdinSubscription = stdin
-                .transform(new StringDecoder())
-                .transform(new LineTransformer())
+                .transform(UTF8.decoder)
+                .transform(new LineSplitter())
                 .listen((String line) {
                   stdinSubscription.cancel();
                   String retry = line.replaceAll("\r", "").replaceAll("\n", "");
