@@ -7,14 +7,14 @@ authors:
 description: Create API Client libraries based on the APIs Discovery documentation
 homepage: https://github.com/dart-gde/discovery_api_dart_client_generator
 environment:
-  sdk: '>=0.6.9'
+  sdk: '>=0.7.1'
 dependencies:
-  args: '>=0.6.9'
+  args: '>=0.7.1'
   google_discovery_v1_api: 0.3.8
-  logging: '>=0.6.9'
-  meta: '>=0.6.9'
-  path: '>=0.6.9'
+  logging: '>=0.7.1'
+  meta: '>=0.7.1'
+  path: '>=0.7.1'
 dev_dependencies:
   bot_io: '>=0.23.1'
-  hop: '>=0.24.1'
-  unittest: '>=0.6.9'
+  hop: '>=0.24.4'
+  unittest: '>=0.7.1'

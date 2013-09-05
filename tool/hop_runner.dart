@@ -9,10 +9,11 @@ import '../test/harness_console.dart' as test_console;
 
 void main() {
 
-  addTask('test', createUnitTestTask(test_console.testCore));
+  addTask('test', createUnitTestTask(test_console.testCore,
+      timeout: const Duration(seconds: 40)));
 
   addTask('docs', createDartDocTask(
-      ['lib/generator.dart', 'lib/schemas.dart'],
+      ['lib/generator.dart'],
       linkApi: true));
 
   //
@@ -27,8 +28,8 @@ void main() {
   addTask('analyze', createAnalyzerTask(
       [
        'lib/generator.dart',
-       'lib/schemas.dart',
        'bin/generate.dart',
-       'tool/update.dart']));
+       'tool/update.dart',
+       'tool/util.dart']));
   runHop();
 }
