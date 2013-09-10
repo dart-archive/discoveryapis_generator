@@ -2,6 +2,7 @@
 
 import 'dart:async';
 import "dart:io";
+import "dart:convert";
 import "package:args/args.dart";
 import "package:discovery_api_client_generator/generator.dart";
 
@@ -172,7 +173,7 @@ Future<String> _loadDocumentFromUrl(String url) {
       .then((HttpClientRequest request) => request.close())
       .then((HttpClientResponse response) {
         return response
-          .transform(new StringDecoder(Encoding.UTF_8))
+          .transform(UTF8.decoder)
           .fold(new StringBuffer(), (buffer, data) => buffer..write(data));
       })
       .then((StringBuffer buffer) => buffer.toString())
