@@ -107,9 +107,9 @@ class Generator {
 
     // Create cloud api files
 
-    _writeString("$libFolder/src/cloud_api.dart", _CLOUD_API_SOURCE);
-    _writeString("$libFolder/src/cloud_api_browser.dart", _CLOUD_API_BROWSER_SOURCE);
-    _writeString("$libFolder/src/cloud_api_console.dart", _CLOUD_API_CONSOLE_SOURCE);
+    _writeString("$libFolder/src/client_base.dart", _CLOUD_API_SOURCE);
+    _writeString("$libFolder/src/browser_client.dart", _CLOUD_API_BROWSER_SOURCE);
+    _writeString("$libFolder/src/console_client.dart", _CLOUD_API_CONSOLE_SOURCE);
 
     // Create common library files
 
@@ -197,8 +197,8 @@ import "dart:async" as async;
 import "dart:json" as JSON;
 import 'dart:collection' as dart_collection;
 
-import 'package:$_libraryPubspecName/src/cloud_api.dart';
-export 'package:$_libraryPubspecName/src/cloud_api.dart' show APIRequestException;
+import 'package:$_libraryPubspecName/src/client_base.dart';
+export 'package:$_libraryPubspecName/src/client_base.dart' show APIRequestError;
 
 part 'src/client/client.dart';
 part 'src/client/schemas.dart';
@@ -211,7 +211,7 @@ library ${_shortName}_api.browser;
 
 import "package:google_oauth2_client/google_oauth2_browser.dart" as oauth;
 
-import 'package:$_libraryPubspecName/src/cloud_api_browser.dart';
+import 'package:$_libraryPubspecName/src/browser_client.dart';
 import "package:$_libraryPubspecName/$_libraryName.dart";
 
 """);
@@ -237,7 +237,7 @@ library ${_shortName}_api.console;
 
 import "package:google_oauth2_client/google_oauth2_console.dart" as oauth2;
 
-import 'package:$_libraryPubspecName/src/cloud_api_console.dart';
+import 'package:$_libraryPubspecName/src/console_client.dart';
 
 import "package:$_libraryPubspecName/$_libraryName.dart";
 
@@ -403,6 +403,7 @@ void main() {
 library cloud_api;
 
 import "dart:async";
+import "dart:json" as JSON;
 
 // TODO: look into other ways of building out the multiPartBody
 
@@ -447,15 +448,39 @@ abstract class ClientBase {
 
     return request(requestUrl, method, body: multiPartBody.toString(), contentType: "multipart/mixed; boundary=\"$_boundary\"", urlParams: urlParams, queryParams: queryParams);
   }
+
+  static Map<String, dynamic> responseParse(int statusCode, String responseBody) {
+    DetailedApiRequestError.validateResponse(statusCode, responseBody);
+
+    if(responseBody.isEmpty) {
+      return null;
+    }
+    return JSON.parse(responseBody);
+  }
 }
 
 /**
- * Exception thrown when the HTTP Request to the API failed
+ * Error thrown when the HTTP Request to the API failed
  */
-class APIRequestException implements Exception {
-  final String msg;
-  const APIRequestException([this.msg]);
-  String toString() => (msg == null) ? "APIRequestException" : "APIRequestException: $msg";
+class APIRequestError extends Error {
+  final String message;
+  APIRequestError([this.message]);
+  String toString() => (message == null) ? "APIRequestException" : "APIRequestException: $message";
+}
+
+class DetailedApiRequestError extends Error {
+  final int statusCode;
+  final String body;
+
+  DetailedApiRequestError._(this.statusCode, this.body);
+
+  static void validateResponse(int statusCode, String responseBody) {
+    if(statusCode >= 400) {
+      throw new DetailedApiRequestError._(statusCode, responseBody);
+    }
+  }
+
+  String toString() => '$statusCode - $body';
 }
 """;
 
@@ -467,7 +492,7 @@ import "dart:json" as JSON;
 import "package:js/js.dart" as js;
 import "package:google_oauth2_client/google_oauth2_browser.dart" as oauth;
 
-import 'cloud_api.dart';
+import 'client_base.dart';
 
 /**
  * Base class for all Browser API clients, offering generic methods for HTTP Requests to the API
@@ -533,7 +558,7 @@ abstract class BrowserClient implements ClientBase {
         if (jsonResp == null || (jsonResp is bool && jsonResp == false)) {
           var raw = JSON.parse(rawResp);
           if (raw["gapiRequest"]["data"]["status"] >= 400) {
-            completer.completeError(new APIRequestException("JS Client - ${raw["gapiRequest"]["data"]["status"]} ${raw["gapiRequest"]["data"]["statusText"]} - ${raw["gapiRequest"]["data"]["body"]}"));
+            completer.completeError(new APIRequestError("JS Client - ${raw["gapiRequest"]["data"]["status"]} ${raw["gapiRequest"]["data"]["statusText"]} - ${raw["gapiRequest"]["data"]["body"]}"));
           } else {
             completer.complete({});
           }
@@ -607,7 +632,7 @@ abstract class BrowserClient implements ClientBase {
         if (error == "") {
           error = "${request.status} ${request.statusText}";
         }
-        completer.completeError(new APIRequestException(error));
+        completer.completeError(new APIRequestError(error));
       }
     }
 
@@ -642,11 +667,10 @@ abstract class BrowserClient implements ClientBase {
 
 import "dart:io";
 import "dart:async";
-import "dart:json";
 import "package:http/http.dart";
 import "package:google_oauth2_client/google_oauth2_console.dart" as oauth2;
 
-import 'cloud_api.dart';
+import 'client_base.dart';
 
 /**
  * Base class for all Console API clients, offering generic methods for HTTP Requests to the API
@@ -701,10 +725,7 @@ abstract class ConsoleClient implements ClientBase {
     return httpClient.send(request)
         .then(Response.fromStream)
         .then((Response response) {
-          if(response.body.isEmpty) {
-            return null;
-          }
-          return parse(response.body);
+          return ClientBase.responseParse(response.statusCode, response.body);
         })
         .whenComplete(() {
           httpClient.close();
