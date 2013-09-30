@@ -31,8 +31,10 @@ List<String> getLibraryPaths(String rootDir, String shortName) {
 
   var files = [];
 
-  files.addAll(['', '_browser', '_console']
-    .map((k) => 'src/cloud_api${k}.dart'));
+  files.add('src/client_base.dart');
+
+  files.addAll(['browser', 'console']
+    .map((k) => 'src/${k}_client.dart'));
 
   files.addAll(['console', 'browser', 'client']
     .map((k) => '${shortName}_${k}.dart'));
