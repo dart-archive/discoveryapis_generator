@@ -2,7 +2,7 @@ library discovery_api_client_generator;
 
 import "dart:io";
 import "dart:async";
-import "dart:json" as JSON;
+import "dart:convert";
 import 'package:meta/meta.dart';
 import 'package:google_discovery_v1_api/discovery_v1_api_client.dart';
 import 'package:google_discovery_v1_api/discovery_v1_api_console.dart';

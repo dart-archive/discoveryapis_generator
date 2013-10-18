@@ -194,7 +194,7 @@ library ${_shortName}_api;
 
 import "dart:core" as core;
 import "dart:async" as async;
-import "dart:json" as JSON;
+import "dart:convert";
 import 'dart:collection' as dart_collection;
 
 import 'package:$_libraryPubspecName/src/client_base.dart';
@@ -403,7 +403,7 @@ void main() {
 library cloud_api;
 
 import "dart:async";
-import "dart:json" as JSON;
+import "dart:convert";
 
 // TODO: look into other ways of building out the multiPartBody
 
@@ -488,7 +488,7 @@ class DetailedApiRequestError extends Error {
 
 import "dart:async";
 import "dart:html" as html;
-import "dart:json" as JSON;
+import "dart:convert";
 import "package:js/js.dart" as js;
 import "package:google_oauth2_client/google_oauth2_browser.dart" as oauth;
 
