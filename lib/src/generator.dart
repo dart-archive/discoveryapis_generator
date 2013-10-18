@@ -455,7 +455,7 @@ abstract class ClientBase {
     if(responseBody.isEmpty) {
       return null;
     }
-    return JSON.parse(responseBody);
+    return JSON.decode(responseBody);
   }
 }
 
@@ -556,7 +556,7 @@ abstract class BrowserClient implements ClientBase {
       var request = js.context["gapi"]["client"]["request"](js.map(requestData));
       var callback = new js.Callback.once((jsonResp, rawResp) {
         if (jsonResp == null || (jsonResp is bool && jsonResp == false)) {
-          var raw = JSON.parse(rawResp);
+          var raw = JSON.decode(rawResp);
           if (raw["gapiRequest"]["data"]["status"] >= 400) {
             completer.completeError(new APIRequestError("JS Client - ${raw["gapiRequest"]["data"]["status"]} ${raw["gapiRequest"]["data"]["statusText"]} - ${raw["gapiRequest"]["data"]["body"]}"));
           } else {
@@ -608,7 +608,7 @@ abstract class BrowserClient implements ClientBase {
           url = oauth.UrlPattern.generatePattern(path, urlParams, {});
           _makeJsClientRequest(url, method, body: body, contentType: contentType, queryParams: queryParams)
             .then((response) {
-              var data = JSON.parse(response);
+              var data = JSON.decode(response);
               completer.complete(data);
             })
             .catchError((e) {
@@ -621,7 +621,7 @@ abstract class BrowserClient implements ClientBase {
         if (request.responseText != null) {
           var errorJson;
           try {
-            errorJson = JSON.parse(request.responseText);
+            errorJson = JSON.decode(request.responseText);
           } on FormatException {
             errorJson = null;
           }
@@ -640,7 +640,7 @@ abstract class BrowserClient implements ClientBase {
       if (request.status > 0 && request.status < 400) {
         var data = {};
         if (!request.responseText.isEmpty) {
-          data = JSON.parse(request.responseText);
+          data = JSON.decode(request.responseText);
         }
         completer.complete(data);
       } else {

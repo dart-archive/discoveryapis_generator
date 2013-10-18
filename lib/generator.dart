@@ -24,7 +24,7 @@ GenerateResult generateLibraryFromSource(source, String outputDirectory,
     {String prefix:'', bool check: false, bool force: false}) {
 
   if(source is String) {
-    source = JSON.parse(source);
+    source = JSON.decode(source);
   }
 
   if(source is Map) {
