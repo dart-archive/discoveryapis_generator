@@ -16,7 +16,7 @@ void _writeSchemaClass(StringSink sink, String name, JsonSchema data) {
     });
   } else {
     print('\tWeird to get no properties for $name');
-    print('\t\t${JSON.stringify(data)}');
+    print('\t\t${JSON.encode(data)}');
   }
 
   props.forEach((property) {
@@ -45,7 +45,7 @@ void _writeSchemaClass(StringSink sink, String name, JsonSchema data) {
   sink.writeln();
 
   sink.writeln('  /** Return String representation of $name */');
-  sink.writeln('  core.String toString() => JSON.stringify(this.toJson());');
+  sink.writeln('  core.String toString() => JSON.encode(this.toJson());');
   sink.writeln();
 
   sink.writeln('}');

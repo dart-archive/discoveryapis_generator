@@ -1,6 +1,5 @@
 import "dart:io";
 import "dart:async";
-import "dart:json" as JSON;
 import "dart:convert";
 import "package:args/args.dart";
 import 'package:google_discovery_v1_api/discovery_v1_api_client.dart';
@@ -62,7 +61,7 @@ Future<String> gitHubLogin() {
 
     connection
       .then((request){
-        var data = JSON.stringify({"scopes": ["repo"], "note": "API Client Generator"});
+        var data = JSON.encode({"scopes": ["repo"], "note": "API Client Generator"});
         request.headers.set(HttpHeaders.USER_AGENT, userAgent);
         request.headers.set(HttpHeaders.CONTENT_TYPE, "application/json");
         request.headers.set(HttpHeaders.CONTENT_LENGTH, "${data.length}");
@@ -146,7 +145,7 @@ Future<String> getCredentials() {
     print("No stored GitHub credentials found, trying to authenticate.");
     gitHubLogin()
       .then((data) {
-        var json = JSON.parse(data);
+        var json = JSON.decode(data);
         var token = json["token"];
         credentialsFile.writeAsStringSync(token);
         completer.complete(token);
@@ -165,7 +164,7 @@ Future<String> getCredentials() {
           credentialsFile.delete();
           gitHubLogin()
           .then((data) {
-            var json = JSON.parse(data);
+            var json = JSON.decode(data);
             var token = json["token"];
             credentialsFile.writeAsStringSync(token);
             completer.complete(token);
@@ -197,7 +196,7 @@ Future<bool> createRepository(String name, String version, String gitname) {
   Future<HttpClientRequest> connection = client.openUrl("POST", Uri.parse(url));
 
   connection.then((request){
-    var data = JSON.stringify(
+    var data = JSON.encode(
         {
           "name": gitname,
           "description": "Auto-generated Dart client library to access the $name $version API"
@@ -392,7 +391,7 @@ Future handleAPI(String name, String version, String gitname, {retry: false}) {
           print("Checking for updates and regenerating library if necessary.");
           //XXX: Ripped form generateLibraryFromSource
           if(doc is String) {
-            doc = JSON.parse(doc);
+            doc = JSON.decode(doc);
           }
 
           if(doc is Map) {

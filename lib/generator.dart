@@ -2,7 +2,7 @@ library discovery_api_client_generator;
 
 import "dart:io";
 import "dart:async";
-import "dart:json" as JSON;
+import "dart:convert";
 import 'package:meta/meta.dart';
 import 'package:google_discovery_v1_api/discovery_v1_api_client.dart';
 import 'package:google_discovery_v1_api/discovery_v1_api_console.dart';
@@ -24,7 +24,7 @@ GenerateResult generateLibraryFromSource(source, String outputDirectory,
     {String prefix:'', bool check: false, bool force: false}) {
 
   if(source is String) {
-    source = JSON.parse(source);
+    source = JSON.decode(source);
   }
 
   if(source is Map) {
