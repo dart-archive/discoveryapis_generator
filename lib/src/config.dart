@@ -3,9 +3,9 @@ part of discovery_api_client_generator;
 class Config {
   String get clientVersion => "0.4";
 
-  bool get isDev => true;
+  bool get isDev => false;
 
-  String get dartEnvironmentVersionConstraint => '>=0.7.6';
+  String get dartEnvironmentVersionConstraint => '>=0.8.1';
 
   Map<String, String> get authors => const {
     'Adam Singer': 'financeCoding@gmail.com',
@@ -14,8 +14,8 @@ class Config {
   };
 
   Map<String, String> get dependencyVersions => const {
-    'google_oauth2_client': " '>=0.2.17'",
-    'js': " '>=0.0.24'"
+    'google_oauth2_client': " '>=0.3.0'",
+    'js': " '>=0.0.25'"
   };
 
   Map<String, String> get devDependencyVersions => const {
