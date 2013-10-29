@@ -10,7 +10,7 @@ environment:
   sdk: '>=0.7.6'
 dependencies:
   args: '>=0.7.6'
-  google_discovery_v1_api: 0.3.8
+  google_discovery_v1_api: '>=0.4.9'
   logging: '>=0.7.6'
   meta: '>=0.7.6'
   path: '>=0.7.6'
