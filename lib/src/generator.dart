@@ -489,7 +489,7 @@ class DetailedApiRequestError extends Error {
 import "dart:async";
 import "dart:html" as html;
 import "dart:convert";
-import "package:js/js.dart" as js;
+import "dart:js" as js;
 import "package:google_oauth2_client/google_oauth2_browser.dart" as oauth;
 
 import 'client_base.dart';
