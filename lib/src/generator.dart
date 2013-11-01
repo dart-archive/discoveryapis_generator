@@ -515,12 +515,10 @@ abstract class BrowserClient implements ClientBase {
 
     var completer = new Completer();
 
-    js.scoped((){
-      js.context[_corsCallback] =  new js.Callback.once(() {
-        _jsClientLoaded = true;
-        completer.complete();
-      });
-    });
+    js.context[_corsCallback] =  () {
+      _jsClientLoaded = true;
+      completer.complete();
+    };
 
     html.ScriptElement script = new html.ScriptElement();
     script.src = "https://apis.google.com/js/client.js?onload=$_corsCallback";
@@ -552,22 +550,20 @@ abstract class BrowserClient implements ClientBase {
     }
 
     var completer = new Completer();
-    js.scoped(() {
-      var request = js.context["gapi"]["client"]["request"](js.map(requestData));
-      var callback = new js.Callback.once((jsonResp, rawResp) {
-        if (jsonResp == null || (jsonResp is bool && jsonResp == false)) {
-          var raw = JSON.decode(rawResp);
-          if (raw["gapiRequest"]["data"]["status"] >= 400) {
-            completer.completeError(new APIRequestError("JS Client - ${raw["gapiRequest"]["data"]["status"]} ${raw["gapiRequest"]["data"]["statusText"]} - ${raw["gapiRequest"]["data"]["body"]}"));
-          } else {
-            completer.complete({});
-          }
+    var request = js.context["gapi"]["client"].callMethod("request", [js.jsify(requestData)]);
+    var callback = (jsonResp, rawResp) {
+      if (jsonResp == null || (jsonResp is bool && jsonResp == false)) {
+        var raw = JSON.decode(rawResp);
+        if (raw["gapiRequest"]["data"]["status"] >= 400) {
+          completer.completeError(new APIRequestError("JS Client - ${raw["gapiRequest"]["data"]["status"]} ${raw["gapiRequest"]["data"]["statusText"]} - ${raw["gapiRequest"]["data"]["body"]}"));
         } else {
-          completer.complete(js.context["JSON"]["stringify"](jsonResp));
+          completer.complete({});
         }
-      });
-      request.execute(callback);
-    });
+      } else {
+        completer.complete(js.context["JSON"].callMethod("stringify", [jsonResp]));
+      }
+    };
+    request.execute(callback);
 
     return completer.future;
   }
