@@ -46,10 +46,9 @@ ArgParser _getParser() => new ArgParser()
   ..addFlag(_argForce, help: "Force client version update even if no changes", negatable: false)
   ..addFlag(_argHelp, abbr: "h", help: "Display this information and exit", negatable: false);
 
-ArgResults _getParserResults(ArgParser parser) {
-  final options = new Options();
+ArgResults _getParserResults(ArgParser parser, List<String> arguments) {
   try {
-    return parser.parse(options.arguments);
+    return parser.parse(arguments);
   } on FormatException catch(e) {
     print("Error parsing arguments:\n${e.message}\n");
     printUsage(parser);
@@ -57,9 +56,9 @@ ArgResults _getParserResults(ArgParser parser) {
   }
 }
 
-void main() {
+void main(List<String> arguments) {
   var parser = _getParser();
-  var result = _getParserResults(parser);
+  var result = _getParserResults(parser, arguments);
 
   bool help = result[_argHelp];
 
