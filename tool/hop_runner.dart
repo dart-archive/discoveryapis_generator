@@ -19,7 +19,7 @@ void main() {
   //
   // Generate and analyze all libraries
   //
-  addTask('generate_and_analyze', new Task.async(generateAnalyzeAll,
+  addTask('generate_and_analyze', new Task(generateAnalyzeAll,
       description: 'Generate all of the apis and run the analyzer against them'));
 
   //
