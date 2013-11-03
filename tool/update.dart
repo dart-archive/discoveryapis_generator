@@ -563,8 +563,7 @@ void printUsage(parser) {
   print(parser.getUsage());
 }
 
-void main() {
-  final options = new Options();
+void main(List<String> arguments) {
   var parser = new ArgParser();
   parser.addOption("gituser", abbr: "g", help: "User to connect to GitHub with (required)");
   parser.addOption("repouser", abbr: "r", help: "Owner of the repositories (defaults to --gituser)");
@@ -583,7 +582,7 @@ void main() {
 
   ArgResults result;
   try {
-    result = parser.parse(options.arguments);
+    result = parser.parse(arguments);
   } on FormatException catch(e) {
     print("Error parsing arguments:\n${e.message}\n");
     exit(1);
