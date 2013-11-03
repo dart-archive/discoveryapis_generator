@@ -550,7 +550,8 @@ abstract class BrowserClient implements ClientBase {
     }
 
     var completer = new Completer();
-    var request = js.context["gapi"]["client"].callMethod("request", [js.jsify(requestData)]);
+    var request = js.context["gapi"]["client"].callMethod("request", 
+      [new js.JsObject.jsify(requestData)]);
     var callback = (jsonResp, rawResp) {
       if (jsonResp == null || (jsonResp is bool && jsonResp == false)) {
         var raw = JSON.decode(rawResp);
