@@ -3,7 +3,7 @@ part of discovery_api_client_generator;
 class Config {
   String get clientVersion => "0.4";
 
-  bool get isDev => true;
+  bool get isDev => false;
 
   String get dartEnvironmentVersionConstraint => '>=0.8.7';
 
