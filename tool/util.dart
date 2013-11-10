@@ -8,7 +8,7 @@ import 'package:hop/hop.dart';
 
 import "package:discovery_api_client_generator/generator.dart";
 
-Future<bool> generateAnalyzeAll(TaskContext ctx) {
+dynamic generateAnalyzeAll(TaskContext ctx) {
   return TempDir.then((Directory dir) {
     return generateAllLibraries(dir.path)
         .then((List<GenerateResult> results) {

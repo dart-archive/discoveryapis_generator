@@ -7,7 +7,7 @@ import 'util.dart';
 
 import '../test/harness_console.dart' as test_console;
 
-void main() {
+void main(List<String> args) {
 
   addTask('test', createUnitTestTask(test_console.testCore,
       timeout: const Duration(seconds: 60)));
@@ -31,5 +31,5 @@ void main() {
        'bin/generate.dart',
        'tool/update.dart',
        'tool/util.dart']));
-  runHop();
+  runHop(args);
 }
