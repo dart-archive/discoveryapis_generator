@@ -5,7 +5,7 @@ class Config {
 
   bool get isDev => false;
 
-  String get dartEnvironmentVersionConstraint => '>=0.8.7';
+  String get dartEnvironmentVersionConstraint => '>=0.8.10+6 <2.0.0';
 
   Map<String, String> get authors => const {
     'Adam Singer': 'financeCoding@gmail.com',
@@ -14,11 +14,11 @@ class Config {
   };
 
   Map<String, String> get dependencyVersions => const {
-    'google_oauth2_client': " '>=0.3.0'"
+    'google_oauth2_client': " '>=0.3.2'"
   };
 
   Map<String, String> get devDependencyVersions => const {
-    'hop': " '>=0.26.0'"
+    'hop': " '>=0.27.1'"
   };
 
   const Config();
