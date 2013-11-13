@@ -50,7 +50,11 @@ class Generator {
         if (force) {
           print("Forced rebuild");
           print("Regenerating library $_libraryName");
-          clientVersionBuild = (forceVersion != null) ? forceVersion : int.parse(version.substring(clientVersion.length + 1)) + 1;
+          if (version.startsWith(clientVersion)) {
+            clientVersionBuild = (forceVersion != null) ? forceVersion : int.parse(version.substring(clientVersion.length + 1)) + 1;
+          } else {
+            clientVersionBuild = (forceVersion != null) ? forceVersion : 0;
+          }
         } else {
           if (version.startsWith(clientVersion)) {
             if (etag == _description.etag) {
@@ -179,9 +183,9 @@ Auto-generated client library for accessing the $_name $_version API.
     sink.writeln('For console application:\n\n```\n  import \"package:$_libraryPubspecName/$_libraryConsoleName.dart\" as ${cleanName(_name).toLowerCase()}client;\n```');
     sink.writeln();
 
-    sink.writeln('Working with out authentication the following constructor can be called:\n\n```\n  var ${cleanName(_name).toLowerCase()} = new ${cleanName(_name).toLowerCase()}client.${capitalize(_name)}();\n```');
+    sink.writeln('Working without authentication the following constructor can be called:\n\n```\n  var ${cleanName(_name).toLowerCase()} = new ${cleanName(_name).toLowerCase()}client.${capitalize(_name)}();\n```');
     sink.writeln();
-    sink.writeln('Working with authentication then create a new `GoogleOAuth2` object and pass it to the constructor:\n\n');
+    sink.writeln('To use authentication create a new `GoogleOAuth2` object and pass it to the constructor:\n\n');
     sink.writeln('```\n  GoogleOAuth2 auth = new GoogleOAuth2(CLIENT_ID, SCOPES);\n  var ${cleanName(_name).toLowerCase()} = new ${cleanName(_name).toLowerCase()}client.${capitalize(_name)}(auth);\n```');
     sink.writeln();
     sink.writeln('### Licenses\n\n```');
@@ -383,7 +387,7 @@ library hop_runner;
 import 'package:hop/hop.dart';
 import 'package:hop/hop_tasks.dart';
 
-void main() {
+void main(List<String> args) {
 
   List pathList = [
     'lib/$_libraryBrowserName.dart',
@@ -395,7 +399,7 @@ void main() {
 
   addTask('analyze', createAnalyzerTask(pathList));
 
-  runHop();
+  runHop(args);
 }
 """;
 
