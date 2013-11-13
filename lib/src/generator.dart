@@ -50,7 +50,11 @@ class Generator {
         if (force) {
           print("Forced rebuild");
           print("Regenerating library $_libraryName");
-          clientVersionBuild = (forceVersion != null) ? forceVersion : int.parse(version.substring(clientVersion.length + 1)) + 1;
+          if (version.startsWith(clientVersion)) {
+            clientVersionBuild = (forceVersion != null) ? forceVersion : int.parse(version.substring(clientVersion.length + 1)) + 1;
+          } else {
+            clientVersionBuild = (forceVersion != null) ? forceVersion : 0;
+          }
         } else {
           if (version.startsWith(clientVersion)) {
             if (etag == _description.etag) {
