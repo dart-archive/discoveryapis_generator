@@ -170,12 +170,7 @@ Future<String> _loadDocumentFromUrl(String url) {
 
   return client.getUrl(Uri.parse(url))
       .then((HttpClientRequest request) => request.close())
-      .then((HttpClientResponse response) {
-        return response
-          .transform(UTF8.decoder)
-          .fold(new StringBuffer(), (buffer, data) => buffer..write(data));
-      })
-      .then((StringBuffer buffer) => buffer.toString())
+      .then((HttpClientResponse response) => UTF8.decodeStream(response))
       .whenComplete(() {
         client.close();
       });
