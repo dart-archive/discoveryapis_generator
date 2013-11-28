@@ -12,15 +12,13 @@ void main(List<String> args) {
   addTask('test', createUnitTestTask(test_console.testCore,
       timeout: const Duration(seconds: 60)));
 
-  addTask('docs', createDartDocTask(
-      ['lib/generator.dart'],
-      linkApi: true));
+  addTask('docs', createDartDocTask(['lib/generator.dart'], linkApi: true));
 
   //
   // Generate and analyze all libraries
   //
   addTask('generate_and_analyze', new Task(generateAnalyzeAll,
-      description: 'Generate all of the apis and run the analyzer against them'));
+      description: 'Generate all apis. Run the analyzer against them.'));
 
   //
   // Analyzer
