@@ -3,7 +3,7 @@ version: 0.4.4-dev
 authors:
 - Gerwin Sturm <scarygami@gmail.com>
 - Adam Singer <financeCoding@gmail.com>
-- Kevin Moore <kevin@thinkpixellab.com>
+- Kevin Moore <github@j832.com>
 description: Create API Client libraries based on the APIs Discovery documentation
 homepage: https://github.com/dart-gde/discovery_api_dart_client_generator
 environment:
