@@ -1,13 +1,89 @@
 part of discovery_api_client_generator;
 
-void _writeSchemaClass(StringSink sink, String name, JsonSchema data) {
+void _writeSchemaClassDeclaration(StringSink sink, String name, JsonSchema data, Map<String, String> factoryTypes) {
+  if (data.variant == null) {
+    sink.write('class ${capitalize(name)} ');
+
+    // TODO(adam): should we create a CoreSchemaProp out of this?
+    if (data.type == "array") {
+      String dartType = _getDartType(data.items);
+      if (dartType == null) {
+        // print("data = ${data}");
+        dartType = capitalize(data.items.$ref);
+      }
+
+      if (dartType == null) {
+        dartType = "";
+      } else {
+        dartType = "<$dartType>";
+      }
+
+      sink.write('extends SchemaArray${dartType} ');
+    }
+
+    if (factoryTypes.containsKey(capitalize(name))) {
+      sink.write('implements ${factoryTypes[capitalize(name)]} ');
+    }
+    
+    if (data.additionalProperties != null && data.additionalProperties.type != null && data.additionalProperties.type == "any") {
+      sink.write('extends SchemaAnyObject ');
+    }
+
+    sink.writeln('{');
+
+  } else if (data.variant.discriminant != null) {
+    sink.writeln('abstract class ${capitalize(name)} {');
+  }
+}
+
+void _writeSchemaClassConstructor(StringSink sink, String name, JsonSchema data, List<CoreSchemaProp> props) {
+  sink.writeln();
+  sink.writeln('  /** Create new $name from JSON data */');
+
+  if (data.variant == null) {
+    if (data.type == "array") {
+      sink.writeln('  ${capitalize(name)}.fromJson(core.List json) {');
+      if (data.items.$ref == null) {
+        sink.writeln('    innerList.addAll(json);');
+      } else {
+        sink.writeln('    innerList.addAll(json.map((item) => new ${capitalize(data.items.$ref)}.fromJson(item)).toList());');
+      }
+    } else { // "type": "object"
+      sink.writeln('  ${capitalize(name)}.fromJson(core.Map json) {');
+      if (data.additionalProperties != null && data.additionalProperties.type != null && data.additionalProperties.type == "any") {
+        sink.writeln('    innerMap.addAll(json);');
+      } else {
+        props.forEach((property) {
+          property.writeFromJson(sink);
+        });
+      }
+    }
+  } else if (data.variant.discriminant != null) {
+    sink.writeln('  factory ${capitalize(name)}.fromJson(core.Map json) {');
+    sink.writeln('    switch(json["${data.variant.discriminant}"]) {');
+    data.variant.map.forEach((JsonSchemaVariantMap typeValue) {
+      sink.writeln('      case "${typeValue.type_value}":');
+      sink.writeln('        return new ${typeValue.$ref}.fromJson(json);');
+    });
+    sink.writeln('    }');
+  }
+
+  sink.writeln('  }');
+  sink.writeln();
+}
+
+void _writeSchemaClass(StringSink sink, String name, JsonSchema data, Map<String, String> factoryTypes) {
   if (data.description != null) {
     sink.writeln('/** ${data.description} */');
   }
 
-  sink.writeln('class ${capitalize(name)} {');
+  _writeSchemaClassDeclaration(sink, name, data, factoryTypes);
 
   var props = new List<CoreSchemaProp>();
+
+  // TODO(adam): What do we do if class is of "type": "array"
+  // Example: https://www.googleapis.com/discovery/v1/apis/mapsengine/v1/rest
+  // LatLngBox and BboxBounds
 
   if(data.properties != null) {
     data.properties.forEach((key, JsonSchema property) {
@@ -15,6 +91,8 @@ void _writeSchemaClass(StringSink sink, String name, JsonSchema data) {
       props.add(prop);
     });
   } else {
+    // TODO(adam): remove, its not weird anymore with the new
+    // "variant" and "discriminant"
     print('\tWeird to get no properties for $name');
     print('\t\t${JSON.encode(data)}');
   }
@@ -23,27 +101,38 @@ void _writeSchemaClass(StringSink sink, String name, JsonSchema data) {
     property.writeField(sink);
   });
 
-  sink.writeln();
-  sink.writeln('  /** Create new $name from JSON data */');
-  sink.writeln('  ${capitalize(name)}.fromJson(core.Map json) {');
-  props.forEach((property) {
-    property.writeFromJson(sink);
-  });
-
-  sink.writeln('  }');
-  sink.writeln();
+  _writeSchemaClassConstructor(sink, name, data, props);
 
   sink.writeln('  /** Create JSON Object for $name */');
-  sink.writeln('  core.Map toJson() {');
-  sink.writeln('    var output = new core.Map();');
-  sink.writeln();
-  props.forEach((property) {
-    property.writeToJson(sink);
-  });
-  sink.writeln('\n    return output;');
-  sink.writeln('  }');
-  sink.writeln();
-
+  if (data.variant == null) {
+    if (data.type == "array") {
+      sink.writeln('  core.List toJson() {');
+      if (data.items.$ref == null) {
+        sink.writeln('    return innerList;');
+      } else {
+        sink.writeln('    return innerList.map((item) => item.toJson()).toList();');
+      }
+      sink.writeln('  }');
+      sink.writeln();
+    } else {
+      sink.writeln('  core.Map toJson() {');
+      if (data.additionalProperties != null && data.additionalProperties.type != null && data.additionalProperties.type == "any") {
+        sink.writeln('    return innerMap;');
+      } else {
+        sink.writeln('    var output = new core.Map();');
+        sink.writeln();
+        props.forEach((property) {
+          property.writeToJson(sink);
+        });
+        sink.writeln('\n    return output;');
+      }
+      sink.writeln('  }');
+      sink.writeln();
+    }
+  } else {
+    sink.writeln('  core.Map toJson();');
+    sink.writeln();
+  }
   sink.writeln('  /** Return String representation of $name */');
   sink.writeln('  core.String toString() => JSON.encode(this.toJson());');
   sink.writeln();
@@ -53,7 +142,7 @@ void _writeSchemaClass(StringSink sink, String name, JsonSchema data) {
 
   props.forEach((property) {
     property.getSubSchemas().forEach((String key, JsonSchema value) {
-      _writeSchemaClass(sink, key, value);
+      _writeSchemaClass(sink, key, value, factoryTypes);
     });
   });
 }

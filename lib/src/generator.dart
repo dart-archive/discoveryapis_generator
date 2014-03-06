@@ -51,6 +51,9 @@ class Generator {
           print("Forced rebuild");
           print("Regenerating library $_libraryName");
           if (version.startsWith(clientVersion)) {
+            // TODO(adam): does not support semantic versioning,
+            // what happens if 0.1.0-dev.0 has been manually pushed?
+            // http://semver.org/
             clientVersionBuild = (forceVersion != null) ? forceVersion : int.parse(version.substring(clientVersion.length + 1)) + 1;
           } else {
             clientVersionBuild = (forceVersion != null) ? forceVersion : 0;
@@ -124,6 +127,8 @@ class Generator {
     _writeFile("$libFolder/src/client/schemas.dart", _writeSchemas);
 
     _writeFile("$libFolder/src/client/resources.dart", _writeResources);
+
+    _writeFile("$libFolder/src/client/utils.dart", _writeUtils);
 
     // Create browser versions of the libraries
     _writeFile("$libFolder/$_libraryBrowserName.dart", _writeBrowserLibrary);
@@ -207,6 +212,7 @@ export 'package:$_libraryPubspecName/src/client_base.dart' show APIRequestError;
 part 'src/client/client.dart';
 part 'src/client/schemas.dart';
 part 'src/client/resources.dart';
+part 'src/client/utils.dart';
 """;
 
   void _writeBrowserLibrary(StringSink sink) {
@@ -268,8 +274,16 @@ import "package:$_libraryPubspecName/$_libraryName.dart";
     sink.writeln();
 
     if (_description.schemas != null) {
+      Map<String, String> factoryTypes = {};
       _description.schemas.forEach((String key, JsonSchema schema) {
-        _writeSchemaClass(sink, key, schema);
+        if (schema.variant != null && schema.variant.discriminant != null && schema.variant.discriminant == "type") {
+          schema.variant.map.forEach((JsonSchemaVariantMap concreteType) {
+            factoryTypes[concreteType.$ref] = capitalize(key);
+          });
+        }
+      });
+      _description.schemas.forEach((String key, JsonSchema schema) {
+        _writeSchemaClass(sink, key, schema, factoryTypes);
       });
 
       sink.write(_mapMapFunction);
@@ -285,6 +299,14 @@ import "package:$_libraryPubspecName/$_libraryName.dart";
         _writeResourceClass(sink, key, resource);
       });
     }
+  }
+
+  void _writeUtils(StringSink sink) {
+    sink.writeln("part of ${_shortName}_api;");
+    sink.writeln();
+    sink.writeln(_schemaArraySource);
+    sink.writeln();
+    sink.writeln(_schemaAnyObjectSource);
   }
 
   void _writeScopes(StringSink sink) {
@@ -395,7 +417,8 @@ void main(List<String> args) {
     'lib/$_libraryName.dart'
   ];
 
-  addTask('docs', createDartDocTask(pathList, linkApi: true));
+  // TODO(adam): re enable when hop_docgen is available
+  // addTask('docs', createDartDocTask(pathList, linkApi: true));
 
   addTask('analyze', createAnalyzerTask(pathList));
 
@@ -731,6 +754,51 @@ abstract class ConsoleClient implements ClientBase {
         .whenComplete(() {
           httpClient.close();
         });
+  }
+}
+""";
+
+  static const _schemaArraySource = r"""class SchemaArray<E> extends dart_collection.ListBase<E> {
+  core.List innerList = new core.List();
+
+  core.int get length => innerList.length;
+
+  void set length(core.int length) {
+    innerList.length = length;
+  }
+
+  void operator[]=(core.int index, E value) {
+    innerList[index] = value;
+  }
+
+  E operator [](core.int index) => innerList[index];
+
+  // Though not strictly necessary, for performance reasons
+  // you should implement add and addAll.
+
+  void add(E value) => innerList.add(value);
+
+  void addAll(core.Iterable<E> all) => innerList.addAll(all);
+}
+""";
+
+  static const _schemaAnyObjectSource = r"""class SchemaAnyObject implements core.Map {
+  core.Map innerMap = new core.Map();
+  void clear() => innerMap.clear();
+  core.bool containsKey(core.Object key) => innerMap.containsKey(key);
+  core.bool containsValue(core.Object value) => innerMap.containsValue(value);
+  void forEach(void f(key, value)) => innerMap.forEach(f);
+  core.bool get isEmpty => innerMap.isEmpty;
+  core.bool get isNotEmpty => innerMap.isNotEmpty;
+  core.Iterable get keys => innerMap.keys;
+  core.int get length => innerMap.length;
+  putIfAbsent(key, ifAbsent()) => innerMap.putIfAbsent(key, ifAbsent);
+  remove(core.Object key) => innerMap.remove(key);
+  core.Iterable get values => innerMap.values;
+  void addAll(core.Map other) => innerMap.addAll(other);
+  operator [](core.Object key) => innerMap[key];
+  void operator []=(key, value) { 
+    innerMap[key] = value;
   }
 }
 """;
