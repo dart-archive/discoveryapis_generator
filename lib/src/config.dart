@@ -19,7 +19,6 @@ class Config {
 
   Map<String, String> get devDependencyVersions => const {
     'hop': " '>=0.30.2 <0.31.0'",
-    'hop_docgen': " '>=0.1.1 <0.2.0'"
   };
 
   const Config();
