@@ -1,5 +1,13 @@
 # Changelog - discovery_api_client_generator
 
+## 0.4.4 2014-03-22 (SDK 1.3.0-dev.5.2 r34229)
+
+- Added Geo JSON support 
+- Added support for schema array object
+- Added support for schema any object
+- Updated generated dependencies 
+- Cleaned up hop runner
+
 ## v0.4.3
 
 ## v0.4.2

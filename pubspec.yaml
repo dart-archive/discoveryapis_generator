@@ -10,7 +10,7 @@ environment:
   sdk: '>=1.0.0 <2.0.0'
 dependencies:
   args: '>=0.10.0 <0.11.0'
-  google_discovery_v1_api: '0.4.11-dev.0'
+  google_discovery_v1_api: '0.4.11-dev.1'
   logging: '>=0.9.1+1 <0.10.0'
   path: '>=1.0.0 <2.0.0'
 dev_dependencies:
