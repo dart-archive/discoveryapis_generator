@@ -14,7 +14,7 @@ class Config {
   };
 
   Map<String, String> get dependencyVersions => const {
-    'google_oauth2_client': " '>=0.3.2'"
+    'google_oauth2_client': " '>=0.3.2 <0.4.0'"
   };
 
   Map<String, String> get devDependencyVersions => const {
