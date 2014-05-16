@@ -473,6 +473,8 @@ abstract class ClientBase {
     ..write(content)
     ..write(_closeDelim);
 
+    queryParams["uploadType"] = "multipart";
+
     return request(requestUrl, method, body: multiPartBody.toString(), contentType: "multipart/mixed; boundary=\"$_boundary\"", urlParams: urlParams, queryParams: queryParams);
   }
 
