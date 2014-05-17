@@ -1,5 +1,10 @@
 # Changelog - discovery_api_client_generator
 
+## 0.4.5 2014-05-16 (SDK 1.4.0-dev.6.7 r36210)
+
+- Set `uploadType` as `multipart` by default 
+- Rev up bot_io
+
 ## 0.4.4 2014-03-22 (SDK 1.3.0-dev.5.2 r34229)
 
 - Added Geo JSON support 
