@@ -108,8 +108,6 @@ class Generator {
 
     _writeString("$mainFolder/.gitignore", _gitIgnore);
 
-    _writeString("$mainFolder/CONTRIBUTORS", _contributors);
-
     _writeString("$mainFolder/VERSION", _description.etag);
 
     // Create cloud api files
@@ -147,10 +145,7 @@ class Generator {
     sink.writeln("name: $_libraryPubspecName");
     sink.writeln("version: ${_config.getLibraryVersion(clientVersionBuild)}");
 
-    sink.writeln("authors:");
-    forEachOrdered(_config.authors, (String name, String email) {
-      sink.writeln("- $name <$email>");
-    });
+    sink.writeln("author: Dart Team <misc@dartlang.org>");
 
     sink.writeln("description: Auto-generated client library for accessing the $_name $_version API");
     sink.writeln("homepage: https://github.com/dart-gde/discovery_api_dart_client_generator");
