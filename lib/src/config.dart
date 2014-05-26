@@ -7,25 +7,23 @@ class Config {
 
   String get dartEnvironmentVersionConstraint => '>=1.0.0 <2.0.0';
 
-  Map<String, String> get dependencyVersions => const {
-    'google_oauth2_client': " '>=0.3.2 <0.4.0'"
-  };
-
-  Map<String, String> get devDependencyVersions => const {
-    'hop': " '>=0.30.2 <0.31.0'",
+  Map<String, Object> get dependencyVersions => const {
+    'http_base': "'>=0.0.1 <0.0.2'",
   };
 
   const Config();
 
   void writeAllDependencies(StringSink sink) {
     sink.writeln("dependencies:");
-    forEachOrdered(dependencyVersions, (String lib, String constraint) {
-      sink.writeln("  $lib:$constraint");
-    });
-
-    sink.writeln("dev_dependencies:");
-    forEachOrdered(devDependencyVersions, (String lib, String constraint) {
-      sink.writeln("  $lib:$constraint");
+    forEachOrdered(dependencyVersions, (String lib, Object value) {
+      if (value is String) {
+        sink.writeln("  $lib: $value");
+      } else if (value is Map) {
+        sink.writeln("  $lib:\n");
+        value.forEach((k, v) {
+          sink.writeln("    $k: $v\n");
+        });
+      }
     });
   }
 

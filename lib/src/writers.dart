@@ -24,7 +24,7 @@ void _writeSchemaClassDeclaration(StringSink sink, String name, JsonSchema data,
     if (factoryTypes.containsKey(capitalize(name))) {
       sink.write('implements ${factoryTypes[capitalize(name)]} ');
     }
-    
+
     if (data.additionalProperties != null && data.additionalProperties.type != null && data.additionalProperties.type == "any") {
       sink.write('extends SchemaAnyObject ');
     }
@@ -335,7 +335,7 @@ void _writeResourceClass(StringSink sink, String name, RestResource data) {
 
   sink.writeln("class $className {");
   sink.writeln();
-  sink.writeln('  final Client _client;');
+  sink.writeln('  final ApiRequester _client;');
 
   if (data.resources != null) {
     sink.writeln();
@@ -345,7 +345,7 @@ void _writeResourceClass(StringSink sink, String name, RestResource data) {
     });
   }
 
-  sink.writeln("\n  $className(Client client) :");
+  sink.writeln("\n  $className(ApiRequester client) :");
   sink.write('      _client = client');
   if (data.resources == null) {
     sink.writeln(";");

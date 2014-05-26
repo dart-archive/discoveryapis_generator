@@ -1,5 +1,5 @@
 name: discovery_api_client_generator
-version: 0.4.6-dev
+version: 0.4.6-experimental
 author: Dart Team <misc@dartlang.org>
 description: Create API Client libraries based on the APIs Discovery documentation
 homepage: https://github.com/dart-gde/discovery_api_dart_client_generator
