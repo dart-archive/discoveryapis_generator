@@ -76,7 +76,7 @@ void _writeSchemaClassConstructor(StringSink sink, String name, JsonSchema data,
 
 void _writeSchemaClass(StringSink sink, String name, JsonSchema data, Map<String, String> factoryTypes) {
   if (data.description != null) {
-    sink.writeln('/** ${data.description} */');
+    sink.writeln('/** ${escapeComment(data.description)} */');
   }
 
   _writeSchemaClassDeclaration(sink, name, data, factoryTypes);
@@ -153,7 +153,7 @@ void _writeParamCommentHeader(StringSink sink, String name, String description) 
   sink.writeln('   *');
   sink.write("   * [$name]");
   if (description != null) {
-    sink.write(" - ${description}");
+    sink.write(" - ${escapeComment(description)}");
   }
   sink.writeln();
 }
@@ -192,7 +192,7 @@ void _writeMethod(StringSink sink, String name, RestMethod data, [bool noResourc
 
   sink.writeln('  /**');
   if (data.description != null) {
-    sink.writeln('   * ${data.description}');
+    sink.writeln('   * ${escapeComment(data.description)}');
   }
 
   var genIncluded = new Set<JsonSchema>();
@@ -375,4 +375,9 @@ void _writeResourceClass(StringSink sink, String name, RestResource data) {
       _writeResourceClass(sink, "${capitalize(name)}${capitalize(key)}", resource);
     });
   }
+}
+
+/// Escapes [comment] to ensure it can safely be used inside a /* ... */ block.
+String escapeComment(String comment) {
+  return comment.replaceAll('/*', '/ *').replaceAll('*/', '* ');
 }

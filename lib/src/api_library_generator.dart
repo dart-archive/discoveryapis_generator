@@ -99,7 +99,7 @@ class ${capitalize(_name)} {
         sink.writeln();
         sink.writeln('  /**');
         if (param.description != null) {
-          sink.writeln('   * ${param.description}');
+          sink.writeln('   * ${escapeComment(param.description)}');
         }
         sink.writeln('   * Added as queryParameter for each request.');
         sink.writeln('   */');
@@ -171,7 +171,8 @@ class ${capitalize(_name)} {
         scopeName = cleanName(scopeName);
         sink.writeln();
         if (scopes.description != null) {
-          sink.writeln('  /** OAuth Scope2: ${scopes.description} */');
+          sink.writeln(
+              '  /** OAuth Scope2: ${escapeComment(scopes.description)} */');
         } else {
           sink.writeln('  /** OAuth Scope2 */');
         }

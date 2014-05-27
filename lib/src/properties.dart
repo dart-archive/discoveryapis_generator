@@ -77,7 +77,7 @@ abstract class CoreSchemaProp {
   void writeField(StringSink sink) {
     sink.writeln();
     if (description != null) {
-      sink.writeln("  /** $description */");
+      sink.writeln("  /** ${escapeComment(description)} */");
     }
     sink.writeln("  $dartType $dartName;");
   }
