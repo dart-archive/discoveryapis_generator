@@ -146,7 +146,7 @@ class MapSchemaProp extends CoreSchemaProp {
   @override
   void writeToJsonExpression(StringSink sink, int depth) {
 
-    sink.write('_mapMap(');
+    sink.write('common_internal.mapMap(');
     sink.write(_getDartExpression(depth));
 
     var itemName = itemType._getDartExpression(depth + 1);
@@ -168,7 +168,7 @@ class MapSchemaProp extends CoreSchemaProp {
   @override
   void writeFromJsonExpression(StringSink sink, int depth) {
     var itemExpression = _getJsonExpression(depth);
-    sink.write('_mapMap(');
+    sink.write('common_internal.mapMap(');
     sink.write(itemExpression);
 
     var subItemExpression = itemType._getJsonExpression(depth + 1);

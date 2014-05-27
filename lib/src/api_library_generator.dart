@@ -14,13 +14,15 @@ class ApiLibraryGenerator {
   final RestDescription _description;
   final String libraryName;
   final String internalLibraryUri;
+  final String externalLibraryUri;
 
   /// [_description] is the API description we want to generate code for.
   /// [libraryName] is the name of the API library we generate.
   /// [internalLibraryUri] is the Uri of the library containing shared code
   /// between all APIs but is not public (from the perspective of the package).
   ApiLibraryGenerator(
-      this._description, this.libraryName, this.internalLibraryUri) {
+      this._description, this.libraryName,
+      this.internalLibraryUri, this.externalLibraryUri) {
     assert(this._description != null);
     assert(this._description.name != null);
   }
@@ -39,7 +41,6 @@ class ApiLibraryGenerator {
     _writeApiClass(sink);
     _writeSchemas(sink);
     _writeResources(sink);
-    _writeUtils(sink);
 
     return '$sink';
   }
@@ -54,7 +55,9 @@ import "dart:convert" show JSON;
 import 'dart:collection' as dart_collection;
 
 import 'package:http_base/http_base.dart' as http_base;
-import '$internalLibraryUri';
+import '$internalLibraryUri' as common_internal;
+import '$externalLibraryUri' as common_external;
+
 export '$internalLibraryUri' show APIRequestError;
 
 """);
@@ -66,10 +69,11 @@ class ${capitalize(_name)} {
   core.String basePath = \"${_description.basePath}\";
   core.String rootUrl = \"${_rootUriOrigin}/\";
   core.Map<core.String, core.Object> _parms = <core.String, core.Object>{};
-  ApiRequester _httpClient;
+  common_internal.ApiRequester _httpClient;
 
   ${capitalize(_name)}(http_base.Client client) {
-    _httpClient = new ApiRequester(client, _parms, rootUrl, basePath);
+    _httpClient =
+        new common_internal.ApiRequester(client, _parms, rootUrl, basePath);
   }
 
 
@@ -124,6 +128,7 @@ class ${capitalize(_name)} {
 }
 """);
   }
+
   void _writeSchemas(StringSink sink) {
     sink.writeln();
     if (_description.schemas != null) {
@@ -139,8 +144,6 @@ class ${capitalize(_name)} {
       _description.schemas.forEach((String key, JsonSchema schema) {
         _writeSchemaClass(sink, key, schema, factoryTypes);
       });
-
-      sink.write(_mapMapFunction);
     }
   }
 
@@ -151,13 +154,6 @@ class ${capitalize(_name)} {
         _writeResourceClass(sink, key, resource);
       });
     }
-  }
-
-  void _writeUtils(StringSink sink) {
-    sink.writeln();
-    sink.writeln(_schemaArraySource);
-    sink.writeln();
-    sink.writeln(_schemaAnyObjectSource);
   }
 
   void _writeScopes(StringSink sink) {
@@ -182,68 +178,4 @@ class ${capitalize(_name)} {
   }
 
   String get _rootUriOrigin => Uri.parse(_description.rootUrl).origin;
-
-  static const String _mapMapFunction = """
-core.Map _mapMap(core.Map source,
-                 [core.Object convert(core.Object source) = null]) {
-  assert(source != null);
-  var result = new dart_collection.LinkedHashMap();
-  source.forEach((core.String key, value) {
-    assert(key != null);
-    if(convert == null) {
-      result[key] = value;
-    } else {
-      result[key] = convert(value);
-    }
-  });
-  return result;
-}
-""";
-
-  static const _schemaArraySource =
-r"""class SchemaArray<E> extends dart_collection.ListBase<E> {
-  core.List innerList = new core.List();
-
-  core.int get length => innerList.length;
-
-  void set length(core.int length) {
-    innerList.length = length;
-  }
-
-  void operator[]=(core.int index, E value) {
-    innerList[index] = value;
-  }
-
-  E operator [](core.int index) => innerList[index];
-
-  // Though not strictly necessary, for performance reasons
-  // you should implement add and addAll.
-
-  void add(E value) => innerList.add(value);
-
-  void addAll(core.Iterable<E> all) => innerList.addAll(all);
-}
-""";
-
-  static const _schemaAnyObjectSource =
-r"""class SchemaAnyObject implements core.Map {
-  core.Map innerMap = new core.Map();
-  void clear() => innerMap.clear();
-  core.bool containsKey(core.Object key) => innerMap.containsKey(key);
-  core.bool containsValue(core.Object value) => innerMap.containsValue(value);
-  void forEach(void f(key, value)) => innerMap.forEach(f);
-  core.bool get isEmpty => innerMap.isEmpty;
-  core.bool get isNotEmpty => innerMap.isNotEmpty;
-  core.Iterable get keys => innerMap.keys;
-  core.int get length => innerMap.length;
-  putIfAbsent(key, ifAbsent()) => innerMap.putIfAbsent(key, ifAbsent);
-  remove(core.Object key) => innerMap.remove(key);
-  core.Iterable get values => innerMap.values;
-  void addAll(core.Map other) => innerMap.addAll(other);
-  operator [](core.Object key) => innerMap[key];
-  void operator []=(key, value) { 
-    innerMap[key] = value;
-  }
-}
-""";
 }

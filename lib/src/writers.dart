@@ -18,7 +18,7 @@ void _writeSchemaClassDeclaration(StringSink sink, String name, JsonSchema data,
         dartType = "<$dartType>";
       }
 
-      sink.write('extends SchemaArray${dartType} ');
+      sink.write('extends common_external.SchemaArray${dartType} ');
     }
 
     if (factoryTypes.containsKey(capitalize(name))) {
@@ -26,7 +26,7 @@ void _writeSchemaClassDeclaration(StringSink sink, String name, JsonSchema data,
     }
 
     if (data.additionalProperties != null && data.additionalProperties.type != null && data.additionalProperties.type == "any") {
-      sink.write('extends SchemaAnyObject ');
+      sink.write('extends common_external.SchemaAnyObject ');
     }
 
     sink.writeln('{');
@@ -337,7 +337,7 @@ void _writeResourceClass(StringSink sink, String name, RestResource data) {
 
   sink.writeln("class $className {");
   sink.writeln();
-  sink.writeln('  final ApiRequester _httpClient;');
+  sink.writeln('  final common_internal.ApiRequester _httpClient;');
 
   if (data.resources != null) {
     sink.writeln();
@@ -347,7 +347,7 @@ void _writeResourceClass(StringSink sink, String name, RestResource data) {
     });
   }
 
-  sink.writeln("\n  $className(ApiRequester client) :");
+  sink.writeln("\n  $className(common_internal.ApiRequester client) :");
   sink.write('      _httpClient = client');
   if (data.resources == null) {
     sink.writeln(";");

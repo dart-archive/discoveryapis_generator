@@ -30,6 +30,7 @@ class ApisPackageGenerator {
   /// except ".git" folders.
   List<GenerateResult> generateApiPackage() {
     var libFolderPath = "$packageFolderPath/lib";
+    var commonFolderPath = "$packageFolderPath/lib/common";
     var srcFolderPath = "$packageFolderPath/lib/src";
 
     var pubspecYamlPath = "$packageFolderPath/pubspec.yaml";
@@ -37,6 +38,10 @@ class ApisPackageGenerator {
     var readmePath = "$packageFolderPath/README.md";
     var versionPath = "$packageFolderPath/VERSION";
     var gitIgnorePath = "$packageFolderPath/.gitignore";
+
+    var commonExternalLibraryPath = "$libFolderPath/common/common.dart";
+    var commonExternalLibraryUri = "../common/common.dart";
+
     var commonInternalLibraryPath = "$libFolderPath/src/client_base.dart";
     var commonInternalLibraryUri = "../src/client_base.dart";
 
@@ -53,7 +58,7 @@ class ApisPackageGenerator {
       });
     }
 
-    new Directory(libFolderPath).createSync(recursive: true);
+    new Directory(commonFolderPath).createSync(recursive: true);
     new Directory(srcFolderPath).createSync(recursive: true);
 
     _writeFile(pubspecYamlPath, _writePubspec);
@@ -64,8 +69,9 @@ class ApisPackageGenerator {
 
     _writeString(gitIgnorePath, _gitIgnore);
 
-    // This library is used by all APIs for making requests.
-    _writeString(commonInternalLibraryPath, _CLOUD_API_SOURCE);
+    // These libraries are used by all APIs for making requests.
+    _writeString(commonExternalLibraryPath, _COMMON_EXTERNAL_LIBRARY);
+    _writeString(commonInternalLibraryPath, _COMMON_INTERAL_LIBRARY);
 
     // TODO(kustermann):
     // _writeString(versionPath, _description.etag);
@@ -83,7 +89,8 @@ class ApisPackageGenerator {
       new Directory(apiFolderPath).createSync();
 
       var apiGenerator = new ApiLibraryGenerator(
-          description, libraryName, commonInternalLibraryUri);
+          description, libraryName, commonInternalLibraryUri,
+          commonExternalLibraryUri);
       apiGenerator.generateClient(apiVersionFile);
       var result = new GenerateResult(name, version,
           'package:googleapis/${apiVersionFile.replaceFirst('lib/', '')}');
@@ -175,12 +182,63 @@ Import API and use it, e.g.
     sink.writeln('```');
   }
 
+  static const _COMMON_EXTERNAL_LIBRARY = r"""
+library googleapis.common;
 
-  static const _CLOUD_API_SOURCE = r"""
+import 'dart:core' as core;
+import 'dart:collection' as collection;
+
+class SchemaAnyObject implements core.Map {
+  core.Map innerMap = new core.Map();
+  void clear() => innerMap.clear();
+  core.bool containsKey(core.Object key) => innerMap.containsKey(key);
+  core.bool containsValue(core.Object value) => innerMap.containsValue(value);
+  void forEach(void f(key, value)) => innerMap.forEach(f);
+  core.bool get isEmpty => innerMap.isEmpty;
+  core.bool get isNotEmpty => innerMap.isNotEmpty;
+  core.Iterable get keys => innerMap.keys;
+  core.int get length => innerMap.length;
+  putIfAbsent(key, ifAbsent()) => innerMap.putIfAbsent(key, ifAbsent);
+  remove(core.Object key) => innerMap.remove(key);
+  core.Iterable get values => innerMap.values;
+  void addAll(core.Map other) => innerMap.addAll(other);
+  operator [](core.Object key) => innerMap[key];
+  void operator []=(key, value) { 
+    innerMap[key] = value;
+  }
+}
+
+class SchemaArray<E> extends collection.ListBase<E> {
+  core.List innerList = new core.List();
+
+  core.int get length => innerList.length;
+
+  void set length(core.int length) {
+    innerList.length = length;
+  }
+
+  void operator[]=(core.int index, E value) {
+    innerList[index] = value;
+  }
+
+  E operator [](core.int index) => innerList[index];
+
+  // Though not strictly necessary, for performance reasons
+  // you should implement add and addAll.
+
+  void add(E value) => innerList.add(value);
+
+  void addAll(core.Iterable<E> all) => innerList.addAll(all);
+}
+
+""";
+
+  static const _COMMON_INTERAL_LIBRARY = r"""
 library cloud_api;
 
 import "dart:async";
 import "dart:convert";
+import "dart:collection" as collection;
 
 import "package:http_base/http_base.dart" as http_base;
 
@@ -256,7 +314,7 @@ class ApiRequester {
 
     if (queryParams == null) queryParams = const {};
     var allQueryParameters = new Map<String,String>.from(queryParams);
-   
+
     if (_optionalQueryAdditions != null) {
       _optionalQueryAdditions.forEach((String key, Object value) {
         if (value != null && allQueryParameters[key] == null) {
@@ -270,7 +328,7 @@ class ApiRequester {
       path ="$_rootUrl${requestUrl.substring(1)}";
     } else {
       path ="$_rootUrl${_basePath.substring(1)}$requestUrl";
-    } 
+    }
 
     var url = new UrlPattern(path).generate(urlParams, queryParams);
     var uri = Uri.parse(url);
@@ -441,5 +499,20 @@ class UrlPattern {
     return urlPattern.generate(urlParams, queryParams);
   }
 }
+
+Map mapMap(Map source, [Object convert(Object source) = null]) {
+  assert(source != null);
+  var result = new collection.LinkedHashMap();
+  source.forEach((String key, value) {
+    assert(key != null);
+    if(convert == null) {
+      result[key] = value;
+    } else {
+      result[key] = convert(value);
+    }
+  });
+  return result;
+}
+
 """;
 }
