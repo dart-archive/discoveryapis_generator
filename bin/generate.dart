@@ -3,8 +3,10 @@
 import 'dart:async';
 import "dart:io";
 import "dart:convert";
+
 import "package:args/args.dart";
 import "package:discovery_api_client_generator/generator.dart";
+import 'package:google_discovery_v1_api/discovery_v1_api_client.dart';
 
 void printUsage(parser) {
   print("""
@@ -21,29 +23,21 @@ or generate.dart --all -o <Directory> (to create libraries for all Google APIs)
 
 const _argHelp = 'help';
 const _argAll = 'all';
-const _argForce = 'force';
-const _argCheck = 'check';
 const _argApi = 'api';
 const _argVersion = 'version';
 const _argUrl = 'url';
 const _argInput = 'input';
-const _argPrefix = 'prefix';
 const _argOutput = 'output';
 const _argDate = 'date';
-const _argNoPrefix = 'no-prefix';
 
 ArgParser _getParser() => new ArgParser()
   ..addOption(_argApi, abbr: "a", help: "Short name of the Google API (plus, drive, ...)")
   ..addOption(_argVersion, abbr: "v", help: "Google API version (v1, v2, v1alpha, ...)")
   ..addOption(_argInput, abbr: "i", help: "Local Discovery document file")
   ..addOption(_argUrl, abbr: "u", help: "URL of a Discovery document")
-  ..addOption(_argPrefix, abbr: "p", help: "Prefix for library name", defaultsTo: "google")
-  ..addFlag(_argNoPrefix, help: "No prefix for library name", negatable: false)
   ..addFlag(_argAll, help: "Create client libraries for all Google APIs", negatable: false)
   ..addOption(_argOutput, abbr: "o", help: "Output Directory")
   ..addFlag(_argDate, help: "Create sub folder with current date", negatable: false)
-  ..addFlag(_argCheck, help: "Check for changes against existing version if available", negatable: false)
-  ..addFlag(_argForce, help: "Force client version update even if no changes", negatable: false)
   ..addFlag(_argHelp, abbr: "h", help: "Display this information and exit", negatable: false);
 
 ArgResults _getParserResults(ArgParser parser, List<String> arguments) {
@@ -129,25 +123,9 @@ void main(List<String> arguments) {
     output = "$output/${fileDate(new DateTime.now())}";
   }
 
-  bool check = result[_argCheck];
-  assert(check != null);
-
-  bool force = result[_argForce];
-  assert(force != null);
-
-  String prefix = "";
-
-  bool no_prefix = result[_argNoPrefix];
-  assert(no_prefix != null);
-
-  if (!no_prefix) {
-    prefix = result[_argPrefix];
-    assert(prefix != null && !prefix.isEmpty);
-  }
-
-  if(api != null) {
-    generateLibrary(api, version, output, prefix: prefix, check: check, force: force);
-  } else if(!all) {
+  if (api != null) {
+    generateLibrary(api, version, output);
+  } else if (!all) {
     Future<String> loader;
     if (url != null) {
       loader = _loadDocumentFromUrl(url);
@@ -157,13 +135,19 @@ void main(List<String> arguments) {
     }
 
     loader.then((String doc) {
-      generateLibraryFromSource(doc, output, prefix: prefix, check: check, force: force);
+      var description = new RestDescription.fromJson(JSON.decode(doc));
+      printResults(generateApiPackage([description], output));
     });
   } else {
-    generateAllLibraries(output, prefix: prefix, check: check, force: force);
+    generateAllLibraries(output).then(printResults);
   }
 }
 
+void printResults(List<GenerateResult> results) {
+  for (var result in results) {
+    print(result);
+  }
+}
 
 Future<String> _loadDocumentFromUrl(String url) {
   var client = new HttpClient();

@@ -10,93 +10,63 @@ import "package:discovery_api_client_generator/generator.dart";
 
 dynamic generateAnalyzeAll(TaskContext ctx) {
   return TempDir.then((Directory dir) {
-    return generateAllLibraries(dir.path)
-        .then((List<GenerateResult> results) {
-          return _analyzeGeneratedResults(ctx, dir.path, results);
-        });
+    return generateAllLibraries(dir.path).then((List<GenerateResult> results) {
+      return analyzePackage(dir.path, results);
+    });
   });
 }
 
-Future<bool> _analyzeGeneratedResults(TaskContext ctx, String rootPath, List<GenerateResult> results) {
-  return Future.forEach(results, (GenerateResult result) {
+Future<AnalyzerResult> analyzePackage(String dir,
+                                      List<GenerateResult> results) {
+  Future runPub() {
+    return Process.run('pub', ['--trace', 'install'], workingDirectory: dir)
+        .then((ProcessResult process) {
+       if(process.exitCode != 0) {
+         throw new Exception('Pub install failed iniside $dir\n'
+                            'stdout: ${process.stdout}\n'
+                            'stderr: ${process.stderr}\n');
+       }
+    });
+  }
+  Future<AnalyzerResult> runAnalyzer(String packageDir, String libPath) {
+    var args = ['--package-root', packageDir, libPath];
+    return Process.run('dartanalyzer', args).then((ProcessResult process) {
+      return new AnalyzerResult(
+          libPath, process.stdout, process.stderr, process.exitCode == 0);
+    });
+  }
 
-    return analyzePackage(rootPath, result.shortName, true);
+  var packagesDir = pathos.join(dir, 'packages');
+  var libraryPaths = results.map((GenerateResult result) {
+    return '$dir/lib/${result.apiName}/${result.apiVersion}.dart';
+  });
 
-  })
-  .then((_) => true);
-}
+  var analyzerResults = <AnalyzerResult>[];
+  return runPub().then((_) {
+    return Future.forEach(libraryPaths, (path) {
+      return runAnalyzer(packagesDir, path).then(analyzerResults.add);
+    }).then((_) {
+      bool successfull = true;
 
-List<String> getLibraryPaths(String rootDir, String shortName) {
-  final libDir = 'dart_${shortName}_client/lib';
-
-  var files = [];
-
-  files.add('src/client_base.dart');
-
-  files.addAll(['browser', 'console']
-    .map((k) => 'src/${k}_client.dart'));
-
-  files.addAll(['console', 'browser', 'client']
-    .map((k) => '${shortName}_${k}.dart'));
-
-  return files
-      .map((f) => pathos.join(rootDir, libDir, f))
-      .toList(growable: false);
-}
-
-Future analyzePackage(String rootDir, String shortName,
-                      bool continueOnFail) {
-  var libraryPaths = getLibraryPaths(rootDir, shortName);
-
-  assert(libraryPaths.length == 6);
-
-  final packageDir = pathos.join(rootDir, 'dart_${shortName}_client');
-
-  _logMessage('installing packages at $packageDir');
-
-  return Process.run('pub', ['--trace', 'install'], workingDirectory: packageDir)
-      .then((ProcessResult pr) {
-        if(pr.exitCode != 0) {
-          throw new Exception('''Pub install failed.
-$packageDir
-${pr.stdout}
-${pr.stderr}''');
+      for (var result in analyzerResults) {
+        if (!result.success) {
+          successfull = false;
+          print("Analyzer produced warning/serrors on ${result.file}:");
+          print("${result.stdout}");
+          print("${result.stderr}\n");
         }
-        _logMessage('pub install worked');
+      }
 
-        final packagesDir = pathos.join(packageDir, 'packages');
-
-        return Future.forEach(libraryPaths, (path) =>
-            _analyzeLib(packagesDir, path, continueOnFail));
-      });
+      return successfull;
+    });
+  });
 }
 
-Future _analyzeLib(String packageDir, String libPath,
-    bool continueOnFail) {
+class AnalyzerResult {
+  final String file;
+  final String stdout;
+  final String stderr;
+  final bool success;
 
-  var args = ['--verbose', '--package-root', packageDir, libPath];
-
-  return Process.run('dartanalyzer', args)
-      .then((ProcessResult pr) {
-        _logMessage(pr.stdout);
-        _logMessage(pr.stderr);
-
-        var success = pr.exitCode == 0;
-
-        if(success) {
-          _logMessage('analyze succeeded for $libPath');
-        } else {
-          var message = 'Analysis failed for $libPath';
-          if(continueOnFail) {
-            _logMessage(message);
-          } else {
-            throw new Exception(message);
-          }
-        }
-      });
-}
-
-void _logMessage(String msg) {
-  //TODO: really use logging?
-  //print(msg);
+  AnalyzerResult(this.file, this.stdout, this.stderr, this.success);
 }

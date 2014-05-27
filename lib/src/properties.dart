@@ -91,7 +91,7 @@ abstract class CoreSchemaProp {
   }
 
   void writeFromJson(StringSink sink) {
-    sink.writeln("    if (json.containsKey(\"$jsonName\")) {");
+    sink.writeln("    if (_local_json.containsKey(\"$jsonName\")) {");
     sink.write("      $dartName = ");
     writeFromJsonExpression(sink, 0);
     sink.writeln(";");
@@ -105,7 +105,7 @@ abstract class CoreSchemaProp {
   String _getJsonExpression(int depth) {
     assert(depth >= 0);
     if(depth == 0) {
-      return 'json[\"$jsonName\"]';
+      return '_local_json[\"$jsonName\"]';
     } else if(depth == 1) {
       return '${dartName}Item';
     } else {

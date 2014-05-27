@@ -19,11 +19,8 @@ void main(List<String> args) {
   //
   // Analyzer
   //
-  addTask('analyze', createAnalyzerTask([
-      'lib/generator.dart',
-      'bin/generate.dart',
-      'tool/update.dart',
-      'tool/util.dart']));
+  addTask('analyze',
+          createAnalyzerTask(['bin/generate.dart', 'tool/util.dart']));
 
   runHop(args);
 }

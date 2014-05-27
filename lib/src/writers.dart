@@ -42,16 +42,16 @@ void _writeSchemaClassConstructor(StringSink sink, String name, JsonSchema data,
 
   if (data.variant == null) {
     if (data.type == "array") {
-      sink.writeln('  ${capitalize(name)}.fromJson(core.List json) {');
+      sink.writeln('  ${capitalize(name)}.fromJson(core.List _local_json) {');
       if (data.items.$ref == null) {
-        sink.writeln('    innerList.addAll(json);');
+        sink.writeln('    innerList.addAll(_local_json);');
       } else {
-        sink.writeln('    innerList.addAll(json.map((item) => new ${capitalize(data.items.$ref)}.fromJson(item)).toList());');
+        sink.writeln('    innerList.addAll(_local_json.map((item) => new ${capitalize(data.items.$ref)}.fromJson(item)).toList());');
       }
     } else { // "type": "object"
-      sink.writeln('  ${capitalize(name)}.fromJson(core.Map json) {');
+      sink.writeln('  ${capitalize(name)}.fromJson(core.Map _local_json) {');
       if (data.additionalProperties != null && data.additionalProperties.type != null && data.additionalProperties.type == "any") {
-        sink.writeln('    innerMap.addAll(json);');
+        sink.writeln('    innerMap.addAll(_local_json);');
       } else {
         props.forEach((property) {
           property.writeFromJson(sink);
@@ -59,11 +59,13 @@ void _writeSchemaClassConstructor(StringSink sink, String name, JsonSchema data,
       }
     }
   } else if (data.variant.discriminant != null) {
-    sink.writeln('  factory ${capitalize(name)}.fromJson(core.Map json) {');
-    sink.writeln('    switch(json["${data.variant.discriminant}"]) {');
+    sink.writeln(
+        '  factory ${capitalize(name)}.fromJson(core.Map _local_json) {');
+    sink.writeln('    switch(_local_json["${data.variant.discriminant}"]) {');
     data.variant.map.forEach((JsonSchemaVariantMap typeValue) {
       sink.writeln('      case "${typeValue.type_value}":');
-      sink.writeln('        return new ${typeValue.$ref}.fromJson(json);');
+      sink.writeln(
+          '        return new ${typeValue.$ref}.fromJson(_local_json);');
     });
     sink.writeln('    }');
   }
@@ -313,12 +315,12 @@ void _writeMethod(StringSink sink, String name, RestMethod data, [bool noResourc
   sink.writeln('    var response;');
   if (uploadPath != null) {
     sink.writeln('    if (content != null) {');
-    sink.writeln('      response = ${noResource ? "this" : "_client"}.upload(uploadUrl, \"${data.httpMethod}\", $uploadCall);');
+    sink.writeln('      response = _httpClient.upload(uploadUrl, \"${data.httpMethod}\", $uploadCall);');
     sink.writeln('    } else {');
-    sink.writeln('      response = ${noResource ? "this" : "_client"}.request(url, \"${data.httpMethod}\", $call);');
+    sink.writeln('      response = _httpClient.request(url, \"${data.httpMethod}\", $call);');
     sink.writeln('    }');
   } else {
-    sink.writeln('    response = ${noResource ? "this" : "_client"}.request(url, \"${data.httpMethod}\", $call);');
+    sink.writeln('    response = _httpClient.request(url, \"${data.httpMethod}\", $call);');
   }
 
   if (data.response != null) {
@@ -335,7 +337,7 @@ void _writeResourceClass(StringSink sink, String name, RestResource data) {
 
   sink.writeln("class $className {");
   sink.writeln();
-  sink.writeln('  final ApiRequester _client;');
+  sink.writeln('  final ApiRequester _httpClient;');
 
   if (data.resources != null) {
     sink.writeln();
@@ -346,7 +348,7 @@ void _writeResourceClass(StringSink sink, String name, RestResource data) {
   }
 
   sink.writeln("\n  $className(ApiRequester client) :");
-  sink.write('      _client = client');
+  sink.write('      _httpClient = client');
   if (data.resources == null) {
     sink.writeln(";");
   } else {
