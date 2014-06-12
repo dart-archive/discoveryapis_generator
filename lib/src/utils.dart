@@ -17,6 +17,9 @@ String escapeProperty(String name) => keywords.contains(name) ? "${name}Property
 String escapeMethod(String name) => keywords.contains(name) ? "${name}Method" : name;
 String escapeParameter(String name) => keywords.contains(name) ? "${name}Parameter" : name;
 
+// TODO: Is this all we have to do?
+String escapeString(String string) => string.replaceAll(r'$', r'\$');
+
 void forEachOrdered(Map<String, dynamic> source, void func(String k, dynamic v)) {
   var orderdKeys = source.keys.toList()
       ..sort();

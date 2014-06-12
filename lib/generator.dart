@@ -12,6 +12,7 @@ part "src/api_library_generator.dart";
 part "src/properties.dart";
 part "src/utils.dart";
 part "src/writers.dart";
+part "src/dart_schemas.dart";
 
 List<GenerateResult> generateApiPackage(
     List<RestDescription> descriptions, String outputDirectory) {
