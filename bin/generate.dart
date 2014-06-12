@@ -144,9 +144,12 @@ void main(List<String> arguments) {
 }
 
 void printResults(List<GenerateResult> results) {
+  int successfull = 0;
   for (var result in results) {
     print(result);
+    if (result.success) successfull++;
   }
+  print("Successfull: $successfull, Failed: ${results.length - successfull}");
 }
 
 Future<String> _loadDocumentFromUrl(String url) {

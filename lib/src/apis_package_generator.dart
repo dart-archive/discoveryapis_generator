@@ -85,16 +85,26 @@ class ApisPackageGenerator {
       String libraryName = "googleapis.$name.$version";
       String apiFolderPath = "$libFolderPath/$name";
       String apiVersionFile = "$libFolderPath/$name/$version.dart";
+      String packagePath = 'package:googleapis/$name/$version.dart';
+      try {
+        new Directory(apiFolderPath).createSync();
 
-      new Directory(apiFolderPath).createSync();
-
-      var apiGenerator = new ApiLibraryGenerator(
-          description, libraryName, commonInternalLibraryUri,
-          commonExternalLibraryUri);
-      apiGenerator.generateClient(apiVersionFile);
-      var result = new GenerateResult(name, version,
-          'package:googleapis/${apiVersionFile.replaceFirst('lib/', '')}');
-      results.add(result);
+        var apiGenerator = new ApiLibraryGenerator(
+            description, libraryName, commonInternalLibraryUri,
+            commonExternalLibraryUri);
+        apiGenerator.generateClient(apiVersionFile);
+        var result = new GenerateResult(name, version, packagePath);
+        results.add(result);
+      } catch (error, stack) {
+        var errorMessage = '';
+        if (error is GeneratorError) {
+          errorMessage = '$error';
+        } else {
+          errorMessage = '$error\nstack: $stack';
+        }
+        results.add(
+            new GenerateResult.error(name, version, packagePath, errorMessage));
+      }
     }
     return results;
   }

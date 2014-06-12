@@ -6,13 +6,13 @@ import "dart:convert";
 import 'package:google_discovery_v1_api/discovery_v1_api_client.dart';
 import 'package:google_discovery_v1_api/discovery_v1_api_console.dart';
 
+part "src/api_library_generator.dart";
 part "src/apis_package_generator.dart";
 part "src/config.dart";
-part "src/api_library_generator.dart";
+part "src/dart_schemas.dart";
 part "src/properties.dart";
 part "src/utils.dart";
 part "src/writers.dart";
-part "src/dart_schemas.dart";
 
 List<GenerateResult> generateApiPackage(
     List<RestDescription> descriptions, String outputDirectory) {
@@ -57,8 +57,15 @@ class GenerateResult {
   final String message;
   final String packagePath;
 
-  GenerateResult(
-      this.apiName, this.apiVersion, this.packagePath, [this.message = '']) {
+  GenerateResult(this.apiName, this.apiVersion, this.packagePath)
+      : message = '' {
+    assert(this.apiName != null);
+    assert(this.apiVersion != null);
+    assert(this.packagePath != null);
+  }
+
+  GenerateResult.error(
+     this.apiName, this.apiVersion, this.packagePath, this.message) {
     assert(this.apiName != null);
     assert(this.apiVersion != null);
     assert(this.packagePath != null);
@@ -72,7 +79,7 @@ class GenerateResult {
 
   String toString() {
     var flag = success ? '[SUCCESS]' : '[FAIL]';
-    var msg = message != null && !message.isEmpty ? '($message)' : '';
+    var msg = message != null && !message.isEmpty ? ':\n  => $message' : '';
     return '$flag $apiName $apiVersion @ $packagePath $msg';
   }
 }

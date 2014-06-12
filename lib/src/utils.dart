@@ -73,3 +73,14 @@ const String _gitIgnore ="""
 packages
 pubspec.lock
 """;
+
+
+class GeneratorError implements Exception {
+  final String api;
+  final String version;
+  final String message;
+
+  GeneratorError(this.api, this.version, this.message);
+
+  String toString() => 'Error while generating API for $api/$version: $message';
+}
