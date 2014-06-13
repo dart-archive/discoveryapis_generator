@@ -10,5 +10,6 @@ class Config {
 
   Map<String, Object> get dependencies => const {
     'http_base': '\'>=0.0.1 <0.0.2\'',
+    'crypto': '\'>=0.9.0 <0.10.0\'',
   };
 }

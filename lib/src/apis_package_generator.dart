@@ -81,14 +81,12 @@ class ApisPackageGenerator {
       String name = description.name.toLowerCase();
       String version = description.version.toLowerCase()
           .replaceAll('.', '_').replaceAll('-', '_');
-
       String libraryName = "googleapis.$name.$version";
       String apiFolderPath = "$libFolderPath/$name";
       String apiVersionFile = "$libFolderPath/$name/$version.dart";
       String packagePath = 'package:googleapis/$name/$version.dart';
       try {
         new Directory(apiFolderPath).createSync();
-
         var apiGenerator = new ApiLibraryGenerator(
             description, libraryName, commonInternalLibraryUri,
             commonExternalLibraryUri);
@@ -195,50 +193,17 @@ Import API and use it, e.g.
   static const _COMMON_EXTERNAL_LIBRARY = r"""
 library googleapis.common;
 
+import 'dart:async' as async;
 import 'dart:core' as core;
 import 'dart:collection' as collection;
 
-class SchemaAnyObject implements core.Map {
-  core.Map innerMap = new core.Map();
-  void clear() => innerMap.clear();
-  core.bool containsKey(core.Object key) => innerMap.containsKey(key);
-  core.bool containsValue(core.Object value) => innerMap.containsValue(value);
-  void forEach(void f(key, value)) => innerMap.forEach(f);
-  core.bool get isEmpty => innerMap.isEmpty;
-  core.bool get isNotEmpty => innerMap.isNotEmpty;
-  core.Iterable get keys => innerMap.keys;
-  core.int get length => innerMap.length;
-  putIfAbsent(key, ifAbsent()) => innerMap.putIfAbsent(key, ifAbsent);
-  remove(core.Object key) => innerMap.remove(key);
-  core.Iterable get values => innerMap.values;
-  void addAll(core.Map other) => innerMap.addAll(other);
-  operator [](core.Object key) => innerMap[key];
-  void operator []=(key, value) { 
-    innerMap[key] = value;
-  }
-}
+class Media {
+  final async.Stream<core.List<core.int>> stream;
+  final core.String contentType;
+  final core.int length;
 
-class SchemaArray<E> extends collection.ListBase<E> {
-  core.List innerList = new core.List();
-
-  core.int get length => innerList.length;
-
-  void set length(core.int length) {
-    innerList.length = length;
-  }
-
-  void operator[]=(core.int index, E value) {
-    innerList[index] = value;
-  }
-
-  E operator [](core.int index) => innerList[index];
-
-  // Though not strictly necessary, for performance reasons
-  // you should implement add and addAll.
-
-  void add(E value) => innerList.add(value);
-
-  void addAll(core.Iterable<E> all) => innerList.addAll(all);
+  Media(this.stream, this.length,
+        {this.contentType: "application/octet-stream"});
 }
 
 """;
@@ -250,6 +215,8 @@ import "dart:async";
 import "dart:convert";
 import "dart:collection" as collection;
 
+import "package:crypto/crypto.dart" as crypto;
+import "package:googleapis/common/common.dart" as common_external;
 import "package:http_base/http_base.dart" as http_base;
 
 class HeadersImpl implements http_base.Headers {
@@ -301,56 +268,26 @@ class ApiRequester {
   bool makeAuthRequests = false;
 
   final http_base.Client _httpClient;
-  final Map<String, Object> _optionalQueryAdditions;
   final String _rootUrl;
   final String _basePath;
 
-  ApiRequester(this._httpClient, this._optionalQueryAdditions, this._rootUrl,
-               this._basePath);
+  ApiRequester(this._httpClient, this._rootUrl, this._basePath);
 
-  static const _boundary = "-------314159265358979323846";
-  static const _delimiter = "\r\n--$_boundary\r\n";
-  static const _closeDelim = "\r\n--$_boundary--";
+  static const _boundaryString = "314159265358979323846";
 
   /**
    * Sends a HTTPRequest using [method] (usually GET or POST) to [requestUrl]
    * using the specified [urlParams] and [queryParams]. Optionally include a
-   * [body] in the request.
+   * [body] and/or [uploadMedia] in the request.
    */
   Future<Map<String, dynamic>> request(String requestUrl, String method,
-        {String body, String contentType:"application/json", Map urlParams,
-         Map queryParams}) {
-    var headers = new HeadersImpl({'content-type' : [contentType]});
-
-    if (queryParams == null) queryParams = const {};
-    var allQueryParameters = new Map<String,String>.from(queryParams);
-
-    if (_optionalQueryAdditions != null) {
-      _optionalQueryAdditions.forEach((String key, Object value) {
-        if (value != null && allQueryParameters[key] == null) {
-          allQueryParameters[key] = '$value';
-        }
-      });
-    }
-
-    var path;
-    if (requestUrl.substring(0,1) == "/") {
-      path ="$_rootUrl${requestUrl.substring(1)}";
-    } else {
-      path ="$_rootUrl${_basePath.substring(1)}$requestUrl";
-    }
-
-    var url = new UrlPattern(path).generate(urlParams, queryParams);
-    var uri = Uri.parse(url);
-
-    var bodyController = new StreamController<List<int>>();
-    if (body != null) {
-      bodyController.add(UTF8.encode(body));
-    }
-    bodyController.close();
-
-    var request = new RequestImpl(method, uri, headers, bodyController.stream);
-    return _httpClient(request).then((http_base.Response response) {
+        {String body, String contentType:"application/json",
+         Map urlParams, Map queryParams,
+         common_external.Media uploadMedia, String uploadMediaPath}) {
+    return _request(requestUrl, method, body, contentType,
+                    urlParams, queryParams,
+                    uploadMedia,
+                    uploadMediaPath).then((http_base.Response response) {
       return response.read().transform(UTF8.decoder).join('')
           .then((String bodyString) {
         DetailedApiRequestError.validateResponse(response.status, bodyString);
@@ -361,45 +298,129 @@ class ApiRequester {
   }
 
   /**
-   * Joins [content] (encoded as Base64-String) with specified [contentType]
-   * and additional request [body] into one multipart-body and send a
-   * HTTPRequest with [method] (usually POST) to [requestUrl]
+   * Sends a HTTPRequest using [method] (usually GET or POST) to [requestUrl]
+   * using the specified [urlParams] and [queryParams]. Optionally include a
+   * [body] and/or [uploadMedia] in the request.
+   *
+   * Decodes the response as a [common_external.Media]
    */
-  Future<Map<String, dynamic>> upload(String requestUrl, String method,
-      String body, String content, String contentType,
-      {Map urlParams, Map queryParams}) {
-    var multiPartBody = new StringBuffer();
-    if (contentType == null || contentType.isEmpty) {
-      contentType = "application/octet-stream";
-    }
-    multiPartBody
-    ..write(_delimiter)
-    ..write("Content-Type: application/json\r\n\r\n")
-    ..write(body)
-    ..write(_delimiter)
-    ..write("Content-Type: ")
-    ..write(contentType)
-    ..write("\r\n")
-    ..write("Content-Transfer-Encoding: base64\r\n")
-    ..write("\r\n")
-    ..write(content)
-    ..write(_closeDelim);
-
-    queryParams["uploadType"] = "multipart";
-
-    return request(requestUrl, method, body: multiPartBody.toString(),
-                   contentType: "multipart/mixed; boundary=\"$_boundary\"",
-                   urlParams: urlParams, queryParams: queryParams);
+  Future<common_external.Media> requestMedia(String requestUrl, String method,
+        {String body, String contentType:"application/json",
+         Map urlParams, Map queryParams,
+         common_external.Media uploadMedia, String uploadMediaPath}) {
+    return _request(requestUrl, method, body, contentType,
+                    urlParams, queryParams,
+                    uploadMedia, uploadMediaPath,
+                    downloadAsMedia: true).then((http_base.Response response) {
+      // TODO: Do some validation here.
+      var stream = response.read();
+      var contentType = response.headers['content-type'];
+      var contentLength = int.parse(response.headers['content-length']);
+      return new common_external.Media(
+          stream, contentLength, contentType: contentType);
+    });
   }
 
-  static Map<String, dynamic> responseParse(int statusCode,
-                                            String responseBody) {
-    DetailedApiRequestError.validateResponse(statusCode, responseBody);
+  Future _request(String requestUrl, String method,
+        String body, String contentType, Map urlParams,
+        Map queryParams, common_external.Media uploadMedia,
+        String uploadMediaPath, {bool downloadAsMedia: false}) {
+    if (queryParams == null) queryParams = const {};
+    var allQueryParameters = new Map<String,String>.from(queryParams);
 
-    if(responseBody.isEmpty) {
-      return null;
+    var path;
+    if (uploadMedia != null) {
+      requestUrl = uploadMediaPath;
     }
-    return JSON.decode(responseBody);
+
+    if (requestUrl.substring(0,1) == "/") {
+      path ="$_rootUrl${requestUrl.substring(1)}";
+    } else {
+      path ="$_rootUrl${_basePath.substring(1)}$requestUrl";
+    }
+
+    var url = new UrlPattern(path).generate(urlParams, queryParams);
+    var uri = Uri.parse(url);
+    if (uploadMedia != null || downloadAsMedia) {
+      if (uri.query.isEmpty) {
+        url = '$url?';
+      }
+
+      if (uploadMedia != null) {
+        if (body == null) {
+          url = '${url}&uploadType=media';
+        } else {
+          url = '${url}&uploadType=multipart';
+        }
+      }
+
+      if (downloadAsMedia) {
+        url = '${url}&alt=media';
+      }
+
+      uri = Uri.parse(url);
+    }
+
+    var bodyStream;
+    var headers = new HeadersImpl({'content-type' : [contentType]});
+
+    // FIXME: Validate content-length of media?
+    if (uploadMedia != null) {
+      // Three cases:
+      // 1. simple: upload of media
+      // 2. multipart: upload of data + metadata
+      // 3. resumable upload: upload of data + metdata + complicated stuff
+
+      if (body == null) {
+        // 1. simple upload of media
+        headers = new HeadersImpl({
+          'content-type' : [uploadMedia.contentType],
+          'content-length' : ['${uploadMedia.length}']
+        });
+        bodyStream = uploadMedia.stream;
+      } else {
+        // 2. multipart: upload of data + metadata
+        // TODO: This needs to be made streaming based and much more efficient.
+
+        var bodyController = new StreamController<List<int>>();
+        bodyStream = bodyController.stream;
+        return uploadMedia.stream.fold(
+            [], (buffer, data) => buffer..addAll(data)).then((List<int> data) {
+
+          var bodyString = new StringBuffer();
+          bodyString
+              ..write('--$_boundaryString\r\n')
+              ..write("Content-Type: $contentType\r\n\r\n")
+              ..write(body)
+              ..write('\r\n--$_boundaryString\r\n')
+              ..write("Content-Type: ${uploadMedia.contentType}\r\n")
+              ..write("Content-Transfer-Encoding: base64\r\n\r\n")
+              ..write(crypto.CryptoUtils.bytesToBase64(data))
+              ..write('\r\n--$_boundaryString--');
+          var bytes = UTF8.encode(bodyString.toString());
+          bodyController.add(bytes);
+          bodyController.close();
+          headers = new HeadersImpl({
+            'content-type' : [
+                "multipart/mixed; boundary=\"$_boundaryString\""],
+            'content-length' : ['${bytes.length}']
+          });
+        });
+
+        // 3. resumable upload: upload of data + metdata + complicated stuff
+        // TODO
+      }
+    } else {
+      var bodyController = new StreamController<List<int>>();
+      bodyStream = bodyController.stream;
+      if (body != null) {
+        bodyController.add(UTF8.encode(body));
+      }
+      bodyController.close();
+    }
+
+    var request = new RequestImpl(method, uri, headers, bodyStream);
+    return _httpClient(request);
   }
 }
 

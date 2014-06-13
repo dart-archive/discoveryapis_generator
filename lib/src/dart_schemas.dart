@@ -671,13 +671,39 @@ DartSchemaTypeDB parseSchemas(RestDescription description) {
   return db;
 }
 
+// TODO: Try to deduplicate this code.
+DartSchemaType parseResolved(DartSchemaTypeDB db, JsonSchema schema) {
+  if (schema.type == 'array') {
+    // Array of objects
+    return new UnnamedArrayType(parseResolved(db, schema.items));
+  } else if (schema.type == 'boolean') {
+    return db.booleanType;
+  } else if (schema.type == 'string') {
+    return db.stringType;
+  } else if (schema.type == 'number') {
+    return db.numberType;
+  } else if (schema.type == 'double') {
+    return db.doubleType;
+  } else if (schema.type == 'integer') {
+    // FIXME: Also take [schema.format] into account, e.g. "int64"
+    return db.integerType;
+  } else if (schema.type == 'any') {
+    return db.anyType; // FIXME: What do we do here?
+  } else if (schema.$ref != null) {
+    var type = db.namedSchemaTypes[schema.$ref];
+    if (type == null) {
+      throw new ArgumentError('Could not parse $schema.');
+    }
+    return type;
+  }
+  throw new ArgumentError('Invalid JsonSchema.type (was: ${schema.type}).');
+}
+
 
 /**
  * Generates the codegen'ed dart string for all schema classes.
  */
-String generateSchemas(RestDescription description) {
-  var db = parseSchemas(description);
-
+String generateSchemas(DartSchemaTypeDB db) {
   var sb = new StringBuffer();
   db.dartClassTypes.forEach((String name, ComplexDartSchemaType value) {
     sb.writeln('/* Schema class for $name */');

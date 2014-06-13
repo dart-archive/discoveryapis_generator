@@ -2,17 +2,15 @@ library discovery_api_client_generator;
 
 import "dart:io";
 import "dart:async";
-import "dart:convert";
 import 'package:google_discovery_v1_api/discovery_v1_api_client.dart';
 import 'package:google_discovery_v1_api/discovery_v1_api_console.dart';
 
 part "src/api_library_generator.dart";
 part "src/apis_package_generator.dart";
 part "src/config.dart";
+part "src/dart_resources.dart";
 part "src/dart_schemas.dart";
-part "src/properties.dart";
 part "src/utils.dart";
-part "src/writers.dart";
 
 List<GenerateResult> generateApiPackage(
     List<RestDescription> descriptions, String outputDirectory) {

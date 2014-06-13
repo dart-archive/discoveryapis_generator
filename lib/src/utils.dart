@@ -13,12 +13,20 @@ String fileDate(DateTime date) => "${date.year}${(date.month < 10) ? 0 : ""}${da
 String capitalize(String string) => "${string.substring(0,1).toUpperCase()}${string.substring(1)}";
 String cleanName(String name) => name.replaceAll(_cleanRegEx, "_");
 
-String escapeProperty(String name) => keywords.contains(name) ? "${name}Property" : name;
+String escapeProperty(String name) {
+  name = name.replaceAll('-', '_').replaceAll('.', '_');
+  return keywords.contains(name) ? "${name}Property" : name;
+}
 String escapeMethod(String name) => keywords.contains(name) ? "${name}Method" : name;
 String escapeParameter(String name) => keywords.contains(name) ? "${name}Parameter" : name;
 
 // TODO: Is this all we have to do?
 String escapeString(String string) => string.replaceAll(r'$', r'\$');
+
+/// Escapes [comment] to ensure it can safely be used inside a /* ... */ block.
+String escapeComment(String comment) {
+  return comment.replaceAll('/*', ' / * ').replaceAll('*/', ' * / ');
+}
 
 void forEachOrdered(Map<String, dynamic> source, void func(String k, dynamic v)) {
   var orderdKeys = source.keys.toList()
@@ -73,7 +81,6 @@ const String _gitIgnore ="""
 packages
 pubspec.lock
 """;
-
 
 class GeneratorError implements Exception {
   final String api;
