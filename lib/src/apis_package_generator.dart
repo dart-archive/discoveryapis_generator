@@ -81,16 +81,15 @@ class ApisPackageGenerator {
       String name = description.name.toLowerCase();
       String version = description.version.toLowerCase()
           .replaceAll('.', '_').replaceAll('-', '_');
-      String libraryName = "googleapis.$name.$version";
       String apiFolderPath = "$libFolderPath/$name";
       String apiVersionFile = "$libFolderPath/$name/$version.dart";
       String packagePath = 'package:googleapis/$name/$version.dart';
       try {
         new Directory(apiFolderPath).createSync();
-        var apiGenerator = new ApiLibraryGenerator(
-            description, libraryName, commonInternalLibraryUri,
-            commonExternalLibraryUri);
-        apiGenerator.generateClient(apiVersionFile);
+        _generateApiLibrary(apiVersionFile,
+                            description,
+                            commonInternalLibraryUri,
+                            commonExternalLibraryUri);
         var result = new GenerateResult(name, version, packagePath);
         results.add(result);
       } catch (error, stack) {
@@ -107,6 +106,14 @@ class ApisPackageGenerator {
     return results;
   }
 
+  void _generateApiLibrary(String outputFile,
+                           RestDescription description,
+                           String internalUri,
+                           String externalUri) {
+    var lib = new DartApiLibrary.build(description, internalUri, externalUri);
+    _writeString(outputFile, lib.librarySource);
+  }
+
   void _writePubspec(StringSink sink) {
     sink.writeln("name: ${config.name}");
     sink.writeln("version: ${config.version}");
@@ -119,7 +126,7 @@ class ApisPackageGenerator {
     sink.writeln("environment:");
     sink.writeln("  sdk: '${config.sdkConstraint}'");
     sink.writeln("dependencies:");
-    forEachOrdered(config.dependencies, (String lib, Object value) {
+    orderedForEach(config.dependencies, (String lib, Object value) {
       if (value is String) {
         sink.writeln("  $lib: $value");
       } else if (value is Map) {

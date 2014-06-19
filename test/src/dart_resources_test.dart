@@ -2,15 +2,28 @@ import 'package:discovery_api_client_generator/generator.dart';
 import 'package:google_discovery_v1_api/discovery_v1_api_client.dart';
 import 'package:unittest/unittest.dart';
 
+
 withParsedDB(json, function) {
+  var namer = new ApiLibraryNamer();
+  var imports = new DartApiImports.fromNamer(namer);
+
   var description = new RestDescription.fromJson(json);
-  var db = parseSchemas(description);
+  var db = parseSchemas(imports, description);
+
+  namer.nameAllIdentifiers();
+
   return function(db);
 }
 
 withParsedApiResource(db, json, function) {
+  var namer = new ApiLibraryNamer();
+  var imports = new DartApiImports.fromNamer(namer);
+
   var description = new RestDescription.fromJson(json);
-  var apiClass = parseResources(db, description);
+  var apiClass = parseResources(imports, db, description);
+
+  namer.nameAllIdentifiers();
+
   return function(apiClass);
 }
 
@@ -60,7 +73,7 @@ main() {
 
     checkApi(String i, DartApiClass apiClass) {
       expect(apiClass, isNotNull);
-      expect(apiClass.className, equals('Apiname${i}Api'));
+      expect(apiClass.className.name, equals('Apiname${i}Api'));
       expect(apiClass.rootUrl, equals('https://www.googleapis.com/'));
       expect(apiClass.basePath, equals('/mapsengine/v1'));
     }
@@ -81,15 +94,16 @@ main() {
        };
     }
 
-    checkMethods(String i, Map<String, DartResourceMethod> methods) {
-      var foo = methods['foo$i'];
+    checkMethods(String i, List<DartResourceMethod> methods) {
+      expect(methods, hasLength(1));
+      var foo = methods.first;
       expect(foo, isNotNull);
       expect(foo.urlPattern, equals('foo$i/{id$i}'));
       expect(foo.httpMethod, equals('GET'));
       expect(foo.parameters, hasLength(1));
       var id = foo.parameters.first;
       expect(id, isNotNull);
-      expect(id.name, equals('id$i'));
+      expect(id.name.name, equals('id$i'));
       expect(id.type, equals(db.stringType));
       expect(id.required, isTrue);
       expect(id.encodedInPath, isTrue);
@@ -120,21 +134,21 @@ main() {
 
     checkResources(String i,
                    String parent,
-                   Map<String, DartResourceClass> resources,
+                   List<DartResourceClass> resources,
                    {int level: 0}) {
       if (level > 3) {
         expect(resources, isEmpty);
       } else {
         expect(resources, hasLength(2));
-        var abc = resources['resA${i}'];
+        var abc = resources.first;
         expect(abc, isNotNull);
-        expect(abc.className, equals('${parent}ResA${i}_'));
+        expect(abc.className.name, equals('${parent}ResA${i}ResourceApi'));
         checkMethods('${i}M$level', abc.methods);
         checkResources('${i}L$level', '${parent}ResA${i}', abc.subResources,
             level: level + 1);
 
-        var def = resources['resB${i}'];
-        expect(def.className, equals('${parent}ResB${i}_'));
+        var def = resources.last;
+        expect(def.className.name, equals('${parent}ResB${i}ResourceApi'));
         expect(def, isNotNull);
         checkMethods('${i}M$level', def.methods);
         checkResources('${i}L$level', '${parent}ResB${i}', def.subResources,

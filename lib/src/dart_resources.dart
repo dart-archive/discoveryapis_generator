@@ -4,7 +4,7 @@ part of discovery_api_client_generator;
  * Represents a parameter to a resource method.
  */
 class MethodParameter {
-  final String name;
+  final Identifier name;
   final DartSchemaType type;
   final bool required;
 
@@ -45,8 +45,9 @@ class DartResourceMethod {
    */
   final DartSchemaType returnType;
 
+  final DartApiImports imports;
 
-  final String name;
+  final Identifier name;
   final List<MethodParameter> parameters;
   final Map<String, MethodParameter> namedParameters;
   final String jsonName;
@@ -56,9 +57,10 @@ class DartResourceMethod {
   final bool mediaDownload;
   final RestMethodMediaUpload mediaUploadSpec;
 
-  DartResourceMethod(this.name, this.requestParameter, this.parameters,
-                     this.namedParameters, this.returnType, this.jsonName,
-                     this.urlPattern, this.httpMethod,
+  DartResourceMethod(this.imports, this.name,
+                     this.requestParameter, this.parameters,
+                     this.namedParameters, this.returnType,
+                     this.jsonName, this.urlPattern, this.httpMethod,
                      this.mediaUpload, this.mediaDownload,
                      this.mediaUploadSpec);
 
@@ -89,12 +91,12 @@ class DartResourceMethod {
 
       if (mediaUpload) {
         if (!namedString.isEmpty) namedString.write(', ');
-        namedString.write('common_external.Media uploadMedia');
+        namedString.write('${imports.external}.Media uploadMedia');
       }
 
       if (mediaDownload) {
         if (!namedString.isEmpty) namedString.write(', ');
-        namedString.write('core.bool downloadAsMedia: false');
+        namedString.write('${imports.core}.bool downloadAsMedia: false');
       }
 
       parameterString.write('{$namedString}');
@@ -105,7 +107,7 @@ class DartResourceMethod {
     if (returnType != null && !mediaDownload) {
       genericReturnType = '<${returnType.declaration}>';
     }
-    return 'async.Future$genericReturnType $name($parameterString)';
+    return '${imports.async}.Future$genericReturnType $name($parameterString)';
   }
 
   String get definition {
@@ -113,9 +115,10 @@ class DartResourceMethod {
 
     if (requestParameter != null) {
       var parameterEncode =
-          requestParameter.type.jsonEncode(requestParameter.name);
+          requestParameter.type.jsonEncode('${requestParameter.name}');
       params.writeln('    if (${requestParameter.name} != null) {');
-      params.writeln('      _body = JSON.encode(${parameterEncode});');
+      params.writeln(
+          '      _body = ${imports.convert}.JSON.encode(${parameterEncode});');
       params.writeln('    }');
     }
 
@@ -125,7 +128,7 @@ class DartResourceMethod {
 
       if (param.required) {
         params.writeln('    if (${param.name} == null) {');
-        params.writeln('      throw new core.ArgumentError'
+        params.writeln('      throw new ${imports.core}.ArgumentError'
                        '("Parameter ${param.name} is required.");');
         params.writeln('    }');
         params.writeln('    $propertyAssignment');
@@ -214,8 +217,8 @@ class DartResourceMethod {
 
     methodString.writeln('''
     var _url = "${escapeString(urlPattern)}";
-    var _urlParams = new core.Map();
-    var _queryParams = new core.Map();
+    var _urlParams = new ${imports.core}.Map();
+    var _queryParams = new ${imports.core}.Map();
     var _uploadMedia = null;
     var _downloadAsMedia = false;
     var _body = null;
@@ -233,33 +236,38 @@ $params$requestCode''');
  * Represents a resource of an Apiary API.
  */
 class DartResourceClass {
-  final String className;
-  final Map<String, DartResourceMethod> methods;
-  final Map<String, DartResourceClass> subResources;
+  final DartApiImports imports;
+  final Identifier className;
+  final List<DartResourceMethod> methods;
 
-  DartResourceClass(
-      this.className, this.methods, this.subResources);
+  final List<Identifier> subResourceIdentifiers;
+  final List<DartResourceClass> subResources;
+
+  DartResourceClass(this.imports, this.className, this.methods,
+                    this.subResourceIdentifiers, this.subResources);
 
   String get fields {
     var str = new StringBuffer();
-    subResources.forEach((String propertyName, DartResourceClass resource) {
-      str.writeln('  ${resource.className} get $propertyName '
+    for (var i = 0; i < subResourceIdentifiers.length; i++) {
+      var identifier = subResourceIdentifiers[i];
+      var resource = subResources[i];
+      str.writeln('  ${resource.className} get ${identifier.name} '
                   '=> new ${resource.className}(_httpClient);');
-    });
+    }
     if (!str.isEmpty) str.writeln();
     return '$str';
   }
 
   String get constructor {
     var str = new StringBuffer();
-    str.writeln('  $className(common_internal.ApiRequester client) : ');
+    str.writeln('  $className(${imports.internal}.ApiRequester client) : ');
     str.writeln('      _httpClient = client;');
     return '$str';
   }
 
   String get functions {
     var str = new StringBuffer();
-    methods.forEach((String methodName, DartResourceMethod m) {
+    methods.forEach((DartResourceMethod m) {
       str.writeln(m.definition);
     });
     return !str.isEmpty ? '\n$str' : '';
@@ -268,9 +276,9 @@ class DartResourceClass {
   String getClassDefinition() {
     var str = new StringBuffer();
     str.writeln('class $className {');
-    str.writeln('  final common_internal.ApiRequester _httpClient;');
+    str.writeln('  final ${imports.internal}.ApiRequester _httpClient;');
     str.writeln('');
-    str.writeln('  $fields$constructor$functions');
+    str.writeln('$fields$constructor$functions');
     str.writeln('}');
     return '$str';
   }
@@ -287,16 +295,18 @@ class DartApiClass extends DartResourceClass {
   final String rootUrl;
   final String basePath;
 
-  DartApiClass(String name,
-               Map<String, DartResourceMethod> methods,
-               Map<String, DartResourceClass> subResources,
+  DartApiClass(DartApiImports imports,
+               Identifier name,
+               List<DartResourceMethod> methods,
+               List<Identifier> subResourceIdentifiers,
+               List<DartResourceClass> subResources,
                this.rootUrl, this.basePath)
-      : super(name, methods, subResources);
+      : super(imports, name, methods, subResourceIdentifiers, subResources);
 
   String get constructor {
     var str = new StringBuffer();
-    str.writeln('  $className(http_base.Client client) : ');
-    str.write('      _httpClient = new common_internal.ApiRequester'
+    str.writeln('  $className(${imports.httpBase}.Client client) : ');
+    str.write('      _httpClient = new ${imports.internal}.ApiRequester'
               '(client, "${escapeString(rootUrl)}", '
               '"${escapeString(basePath)}")');
     str.writeln(';');
@@ -308,12 +318,19 @@ class DartApiClass extends DartResourceClass {
 /**
  * Parses all resources in [description] and returns the root [DartApiClass].
  */
-DartApiClass parseResources(DartSchemaTypeDB db, RestDescription description) {
+DartApiClass parseResources(DartApiImports imports,
+                            DartSchemaTypeDB db,
+                            RestDescription description) {
   DartResourceClass parseResource(String resourceName,
                                   Map<String, RestMethod> methods,
                                   Map<String, RestResource> subResources,
-                                  String parentPrefix) {
-    DartResourceMethod parseMethod(String jsonName, RestMethod method) {
+                                  String parentName) {
+    DartResourceMethod parseMethod(Scope classScope,
+                                   String jsonName,
+                                   RestMethod method) {
+      var methodName = classScope.newIdentifier(jsonName, public: true);
+      var parameterScope = classScope.newChildScope();
+
       // This set will be reduced to all optional parameters.
       var pendingParameterNames = method.parameters != null
           ? method.parameters.keys.toSet() : new Set<String>();
@@ -324,11 +341,11 @@ DartApiClass parseResources(DartSchemaTypeDB db, RestDescription description) {
       tryEnqueuePositionalParameter(String jsonName, JsonSchema schema) {
         if (!pendingParameterNames.contains(jsonName)) return;
 
-        var name = escapeProperty(jsonName);
         var parameter = method.parameters[jsonName];
         if (parameter.required == true) {
+          var name = parameterScope.newIdentifier(jsonName);
           pendingParameterNames.remove(jsonName);
-          var type = parseResolved(db, parameter);
+          var type = parseResolved(imports, db, parameter);
           positionalParameters.add(new MethodParameter(
               name, true, type, jsonName, parameter.location != 'query'));
         }
@@ -336,10 +353,9 @@ DartApiClass parseResources(DartSchemaTypeDB db, RestDescription description) {
 
       var optionalParameters = new Map<String, MethodParameter>();
       enqueueOptionalParameter(String jsonName, JsonSchema schema) {
-        // TODO: Escape [parameter]!
-        var name = escapeProperty(jsonName);
+        var name = parameterScope.newIdentifier(jsonName);
         var parameter = method.parameters[jsonName];
-        var type = parseResolved(db, parameter);
+        var type = parseResolved(imports, db, parameter);
         optionalParameters[name] = new MethodParameter(
             name, false, type, jsonName, parameter.location != 'query');
       }
@@ -386,8 +402,9 @@ DartApiClass parseResources(DartSchemaTypeDB db, RestDescription description) {
       if (method.request != null) {
         var type = getValidReference(method.request.$ref);
         // FIXME: Is `required: true` really the right thing?
+        var requestName = parameterScope.newIdentifier('request');
         dartRequestParameter =
-            new MethodParameter('request', true, type, null, null);
+            new MethodParameter(requestName, true, type, null, null);
       }
 
       var dartResponseType = null;
@@ -395,44 +412,55 @@ DartApiClass parseResources(DartSchemaTypeDB db, RestDescription description) {
         dartResponseType = getValidReference(method.response.$ref);
       }
 
-      // TODO: Escape [name].
-      var name = jsonName;
-
-      return new DartResourceMethod(name, dartRequestParameter,
+      return new DartResourceMethod(imports, methodName, dartRequestParameter,
           positionalParameters, optionalParameters, dartResponseType, jsonName,
           method.path, method.httpMethod, method.supportsMediaUpload,
           method.supportsMediaDownload, method.mediaUpload);
     }
 
-    var dartMethods = {};
+    bool topLevel = parentName.isEmpty;
+
+    var namer = imports.namer;
+    Identifier className;
+    if (topLevel) {
+      className = namer.apiClass(resourceName);
+    } else {
+      className = namer.resourceClass(resourceName, parent: parentName);
+    }
+    var classScope = namer.newClassScope();
+
+    var dartMethods = [];
     if (methods != null) {
-      methods.forEach((String jsonName, RestMethod method) {
-        var dartMethod = parseMethod(jsonName, method);
-        dartMethods[dartMethod.name] = dartMethod;
+      orderedForEach(methods, (String jsonName, RestMethod method) {
+        var dartMethod = parseMethod(classScope, jsonName, method);
+        dartMethods.add(dartMethod);
       });
     }
 
-    var dartSubResource = {};
+    var dartSubResourceIdentifiers = [];
+    var dartSubResource = [];
     if (subResources != null) {
-      subResources.forEach((String jsonName, RestResource resource) {
-        var instanceName = jsonName;
-        var name = '${parentPrefix}${capitalize(jsonName)}';
+      orderedForEach(subResources, (String jsonName, RestResource resource) {
+        var instanceName = classScope.newIdentifier(jsonName, public: true);
         var dartResource = parseResource(
-            '${name}', resource.methods, resource.resources, name);
-        dartSubResource[instanceName] = dartResource;
+            jsonName, resource.methods, resource.resources,
+            className.preferredName);
+        dartSubResourceIdentifiers.add(instanceName);
+        dartSubResource.add(dartResource);
       });
     }
 
-    if (parentPrefix.isEmpty) {
+    if (topLevel) {
       return new DartApiClass(
-          '${resourceName}Api', dartMethods, dartSubResource,
-          description.rootUrl, description.basePath);
+          imports, className, dartMethods, dartSubResourceIdentifiers,
+          dartSubResource, description.rootUrl, description.basePath);
     } else {
       return new DartResourceClass(
-          '${resourceName}_', dartMethods, dartSubResource);
+          imports, className, dartMethods, dartSubResourceIdentifiers,
+          dartSubResource);
     }
   }
-  return parseResource(capitalize(description.name),
+  return parseResource(description.name,
                        description.methods,
                        description.resources,
                        '');
@@ -448,7 +476,7 @@ String generateResources(DartApiClass apiClass) {
   writeResourceClass(DartResourceClass resource) {
     sb.writeln(resource.getClassDefinition());
     sb.writeln();
-    resource.subResources.forEach((_, subResource) {
+    resource.subResources.forEach((subResource) {
       writeResourceClass(subResource);
     });
   }

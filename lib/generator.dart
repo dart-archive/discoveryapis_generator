@@ -5,11 +5,12 @@ import "dart:async";
 import 'package:google_discovery_v1_api/discovery_v1_api_client.dart';
 import 'package:google_discovery_v1_api/discovery_v1_api_console.dart';
 
-part "src/api_library_generator.dart";
 part "src/apis_package_generator.dart";
 part "src/config.dart";
+part "src/dart_api_library.dart";
 part "src/dart_resources.dart";
 part "src/dart_schemas.dart";
+part "src/namer.dart";
 part "src/utils.dart";
 
 List<GenerateResult> generateApiPackage(

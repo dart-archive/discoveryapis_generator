@@ -4,21 +4,18 @@ const List keywords = const [
   "assert", "break", "case", "catch", "class", "const", "continue",
   "default", "do", "else", "enum", "extends", "false", "final", "finally",
   "for", "if", "in", "is", "new", "null", "rethrow", "return", "super", "switch",
-  "this", "throw", "true", "try", "var", "void", "while", "with"
+  "this", "throw", "true", "try", "var", "void", "while", "with",
+
+  // This is not in the dart language specification 1.2 but is reserved
+  // in dart2js and the dart VM.
+  // See: http://dartbug.com/19515
+  "external"
 ];
 
 final _cleanRegEx = new RegExp(r"[^\w$]");
 
 String fileDate(DateTime date) => "${date.year}${(date.month < 10) ? 0 : ""}${date.month}${(date.day < 10) ? 0 : ""}${date.day}_${(date.hour < 10) ? 0 : ""}${date.hour}${(date.minute < 10) ? 0 : ""}${date.minute}${(date.second < 10) ? 0 : ""}${date.second}";
-String capitalize(String string) => "${string.substring(0,1).toUpperCase()}${string.substring(1)}";
 String cleanName(String name) => name.replaceAll(_cleanRegEx, "_");
-
-String escapeProperty(String name) {
-  name = name.replaceAll('-', '_').replaceAll('.', '_');
-  return keywords.contains(name) ? "${name}Property" : name;
-}
-String escapeMethod(String name) => keywords.contains(name) ? "${name}Method" : name;
-String escapeParameter(String name) => keywords.contains(name) ? "${name}Parameter" : name;
 
 // TODO: Is this all we have to do?
 String escapeString(String string) => string.replaceAll(r'$', r'\$');
@@ -28,12 +25,11 @@ String escapeComment(String comment) {
   return comment.replaceAll('/*', ' / * ').replaceAll('*/', ' * / ');
 }
 
-void forEachOrdered(Map<String, dynamic> source, void func(String k, dynamic v)) {
-  var orderdKeys = source.keys.toList()
-      ..sort();
-
-  for(var k in orderdKeys) {
-    func(k, source[k]);
+void orderedForEach(Map map, Function fun) {
+  var keys = new List.from(map.keys);
+  keys.sort();
+  for (var key in keys) {
+    fun(key, map[key]);
   }
 }
 

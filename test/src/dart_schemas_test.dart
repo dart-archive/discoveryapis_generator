@@ -3,8 +3,14 @@ import 'package:google_discovery_v1_api/discovery_v1_api_client.dart';
 import 'package:unittest/unittest.dart';
 
 withParsedDB(json, function) {
+  var namer = new ApiLibraryNamer();
+  var imports = new DartApiImports.fromNamer(namer);
+
   var description = new RestDescription.fromJson(json);
-  var db = parseSchemas(description);
+  var db = parseSchemas(imports, description);
+
+  namer.nameAllIdentifiers();
+
   return function(db);
 }
 
@@ -32,16 +38,16 @@ main() {
           'Task' : {
             'type' : 'object',
             'properties' : {
-              'name' : { 'type': 'string' },
-              'isMale' : { 'type': 'boolean' },
               'age' : { 'type': 'integer' },
               'any' : { 'type': 'any' },
+              'isMale' : { 'type': 'boolean' },
               'labels' : {
                 'type': 'array',
                 'items' : {
                   'type' : 'integer',
                 },
               },
+              'name' : { 'type': 'string' },
               'properties' : {
                 'type': 'object',
                 'additionalProperties' : {
@@ -57,48 +63,49 @@ main() {
         expect(db.dartClassTypes, hasLength(1));
 
         expect(db.namedSchemaTypes, contains('Task'));
-        expect(db.dartClassTypes, contains('Task'));
-        ObjectType task = db.dartClassTypes['Task'];
+        expect(db.dartClassTypes, hasLength(1));
+        ObjectType task = db.dartClassTypes.first;
         expect(db.dartTypes, contains(task));
         expect(db.namedSchemaTypes['Task'], equals(task));
 
         // Do tests on `task`.
         expect(task is ObjectType, isTrue);
-        expect(task.className, equals('Task'));
+        expect(task.className.name, equals('Task'));
         expect(task.superVariantType, isNull);
 
         // Do tests on `task.properties`.
-        var name = task.properties['name'];
-        expect(name, isNotNull);
-        expect(name.name, equals('name'));
-        expect(name.type, equals(db.stringType));
 
-        var isMale = task.properties['isMale'];
-        expect(isMale, isNotNull);
-        expect(isMale.name, equals('isMale'));
-        expect(isMale.type, equals(db.booleanType));
-
-        var age = task.properties['age'];
+        var age = task.properties[0];
         expect(age, isNotNull);
-        expect(age.name, equals('age'));
+        expect(age.name.name, equals('age'));
         expect(age.type, equals(db.integerType));
 
-        var any = task.properties['any'];
+        var any = task.properties[1];
         expect(any, isNotNull);
-        expect(any.name, equals('any'));
+        expect(any.name.name, equals('any'));
         expect(any.type, equals(db.anyType));
 
-        var labels = task.properties['labels'];
+        var isMale = task.properties[2];
+        expect(isMale, isNotNull);
+        expect(isMale.name.name, equals('isMale'));
+        expect(isMale.type, equals(db.booleanType));
+
+        var labels = task.properties[3];
         expect(labels, isNotNull);
-        expect(labels.name, equals('labels'));
+        expect(labels.name.name, equals('labels'));
         expect(labels.type is UnnamedArrayType, isTrue);
         UnnamedArrayType lablesTyped = labels.type;
         expect(lablesTyped.className, isNull);
         expect(lablesTyped.innerType, equals(db.integerType));
 
-        var properties = task.properties['properties'];
+        var name = task.properties[4];
+        expect(name, isNotNull);
+        expect(name.name.name, equals('name'));
+        expect(name.type, equals(db.stringType));
+
+        var properties = task.properties[5];
         expect(properties, isNotNull);
-        expect(properties.name, equals('properties'));
+        expect(properties.name.name, equals('properties'));
         expect(properties.type is UnnamedMapType, isTrue);
         UnnamedMapType propertiesTyped = properties.type;
         expect(propertiesTyped.className, isNull);
@@ -145,40 +152,37 @@ main() {
         expect(db.dartClassTypes, hasLength(3));
 
         // 'Geometry' variant schema.
-        expect(db.dartClassTypes, contains('Geometry'));
         expect(db.namedSchemaTypes, contains('Geometry'));
-        AbstractVariantType geo = db.dartClassTypes['Geometry'];
+        AbstractVariantType geo = db.dartClassTypes[0];
         expect(db.dartTypes, contains(geo));
         expect(db.namedSchemaTypes['Geometry'], equals(geo));
 
         // 'LineGeometry' schema
-        expect(db.dartClassTypes, contains('LineGeometry'));
         expect(db.namedSchemaTypes, contains('LineGeometry'));
-        ObjectType lineGeo = db.dartClassTypes['LineGeometry'];
+        ObjectType lineGeo = db.dartClassTypes[1];
         expect(db.dartTypes, contains(lineGeo));
         expect(db.namedSchemaTypes['LineGeometry'], equals(lineGeo));
 
         // 'PolygonGeometry' schema
-        expect(db.dartClassTypes, contains('PolygonGeometry'));
         expect(db.namedSchemaTypes, contains('PolygonGeometry'));
-        ObjectType polyGeo = db.dartClassTypes['PolygonGeometry'];
+        ObjectType polyGeo = db.dartClassTypes[2];
         expect(db.dartTypes, contains(polyGeo));
         expect(db.namedSchemaTypes['PolygonGeometry'], equals(polyGeo));
 
         // Check variant map
-        expect(geo.className, equals('Geometry'));
+        expect(geo.className.name, equals('Geometry'));
         expect(geo.discriminant, equals('my_type'));
         expect(geo.map, contains('my_line_type'));
         expect(geo.map['my_line_type'], equals(lineGeo));
         expect(geo.map, contains('my_polygon_type'));
         expect(geo.map['my_polygon_type'], equals(polyGeo));
 
-        expect(lineGeo.className, equals('LineGeometry'));
-        expect(lineGeo.properties['label'].name, equals('label'));
-        expect(lineGeo.properties['label'].type, equals(db.stringType));
-        expect(polyGeo.className, equals('PolygonGeometry'));
-        expect(polyGeo.properties['points'].name, equals('points'));
-        expect(polyGeo.properties['points'].type, equals(db.integerType));
+        expect(lineGeo.className.name, equals('LineGeometry'));
+        expect(lineGeo.properties.first.name.name, equals('label'));
+        expect(lineGeo.properties.first.type, equals(db.stringType));
+        expect(polyGeo.className.name, equals('PolygonGeometry'));
+        expect(polyGeo.properties.first.name.name, equals('points'));
+        expect(polyGeo.properties.first.type, equals(db.integerType));
       });
     });
 
@@ -197,10 +201,9 @@ main() {
         expect(db.namedSchemaTypes, hasLength(1));
         expect(db.dartClassTypes, hasLength(1));
 
-        expect(db.dartClassTypes, contains('Properties'));
         expect(db.namedSchemaTypes, contains('Properties'));
-        NamedMapType properties = db.dartClassTypes['Properties'];
-        expect(properties.className, equals('Properties'));
+        NamedMapType properties = db.dartClassTypes.first;
+        expect(properties.className.name, equals('Properties'));
         expect(properties.fromType, equals(db.stringType));
         expect(properties.toType, equals(db.integerType));
       });
