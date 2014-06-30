@@ -41,7 +41,7 @@ class DartSchemaTypeDB {
  */
 class DartClassProperty {
   final Identifier name;
-  final String comment;
+  final Comment comment;
   final DartSchemaType type;
   final String jsonName;
 
@@ -65,11 +65,13 @@ abstract class DartSchemaType {
   // or `null` if it does not represent a schema type represented by a custom
   // dart class.
   final Identifier className;
+  final Comment comment;
   final DartApiImports imports;
 
   bool _resolved = false;
 
-  DartSchemaType(this.imports, this.className);
+  DartSchemaType(this.imports, this.className, {Comment comment_})
+      : comment = comment_ != null ? comment_ : Comment.Empty;
 
   DartSchemaType resolve(DartSchemaTypeDB db) {
     if (!_resolved) {
@@ -204,8 +206,10 @@ class AnyType extends PrimitiveDartSchemaType {
  * Subclasses may be named dart classes or composed classes (e.g. List<X>).
  */
 abstract class ComplexDartSchemaType extends DartSchemaType {
-  ComplexDartSchemaType(DartApiImports imports, Identifier name)
-      : super(imports, name);
+  ComplexDartSchemaType(DartApiImports imports,
+                        Identifier name,
+                        {Comment comment})
+      : super(imports, name, comment_: comment);
 
   String get instantiation;
 
@@ -301,8 +305,9 @@ class NamedMapType extends ComplexDartSchemaType {
   DartSchemaType toType;
 
   NamedMapType(
-      DartApiImports imports, Identifier name, this.fromType, this.toType)
-      : super(imports, name) {
+      DartApiImports imports, Identifier name, this.fromType, this.toType,
+      {Comment comment})
+      : super(imports, name, comment: comment) {
     if (fromType is! StringType) {
       throw new StateError('Violation of assumption: Keys in map types must '
                            'be Strings.');
@@ -390,8 +395,9 @@ class ObjectType extends ComplexDartSchemaType {
   // FIXME: Can we have subclasses of subclasses ???
   AbstractVariantType superVariantType;
 
-  ObjectType(DartApiImports imports, Identifier name, this.properties)
-      : super(imports, name);
+  ObjectType(DartApiImports imports, Identifier name, this.properties,
+             {Comment comment})
+      : super(imports, name, comment: comment);
 
   DartSchemaType _resolve(DartSchemaTypeDB db) {
     for (var i = 0; i < properties.length; i++) {
@@ -414,10 +420,7 @@ class ObjectType extends ComplexDartSchemaType {
 
     var propertyString = new StringBuffer();
     properties.forEach((DartClassProperty property) {
-      var comment = '';
-      if (property.comment != null) {
-          comment = '  /* ${escapeComment(property.comment)} */\n';
-      }
+      var comment = property.comment.asDartDoc(2);
       propertyString.writeln(
           '$comment  ${property.type.declaration} ${property.name};');
       propertyString.writeln();
@@ -445,11 +448,11 @@ class ObjectType extends ComplexDartSchemaType {
       toJsonString.writeln('    }');
     });
     toJsonString.writeln('    return json;');
-    toJsonString.writeln('  }');
+    toJsonString.write('  }');
 
     return
 '''
-class $className $superClassString{
+${comment.asDartDoc(0)}class $className $superClassString{
 $propertyString
   $className();
 
@@ -479,7 +482,10 @@ class AbstractVariantType extends ComplexDartSchemaType {
 
   AbstractVariantType(DartApiImports imports,
                       Identifier name,
-                      this.discriminant, this.map) : super(imports, name);
+                      this.discriminant,
+                      this.map,
+                      {Comment comment})
+      : super(imports, name, comment: comment);
 
   DartSchemaType _resolve(DartSchemaTypeDB db) {
     map.forEach((String name, DartSchemaType ref) {
@@ -611,6 +617,8 @@ DartSchemaTypeDB parseSchemas(DartApiImports imports,
                        JsonSchema schema,
                        {bool topLevel: false}) {
     if (schema.type == 'object') {
+      var comment = new Comment(schema.description);
+
       if (schema.additionalProperties != null) {
         var anonValueClassName =
             namer.schemaClass('${className.preferredName}Value');
@@ -620,8 +628,8 @@ DartSchemaTypeDB parseSchemas(DartApiImports imports,
                               schema.additionalProperties);
         if (topLevel) {
           // This is a named map type.
-          return register(
-              new NamedMapType(imports, className, db.stringType, valueType));
+          return register(new NamedMapType(
+              imports, className, db.stringType, valueType, comment: comment));
         } else {
           // This is an unnamed map type.
           return register(
@@ -651,12 +659,14 @@ DartSchemaTypeDB parseSchemas(DartApiImports imports,
 
             var propertyType = parse(propertyClass, propertyClassScope, value);
 
+            var comment = new Comment(value.description);
             var property = new DartClassProperty(
-                propertyName, value.description, propertyType, jsonPName);
+                propertyName, comment, propertyType, jsonPName);
             properties.add(property);
           });
         }
-        return register(new ObjectType(imports, className, properties));
+        return register(
+            new ObjectType(imports, className, properties, comment: comment));
       }
     } else if (schema.type == 'array') {
       // Array of objects
@@ -742,7 +752,6 @@ DartSchemaType parseResolved(DartApiImports imports,
 String generateSchemas(DartSchemaTypeDB db) {
   var sb = new StringBuffer();
   db.dartClassTypes.forEach((ComplexDartSchemaType value) {
-    sb.writeln('/* Schema class for ${value.className} */');
     var classDefinition = value.classDefinition;
     if (classDefinition != null) {
       sb.writeln(classDefinition);
