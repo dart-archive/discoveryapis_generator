@@ -159,6 +159,35 @@ main() {
         expect(classScope.parentScope, equals(libScope));
       });
 
+      test('schema-class', () {
+        var namer = new ApiLibraryNamer();
+        var libraryScope = namer.libraryScope;
+
+        // Naming classes is split into two parts:
+        // - getting a preffered name with [namer.schemaClassName]
+        // - making an indentifier with [namer.schemaClass]
+        //   => which will add it to the library scope
+
+        var chapter = namer.schemaClassName('chapter');
+        var bookChapter = namer.schemaClassName('chapter', parent: 'book');
+        expect(chapter, equals('Chapter'));
+        expect(bookChapter, equals('BookChapter'));
+
+        expect(libraryScope.childScopes, isEmpty);
+        expect(libraryScope.identifiers, isEmpty);
+
+        var chapterId = namer.schemaClass(chapter);
+        var bookChapterId = namer.schemaClass(bookChapter);
+
+        expect(chapterId.preferredName, equals('Chapter'));
+        expect(bookChapterId.preferredName, equals('BookChapter'));
+
+        expect(libraryScope.childScopes, isEmpty);
+        expect(libraryScope.identifiers, hasLength(2));
+        expect(libraryScope.identifiers.first, equals(chapterId));
+        expect(libraryScope.identifiers.last, equals(bookChapterId));
+      });
+
       test('identifier-naming', () {
         var namer = new ApiLibraryNamer();
         namer.import('foo');

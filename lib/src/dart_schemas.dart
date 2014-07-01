@@ -612,7 +612,7 @@ DartSchemaTypeDB parseSchemas(DartApiImports imports,
    * If these types appear on the top level, i.e. in the {"schemas" { XXX }},
    * they are named, otherwise they are unnamed.
    */
-  DartSchemaType parse(Identifier className,
+  DartSchemaType parse(String className,
                        Scope classScope,
                        JsonSchema schema,
                        {bool topLevel: false}) {
@@ -621,15 +621,16 @@ DartSchemaTypeDB parseSchemas(DartApiImports imports,
 
       if (schema.additionalProperties != null) {
         var anonValueClassName =
-            namer.schemaClass('${className.preferredName}Value');
-        var anonClassScope = classScope.newChildScope();
+            namer.schemaClassName('${className}Value');
+        var anonClassScope = namer.newClassScope();
         var valueType = parse(anonValueClassName,
                               anonClassScope,
                               schema.additionalProperties);
         if (topLevel) {
           // This is a named map type.
+          var classId = namer.schemaClass(className);
           return register(new NamedMapType(
-              imports, className, db.stringType, valueType, comment: comment));
+              imports, classId, db.stringType, valueType, comment: comment));
         } else {
           // This is an unnamed map type.
           return register(
@@ -643,19 +644,22 @@ DartSchemaTypeDB parseSchemas(DartApiImports imports,
           map[mapItem.type_value] =
               new DartSchemaForwardRef(imports, mapItem.$ref);
         });
+        var classId = namer.schemaClass(className);
         return register(new AbstractVariantType(
-            imports, className, schema.variant.discriminant, map));
+            imports, classId, schema.variant.discriminant, map));
       } else {
         // This is a normal named schema class, we generate a normal
         // [ObjectType] for it with the defined properties.
+        var classId = namer.schemaClass(className);
         var properties = new List<DartClassProperty>();
         if (schema.properties != null) {
           orderedForEach(schema.properties,
                          (String jsonPName, JsonSchema value) {
             var propertyName = classScope.newIdentifier(
                 jsonPName, public: true);
-            var propertyClass = namer.schemaClass(jsonPName, parent: className);
-            var propertyClassScope = classScope.newChildScope();
+            var propertyClass = namer.schemaClassName(
+                jsonPName, parent: className);
+            var propertyClassScope = namer.newClassScope();
 
             var propertyType = parse(propertyClass, propertyClassScope, value);
 
@@ -666,12 +670,12 @@ DartSchemaTypeDB parseSchemas(DartApiImports imports,
           });
         }
         return register(
-            new ObjectType(imports, className, properties, comment: comment));
+            new ObjectType(imports, classId, properties, comment: comment));
       }
     } else if (schema.type == 'array') {
       // Array of objects
       return register(new UnnamedArrayType(imports,
-              parse(className, classScope.newChildScope(), schema.items)));
+              parse(className, namer.newClassScope(), schema.items)));
     } else if (schema.type == 'boolean') {
       return db.booleanType;
     } else if (schema.type == 'string') {
@@ -696,7 +700,7 @@ DartSchemaTypeDB parseSchemas(DartApiImports imports,
 
   if (description.schemas != null) {
     orderedForEach(description.schemas, (String name, JsonSchema schema) {
-      var className = namer.schemaClass(name);
+      var className = namer.schemaClassName(name);
       var classScope = namer.newClassScope();
       registerTopLevel(name,
                        parse(className, classScope, schema, topLevel: true));

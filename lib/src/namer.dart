@@ -225,10 +225,14 @@ class ApiLibraryNamer {
     return _libraryScope.newIdentifier('${Scope.capitalize(name)}ResourceApi');
   }
 
-  Identifier schemaClass(String name, {Identifier parent}) {
+  String schemaClassName(String name, {String parent}) {
     if (parent != null) {
-      name = '${parent.preferredName}${Scope.capitalize(name)}';
+      name = '${parent}${Scope.capitalize(name)}';
     }
+    return Scope.capitalize(name);
+  }
+
+  Identifier schemaClass(String name) {
     return _libraryScope.newIdentifier(Scope.capitalize(name));
   }
 

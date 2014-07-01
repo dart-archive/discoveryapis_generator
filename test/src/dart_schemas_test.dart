@@ -186,6 +186,81 @@ main() {
       });
     });
 
+
+    test('object-schema-name-overlap', () {
+      withParsedDB({
+        'schemas' : {
+          // Task, TaskName, TaskName_1
+          'Overlap' : {
+            'type' : 'object',
+            'properties' : {
+              'array' : {
+                'type': 'array',
+                'items' : {
+                  'type' : 'integer',
+                },
+              },
+              'object' : {
+                'type': 'object',
+                'properties' : {
+                  'prop' : {'type' : 'integer'},
+                },
+              },
+              'integer' : {
+                'type': 'integer',
+              },
+            },
+          },
+          'OverlapArray' : {
+            'type' : 'object',
+            'properties' : {
+              'oaprop' : { 'type': 'integer' },
+            },
+          },
+          'OverlapObject' : {
+            'type' : 'object',
+            'properties' : {
+              'ooprop' : { 'type': 'integer' },
+            },
+          },
+          // INFO: Should generate the following classes:
+          // Overlap, OverlapArray, OverlapObject, OverlapObject_1
+          //
+          // NOTE: Since we don't generate a class for
+          // - [Overlap.array]
+          // - [Overlap.integer]
+          // we can assert that
+          // - the name 'OverlapArray' will not be allocated twice
+          // - the name 'OverlapInteger' will not be allocated
+        }
+      }, (DartSchemaTypeDB db) {
+        expect(db.dartClassTypes, hasLength(4));
+
+        expect(db.namedSchemaTypes, hasLength(3));
+        expect(db.namedSchemaTypes, contains('Overlap'));
+        expect(db.namedSchemaTypes, contains('OverlapArray'));
+        expect(db.namedSchemaTypes, contains('OverlapObject'));
+
+        // The order in [db.dartClassTypes] is:
+        // depth-first traversal with postorder node processing.
+        //
+        // Naming happens on the scope tree level-by-level, so it depends on
+        // the order of insertion into the scope.
+        expect(db.dartClassTypes, hasLength(4));
+        expect(db.dartClassTypes[0].className.name, equals('OverlapObject'));
+        expect(db.dartClassTypes[1].className.name, equals('Overlap'));
+        expect(db.dartClassTypes[2].className.name, equals('OverlapArray'));
+        expect(db.dartClassTypes[3].className.name, equals('OverlapObject_1'));
+
+        expect(db.dartClassTypes[1],
+               equals(db.namedSchemaTypes['Overlap']));
+        expect(db.dartClassTypes[2],
+               equals(db.namedSchemaTypes['OverlapArray']));
+        expect(db.dartClassTypes[3],
+               equals(db.namedSchemaTypes['OverlapObject']));
+      });
+    });
+
     test('named-map-schema', () {
       withParsedDB({
         'schemas' : {
