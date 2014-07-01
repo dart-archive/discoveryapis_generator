@@ -495,10 +495,33 @@ class UrlPattern {
         if (close < 0) {
           throw new ArgumentError("Token meets end of text: $pattern");
         }
+        // FIXME: This is a really hacky way of detecting paths like
+        //  - "customer/{customerId}/orgunits{/orgUnitPath*}"
+        // TODO: We should write a proper UrlPattern class.
+        // TODO: Make sure that the call sites guarantee that the values
+        // are not `null`.
         String variable = pattern.substring(open + 1, close);
-        _tokens.add((params) => (params[variable] == null)
-            ? 'null'
-            : Uri.encodeComponent(params[variable].toString()));
+        if (variable.startsWith('/') && variable.endsWith('*')) {
+          variable = variable.substring(1, variable.length - 1);
+          _tokens.add((params) {
+            if (params[variable] is! List) {
+              throw new ArgumentError(
+                'Url variable '$variable' must be a valid List.');
+            }
+            return '/' + params[variable]
+                .map((item) => Uri.encodeComponent('$item'))
+                .join('/');
+          });
+        }  else {
+          _tokens.add((params) {
+            if (params[variable] == null) {
+              throw new ArgumentError(
+                  'Url variable '$variable' must not be null.');
+            } else {
+              return Uri.encodeComponent(params[variable].toString());
+            }
+          });
+        }
         cursor = close + 1;
       }
     }

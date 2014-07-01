@@ -616,6 +616,10 @@ DartSchemaTypeDB parseSchemas(DartApiImports imports,
                        Scope classScope,
                        JsonSchema schema,
                        {bool topLevel: false}) {
+    if (schema.repeated != null) {
+      throw new ArgumentError('Only path/query parameters can be repeated.');
+    }
+
     if (schema.type == 'object') {
       var comment = new Comment(schema.description);
 
@@ -718,35 +722,26 @@ DartSchemaTypeDB parseSchemas(DartApiImports imports,
   return db;
 }
 
-// TODO: Try to deduplicate this code.
+// NOTE: This will be called for resolving parameter types in methods.
 DartSchemaType parseResolved(DartApiImports imports,
                              DartSchemaTypeDB db,
                              JsonSchema schema) {
-  if (schema.type == 'array') {
-    // Array of objects
-    return new UnnamedArrayType(imports,
-                                parseResolved(imports, db, schema.items));
-  } else if (schema.type == 'boolean') {
-    return db.booleanType;
-  } else if (schema.type == 'string') {
-    return db.stringType;
-  } else if (schema.type == 'number') {
-    return db.numberType;
-  } else if (schema.type == 'double') {
-    return db.doubleType;
-  } else if (schema.type == 'integer') {
-    // FIXME: Also take [schema.format] into account, e.g. "int64"
-    return db.integerType;
-  } else if (schema.type == 'any') {
-    return db.anyType; // FIXME: What do we do here?
-  } else if (schema.$ref != null) {
-    var type = db.namedSchemaTypes[schema.$ref];
-    if (type == null) {
-      throw new ArgumentError('Could not parse $schema.');
-    }
-    return type;
+  var primitiveTypes = {
+    'boolean' : db.booleanType,
+    'string' : db.stringType,
+    'number' : db.numberType,
+    'double' : db.doubleType,
+    'integer' : db.integerType,
+  };
+  var primitiveType = primitiveTypes[schema.type];
+  if (primitiveType == null) {
+    throw new ArgumentError('Invalid JsonSchema.type (was: ${schema.type}).');
   }
-  throw new ArgumentError('Invalid JsonSchema.type (was: ${schema.type}).');
+  if (schema.repeated == null || !schema.repeated) {
+    return primitiveType;
+  } else {
+    return new UnnamedArrayType(imports, primitiveType);
+  }
 }
 
 

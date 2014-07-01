@@ -137,12 +137,18 @@ class DartResourceMethod {
       params.writeln('    }');
     }
 
-    encodeParam(MethodParameter param, {String mapName}) {
+    encodeQueryParam(MethodParameter param, String mapName) {
       var propertyAssignment =
-          '$mapName["${escapeString(param.jsonName)}"] = "\$${param.name}";';
+          '_addParameter'
+          '($mapName, "${escapeString(param.jsonName)}", ${param.name});';
 
       if (param.required) {
-        params.writeln('    if (${param.name} == null) {');
+        if (param.type is UnnamedArrayType) {
+          params.writeln(
+              '    if (${param.name} == null || ${param.name}.isEmpty) {');
+        } else {
+          params.writeln('    if (${param.name} == null) {');
+        }
         params.writeln('      throw new ${imports.core}.ArgumentError'
                        '("Parameter ${param.name} is required.");');
         params.writeln('    }');
@@ -158,16 +164,16 @@ class DartResourceMethod {
     }
     parameters.forEach((p) {
       if (p.encodedInPath) {
-        encodeParam(p, mapName: '_urlParams');
+        encodeQueryParam(p, '_urlParams');
       } else {
-        encodeParam(p, mapName: '_queryParams');
+        encodeQueryParam(p, '_queryParams');
       }
     });
     namedParameters.forEach((_, p) {
       if (p.encodedInPath) {
-        encodeParam(p, mapName: '_urlParams');
+        encodeQueryParam(p, '_urlParams');
       } else {
-        encodeParam(p, mapName: '_queryParams');
+        encodeQueryParam(p, '_queryParams');
       }
     });
 
@@ -238,6 +244,11 @@ class DartResourceMethod {
     var _uploadMedia = null;
     var _downloadAsMedia = false;
     var _body = null;
+
+    _addParameter(params, ${imports.core}.String name, value) {
+      var values = params.putIfAbsent(name, () => []);
+      values.add(value);
+    }
 
 $params$requestCode''');
 

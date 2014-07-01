@@ -89,6 +89,18 @@ main() {
                'required' : true,
                'location' : 'path',
              },
+             'reapetedPathParam$i' : {
+               'type' : 'string',
+               'required' : true,
+               'repeated' : true,
+               'location' : 'path',
+             },
+             'reapetedQueryParam$i' : {
+              'type' : 'string',
+              'required' : true,
+              'repeated' : true,
+              'location' : 'query',
+            },
            },
          },
        };
@@ -100,13 +112,30 @@ main() {
       expect(foo, isNotNull);
       expect(foo.urlPattern, equals('foo$i/{id$i}'));
       expect(foo.httpMethod, equals('GET'));
-      expect(foo.parameters, hasLength(1));
-      var id = foo.parameters.first;
+      expect(foo.parameters, hasLength(3));
+
+      var id = foo.parameters[0];
       expect(id, isNotNull);
       expect(id.name.name, equals('id$i'));
       expect(id.type, equals(db.stringType));
       expect(id.required, isTrue);
       expect(id.encodedInPath, isTrue);
+
+      var reapetedPathParam = foo.parameters[1];
+      expect(reapetedPathParam, isNotNull);
+      expect(reapetedPathParam.name.name, equals('reapetedPathParam$i'));
+      expect(reapetedPathParam.type is UnnamedArrayType, isTrue);
+      expect(reapetedPathParam.type.innerType, equals(db.stringType));
+      expect(reapetedPathParam.required, isTrue);
+      expect(reapetedPathParam.encodedInPath, isTrue);
+
+      var reapetedQueryParam = foo.parameters[2];
+      expect(reapetedQueryParam, isNotNull);
+      expect(reapetedQueryParam.name.name, equals('reapetedQueryParam$i'));
+      expect(reapetedQueryParam.type is UnnamedArrayType, isTrue);
+      expect(reapetedQueryParam.type.innerType, equals(db.stringType));
+      expect(reapetedQueryParam.required, isTrue);
+      expect(reapetedQueryParam.encodedInPath, isFalse);
     }
 
     Map buildResources(String i, {int level: 0}) {

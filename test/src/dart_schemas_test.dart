@@ -32,6 +32,17 @@ main() {
       });
     });
 
+    test('invalid', () {
+      expect(() => withParsedDB({
+        'schemas' : {
+          'Task' : {
+            'type' : 'object',
+            'repeated' : true,
+          },
+        }
+      }, () {}), throwsArgumentError);
+    });
+
     test('object-schema', () {
       withParsedDB({
         'schemas' : {
