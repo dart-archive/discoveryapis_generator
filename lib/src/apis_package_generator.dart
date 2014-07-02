@@ -333,8 +333,6 @@ class ApiRequester {
         Map queryParams, common_external.Media uploadMedia,
         String uploadMediaPath, {bool downloadAsMedia: false}) {
     if (queryParams == null) queryParams = const {};
-    var allQueryParameters = new Map<String,String>.from(queryParams);
-
     var path;
     if (uploadMedia != null) {
       requestUrl = uploadMediaPath;

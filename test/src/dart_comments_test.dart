@@ -14,6 +14,11 @@ main() {
       expectUndocumented(Comment.Empty);
     });
 
+    test('escape-comment', () {
+      var comment = new Comment('/* foobar */');
+      expect(comment.asDartDoc(0), equals('/**  / *  foobar  * /  */\n'));
+    });
+
     test('one-line-comment', () {
       expectABC(Comment comment) {
         expect(comment.asDartDoc(0), equals('/** ABC */\n'));
@@ -27,7 +32,8 @@ main() {
     test('multi-line-comment', () {
       expectABCdef(Comment comment) {
         expect(comment.asDartDoc(0), equals(
-'''/**
+'''
+/**
  * ABC
  * def
  */
@@ -37,6 +43,39 @@ main() {
       expectABCdef(new Comment('ABC\ndef'));
       expectABCdef(new Comment('ABC\ndef  '));
       expectABCdef(new Comment('ABC \ndef \n  \n  '));
+    });
+
+    test('break-lines', () {
+      var chars = ('A ' * ((80 - 7) ~/ 2)).trimRight();
+      var charsShortened = chars.substring(0, chars.length - 2);
+      var comment = new Comment(chars);
+
+      // [chars] fit on one line with indentation=0.
+      expect(comment.asDartDoc(0), equals('/** $chars */\n'));
+
+      // Adding an indentation of 2 characters should make it a block comment.
+      expect(comment.asDartDoc(2), equals(
+'''
+  /**
+   * $chars
+   */
+'''));
+
+    comment = new Comment('$chars\n\n$chars');
+
+    // Adding an indentation of 8 characters should make it a block comment
+    // which has multiple lines.
+    // Multiple independend lines should be treated equally.
+    expect(comment.asDartDoc(8), equals(
+'''
+        /**
+         * $charsShortened
+         * A
+         *
+         * $charsShortened
+         * A
+         */
+'''));
     });
   });
 }

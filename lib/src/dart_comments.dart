@@ -18,20 +18,60 @@ class Comment {
    * The block will start with spaces and ends with a new line.
    */
   String asDartDoc(int indentationLevel) {
+    var commentString = escapeComment(rawComment);
     var spaces = ' ' * indentationLevel;
 
-    // TODO: Shorten long lines as well.
-    if (!rawComment.contains('\n')) {
-      return spaces + '/** ${escapeComment(rawComment)} */\n';
-    } else {
-      var sb = new StringBuffer();
-      sb.writeln('$spaces/**');
-      for (var line in rawComment.split('\n')) {
-        sb.writeln('$spaces * ${line.trim()}');
-      }
-      sb.writeln('$spaces */');
+    String multilineComment() {
+      var result = new StringBuffer();
 
-      return '$sb';
+      var maxCommentLine = 80 - (indentationLevel + ' * '.length);
+      var expandedLines = commentString.split('\n').expand((String s) {
+        if (s.length < maxCommentLine) {
+          return [s];
+        }
+
+        // Try to break the line into several lines.
+        var splitted = [];
+        var sb = new StringBuffer();
+
+        for (var part in s.split(' ')) {
+          if ((sb.length + part.length + 1) > maxCommentLine) {
+            // If we have already data, we'll write a new line.
+            if (sb.length > 0) {
+              splitted.add('$sb');
+              sb.clear();
+            }
+          }
+          if (!sb.isEmpty) sb.write(' ');
+          sb.write(part);
+        }
+        if (!sb.isEmpty) splitted.add('$sb');
+        return splitted;
+      });
+
+      result.writeln('$spaces/**');
+      for (var line in expandedLines) {
+        line = line.trimRight();
+        result.write('$spaces *');
+        if (line.length > 0) {
+          result.writeln(' $line');
+        } else {
+          result.writeln('');
+        }
+      }
+      result.writeln('$spaces */');
+
+      return '$result';
+    }
+
+    if (!commentString.contains('\n')) {
+      var onelineComment = spaces + '/** ${escapeComment(commentString)} */\n';
+      if (onelineComment.length <= 80) {
+        return onelineComment;
+      }
+      return multilineComment();
+    } else {
+      return multilineComment();
     }
   }
 }
