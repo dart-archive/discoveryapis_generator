@@ -249,6 +249,73 @@ class UnnamedArrayType extends ComplexDartSchemaType {
   }
 }
 
+/**
+ * Represents a named List<T> type with a given `T`.
+ */
+class NamedArrayType extends ComplexDartSchemaType {
+  DartSchemaType innerType;
+
+  NamedArrayType(DartApiImports imports, Identifier name, this.innerType,
+                 {Comment comment})
+      : super(imports, name, comment: comment);
+
+  DartSchemaType _resolve(DartSchemaTypeDB db) {
+    innerType = innerType.resolve(db);
+    return this;
+  }
+
+  String get instantiation => 'new ${className.name}()';
+
+  String get classDefinition {
+    var decode = new StringBuffer();
+    decode.writeln('  $className.fromJson(${imports.core}.List json)');
+    decode.writeln('      : _inner = json.map((value) => '
+                   '${innerType.jsonDecode('value')}).toList();');
+
+    var encode = new StringBuffer();
+    encode.writeln('  ${imports.core}.List toJson() {');
+    encode.writeln('    return _inner.map((value) => '
+                   '${innerType.jsonEncode('value')}).toList();');
+    encode.write('  }');
+
+    var type = innerType.declaration;
+    return
+'''
+${comment.asDartDoc(0)}class $className
+    extends ${imports.collection}.ListBase<$type> {
+  final ${imports.core}.List<$type> _inner;
+
+  $className() : _inner = [];
+
+$decode
+$encode
+
+  $type operator [](${imports.core}.int key) => _inner[key];
+
+  void operator []=(${imports.core}.int key, $type value) {
+    _inner[key] = value;
+  }
+
+  ${imports.core}.int get length => _inner.length;
+
+  void set length(${imports.core}.int newLength) {
+    _inner.length = newLength;
+  } 
+}
+''';
+  }
+
+  String get declaration => '${className.name}';
+
+  String jsonEncode(String value) {
+    return '(${value}).toJson()';
+  }
+
+  String jsonDecode(String json) {
+    return 'new $className.fromJson($json)';
+  }
+}
+
 
 /**
  * Represents an unnamed Map<F, T> type with given types `F` and `T`.
@@ -348,8 +415,10 @@ class NamedMapType extends ComplexDartSchemaType {
 
     return
 '''
-class $className extends ${imports.collection}.MapBase<$fromT, $toT> {
+${comment.asDartDoc(0)}class $className
+    extends ${imports.collection}.MapBase<$fromT, $toT> {
   final ${imports.core}.Map _innerMap = {};
+
   $className();
 
 $decode
@@ -376,13 +445,11 @@ $encode
   String get declaration => '$className';
 
   String jsonEncode(String value) {
-    return '${imports.internal}.mapMap'
-           '(${value}, (item) => ${toType.jsonEncode('item')})';
+    return '(${value}).toJson()';
   }
 
   String jsonDecode(String json) {
-    return '${imports.internal}.mapMap'
-           '(${json}, (item) => ${toType.jsonDecode('item')})';
+    return 'new $className.fromJson($json)';
   }
 }
 
@@ -465,7 +532,7 @@ $toJsonString
   String get declaration => '$className';
 
   String jsonEncode(String value) {
-    return '$value.toJson()';
+    return '(${value}).toJson()';
   }
 
   String jsonDecode(String json) {
@@ -529,7 +596,7 @@ class AbstractVariantType extends ComplexDartSchemaType {
 
     return
 '''
-abstract class $className {
+${comment.asDartDoc(0)}abstract class $className {
   $className();
 $fromJsonString
 $toJsonString
@@ -540,7 +607,7 @@ $toJsonString
   String get declaration => '$className';
 
   String jsonEncode(String value) {
-    return '$value.toJson()';
+    return '(${value}).toJson()';
   }
 
   String jsonDecode(String json) {
@@ -631,6 +698,11 @@ DartSchemaTypeDB parseSchemas(DartApiImports imports,
                               anonClassScope,
                               schema.additionalProperties);
         if (topLevel) {
+          if (schema.additionalProperties.description != null) {
+            comment = new Comment(
+                '${comment.rawComment}\n\n'
+                '${schema.additionalProperties.description}');
+          }
           // This is a named map type.
           var classId = namer.schemaClass(className);
           return register(new NamedMapType(
@@ -677,9 +749,21 @@ DartSchemaTypeDB parseSchemas(DartApiImports imports,
             new ObjectType(imports, classId, properties, comment: comment));
       }
     } else if (schema.type == 'array') {
-      // Array of objects
-      return register(new UnnamedArrayType(imports,
-              parse(className, namer.newClassScope(), schema.items)));
+      var comment = new Comment(schema.description);
+      if (topLevel) {
+        var elementClassName =
+            namer.schemaClassName('${className}Element');
+        var classId = namer.schemaClass(className);
+        return register(new NamedArrayType(imports,
+                        classId,
+                        parse(elementClassName,
+                              namer.newClassScope(),
+                              schema.items),
+                        comment: comment));
+      } else {
+        return register(new UnnamedArrayType(imports,
+                parse(className, namer.newClassScope(), schema.items)));
+      }
     } else if (schema.type == 'boolean') {
       return db.booleanType;
     } else if (schema.type == 'string') {

@@ -52,7 +52,7 @@ class DartResourceMethod {
 
   final Identifier name;
   final List<MethodParameter> parameters;
-  final Map<String, MethodParameter> namedParameters;
+  final List<MethodParameter> namedParameters;
   final String jsonName;
   final String urlPattern;
   final String httpMethod;
@@ -88,7 +88,7 @@ class DartResourceMethod {
       if (!parameterString.isEmpty) parameterString.write(', ');
 
       var namedString = new StringBuffer()
-          ..write(namedParameters.values
+          ..write(namedParameters
                   .map((param) => '${param.declaration}')
                   .join(', '));
 
@@ -123,7 +123,7 @@ class DartResourceMethod {
     parameters.forEach((p) {
       commentBuilder.writeln('[${p.name}] - ${p.comment.rawComment}\n');
     });
-    namedParameters.forEach((_, p) {
+    namedParameters.forEach((p) {
       commentBuilder.writeln('[${p.name}] - ${p.comment.rawComment}\n');
     });
     var methodComment = new Comment('$commentBuilder');
@@ -169,7 +169,7 @@ class DartResourceMethod {
         encodeQueryParam(p, '_queryParams');
       }
     });
-    namedParameters.forEach((_, p) {
+    namedParameters.forEach(( p) {
       if (p.encodedInPath) {
         encodeQueryParam(p, '_urlParams');
       } else {
@@ -386,16 +386,16 @@ DartApiClass parseResources(DartApiImports imports,
         }
       }
 
-      var optionalParameters = new Map<String, MethodParameter>();
+      var optionalParameters = new List<MethodParameter>();
       enqueueOptionalParameter(String jsonName,
                                Comment comment,
                                JsonSchema schema) {
         var name = parameterScope.newIdentifier(jsonName);
         var parameter = method.parameters[jsonName];
         var type = parseResolved(imports, db, parameter);
-        optionalParameters[name] = new MethodParameter(
+        optionalParameters.add(new MethodParameter(
             name, comment, false, type, jsonName,
-            parameter.location != 'query');
+            parameter.location != 'query'));
       }
 
       DartSchemaType getValidReference(String ref) {
@@ -458,11 +458,15 @@ DartApiClass parseResources(DartApiImports imports,
       }
 
       var comment = new Comment(method.description);
+
+      makeBoolean(bool x) => x != null ? x : false;
+
       return new DartResourceMethod(imports, methodName, comment,
           dartRequestParameter,
           positionalParameters, optionalParameters, dartResponseType, jsonName,
-          method.path, method.httpMethod, method.supportsMediaUpload,
-          method.supportsMediaDownload, method.mediaUpload);
+          method.path, method.httpMethod,
+          makeBoolean(method.supportsMediaUpload),
+          makeBoolean(method.supportsMediaDownload), method.mediaUpload);
     }
 
     bool topLevel = parentName.isEmpty;

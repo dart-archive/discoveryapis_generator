@@ -506,7 +506,7 @@ class UrlPattern {
           _tokens.add((params) {
             if (params[variable] is! List) {
               throw new ArgumentError(
-                'Url variable '$variable' must be a valid List.');
+                "Url variable '$variable' must be a valid List.");
             }
             return '/' + params[variable]
                 .map((item) => Uri.encodeComponent('$item'))
@@ -516,7 +516,7 @@ class UrlPattern {
           _tokens.add((params) {
             if (params[variable] == null) {
               throw new ArgumentError(
-                  'Url variable '$variable' must not be null.');
+                  "Url variable '$variable' must not be null.");
             } else {
               return Uri.encodeComponent(params[variable].toString());
             }

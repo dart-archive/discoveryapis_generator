@@ -40,7 +40,7 @@ main() {
             'repeated' : true,
           },
         }
-      }, () {}), throwsArgumentError);
+      }, (_) {}), throwsArgumentError);
     });
 
     test('object-schema', () {
@@ -197,7 +197,6 @@ main() {
       });
     });
 
-
     test('object-schema-name-overlap', () {
       withParsedDB({
         'schemas' : {
@@ -292,6 +291,28 @@ main() {
         expect(properties.className.name, equals('Properties'));
         expect(properties.fromType, equals(db.stringType));
         expect(properties.toType, equals(db.integerType));
+      });
+    });
+
+    test('named-array-schema', () {
+      withParsedDB({
+        'schemas' : {
+          'NamedArray' : {
+            'type' : 'array',
+            'items' : {
+              'type' : 'string',
+            },
+          },
+        }
+      }, (DartSchemaTypeDB db) {
+        expect(db.dartTypes, hasLength(1));
+        expect(db.namedSchemaTypes, hasLength(1));
+        expect(db.dartClassTypes, hasLength(1));
+
+        expect(db.namedSchemaTypes, contains('NamedArray'));
+        NamedArrayType properties = db.dartClassTypes.first;
+        expect(properties.className.name, equals('NamedArray'));
+        expect(properties.innerType, equals(db.stringType));
       });
     });
   });
