@@ -12,4 +12,8 @@ class Config {
     'http_base': '\'>=0.0.1 <0.0.2\'',
     'crypto': '\'>=0.9.0 <0.10.0\'',
   };
+
+  Map<String, Object> get devDependencies => const {
+    'unittest': '\'>=0.10.0 <0.12.0\'',
+  };
 }

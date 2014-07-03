@@ -32,6 +32,7 @@ class ApisPackageGenerator {
     var libFolderPath = "$packageFolderPath/lib";
     var commonFolderPath = "$packageFolderPath/lib/common";
     var srcFolderPath = "$packageFolderPath/lib/src";
+    var testFolderPath = "$packageFolderPath/test/common";
 
     var pubspecYamlPath = "$packageFolderPath/pubspec.yaml";
     var licensePath = "$packageFolderPath/LICENSE";
@@ -42,8 +43,10 @@ class ApisPackageGenerator {
     var commonExternalLibraryPath = "$libFolderPath/common/common.dart";
     var commonExternalLibraryUri = "../common/common.dart";
 
-    var commonInternalLibraryPath = "$libFolderPath/src/client_base.dart";
-    var commonInternalLibraryUri = "../src/client_base.dart";
+    var commonInternalLibraryPath = "$libFolderPath/src/common_internal.dart";
+    var commonInternalTestLibraryPath =
+        "$testFolderPath/common_internal_test.dart";
+    var commonInternalLibraryUri = "../src/common_internal.dart";
 
     // Clean contents of directory (except for .git folder)
     var packageDirectory = new Directory(packageFolderPath);
@@ -60,6 +63,7 @@ class ApisPackageGenerator {
 
     new Directory(commonFolderPath).createSync(recursive: true);
     new Directory(srcFolderPath).createSync(recursive: true);
+    new Directory(testFolderPath).createSync(recursive: true);
 
     _writeFile(pubspecYamlPath, _writePubspec);
 
@@ -72,6 +76,7 @@ class ApisPackageGenerator {
     // These libraries are used by all APIs for making requests.
     _writeString(commonExternalLibraryPath, _COMMON_EXTERNAL_LIBRARY);
     _writeString(commonInternalLibraryPath, _COMMON_INTERAL_LIBRARY);
+    _writeString(commonInternalTestLibraryPath, _COMMON_INTERAL_TEST_LIBRARY);
 
     // TODO(kustermann):
     // _writeString(versionPath, _description.etag);
@@ -115,6 +120,19 @@ class ApisPackageGenerator {
   }
 
   void _writePubspec(StringSink sink) {
+    writeDependencies(dependencies) {
+      orderedForEach(dependencies, (String lib, Object value) {
+        if (value is String) {
+          sink.writeln("  $lib: $value");
+        } else if (value is Map) {
+          sink.writeln("  $lib:\n");
+          value.forEach((k, v) {
+            sink.writeln("    $k: $v\n");
+          });
+        }
+      });
+    }
+
     sink.writeln("name: ${config.name}");
     sink.writeln("version: ${config.version}");
     sink.writeln("author: Dart Team <misc@dartlang.org>");
@@ -126,16 +144,9 @@ class ApisPackageGenerator {
     sink.writeln("environment:");
     sink.writeln("  sdk: '${config.sdkConstraint}'");
     sink.writeln("dependencies:");
-    orderedForEach(config.dependencies, (String lib, Object value) {
-      if (value is String) {
-        sink.writeln("  $lib: $value");
-      } else if (value is Map) {
-        sink.writeln("  $lib:\n");
-        value.forEach((k, v) {
-          sink.writeln("    $k: $v\n");
-        });
-      }
-    });
+    writeDependencies(config.dependencies);
+    sink.writeln("dev_dependencies:");
+    writeDependencies(config.devDependencies);
   }
 
   void _writeReadme(StringSink sink) {
@@ -215,6 +226,7 @@ class Media {
 
 """;
 
+
   static const _COMMON_INTERAL_LIBRARY = r"""
 library cloud_api;
 
@@ -239,7 +251,7 @@ class HeadersImpl implements http_base.Headers {
     var values = _m[name];
     if (values == null) return null;
     if (values.length == 1) return values.first;
-    return values.join('');
+    return values.join(',');
   }
 
   Iterable<String> getMultiple(String name) => _m[name];
@@ -272,8 +284,6 @@ class ResponseImpl implements http_base.Response {
  * HTTP Requests to the API
  */
 class ApiRequester {
-  bool makeAuthRequests = false;
-
   final http_base.Client _httpClient;
   final String _rootUrl;
   final String _basePath;
@@ -287,7 +297,7 @@ class ApiRequester {
    * using the specified [urlParams] and [queryParams]. Optionally include a
    * [body] and/or [uploadMedia] in the request.
    */
-  Future<Map<String, dynamic>> request(String requestUrl, String method,
+  Future request(String requestUrl, String method,
         {String body, String contentType:"application/json",
          Map urlParams, Map queryParams,
          common_external.Media uploadMedia, String uploadMediaPath}) {
@@ -512,12 +522,12 @@ class UrlPattern {
           });
         }  else {
           _tokens.add((params) {
-            if (params[variable] == null) {
+            var listValue = params[variable];
+            if (listValue is! List || listValue.length != 1) {
               throw new ArgumentError(
-                  "Url variable '$variable' must not be null.");
-            } else {
-              return Uri.encodeComponent(params[variable].toString());
+                "Url variable '$variable' must be a valid List with one item.");
             }
+            return Uri.encodeComponent(listValue[0].toString());
           });
         }
         cursor = close + 1;
@@ -571,6 +581,352 @@ Map mapMap(Map source, [Object convert(Object source) = null]) {
     }
   });
   return result;
+}
+""";
+
+
+  static const _COMMON_INTERAL_TEST_LIBRARY = r"""
+import 'dart:async';
+import 'dart:convert';
+
+import 'package:googleapis/src/common_internal.dart';
+import 'package:http_base/http_base.dart' as http_base;
+import 'package:unittest/unittest.dart';
+
+class HttpServerMock {
+  Function _callback;
+  bool _expectJson;
+
+  void register(Function callback, bool expectJson) {
+    _callback = callback;
+    _expectJson = expectJson;
+  }
+
+  Future<http_base.Response> call(http_base.Request request) {
+    if (_expectJson) {
+      return request
+          .read()
+          .transform(UTF8.decoder)
+          .join('')
+          .then((String jsonString) {
+        if (jsonString.isEmpty) {
+          return _callback(request, null);
+        } else {
+          return _callback(request, JSON.decode(jsonString));
+        }
+      });
+    } else {
+      return request
+          .read()
+          .fold([], (buff, data) => buff..addAll(data))
+          .then((data) {
+        return _callback(request, data);
+      });
+    }
+  }
+}
+
+http_base.Response emptyResponse(int status,
+                                 http_base.Headers headers,
+                                 String body) {
+  if (headers == null) {
+    headers = new HeadersImpl({});
+  }
+  return new ResponseImpl(status, headers, byteStream(body));
+}
+
+Stream<List<int>> byteStream(String s) {
+  var bodyController = new StreamController();
+  bodyController.add(UTF8.encode(s));
+  bodyController.close();
+  return bodyController.stream;
+}
+
+main() {
+  group('common-external', () {
+    test('mapMap', () {
+      newTestMap() => {
+        's' : 'string',
+        'i' : 42,
+      };
+
+      var copy = mapMap(newTestMap());
+      expect(copy, hasLength(2));
+      expect(copy['s'], equals('string'));
+      expect(copy['i'], equals(42));
+
+
+      var mod = mapMap(newTestMap(), (x) => '$x foobar');
+      expect(mod, hasLength(2));
+      expect(mod['s'], equals('string foobar'));
+      expect(mod['i'], equals('42 foobar'));
+    });
+
+    test('url-pattern', () {
+      // The [UrlPattern] class currently only implements a very limited subset
+      // of the uri template specification, namely:
+      //   -  /{var}/
+      //   -  /{/vars*}/
+      // See: http://tools.ietf.org/html/draft-gregorio-uritemplate-07
+      // TODO: Extend [UrlPattern] and implement corresponding tests.
+
+      var pathVars = {
+          'a' : ['AA'],
+          'b' : ['B/B'],
+          'c' : [''],
+          'va' : ['1', 'x/y', 'z'],
+          'vb' : ['4'],
+          'vc' : [],
+      };
+
+      pattern(String p) => new UrlPattern(p);
+
+      var patterns = [
+          // No variables
+          pattern(''),
+          pattern('/'),
+          pattern('fixed'),
+          pattern('/fixed/'),
+
+          pattern('fixed/with/long/relative/path'),
+          pattern('/fixed/with/long/relative/path/'),
+
+          // Normal variables
+          pattern('{a}/variable'),
+          pattern('/{a}/variable/'),
+
+          pattern('{a}/variable/with/{b}'),
+          pattern('/{a}/variable/with/{b}/'),
+
+          pattern('variable/{b}'),
+          pattern('/variable/{b}/'),
+
+          pattern('start/{a}/relative/{b}/end/{c}'),
+          pattern('/start/{a}/relative/{b}/end/{c}/'),
+
+          pattern('{a}{b}'),
+          pattern('/{a}{b}/'),
+
+          // Variable-length variables + normal variables
+          pattern('{a}start/{/va*}/rel/{/vb*}/ative/{/vc*}/end{b}'),
+          pattern('{a}/start/{/va*}/rel/{/vb*}/ative/{/vc*}/end/{b}'),
+      ];
+
+      var results = [
+          // No variables
+          '',
+          '/',
+          'fixed',
+          '/fixed/',
+
+          'fixed/with/long/relative/path',
+          '/fixed/with/long/relative/path/',
+
+          // Normal variables
+          'AA/variable',
+          '/AA/variable/',
+
+          'AA/variable/with/B%2FB',
+          '/AA/variable/with/B%2FB/',
+
+          'variable/B%2FB',
+          '/variable/B%2FB/',
+
+          'start/AA/relative/B%2FB/end/',
+          '/start/AA/relative/B%2FB/end//',
+
+          'AAB%2FB',
+          '/AAB%2FB/',
+
+          // Variable-length variables + normal variables
+          'AAstart//1/x%2Fy/z/rel//4/ative///endB%2FB',
+          'AA/start//1/x%2Fy/z/rel//4/ative///end/B%2FB',
+      ];
+
+      var queryVarList = [
+          {},
+          {
+            'a' : ['foo'],
+          },
+          {
+            'a' : ['foo'],
+            'b' : ['b1', 'b2'],
+          },
+          {
+            '/x' : ['x/y/z'],
+          }
+      ];
+      var queryResults = [
+          '',
+          '?a=foo',
+          '?a=foo&b=b1&b=b2',
+          '?%2Fx=x%2Fy%2Fz',
+      ];
+
+      for (int i = 0; i < patterns.length; i++) {
+        for (int j = 0; j < queryVarList.length; j++) {
+          expect(patterns[i].generate(pathVars, queryVarList[j]),
+                 equals('${results[i]}${queryResults[j]}'));
+        }
+      }
+
+      expect(() => pattern('{'), throwsArgumentError);
+
+      expect(() => pattern('{a}').generate({}, {}), throwsArgumentError);
+      expect(() => pattern('{a}').generate({'a': null}, {}),
+             throwsArgumentError);
+      expect(() => pattern('{a}').generate({'a': 'var'}, {}),
+             throwsArgumentError);
+
+      expect(() => pattern('{a}').generate({}, {'a': null}),
+             throwsArgumentError);
+      expect(() => pattern('{a}').generate({}, {'a': 'var'}),
+             throwsArgumentError);
+    });
+
+    test('http-headers', () {
+      // TODO: Cookie headers are not special cased so far: impl+test missing.
+
+      var a = ['a1', 'a2', 'a3'];
+      var b = ['b1'];
+      var headers = new HeadersImpl({'a' : a, 'b' : b});
+
+      expect(headers.contains('a'), isTrue);
+      expect(headers.contains('b'), isTrue);
+      expect(headers.contains('c'), isFalse);
+
+      expect(headers.names, hasLength(2));
+      expect(headers.names.contains('a'), isTrue);
+      expect(headers.names.contains('b'), isTrue);
+      expect(headers.names.contains('c'), isFalse);
+
+      expect(headers['a'], equals('a1,a2,a3'));
+      expect(headers['b'], equals('b1'));
+
+      expect(headers.getMultiple('a'), equals(a));
+      expect(headers.getMultiple('b'), equals(b));
+    });
+
+    group('api-requester', () {
+      var httpMock, rootUrl, basePath;
+      ApiRequester requester;
+
+      setUp(() {
+        httpMock = new HttpServerMock();
+        rootUrl = 'http://example.com/';
+        basePath = '/base/';
+        requester = new ApiRequester(httpMock, rootUrl, basePath);
+      });
+
+
+      // Tests for Request, Response
+
+      test('empty-request-empty-response', () {
+        httpMock.register(expectAsync((http_base.Request request, json) {
+          expect(request.method, equals('GET'));
+          expect('${request.url}', equals('http://example.com/base/abc'));
+          return emptyResponse(200, null, '');
+        }), true);
+        requester.request('abc', 'GET').then(expectAsync((response) {
+          expect(response, isNull);
+        }));
+      });
+
+      test('json-map-request-json-map-response', () {
+        httpMock.register(expectAsync((http_base.Request request, json) {
+          expect(request.method, equals('GET'));
+          expect('${request.url}', equals('http://example.com/base/abc'));
+          expect(json is Map, isTrue);
+          expect(json, hasLength(1));
+          expect(json['foo'], equals('bar'));
+          return emptyResponse(200, null, '{"foo2" : "bar2"}');
+        }), true);
+        requester.request('abc',
+                          'GET',
+                          body: JSON.encode({'foo' : 'bar'})).then(
+            expectAsync((response) {
+          expect(response is Map, isTrue);
+          expect(response, hasLength(1));
+          expect(response['foo2'], equals('bar2'));
+        }));
+      });
+
+      test('json-list-request-json-list-response', () {
+        httpMock.register(expectAsync((http_base.Request request, json) {
+          expect(request.method, equals('GET'));
+          expect('${request.url}', equals('http://example.com/base/abc'));
+          expect(json is List, isTrue);
+          expect(json, hasLength(2));
+          expect(json[0], equals('a'));
+          expect(json[1], equals(1));
+          return emptyResponse(200, null, '["b", 2]');
+        }), true);
+        requester.request('abc',
+                          'GET',
+                          body: JSON.encode(['a', 1])).then(
+            expectAsync((response) {
+          expect(response is List, isTrue);
+          expect(response[0], equals('b'));
+          expect(response[1], equals(2));
+        }));
+      });
+
+
+      // Tests for error responses
+
+      test('error-response', () {
+        httpMock.register(expectAsync((http_base.Request request, string) {
+          expect(request.method, equals('GET'));
+          expect('${request.url}', equals('http://example.com/base/abc'));
+          expect(string, isEmpty);
+          return emptyResponse(400, null, '');
+        }), false);
+
+        // TODO: Check for correct exceptions after implementing
+        // correct API handling.
+        expect(requester.request('abc', 'GET'), throws);
+      });
+
+
+      // Tests for path/query parameters
+      test('request-parameters-query', () {
+        var queryParams = {
+            'a' : ['a1', 'a2'],
+            's' : ['s1']
+        };
+        httpMock.register(expectAsync((http_base.Request request, json) {
+          expect(request.method, equals('GET'));
+          expect('${request.url}',
+                 equals('http://example.com/base/abc?a=a1&a=a2&s=s1'));
+          return emptyResponse(200, null, '');
+        }), true);
+        requester.request('abc', 'GET', queryParams: queryParams)
+            .then(expectAsync((response) {
+          expect(response, isNull);
+        }));
+      });
+
+      test('request-parameters-path', () {
+        var pathParams = {
+            'a' : ['a1', 'a2'],
+            's' : ['s1']
+        };
+        httpMock.register(expectAsync((http_base.Request request, json) {
+          expect(request.method, equals('GET'));
+          expect('${request.url}',
+                 equals('http://example.com/base/s/foo/a1/a2/bar/s1/e'));
+          return emptyResponse(200, null, '');
+        }), true);
+        requester.request('s/foo{/a*}/bar/{s}/e', 'GET', urlParams: pathParams)
+            .then(expectAsync((response) {
+          expect(response, isNull);
+        }));
+      });
+
+      // TODO: Tests for media upload / media download
+
+    });
+  });
 }
 
 """;
