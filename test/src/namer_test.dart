@@ -9,6 +9,7 @@ main() {
       expect(identifier('abc'), equals('abc'));
       expect(identifier('ABC'), equals('ABC'));
       expect(identifier('0abc'), equals('D0abc'));
+      expect(identifier('_abc'), equals('P_abc'));
       expect(identifier('A-bc'), equals('A_bc'));
       expect(identifier('A.bc'), equals('A_bc'));
       expect(identifier('A\u1234bc'), equals('A_bc'));
@@ -143,7 +144,7 @@ main() {
     group('api-namer', () {
       test('library-name', () {
         var namer = new ApiLibraryNamer();
-        expect(namer.libraryName('x y', '9a', '\$a'), equals('x_y.D9a._a'));
+        expect(namer.libraryName('x y', '9a', '\$a'), equals('x_y.D9a.P_a'));
         expect(namer.libraryName('googleapis', 'drive', 'v1'),
                equals('googleapis.drive.v1'));
       });

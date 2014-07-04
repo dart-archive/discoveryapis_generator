@@ -211,6 +211,7 @@ abstract class ComplexDartSchemaType extends DartSchemaType {
                         {Comment comment})
       : super(imports, name, comment_: comment);
 
+  // TODO: Remove this.
   String get instantiation;
 
   String get classDefinition;
@@ -395,19 +396,19 @@ class NamedMapType extends ComplexDartSchemaType {
 
   String get classDefinition {
     var decode = new StringBuffer();
-    decode.writeln('  $className.fromJson(${imports.core}.Map json) {');
-    decode.writeln('    json.forEach((${imports.core}.String key, value) {');
+    decode.writeln('  $className.fromJson(${imports.core}.Map _json) {');
+    decode.writeln('    _json.forEach((${imports.core}.String key, value) {');
     decode.writeln('      this[key] = ${toType.jsonDecode('value')};');
     decode.writeln('    });');
     decode.writeln('  }');
 
     var encode = new StringBuffer();
     encode.writeln('  ${imports.core}.Map toJson() {');
-    encode.writeln('    var json = {};');
+    encode.writeln('    var _json = {};');
     encode.writeln('    this.forEach((${imports.core}.String key, value) {');
-    encode.writeln('      this[key] = ${toType.jsonEncode('value')};');
+    encode.writeln('      _json[key] = ${toType.jsonEncode('value')};');
     encode.writeln('    });');
-    encode.writeln('    return json;');
+    encode.writeln('    return _json;');
     encode.write('  }');
 
     var fromT = fromType.declaration;
@@ -488,33 +489,46 @@ class ObjectType extends ComplexDartSchemaType {
     var propertyString = new StringBuffer();
     properties.forEach((DartClassProperty property) {
       var comment = property.comment.asDartDoc(2);
+      var prefix = '', postfix = '';
+      if (isVariantDiscriminator(property)) {
+        prefix = 'final ';
+        postfix = ' = "${escapeString(discriminatorValue())}"';
+      }
       propertyString.writeln(
-          '$comment  ${property.type.declaration} ${property.name};');
+          '$comment  $prefix${property.type.declaration} ${property.name}'
+          '$postfix;');
       propertyString.writeln();
     });
 
     var fromJsonString = new StringBuffer();
-    fromJsonString.writeln('  $className.fromJson(${imports.core}.Map json) {');
+    fromJsonString.writeln(
+        '  $className.fromJson(${imports.core}.Map _json) {');
     properties.forEach((DartClassProperty property) {
-      var decodeString = property.type.jsonDecode(
-          'json["${escapeString(property.jsonName)}"]');
-      fromJsonString.writeln('    if (json.containsKey'
-                             '("${escapeString(property.jsonName)}")) {');
-      fromJsonString.writeln('      ${property.name} = ${decodeString};');
-      fromJsonString.writeln('    }');
+      // The super variant fromJson() will call this subclass constructor
+      // and the variant descriminator is final.
+      if (!isVariantDiscriminator(property)) {
+        var decodeString = property.type.jsonDecode(
+            '_json["${escapeString(property.jsonName)}"]');
+        fromJsonString.writeln('    if (_json.containsKey'
+                               '("${escapeString(property.jsonName)}")) {');
+        fromJsonString.writeln('      ${property.name} = ${decodeString};');
+        fromJsonString.writeln('    }');
+      }
     });
     fromJsonString.writeln('  }');
 
     var toJsonString = new StringBuffer();
     toJsonString.writeln('  ${imports.core}.Map toJson() {');
-    toJsonString.writeln('    var json = new ${imports.core}.Map();');
+    toJsonString.writeln('    var _json = new ${imports.core}.Map();');
+
     properties.forEach((DartClassProperty property) {
       toJsonString.writeln('    if (${property.name} != null) {');
-      toJsonString.writeln('      json["${escapeString(property.jsonName)}"] = '
-                           '${property.type.jsonEncode('${property.name}')};');
+      toJsonString.writeln(
+          '      _json["${escapeString(property.jsonName)}"] = '
+          '${property.type.jsonEncode('${property.name}')};');
       toJsonString.writeln('    }');
     });
-    toJsonString.writeln('    return json;');
+    toJsonString.writeln('    return _json;');
     toJsonString.write('  }');
 
     return
@@ -537,6 +551,19 @@ $toJsonString
 
   String jsonDecode(String json) {
     return 'new $className.fromJson($json)';
+  }
+
+  bool isVariantDiscriminator(DartClassProperty prop) {
+    return superVariantType != null &&
+           prop.jsonName == superVariantType.discriminant;
+  }
+
+  String discriminatorValue() {
+    for (var key in superVariantType.map.keys) {
+      var value = superVariantType.map[key];
+      if (value == this) return key;
+    }
+    throw new StateError('Could not find my discriminator string.');
   }
 }
 
@@ -731,8 +758,7 @@ DartSchemaTypeDB parseSchemas(DartApiImports imports,
         if (schema.properties != null) {
           orderedForEach(schema.properties,
                          (String jsonPName, JsonSchema value) {
-            var propertyName = classScope.newIdentifier(
-                jsonPName, public: true);
+            var propertyName = classScope.newIdentifier(jsonPName);
             var propertyClass = namer.schemaClassName(
                 jsonPName, parent: className);
             var propertyClassScope = namer.newClassScope();

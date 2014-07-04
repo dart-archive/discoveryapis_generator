@@ -11,6 +11,8 @@ part of discovery_api_client_generator;
 ///   |- VERSION
 ///   |- lib/src/... (containing shared code)
 ///   |- lib/$API/... (for all APIs to generate)
+///   |- test/common/common_internal.dart
+///   |- test/$API/... (for all APIs to generate)
 ///
 /// It will use [ApiLibraryGenerator] to generate the APIs themselves.
 class ApisPackageGenerator {
@@ -32,7 +34,8 @@ class ApisPackageGenerator {
     var libFolderPath = "$packageFolderPath/lib";
     var commonFolderPath = "$packageFolderPath/lib/common";
     var srcFolderPath = "$packageFolderPath/lib/src";
-    var testFolderPath = "$packageFolderPath/test/common";
+    var testFolderPath = "$packageFolderPath/test";
+    var testCommonFolderPath = "$packageFolderPath/test/common";
 
     var pubspecYamlPath = "$packageFolderPath/pubspec.yaml";
     var licensePath = "$packageFolderPath/LICENSE";
@@ -45,7 +48,7 @@ class ApisPackageGenerator {
 
     var commonInternalLibraryPath = "$libFolderPath/src/common_internal.dart";
     var commonInternalTestLibraryPath =
-        "$testFolderPath/common_internal_test.dart";
+        "$testCommonFolderPath/common_internal_test.dart";
     var commonInternalLibraryUri = "../src/common_internal.dart";
 
     // Clean contents of directory (except for .git folder)
@@ -63,7 +66,7 @@ class ApisPackageGenerator {
 
     new Directory(commonFolderPath).createSync(recursive: true);
     new Directory(srcFolderPath).createSync(recursive: true);
-    new Directory(testFolderPath).createSync(recursive: true);
+    new Directory(testCommonFolderPath).createSync(recursive: true);
 
     _writeFile(pubspecYamlPath, _writePubspec);
 
@@ -86,15 +89,27 @@ class ApisPackageGenerator {
       String name = description.name.toLowerCase();
       String version = description.version.toLowerCase()
           .replaceAll('.', '_').replaceAll('-', '_');
+
       String apiFolderPath = "$libFolderPath/$name";
+      String apiTestFolderPath = "$testFolderPath/$name";
+
       String apiVersionFile = "$libFolderPath/$name/$version.dart";
+      String apiTestVersionFile = "$testFolderPath/$name/$version.dart";
+
       String packagePath = 'package:googleapis/$name/$version.dart';
+
       try {
+        // Create API itself.
         new Directory(apiFolderPath).createSync();
-        _generateApiLibrary(apiVersionFile,
-                            description,
-                            commonInternalLibraryUri,
-                            commonExternalLibraryUri);
+        var apiLibrary = _generateApiLibrary(apiVersionFile,
+                                             description,
+                                             commonInternalLibraryUri,
+                                             commonExternalLibraryUri);
+
+        // Create Test for API.
+        new Directory(apiTestFolderPath).createSync();
+        _generateApiTestLibrary(apiTestVersionFile, packagePath, apiLibrary);
+
         var result = new GenerateResult(name, version, packagePath);
         results.add(result);
       } catch (error, stack) {
@@ -111,12 +126,20 @@ class ApisPackageGenerator {
     return results;
   }
 
-  void _generateApiLibrary(String outputFile,
-                           RestDescription description,
-                           String internalUri,
-                           String externalUri) {
+  DartApiLibrary _generateApiLibrary(String outputFile,
+                                     RestDescription description,
+                                     String internalUri,
+                                     String externalUri) {
     var lib = new DartApiLibrary.build(description, internalUri, externalUri);
     _writeString(outputFile, lib.librarySource);
+    return lib;
+  }
+
+  void _generateApiTestLibrary(String outputFile,
+                               String packageImportPath,
+                               DartApiLibrary apiLibrary) {
+    var testLib = new DartApiTestLibrary.build(apiLibrary, packageImportPath);
+    _writeString(outputFile, testLib.librarySource);
   }
 
   void _writePubspec(StringSink sink) {

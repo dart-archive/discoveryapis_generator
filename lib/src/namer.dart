@@ -93,11 +93,13 @@ class Scope {
   static String toValidIdentifier(String preferredName) {
     // TODO: We may want to convert xx_yy to xxYx!
     preferredName = preferredName.replaceAll('-', '_').replaceAll('.', '_');
+    preferredName = preferredName.replaceAll(_NonAscii, '_');
 
     if (preferredName.startsWith(_StartsWithDigit)) {
       preferredName = 'D$preferredName';
+    } else if (preferredName.startsWith('_')) {
+      preferredName = 'P$preferredName';
     }
-    preferredName = preferredName.replaceAll(_NonAscii, '_');
 
     if (keywords.contains(preferredName)) {
       preferredName = '${preferredName}_';

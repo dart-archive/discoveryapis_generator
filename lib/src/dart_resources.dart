@@ -360,7 +360,7 @@ DartApiClass parseResources(DartApiImports imports,
     DartResourceMethod parseMethod(Scope classScope,
                                    String jsonName,
                                    RestMethod method) {
-      var methodName = classScope.newIdentifier(jsonName, public: true);
+      var methodName = classScope.newIdentifier(jsonName);
       var parameterScope = classScope.newChildScope();
 
       // This set will be reduced to all optional parameters.
@@ -492,7 +492,7 @@ DartApiClass parseResources(DartApiImports imports,
     var dartSubResource = [];
     if (subResources != null) {
       orderedForEach(subResources, (String jsonName, RestResource resource) {
-        var instanceName = classScope.newIdentifier(jsonName, public: true);
+        var instanceName = classScope.newIdentifier(jsonName);
         var dartResource = parseResource(
             jsonName, '', resource.methods, resource.resources,
             className.preferredName);

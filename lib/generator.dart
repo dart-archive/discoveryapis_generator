@@ -8,6 +8,7 @@ import 'package:google_discovery_v1_api/discovery_v1_api_console.dart';
 part "src/apis_package_generator.dart";
 part "src/config.dart";
 part "src/dart_api_library.dart";
+part "src/dart_api_test_library.dart";
 part "src/dart_comments.dart";
 part "src/dart_resources.dart";
 part "src/dart_schemas.dart";
