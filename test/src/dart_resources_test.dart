@@ -192,6 +192,37 @@ main() {
           checkApi('1', apiClass);
           expect(apiClass.methods, isEmpty);
           expect(apiClass.subResources, isEmpty);
+          expect(apiClass.scopes, isEmpty);
+        });
+      });
+
+      test('api-scopes', () {
+        withParsedApiResource(db, {
+            'name' : 'apiname',
+            'version' : 'apiversion',
+            'rootUrl' : 'https://www.googleapis.com/',
+            'basePath' : '/mapsengine/v1',
+            'auth' : {
+              'oauth2' : {
+                'scopes' : {
+                  'http://foo.com' : {
+                    'description' : 'com1',
+                  },
+                  'http://bar.com' : {
+                    'description' : 'com2',
+                  }
+                }
+              }
+            }
+        }, (DartApiClass apiClass) {
+          expect(apiClass, isNotNull);
+          expect(apiClass.methods, isEmpty);
+          expect(apiClass.subResources, isEmpty);
+          expect(apiClass.scopes, hasLength(2));
+          expect(apiClass.scopes[0].url, equals('http://bar.com'));
+          expect(apiClass.scopes[0].comment.rawComment, equals('com2'));
+          expect(apiClass.scopes[1].url, equals('http://foo.com'));
+          expect(apiClass.scopes[1].comment.rawComment, equals('com1'));
         });
       });
 

@@ -1,6 +1,16 @@
 part of discovery_api_client_generator;
 
 /**
+ * Represents a oauth2 authentication scope.
+ */
+class OAuth2Scope {
+  final String url;
+  final Comment comment;
+
+  OAuth2Scope(this.url, this.comment);
+}
+
+/**
  * Represents a parameter to a resource method.
  */
 class MethodParameter {
@@ -274,6 +284,8 @@ class DartResourceClass {
   DartResourceClass(this.imports, this.className, this.comment, this.methods,
                     this.subResourceIdentifiers, this.subResources);
 
+  String get preamble => '';
+
   String get fields {
     var str = new StringBuffer();
     for (var i = 0; i < subResourceIdentifiers.length; i++) {
@@ -305,6 +317,7 @@ class DartResourceClass {
     var str = new StringBuffer();
     str.write(comment.asDartDoc(0));
     str.writeln('class $className {');
+    str.write(preamble);
     str.writeln('  final ${imports.internal}.ApiRequester _httpClient;');
     str.writeln('');
     str.write('$fields$constructor$functions');
@@ -319,10 +332,11 @@ class DartResourceClass {
  */
 class DartApiClass extends DartResourceClass {
   // TODO: parameters (like prettyPrint)
-  // TODO: scopes
   // TODO: Url base?
   final String rootUrl;
   final String basePath;
+  final List<OAuth2Scope> scopes;
+  final Identifier scopesName;
 
   DartApiClass(DartApiImports imports,
                Identifier name,
@@ -330,9 +344,27 @@ class DartApiClass extends DartResourceClass {
                List<DartResourceMethod> methods,
                List<Identifier> subResourceIdentifiers,
                List<DartResourceClass> subResources,
-               this.rootUrl, this.basePath)
+               this.rootUrl, this.basePath, this.scopes, this.scopesName)
       : super(imports, name, comment, methods,
               subResourceIdentifiers, subResources);
+
+  String get preamble {
+    var sb = new StringBuffer();
+    sb.writeln('  /** List of Oauth2 scopes for [${className.name}] */');
+    if (scopes.isEmpty) {
+      sb.writeln('  static final Scopes = const [];');
+    } else {
+      sb.writeln('  static final Scopes = const [');
+      scopes.forEach((OAuth2Scope scope) {
+        var doc = scope.comment.asDartDoc(4);
+        sb.writeln('$doc    "${escapeString(scope.url)}",');
+      });
+      sb.writeln('  ];');
+      sb.writeln('');
+    }
+
+    return '$sb';
+  }
 
   String get constructor {
     var str = new StringBuffer();
@@ -478,7 +510,9 @@ DartApiClass parseResources(DartApiImports imports,
     } else {
       className = namer.resourceClass(resourceName, parent: parentName);
     }
+
     var classScope = namer.newClassScope();
+    var scopeId = classScope.newIdentifier('Scopes');
 
     var dartMethods = [];
     if (methods != null) {
@@ -503,9 +537,19 @@ DartApiClass parseResources(DartApiImports imports,
 
     var coment = new Comment(resourceDescription);
     if (topLevel) {
+      var scopes = [];
+
+      if (description.auth != null && description.auth.oauth2 != null) {
+        orderedForEach(description.auth.oauth2.scopes, (scope, description) {
+          scopes.add(new OAuth2Scope(scope,
+                                     new Comment(description.description)));
+        });
+      }
+
       return new DartApiClass(
           imports, className, coment, dartMethods, dartSubResourceIdentifiers,
-          dartSubResource, description.rootUrl, description.basePath);
+          dartSubResource, description.rootUrl, description.basePath, scopes,
+          scopeId);
     } else {
       return new DartResourceClass(
           imports, className, coment, dartMethods, dartSubResourceIdentifiers,
