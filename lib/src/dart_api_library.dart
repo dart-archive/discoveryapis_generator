@@ -95,7 +95,8 @@ import 'package:http_base/http_base.dart' as ${imports.httpBase};
 import '$internalSharedLibraryUri' as ${imports.internal};
 import '$externalSharedLibraryUri' as ${imports.external};
 
-export '$internalSharedLibraryUri' show APIRequestError;
+export '$externalSharedLibraryUri' show ApiRequestError;
+export '$externalSharedLibraryUri' show DetailedApiRequestError;
 
 """;
   }

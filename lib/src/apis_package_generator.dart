@@ -247,11 +247,35 @@ class Media {
         {this.contentType: "application/octet-stream"});
 }
 
+/**
+ * Represents a general error reported by the API endpoint.
+ */
+class ApiRequestError extends core.Error {
+  final core.String message;
+
+  ApiRequestError(this.message);
+
+  core.String toString() => 'ApiRequestError(message: $message)';
+}
+
+/**
+ * Represents a specific error reported by the API endpoint.
+ */
+class DetailedApiRequestError extends core.Error {
+  final core.int status;
+  final core.String message;
+
+  DetailedApiRequestError(this.status, this.message);
+
+  core.String toString()
+      => 'DetailedApiRequestError(code: $status, message: $message)';
+}
+
 """;
 
 
   static const _COMMON_INTERAL_LIBRARY = r"""
-library cloud_api;
+library googleapis.common_internal;
 
 import "dart:async";
 import "dart:convert";
@@ -262,22 +286,26 @@ import "package:googleapis/common/common.dart" as common_external;
 import "package:http_base/http_base.dart" as http_base;
 
 class HeadersImpl implements http_base.Headers {
-  final Map<String, List<String>> _m;
+  final Map<String, List<String>> _m = {};
 
-  HeadersImpl(this._m);
+  HeadersImpl(Map map) {
+    map.forEach((String key, List<String> values) {
+      _m[key.toLowerCase()] = values;
+    });
+  }
 
   Iterable<String> get names => _m.keys;
 
-  bool contains(String name) =>  _m.containsKey(name);
+  bool contains(String name) =>  _m.containsKey(name.toLowerCase());
 
   String operator [](String name) {
-    var values = _m[name];
+    var values = _m[name.toLowerCase()];
     if (values == null) return null;
     if (values.length == 1) return values.first;
     return values.join(',');
   }
 
-  Iterable<String> getMultiple(String name) => _m[name];
+  Iterable<String> getMultiple(String name) => _m[name.toLowerCase()];
 }
 
 class RequestImpl implements http_base.Request {
@@ -321,19 +349,23 @@ class ApiRequester {
    * [body] and/or [uploadMedia] in the request.
    */
   Future request(String requestUrl, String method,
-        {String body, String contentType:"application/json",
-         Map urlParams, Map queryParams,
+        {String body, Map urlParams, Map queryParams,
          common_external.Media uploadMedia, String uploadMediaPath}) {
-    return _request(requestUrl, method, body, contentType,
-                    urlParams, queryParams,
-                    uploadMedia,
-                    uploadMediaPath).then((http_base.Response response) {
-      return response.read().transform(UTF8.decoder).join('')
-          .then((String bodyString) {
-        DetailedApiRequestError.validateResponse(response.status, bodyString);
-        if (bodyString == '') return null;
-        return JSON.decode(bodyString);
-      });
+    return _request(requestUrl, method, body, urlParams, queryParams,
+                    uploadMedia, uploadMediaPath)
+        .then(_validateResponse).then((http_base.Response response) {
+
+      var stringStream = _decodeStreamAsText(response);
+      if (stringStream != null) {
+        return stringStream.join('').then((String bodyString) {
+          if (bodyString == '') return null;
+          return JSON.decode(bodyString);
+        });
+      } else {
+        throw new common_external.ApiRequestError(
+            "Unable to read response with content-type "
+            "${response.headers['content-type']}.");
+      }
     });
   }
 
@@ -345,25 +377,33 @@ class ApiRequester {
    * Decodes the response as a [common_external.Media]
    */
   Future<common_external.Media> requestMedia(String requestUrl, String method,
-        {String body, String contentType:"application/json",
-         Map urlParams, Map queryParams,
+        {String body, Map urlParams, Map queryParams,
          common_external.Media uploadMedia, String uploadMediaPath}) {
-    return _request(requestUrl, method, body, contentType,
-                    urlParams, queryParams,
-                    uploadMedia, uploadMediaPath,
-                    downloadAsMedia: true).then((http_base.Response response) {
-      // TODO: Do some validation here.
-      var stream = response.read();
+    return _request(requestUrl, method, body, urlParams, queryParams,
+                    uploadMedia, uploadMediaPath, downloadAsMedia: true)
+        .then(_validateResponse).then((http_base.Response response) {
+      // TODO: Do we need more validation here?
       var contentType = response.headers['content-type'];
-      var contentLength = int.parse(response.headers['content-length']);
+      if (contentType == null) {
+        throw new common_external.ApiRequestError(
+            "No 'content-type' header in media response.");
+      }
+      var contentLength;
+      try {
+        contentLength = int.parse(response.headers['content-length']);
+      } catch (_) {
+        throw new common_external.ApiRequestError(
+            "No or invalid 'content-length' header in media response.");
+      }
+
       return new common_external.Media(
-          stream, contentLength, contentType: contentType);
+          response.read(), contentLength, contentType: contentType);
     });
   }
 
   Future _request(String requestUrl, String method,
-        String body, String contentType, Map urlParams,
-        Map queryParams, common_external.Media uploadMedia,
+        String body, Map urlParams, Map queryParams,
+        common_external.Media uploadMedia,
         String uploadMediaPath, {bool downloadAsMedia: false}) {
     if (queryParams == null) queryParams = const {};
     var path;
@@ -400,7 +440,8 @@ class ApiRequester {
     }
 
     var bodyStream;
-    var headers = new HeadersImpl({'content-type' : [contentType]});
+    var utf8ContentType = 'application/json; charset=utf-8';
+    var headers = new HeadersImpl({'content-type' : [utf8ContentType]});
 
     // FIXME: Validate content-length of media?
     if (uploadMedia != null) {
@@ -428,7 +469,7 @@ class ApiRequester {
           var bodyString = new StringBuffer();
           bodyString
               ..write('--$_boundaryString\r\n')
-              ..write("Content-Type: $contentType\r\n\r\n")
+              ..write("Content-Type: $utf8ContentType\r\n\r\n")
               ..write(body)
               ..write('\r\n--$_boundaryString\r\n')
               ..write("Content-Type: ${uploadMedia.contentType}\r\n")
@@ -462,34 +503,50 @@ class ApiRequester {
   }
 }
 
-/**
- * Error thrown when the HTTP Request to the API failed
- */
-class APIRequestError extends Error {
-  final String message;
-  APIRequestError([this.message]);
-  String toString() {
-    if (message == null) {
-      return "APIRequestException";
+Future<http_base.Response> _validateResponse(http_base.Response response) {
+  var statusCode = response.status;
+
+  // TODO: We assume that status codes between [200..400[ are OK.
+  // Can we assume this?
+  if (statusCode < 200 || statusCode >= 400) {
+    throwGeneralError() {
+      throw new common_external.ApiRequestError(
+          'No error details. Http status was: ${response.status}.');
+    }
+
+    // Some error happened, try to decode the response and fetch the error.
+    Stream<String> stringStream = _decodeStreamAsText(response);
+    if (stringStream != null) {
+      return stringStream.transform(JSON.decoder).first.then((json) {
+        if (json is Map && json['error'] is Map) {
+          var error = json['error'];
+          var code = error['code'];
+          var message = error['message'];
+          throw new common_external.DetailedApiRequestError(code, message);
+        } else {
+          throwGeneralError();
+        }
+      });
     } else {
-      return "APIRequestException: $message";
+      throwGeneralError();
     }
   }
+
+  return new Future.value(response);
 }
 
-class DetailedApiRequestError extends Error {
-  final int statusCode;
-  final String body;
-
-  DetailedApiRequestError._(this.statusCode, this.body);
-
-  static void validateResponse(int statusCode, String responseBody) {
-    if(statusCode >= 400) {
-      throw new DetailedApiRequestError._(statusCode, responseBody);
-    }
+Stream<String> _decodeStreamAsText(http_base.Response response) {
+  // TODO: Correctly handle the response content-types, using correct
+  // decoder.
+  // Currently we assume that the api endpoint is responding with exactly
+  // "application/json; charset=utf-8"
+  String contentType = response.headers['Content-Type'];
+  if (contentType != null &&
+      contentType.toLowerCase() == 'application/json; charset=utf-8') {
+    return response.read().transform(new Utf8Decoder(allowMalformed: true));
+  } else {
+    return null;
   }
-
-  String toString() => '$statusCode - $body';
 }
 
 
@@ -605,6 +662,8 @@ Map mapMap(Map source, [Object convert(Object source) = null]) {
   });
   return result;
 }
+
+
 """;
 
 
@@ -612,6 +671,7 @@ Map mapMap(Map source, [Object convert(Object source) = null]) {
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:googleapis/common/common.dart';
 import 'package:googleapis/src/common_internal.dart';
 import 'package:http_base/http_base.dart' as http_base;
 import 'package:unittest/unittest.dart';
@@ -664,6 +724,28 @@ Stream<List<int>> byteStream(String s) {
   bodyController.close();
   return bodyController.stream;
 }
+
+class _ApiRequestError extends TypeMatcher {
+  const _ApiRequestError() : super("ApiRequestError");
+  bool matches(item, Map matchState) => item is ApiRequestError;
+}
+
+class _DetailedApiRequestError extends TypeMatcher {
+  const _DetailedApiRequestError() : super("DetailedApiRequestError");
+  bool matches(item, Map matchState) => item is DetailedApiRequestError;
+}
+
+class TestError {}
+
+class _TestError extends TypeMatcher {
+  const _TestError() : super("TestError");
+  bool matches(item, Map matchState) => item is TestError;
+}
+
+const isApiRequestError = const _ApiRequestError();
+const isDetailedApiRequestError = const _DetailedApiRequestError();
+const isTestError = const _TestError();
+
 
 main() {
   group('common-external', () {
@@ -812,27 +894,42 @@ main() {
 
       var a = ['a1', 'a2', 'a3'];
       var b = ['b1'];
-      var headers = new HeadersImpl({'a' : a, 'b' : b});
+      var headers = new HeadersImpl({'A' : a, 'b' : b});
 
       expect(headers.contains('a'), isTrue);
+      expect(headers.contains('A'), isTrue);
       expect(headers.contains('b'), isTrue);
+      expect(headers.contains('B'), isTrue);
       expect(headers.contains('c'), isFalse);
+      expect(headers.contains('C'), isFalse);
 
       expect(headers.names, hasLength(2));
       expect(headers.names.contains('a'), isTrue);
       expect(headers.names.contains('b'), isTrue);
       expect(headers.names.contains('c'), isFalse);
 
+      expect(headers.names.contains('A'), isFalse);
+      expect(headers.names.contains('B'), isFalse);
+      expect(headers.names.contains('C'), isFalse);
+
       expect(headers['a'], equals('a1,a2,a3'));
+      expect(headers['A'], equals('a1,a2,a3'));
       expect(headers['b'], equals('b1'));
+      expect(headers['B'], equals('b1'));
 
       expect(headers.getMultiple('a'), equals(a));
+      expect(headers.getMultiple('A'), equals(a));
       expect(headers.getMultiple('b'), equals(b));
+      expect(headers.getMultiple('B'), equals(b));
     });
 
     group('api-requester', () {
       var httpMock, rootUrl, basePath;
       ApiRequester requester;
+
+      var responseHeaders = new HeadersImpl({
+          'content-type' : ['application/json; charset=utf-8'],
+      });
 
       setUp(() {
         httpMock = new HttpServerMock();
@@ -848,7 +945,7 @@ main() {
         httpMock.register(expectAsync((http_base.Request request, json) {
           expect(request.method, equals('GET'));
           expect('${request.url}', equals('http://example.com/base/abc'));
-          return emptyResponse(200, null, '');
+          return emptyResponse(200, responseHeaders, '');
         }), true);
         requester.request('abc', 'GET').then(expectAsync((response) {
           expect(response, isNull);
@@ -862,7 +959,7 @@ main() {
           expect(json is Map, isTrue);
           expect(json, hasLength(1));
           expect(json['foo'], equals('bar'));
-          return emptyResponse(200, null, '{"foo2" : "bar2"}');
+          return emptyResponse(200, responseHeaders, '{"foo2" : "bar2"}');
         }), true);
         requester.request('abc',
                           'GET',
@@ -882,7 +979,7 @@ main() {
           expect(json, hasLength(2));
           expect(json[0], equals('a'));
           expect(json[1], equals(1));
-          return emptyResponse(200, null, '["b", 2]');
+          return emptyResponse(200, responseHeaders, '["b", 2]');
         }), true);
         requester.request('abc',
                           'GET',
@@ -896,22 +993,111 @@ main() {
 
 
       // Tests for error responses
+      group('request-errors', () {
+        makeTestError() {
+          // All errors from the [http_base.Client] propagate through.
+          // We use [TestError] to simulate it.
+          httpMock.register(expectAsync((http_base.Request request, string) {
+            return new Future.error(new TestError());
+          }), false);
+        }
 
-      test('error-response', () {
-        httpMock.register(expectAsync((http_base.Request request, string) {
-          expect(request.method, equals('GET'));
-          expect('${request.url}', equals('http://example.com/base/abc'));
-          expect(string, isEmpty);
-          return emptyResponse(400, null, '');
-        }), false);
+        makeDetailed400Error() {
+          httpMock.register(expectAsync((http_base.Request request, string) {
+            return emptyResponse(400,
+                                 responseHeaders,
+                                 '{"error" : {"code" : 42, "message": "foo"}}');
+          }), false);
+        }
 
-        // TODO: Check for correct exceptions after implementing
-        // correct API handling.
-        expect(requester.request('abc', 'GET'), throws);
+        makeNormal199Error() {
+          httpMock.register(expectAsync((http_base.Request request, string) {
+            return emptyResponse(200, null, '');
+          }), false);
+        }
+
+        makeInvalidContentTypeError({String contentType}) {
+          httpMock.register(expectAsync((http_base.Request request, string) {
+            var responseHeaders;
+            if (contentType != null) {
+              responseHeaders = new HeadersImpl({
+                'content-type' : [contentType],
+              });
+            }
+            return emptyResponse(200, null, '');
+          }), false);
+        }
+
+
+        test('normal-http-client', () {
+          makeTestError();
+          expect(requester.request('abc', 'GET'), throwsA(isTestError));
+        });
+
+        test('normal-detailed-400', () {
+          makeDetailed400Error();
+          requester.request('abc', 'GET')
+              .catchError(expectAsync((error, stack) {
+            expect(error, isDetailedApiRequestError);
+            DetailedApiRequestError e = error;
+            expect(e.status, equals(42));
+            expect(e.message, equals('foo'));
+          }));
+        });
+
+        test('normal-199', () {
+          makeNormal199Error();
+          expect(requester.request('abc', 'GET'), throwsA(isApiRequestError));
+        });
+
+        test('normal-no-content-type', () {
+          makeInvalidContentTypeError();
+          expect(requester.request('abc', 'GET'), throwsA(isApiRequestError));
+        });
+
+        test('normal-invalid-content-type', () {
+          makeInvalidContentTypeError(contentType: 'foobar');
+          expect(requester.request('abc', 'GET'), throwsA(isApiRequestError));
+        });
+
+        test('media-http-client', () {
+          makeTestError();
+          expect(requester.requestMedia('abc', 'GET'), throwsA(isTestError));
+        });
+
+        test('media-detailed-400', () {
+          makeDetailed400Error();
+          requester.request('abc', 'GET')
+              .catchError(expectAsync((error, stack) {
+            expect(error, isDetailedApiRequestError);
+            DetailedApiRequestError e = error;
+            expect(e.status, equals(42));
+            expect(e.message, equals('foo'));
+          }));
+        });
+
+        test('media-199', () {
+          makeNormal199Error();
+          expect(requester.requestMedia('abc', 'GET'),
+                 throwsA(isApiRequestError));
+        });
+
+        test('media-no-content-type', () {
+          makeInvalidContentTypeError();
+          expect(requester.requestMedia('abc', 'GET'),
+                 throwsA(isApiRequestError));
+        });
+
+        test('media-invalid-content-type', () {
+          makeInvalidContentTypeError(contentType: 'foobar');
+          expect(requester.requestMedia('abc', 'GET'),
+                 throwsA(isApiRequestError));
+        });
       });
 
 
       // Tests for path/query parameters
+
       test('request-parameters-query', () {
         var queryParams = {
             'a' : ['a1', 'a2'],
@@ -921,7 +1107,7 @@ main() {
           expect(request.method, equals('GET'));
           expect('${request.url}',
                  equals('http://example.com/base/abc?a=a1&a=a2&s=s1'));
-          return emptyResponse(200, null, '');
+          return emptyResponse(200, responseHeaders, '');
         }), true);
         requester.request('abc', 'GET', queryParams: queryParams)
             .then(expectAsync((response) {
@@ -938,7 +1124,7 @@ main() {
           expect(request.method, equals('GET'));
           expect('${request.url}',
                  equals('http://example.com/base/s/foo/a1/a2/bar/s1/e'));
-          return emptyResponse(200, null, '');
+          return emptyResponse(200, responseHeaders, '');
         }), true);
         requester.request('s/foo{/a*}/bar/{s}/e', 'GET', urlParams: pathParams)
             .then(expectAsync((response) {
