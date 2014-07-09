@@ -104,12 +104,17 @@ class DartResourceMethod {
 
       if (mediaUpload) {
         if (!namedString.isEmpty) namedString.write(', ');
+        namedString.write(
+            '${imports.external}.UploadOptions uploadOptions : '
+            '${imports.external}.UploadOptions.Default, ');
         namedString.write('${imports.external}.Media uploadMedia');
       }
 
       if (mediaDownload) {
         if (!namedString.isEmpty) namedString.write(', ');
-        namedString.write('${imports.core}.bool downloadAsMedia: false');
+        namedString.write(
+            '${imports.external}.DownloadOptions downloadOptions: '
+            '${imports.external}.DownloadOptions.Metadata');
       }
 
       parameterString.write('{$namedString}');
@@ -192,9 +197,10 @@ class DartResourceMethod {
     var requestCode = new StringBuffer();
     if (mediaUpload) {
       requestCode.writeln('    _uploadMedia =  uploadMedia;');
+      requestCode.writeln('    _uploadOptions =  uploadOptions;');
     }
     if (mediaDownload) {
-      requestCode.writeln('    _downloadAsMedia = downloadAsMedia;');
+      requestCode.writeln('    _downloadOptions = downloadOptions;');
     }
 
     // FIXME: We need to pass this differently.
@@ -208,38 +214,35 @@ class DartResourceMethod {
           ', uploadMediaPath: "${mediaUploadSpec.protocols.simple.path}"';
     }
 
+    requestCode.write(
+'''
+    var _response = _httpClient.request(_url, "$httpMethod",
+                                        body: _body,
+                                        urlParams: _urlParams,
+                                        queryParams: _queryParams,
+                                        uploadOptions: _uploadOptions,
+                                        uploadMedia: _uploadMedia$uploadPath,
+                                        downloadOptions: _downloadOptions);
+'''
+    );
+
     var plainResponse =
         returnType != null ? returnType.jsonDecode('data') : 'null';
     if (mediaDownload) {
       requestCode.write(
 '''
-    if (_downloadAsMedia) {
-      return _httpClient.requestMedia(_url, "$httpMethod",
-                                      body: _body,
-                                      urlParams: _urlParams,
-                                      queryParams: _queryParams,
-                                      uploadMedia: _uploadMedia$uploadPath);
-    } else {
-      var _response = _httpClient.request(_url,
-                                          "$httpMethod",
-                                          body: _body,
-                                          urlParams: _urlParams,
-                                          queryParams: _queryParams,
-                                          uploadMedia: _uploadMedia$uploadPath);
+    if (_downloadOptions == null ||
+        _downloadOptions == ${imports.external}.DownloadOptions.Metadata) {
       return _response.then((data) => $plainResponse);
+    } else {
+      return _response;
     }
 '''
       );
     } else {
       requestCode.write(
 '''
-    var _response = _httpClient.request(_url,
-                                        "$httpMethod",
-                                        body: _body,
-                                        urlParams: _urlParams,
-                                        queryParams: _queryParams,
-                                        uploadMedia: _uploadMedia$uploadPath);
-    return _response.then((data) => $plainResponse);
+    return _response;
 '''
       );
     }
@@ -252,7 +255,8 @@ class DartResourceMethod {
     var _urlParams = new ${imports.core}.Map();
     var _queryParams = new ${imports.core}.Map();
     var _uploadMedia = null;
-    var _downloadAsMedia = false;
+    var _uploadOptions = null;
+    var _downloadOptions = ${imports.external}.DownloadOptions.Metadata;
     var _body = null;
 
     _addParameter(params, ${imports.core}.String name, value) {

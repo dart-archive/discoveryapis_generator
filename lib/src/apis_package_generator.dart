@@ -238,14 +238,143 @@ import 'dart:async' as async;
 import 'dart:core' as core;
 import 'dart:collection' as collection;
 
+/**
+ * Represents a media consisting of a stream of bytes, a content type and a
+ * length.
+ */
 class Media {
   final async.Stream<core.List<core.int>> stream;
   final core.String contentType;
   final core.int length;
 
+  /**
+   * Creates a new [Media] with a byte [stream] of length [length] with a
+   * [contentType].
+   *
+   * When uploading media, [length] can only be null if [ResumableUploadOptions]
+   * is used.
+   */
   Media(this.stream, this.length,
-        {this.contentType: "application/octet-stream"});
+        {this.contentType: "application/octet-stream"}) {
+    if (stream == null || contentType == null) {
+      throw new core.ArgumentError(
+          'Arguments stream, contentType and length must not be null.');
+    }
+    if (length != null && length < 0) {
+      throw new core.ArgumentError('A negative content length is not allowed');
+    }
+  }
 }
+
+
+/**
+ * Represents options for uploading a [Media].
+ */
+class UploadOptions {
+  /** Use either simple uploads (only media) or multipart for media+metadata */
+  static const UploadOptions Default = const UploadOptions();
+
+  /** Make resumable uploads */
+  static final ResumableUploadOptions Resumable = new ResumableUploadOptions();
+
+  const UploadOptions();
+}
+
+
+/**
+ * Specifies options for resumable uploads.
+ */
+class ResumableUploadOptions extends UploadOptions {
+  /**
+   * Maximum number of upload attempts per chunk.
+   */
+  final core.int numberOfAttempts;
+
+  /**
+   * Preferred size (in bytes) of a uploaded chunk.
+   * Must be a multiple of 256 KB.
+   *
+   * The default is 1 MB.
+   */
+  final core.int chunkSize;
+
+  ResumableUploadOptions({this.numberOfAttempts: 3,
+                          this.chunkSize: 1024 * 1024}) {
+    // See e.g. here:
+    // https://developers.google.com/maps-engine/documentation/resumable-upload
+    //
+    // Chunk size restriction:
+    // There are some chunk size restrictions based on the size of the file you
+    // are uploading. Files larger than 256 KB (256 x 1024 bytes) must have
+    // chunk sizes that are multiples of 256 KB. For files smaller than 256 KB,
+    // there are no restrictions. In either case, the final chunk has no
+    // limitations; you can simply transfer the remaining bytes. If you use
+    // chunking, it is important to keep the chunk size as large as possible
+    // to keep the upload efficient.
+    //
+    if (numberOfAttempts < 1 || (chunkSize % (256 * 1024)) != 0) {
+      throw new core.ArgumentError('Invalid arguments.');
+    }
+  }
+}
+
+
+/**
+ * Represents options for downloading media.
+ *
+ * For partial downloads, see [PartialDownloadOptions].
+ */
+class DownloadOptions {
+  /** Download only metadata. */
+  static const DownloadOptions Metadata = const DownloadOptions();
+
+  /** Download full media. */
+  static final PartialDownloadOptions FullMedia =
+      new PartialDownloadOptions(new ByteRange(0, -1));
+
+  const DownloadOptions();
+
+  /** Indicates whether metadata should be downloaded. */
+  core.bool get isMetadataDownload => true;
+}
+
+
+/**
+ * Options for downloading a [Media].
+ */
+class PartialDownloadOptions extends DownloadOptions {
+  /** The range of bytes to be downloaded */
+  final ByteRange range;
+
+  PartialDownloadOptions(this.range);
+
+  core.bool get isMetadataDownload => false;
+
+  /**
+   * `true` if this is a full download and `false` if this is a partial
+   * download.
+   */
+  core.bool get isFullDownload => range.start == 0 && range.end == -1;
+}
+
+
+/**
+ * Specifies a range of media.
+ */
+class ByteRange {
+  /** First byte of media. */
+  final core.int start;
+
+  /** Last byte of media (inclusive) */
+  final core.int end;
+
+  ByteRange(this.start, this.end) {
+    if (!(start == 0  && end == -1 || start >= 0 && end > start)) {
+      throw new core.ArgumentError('Invalid media range [$start, $end]');
+    }
+  }
+}
+
 
 /**
  * Represents a general error reported by the API endpoint.
@@ -284,6 +413,8 @@ import "dart:collection" as collection;
 import "package:crypto/crypto.dart" as crypto;
 import "package:googleapis/common/common.dart" as common_external;
 import "package:http_base/http_base.dart" as http_base;
+
+const CONTENT_TYPE_UTF8 = 'application/json; charset=utf-8';
 
 class HeadersImpl implements http_base.Headers {
   final Map<String, List<String>> _m = {};
@@ -347,159 +478,431 @@ class ApiRequester {
    * Sends a HTTPRequest using [method] (usually GET or POST) to [requestUrl]
    * using the specified [urlParams] and [queryParams]. Optionally include a
    * [body] and/or [uploadMedia] in the request.
+   *
+   * If [uploadMedia] was specified [downloadOptions] must be
+   * [DownloadOptions.Metadata].
+   *
+   * If [downloadOptions] is [DownloadOptions.Metadata] the result will be
+   * decoded as JSON.
+   *
+   * [downloadOptions] must never be null.
+   * 
+   * Otherwise the result will be downloaded as a [common_external.Media]
    */
   Future request(String requestUrl, String method,
-        {String body, Map urlParams, Map queryParams,
-         common_external.Media uploadMedia, String uploadMediaPath}) {
+                {String body, Map urlParams, Map queryParams,
+                 common_external.Media uploadMedia,
+                 common_external.UploadOptions uploadOptions,
+                 common_external.DownloadOptions downloadOptions:
+                     common_external.DownloadOptions.Metadata,
+                 String uploadMediaPath}) {
+    if (uploadMedia != null &&
+        downloadOptions != common_external.DownloadOptions.Metadata) {
+      throw new ArgumentError('When uploading a [Media] you cannot download a '
+                              '[Media] at the same time!');
+    }
     return _request(requestUrl, method, body, urlParams, queryParams,
-                    uploadMedia, uploadMediaPath)
+                    uploadMedia, uploadOptions,
+                    downloadOptions,
+                    uploadMediaPath)
         .then(_validateResponse).then((http_base.Response response) {
-
-      var stringStream = _decodeStreamAsText(response);
-      if (stringStream != null) {
-        return stringStream.join('').then((String bodyString) {
-          if (bodyString == '') return null;
-          return JSON.decode(bodyString);
-        });
+      if (downloadOptions == common_external.DownloadOptions.Metadata) {
+        // Downloading JSON Metadata
+        var stringStream = _decodeStreamAsText(response);
+        if (stringStream != null) {
+          return stringStream.join('').then((String bodyString) {
+            if (bodyString == '') return null;
+            return JSON.decode(bodyString);
+          });
+        } else {
+          throw new common_external.ApiRequestError(
+              "Unable to read response with content-type "
+              "${response.headers['content-type']}.");
+        }
       } else {
-        throw new common_external.ApiRequestError(
-            "Unable to read response with content-type "
-            "${response.headers['content-type']}.");
+        // Downloading Media.
+        var contentType = response.headers['content-type'];
+        if (contentType == null) {
+          throw new common_external.ApiRequestError(
+              "No 'content-type' header in media response.");
+        }
+        var contentLength;
+        try {
+          contentLength = int.parse(response.headers['content-length']);
+        } catch (_) {
+          throw new common_external.ApiRequestError(
+              "No or invalid 'content-length' header in media response.");
+        }
+        return new common_external.Media(
+            response.read(), contentLength, contentType: contentType);
       }
+    });
+  }
+
+  // TODO: Handle [downloadOptions] -- e.g. partial media downloads.
+  Future _request(String requestUrl, String method,
+                  String body, Map urlParams, Map queryParams,
+                  common_external.Media uploadMedia,
+                  common_external.UploadOptions uploadOptions,
+                  common_external.DownloadOptions downloadOptions,
+                  String uploadMediaPath) {
+    bool downloadAsMedia =
+        downloadOptions != common_external.DownloadOptions.Metadata;
+
+    Uri buildRequestUri() {
+      if (queryParams == null) queryParams = const {};
+      var path;
+      if (uploadMedia != null) {
+        requestUrl = uploadMediaPath;
+      }
+
+      if (requestUrl.startsWith("/")) {
+        path ="$_rootUrl${requestUrl.substring(1)}";
+      } else {
+        path ="$_rootUrl${_basePath.substring(1)}$requestUrl";
+      }
+
+      var url = new UrlPattern(path).generate(urlParams, queryParams);
+      var uri = Uri.parse(url);
+      if (uploadMedia != null || downloadAsMedia) {
+        if (uri.query.isEmpty) {
+          url = '$url?';
+        }
+
+        if (uploadMedia != null) {
+          if (uploadOptions is common_external.ResumableUploadOptions) {
+            url = '${url}&uploadType=resumable';
+          } else if (body == null) {
+            url = '${url}&uploadType=media';
+          } else {
+            url = '${url}&uploadType=multipart';
+          }
+        }
+
+        if (downloadAsMedia) {
+          url = '${url}&alt=media';
+        }
+
+        uri = Uri.parse(url);
+      }
+      return uri;
+    }
+
+    var uri = buildRequestUri();
+
+    Future multipartUpload() {
+      // TODO: This needs to be made streaming based and much more efficient.
+
+      var bodyController = new StreamController<List<int>>();
+      var bodyStream = bodyController.stream;
+      return uploadMedia.stream.fold(
+          [], (buffer, data) => buffer..addAll(data)).then((List<int> data) {
+
+        var bodyString = new StringBuffer();
+        bodyString
+            ..write('--$_boundaryString\r\n')
+            ..write("Content-Type: $CONTENT_TYPE_UTF8\r\n\r\n")
+            ..write(body)
+            ..write('\r\n--$_boundaryString\r\n')
+            ..write("Content-Type: ${uploadMedia.contentType}\r\n")
+            ..write("Content-Transfer-Encoding: base64\r\n\r\n")
+            ..write(crypto.CryptoUtils.bytesToBase64(data))
+            ..write('\r\n--$_boundaryString--');
+        var bytes = UTF8.encode(bodyString.toString());
+        bodyController.add(bytes);
+        bodyController.close();
+        var headers = new HeadersImpl({
+          'content-type' : [
+              "multipart/mixed; boundary=\"$_boundaryString\""],
+          'content-length' : ['${bytes.length}']
+        });
+        return _httpClient(new RequestImpl(method, uri, headers, bodyStream));
+      });
+    }
+
+    Future simpleUpload() {
+      var headers = new HeadersImpl({
+        'content-type' : [uploadMedia.contentType],
+        'content-length' : ['${uploadMedia.length}']
+      });
+      var bodyStream = uploadMedia.stream;
+      var request = new RequestImpl(method, uri, headers, bodyStream);
+      return _httpClient(request);
+    }
+
+    Future simpleRequest() {
+      var length = 0;
+      var bodyController = new StreamController<List<int>>();
+      if (body != null) {
+        var bytes = UTF8.encode(body);
+        bodyController.add(bytes);
+        length = bytes.length;
+      }
+      bodyController.close();
+
+      var headers = new HeadersImpl({
+          'content-type' : [CONTENT_TYPE_UTF8],
+          'content-length' : ['$length'],
+      });
+      return _httpClient(
+          new RequestImpl(method, uri, headers, bodyController.stream));
+    }
+
+    // FIXME: Validate content-length of media?
+    if (uploadMedia != null) {
+      // Three upload types:
+      // 1. Resumable: Upload of data + metdata with multiple requests.
+      // 2. Simple: Upload of media.
+      // 3. Multipart: Upload of data + metadata.
+
+      if (uploadOptions is common_external.ResumableUploadOptions) {
+        var helper = new ResumableUploadHelper(
+            _httpClient, uploadMedia, body, uri, method, uploadOptions);
+        return helper.upload();
+      }
+
+      if (uploadMedia.length == null) {
+        throw new ArgumentError(
+            'For non-resumable uploads you need to specify the length of the '
+            'media to upload.');
+      }
+
+      if (body == null) {
+        return simpleUpload();
+      } else {
+        return multipartUpload();
+      }
+    }
+    return simpleRequest();
+  }
+}
+
+// TODO: Handle [uploadOptions.numberOfAttempts]
+// TODO: Buffer less if we know the content length in advance.
+class ResumableUploadHelper {
+  final http_base.Client _httpClient;
+  final common_external.Media _uploadMedia;
+  final Uri _uri;
+  final String _body;
+  final String _method;
+  final common_external.ResumableUploadOptions _options;
+
+  ResumableUploadHelper(
+      this._httpClient, this._uploadMedia, this._body, this._uri, this._method,
+      this._options);
+
+  /**
+   * Returns the final [http_base.Response] if the upload succeded and completes
+   * with an error otherwise.
+   *
+   * The returned response stream has not been listened to.
+   */
+  Future<http_base.Response> upload() {
+    return _startSession().then((Uri uploadUri) {
+      StreamSubscription subscription;
+
+      // Uploading state
+      int chunkSize = _options.chunkSize;
+      List<ResumableChunk> chunkStack = [];
+      var emptyChunk = new ResumableChunk(chunkSize, chunkStack, 0);
+      chunkStack.add(emptyChunk);
+
+      var completer = new Completer<http_base.Response>();
+      bool completed = false;
+
+      subscription = _uploadMedia.stream.listen((List<int> bytes) {
+        chunkStack.last.addBytes(bytes);
+        // Upload all but the last chunk.
+        // The final send will be done in the [onDone] handler.
+        if (chunkStack.length > 1) {
+          // Pause the input stream.
+          subscription.pause();
+
+          Future<http_base.Response> upload(ResumableChunk chunk) {
+            return _uploadChunk(uploadUri, chunk).then((response) {
+              return response.read().drain();
+            });
+          }
+
+          var fullChunks = chunkStack.sublist(0, chunkStack.length - 1);
+
+          // Upload all chunks except the last one.
+          Future.forEach(fullChunks, upload).then((_) {
+            chunkStack.removeRange(0, chunkStack.length - 1);
+
+            // All chunks uploaded, we can continue consuming data.
+            subscription.resume();
+          }).catchError((error, stack) {
+            subscription.cancel();
+            completed = true;
+            completer.completeError(error, stack);
+          });
+        }
+      }, onDone: () {
+        if (!completed) {
+          // Validate that we have the correct number of bytes if length was
+          // specified.
+          if (_uploadMedia.length != null) {
+            var end = chunkStack.last.endOfChunk;
+            if (end < _uploadMedia.length) {
+              completer.completeError(new common_external.ApiRequestError(
+                  'Received less bytes than indicated by [Media.length].'));
+              return;
+            } else if (end > _uploadMedia.length) {
+              completer.completeError(
+                  'Received more bytes than indicated by [Media.length].');
+              return;
+            }
+          }
+
+          // Upload last chunk and *do not drain the response* but complete
+          // with it.
+          _uploadChunk(uploadUri, chunkStack.last, lastChunk: true)
+              .then((response) {
+            completer.complete(response);
+          }).catchError((error, stack) {
+            completer.completeError(error, stack);
+          });
+        }
+      });
+
+      return completer.future;
+    });
+  }
+
+
+  /**
+   * Starts a resumable upload.
+   *
+   * Returns the [Uri] which should be used for uploading all content.
+   */
+  Future<Uri> _startSession() {
+    var length = 0;
+    var bytes;
+    if (_body != null) {
+      bytes = UTF8.encode(_body);
+      length = bytes.length;
+    }
+    var bodyStream = _bytes2Stream(bytes);
+
+    var headers = new HeadersImpl({
+        'content-type' : [CONTENT_TYPE_UTF8],
+        'content-length' : ['$length'],
+        'x-upload-content-type' : [_uploadMedia.contentType],
+        'x-upload-content-length' : ['${_uploadMedia.length}'],
+    });
+    var request =
+        new RequestImpl(_method, _uri, headers, bodyStream);
+
+    return _httpClient(request).then((http_base.Response response) {
+      return response.read().drain().then((_) {
+        var uploadUri = response.headers['location'];
+        if (response.status != 200 || uploadUri == null) {
+          throw new common_external.ApiRequestError(
+              'Invalid response for resumable upload attempt '
+              '(status was: ${response.status})');
+        }
+        return Uri.parse(uploadUri);
+      });
     });
   }
 
   /**
-   * Sends a HTTPRequest using [method] (usually GET or POST) to [requestUrl]
-   * using the specified [urlParams] and [queryParams]. Optionally include a
-   * [body] and/or [uploadMedia] in the request.
+   * Uploads [length] bytes in [byteArrays] and ensures the upload was
+   * successful.
    *
-   * Decodes the response as a [common_external.Media]
+   * Content-Range: [start ... (start + length)[
+   *
+   * Returns the returned [http_base.Response] or completes with an error if
+   * the upload did not succeed. The response stream will not be listened to.
    */
-  Future<common_external.Media> requestMedia(String requestUrl, String method,
-        {String body, Map urlParams, Map queryParams,
-         common_external.Media uploadMedia, String uploadMediaPath}) {
-    return _request(requestUrl, method, body, urlParams, queryParams,
-                    uploadMedia, uploadMediaPath, downloadAsMedia: true)
-        .then(_validateResponse).then((http_base.Response response) {
-      // TODO: Do we need more validation here?
-      var contentType = response.headers['content-type'];
-      if (contentType == null) {
-        throw new common_external.ApiRequestError(
-            "No 'content-type' header in media response.");
+  Future _uploadChunk(Uri uri, ResumableChunk chunk, {bool lastChunk: false}) {
+    // If [uploadMedia.length] is null, we do not know the length.
+    var mediaTotalLength = _uploadMedia.length;
+    if (mediaTotalLength == null || lastChunk) {
+      if (lastChunk) {
+        mediaTotalLength = '${chunk.endOfChunk}';
+      } else {
+        mediaTotalLength = '*';
       }
-      var contentLength;
-      try {
-        contentLength = int.parse(response.headers['content-length']);
-      } catch (_) {
-        throw new common_external.ApiRequestError(
-            "No or invalid 'content-length' header in media response.");
-      }
+    }
 
-      return new common_external.Media(
-          response.read(), contentLength, contentType: contentType);
+    var headers = new HeadersImpl({
+        'content-type' : [_uploadMedia.contentType],
+        'content-length' : ['${chunk.length}'],
+        'content-range' :
+            ['bytes ${chunk.offset}-${chunk.endOfChunk - 1}/$mediaTotalLength'],
+    });
+
+    var stream = _listOfBytes2Stream(chunk.byteArrays);
+    var request = new RequestImpl('PUT', uri, headers, stream);
+    return _httpClient(request).then((http_base.Response response) {
+      if (!lastChunk && response.status != 308) {
+        throw new common_external.ApiRequestError(
+            'Resumable upload: Uploading a chunk resulted in '
+            '${response.status} instead of 308.');
+      } else if (lastChunk &&
+                 response.status != 201 &&
+                 response.status != 200) {
+        throw new common_external.ApiRequestError(
+            'Resumable upload: Uploading a chunk resulted in '
+            '${response.status} instead of 200 or 201.');
+      }
+      return response;
     });
   }
 
-  Future _request(String requestUrl, String method,
-        String body, Map urlParams, Map queryParams,
-        common_external.Media uploadMedia,
-        String uploadMediaPath, {bool downloadAsMedia: false}) {
-    if (queryParams == null) queryParams = const {};
-    var path;
-    if (uploadMedia != null) {
-      requestUrl = uploadMediaPath;
+  Stream<List<int>> _bytes2Stream(List<int> bytes) {
+    var bodyController = new StreamController<List<int>>();
+    if (bytes != null) {
+      bodyController.add(bytes);
     }
+    bodyController.close();
+    return bodyController.stream;
+  }
 
-    if (requestUrl.substring(0,1) == "/") {
-      path ="$_rootUrl${requestUrl.substring(1)}";
+  Stream<List<int>> _listOfBytes2Stream(List<List<int>> listOfBytes) {
+    var controller = new StreamController();
+    for (var array in listOfBytes) {
+      controller.add(array);
+    }
+    controller.close();
+    return controller.stream;
+  }
+}
+
+
+/**
+ * Represents a chunk of data that will be transferred in one go.
+ */
+class ResumableChunk {
+  final int chunkSize;
+  final List<ResumableChunk> chunkStack;
+  final int offset;
+
+  List<List<int>> byteArrays = [];
+  int length = 0;
+
+  int get endOfChunk => offset + length;
+
+  ResumableChunk(this.chunkSize, this.chunkStack, this.offset);
+
+  void addBytes(List<int> bytes) {
+    var remaining = chunkSize - length;
+
+    if (bytes.length > remaining) {
+      var left = bytes.sublist(0, remaining);
+      var right = bytes.sublist(remaining);
+      byteArrays.add(left);
+      length += left.length;
+
+      var c = new ResumableChunk(chunkSize, chunkStack, offset + chunkSize);
+      chunkStack.add(c);
+      c.addBytes(right);
     } else {
-      path ="$_rootUrl${_basePath.substring(1)}$requestUrl";
+      byteArrays.add(bytes);
+      length += bytes.length;
     }
-
-    var url = new UrlPattern(path).generate(urlParams, queryParams);
-    var uri = Uri.parse(url);
-    if (uploadMedia != null || downloadAsMedia) {
-      if (uri.query.isEmpty) {
-        url = '$url?';
-      }
-
-      if (uploadMedia != null) {
-        if (body == null) {
-          url = '${url}&uploadType=media';
-        } else {
-          url = '${url}&uploadType=multipart';
-        }
-      }
-
-      if (downloadAsMedia) {
-        url = '${url}&alt=media';
-      }
-
-      uri = Uri.parse(url);
-    }
-
-    var bodyStream;
-    var utf8ContentType = 'application/json; charset=utf-8';
-    var headers = new HeadersImpl({'content-type' : [utf8ContentType]});
-
-    // FIXME: Validate content-length of media?
-    if (uploadMedia != null) {
-      // Three cases:
-      // 1. simple: upload of media
-      // 2. multipart: upload of data + metadata
-      // 3. resumable upload: upload of data + metdata + complicated stuff
-
-      if (body == null) {
-        // 1. simple upload of media
-        headers = new HeadersImpl({
-          'content-type' : [uploadMedia.contentType],
-          'content-length' : ['${uploadMedia.length}']
-        });
-        bodyStream = uploadMedia.stream;
-      } else {
-        // 2. multipart: upload of data + metadata
-        // TODO: This needs to be made streaming based and much more efficient.
-
-        var bodyController = new StreamController<List<int>>();
-        bodyStream = bodyController.stream;
-        return uploadMedia.stream.fold(
-            [], (buffer, data) => buffer..addAll(data)).then((List<int> data) {
-
-          var bodyString = new StringBuffer();
-          bodyString
-              ..write('--$_boundaryString\r\n')
-              ..write("Content-Type: $utf8ContentType\r\n\r\n")
-              ..write(body)
-              ..write('\r\n--$_boundaryString\r\n')
-              ..write("Content-Type: ${uploadMedia.contentType}\r\n")
-              ..write("Content-Transfer-Encoding: base64\r\n\r\n")
-              ..write(crypto.CryptoUtils.bytesToBase64(data))
-              ..write('\r\n--$_boundaryString--');
-          var bytes = UTF8.encode(bodyString.toString());
-          bodyController.add(bytes);
-          bodyController.close();
-          headers = new HeadersImpl({
-            'content-type' : [
-                "multipart/mixed; boundary=\"$_boundaryString\""],
-            'content-length' : ['${bytes.length}']
-          });
-        });
-
-        // 3. resumable upload: upload of data + metdata + complicated stuff
-        // TODO
-      }
-    } else {
-      var bodyController = new StreamController<List<int>>();
-      bodyStream = bodyController.stream;
-      if (body != null) {
-        bodyController.add(UTF8.encode(body));
-      }
-      bodyController.close();
-    }
-
-    var request = new RequestImpl(method, uri, headers, bodyStream);
-    return _httpClient(request);
   }
 }
 
@@ -662,8 +1065,6 @@ Map mapMap(Map source, [Object convert(Object source) = null]) {
   });
   return result;
 }
-
-
 """;
 
 
@@ -923,6 +1324,51 @@ main() {
       expect(headers.getMultiple('B'), equals(b));
     });
 
+    test('media', () {
+      // Tests for [MediaRange]
+      var partialRange = new ByteRange(1, 100);
+      expect(partialRange.start, equals(1));
+      expect(partialRange.end, equals(100));
+
+      var fullRange = new ByteRange(0, -1);
+      expect(fullRange.start, equals(0));
+      expect(fullRange.end, equals(-1));
+
+      expect(() => new ByteRange(0, 0), throws);
+      expect(() => new ByteRange(-1, 0), throws);
+      expect(() => new ByteRange(-1, 1), throws);
+
+      // Tests for [DownloadOptions]
+      expect(DownloadOptions.Metadata.isMetadataDownload, isTrue);
+
+      expect(DownloadOptions.FullMedia.isFullDownload, isTrue);
+      expect(DownloadOptions.FullMedia.isMetadataDownload, isFalse);
+
+      // Tests for [Media]
+      var stream = new StreamController().stream;
+      expect(() => new Media(null, 0, contentType: 'foobar'),
+             throwsA(isArgumentError));
+      expect(() => new Media(stream, 0, contentType: null),
+             throwsA(isArgumentError));
+      expect(() => new Media(stream, -1, contentType: 'foobar'),
+             throwsA(isArgumentError));
+
+      var lengthUnknownMedia = new Media(stream, null);
+      expect(lengthUnknownMedia.stream, equals(stream));
+      expect(lengthUnknownMedia.length, equals(null));
+
+      var media = new Media(stream, 10, contentType: 'foobar');
+      expect(media.stream, equals(stream));
+      expect(media.length, equals(10));
+      expect(media.contentType, equals('foobar'));
+
+      // Tests for [ResumableUploadOptions]
+      expect(() => new ResumableUploadOptions(numberOfAttempts: 0),
+             throwsA(isArgumentError));
+      expect(() => new ResumableUploadOptions(chunkSize: 1),
+             throwsA(isArgumentError));
+    });
+
     group('api-requester', () {
       var httpMock, rootUrl, basePath;
       ApiRequester requester;
@@ -992,6 +1438,232 @@ main() {
       });
 
 
+      // Tests for media uploads
+
+      group('media-upload', () {
+        Stream streamFromByteArrays(byteArrays) {
+          var controller = new StreamController();
+          for (var array in byteArrays) {
+            controller.add(array);
+          }
+          controller.close();
+          return controller.stream;
+        }
+        Media mediaFromByteArrays(byteArrays, {bool withLen: true}) {
+          int len = 0;
+          byteArrays.forEach((array) { len += array.length; });
+          if (!withLen) len = null;
+          return new Media(streamFromByteArrays(byteArrays),
+                           len,
+                           contentType: 'foobar');
+        }
+        validateServerRequest(e, http_base.Request request, List<int> data) {
+          var h = e['headers'];
+          var r = e['response'];
+
+          expect(request.url.toString(), equals(e['url']));
+          expect(request.method, equals(e['method']));
+          h.forEach((k, v) {
+            expect(request.headers[k], equals(v));
+          });
+
+          expect(data, equals(e['data']));
+          return r;
+        }
+        serverRequestValidator(List expectations) {
+          int i = 0;
+          return (http_base.Request request, List<int> data) {
+            return validateServerRequest(expectations[i++], request, data);
+          };
+        }
+
+        test('simple', () {
+          int i = 0;
+          var bytes =
+              new List.filled(10 * 256 * 1024 + 1, () => (i++) % 256);
+          var expectations = [
+              {
+                'url' : 'http://example.com/xyz?&uploadType=media',
+                'method' : 'POST',
+                'data' : bytes,
+                'headers' : {
+                  'content-length' : '${bytes.length}',
+                  'content-type' : 'foobar',
+                },
+                'response' : emptyResponse(200, responseHeaders, '')
+              },
+          ];
+
+          httpMock.register(
+              expectAsync(serverRequestValidator(expectations)), false);
+          var media = mediaFromByteArrays([bytes]);
+          requester.request('abc',
+                            'POST',
+                            uploadMedia: media,
+                            uploadMediaPath: '/xyz').then(
+              expectAsync((response) {}));
+        });
+
+        test('multipart-upload', () {
+          // TODO
+        });
+
+        group('resumable-upload', () {
+          // TODO: respect [stream]
+          buildExpectations(List<int> bytes, int chunkSize, bool stream) {
+            int totalLength = bytes.length;
+            int numberOfChunks = totalLength ~/ chunkSize;
+            int numberOfBytesInLastChunk = totalLength % chunkSize;
+
+            if (numberOfBytesInLastChunk > 0) {
+              numberOfChunks++;
+            } else {
+              numberOfBytesInLastChunk = chunkSize;
+            }
+
+            var expectations = [];
+
+            // First request is making a POST and gets the upload URL.
+            expectations.add({
+              'url' : 'http://example.com/xyz?&uploadType=resumable',
+              'method' : 'POST',
+              'data' : [],
+              'headers' : {
+                'content-length' : '0',
+                'content-type' : 'application/json; charset=utf-8',
+                'x-upload-content-type' : 'foobar',
+              }..addAll(stream ? {} : {
+                'x-upload-content-length' : '$totalLength',
+              }),
+              'response' : emptyResponse(
+                  200,
+                  new HeadersImpl({'location' : ['http://upload.com/'],}),
+                  '')
+            });
+
+            var lastEnd = 0;
+            for (int i = 0; i < numberOfChunks; i++) {
+              bool isLast = i == (numberOfChunks - 1);
+              var lengthMarker = stream && !isLast ? '*' : '$totalLength';
+
+              int bytesToExpect = chunkSize;
+              if (isLast) {
+                bytesToExpect = numberOfBytesInLastChunk;
+              }
+
+              var start = i * chunkSize;
+              var end = start + bytesToExpect;
+              var sublist = bytes.sublist(start, end);
+
+              var firstContentRange =
+                  'bytes $start-${end-1}/$lengthMarker';
+              var firstRange =
+                  'bytes=0-${end-1}';
+
+              expectations.add({
+                'url' : 'http://upload.com/',
+                'method' : 'PUT',
+                'data' : sublist,
+                'headers' : {
+                  'content-length' : '${sublist.length}',
+                  'content-range' : firstContentRange,
+                  'content-type' : 'foobar',
+                },
+                'response' : emptyResponse(
+                    isLast ? 200 : 308,
+                    new HeadersImpl(
+                        isLast ? {
+                          'content-type' : ['application/json; charset=utf-8'],
+                        } : {
+                          'range' : [firstRange],
+                        }),
+                    '')
+              });
+            }
+            return expectations;
+          }
+
+          List<List<int>> makeParts(List<int> bytes, List<int> splits) {
+            var parts = [];
+            int lastEnd = 0;
+            for (int i = 0; i < splits.length; i++) {
+              parts.add(bytes.sublist(lastEnd, splits[i]));
+              lastEnd = splits[i];
+            }
+            return parts;
+          }
+
+          runTest(int chunkSizeInBlocks, int length, List splits, bool stream) {
+            int chunkSize = chunkSizeInBlocks * 256 * 1024;
+
+            int i = 0;
+            var bytes = new List.filled(length, () => (i++) % 256);
+            var parts = makeParts(bytes, splits);
+
+            // Simulation of our server
+            var expectations = buildExpectations(bytes, chunkSize, false);
+            httpMock.register(
+                expectAsync(serverRequestValidator(expectations),
+                            count: expectations.length),
+                false);
+
+            // Our client
+            var media = mediaFromByteArrays(parts);
+            var resumable = new ResumableUploadOptions(chunkSize: chunkSize);
+            requester.request('abc',
+                              'POST',
+                              uploadMedia: media,
+                              uploadMediaPath: '/xyz',
+                              uploadOptions: resumable)
+                .then(expectAsync((response) {}));
+          }
+
+          test('length-small-block', () {
+            runTest(1, 10, [10], false);
+          });
+
+          test('length-small-block-parts', () {
+            runTest(1, 20, [1, 2, 3, 4, 5, 6, 7, 19, 20], false);
+          });
+
+          test('length-big-block', () {
+            runTest(1, 1024 * 1024, [1024*1024], false);
+          });
+
+          test('length-big-block-parts', () {
+            runTest(1, 1024 * 1024,
+                    [1,
+                     256*1024-1,
+                     256*1024,
+                     256*1024+1,
+                     1024*1024-1,
+                     1024*1024], false);
+          });
+
+          test('stream-small-block', () {
+            runTest(1, 10, [10], true);
+          });
+
+          test('stream-small-block-parts', () {
+            runTest(1, 20, [1, 2, 3, 4, 5, 6, 7, 19, 20], true);
+          });
+
+          test('stream-big-block', () {
+            runTest(1, 1024 * 1024, [1024*1024], true);
+          });
+
+          test('stream-big-block-parts', () {
+            runTest(1, 1024 * 1024,
+                    [1,
+                     256*1024-1,
+                     256*1024,
+                     256*1024+1,
+                     1024*1024-1,
+                     1024*1024], true);
+          });
+        });
+      });
+
       // Tests for error responses
       group('request-errors', () {
         makeTestError() {
@@ -1060,9 +1732,11 @@ main() {
           expect(requester.request('abc', 'GET'), throwsA(isApiRequestError));
         });
 
+        var options = DownloadOptions.FullMedia;
         test('media-http-client', () {
           makeTestError();
-          expect(requester.requestMedia('abc', 'GET'), throwsA(isTestError));
+          expect(requester.request('abc', 'GET', downloadOptions: options),
+                 throwsA(isTestError));
         });
 
         test('media-detailed-400', () {
@@ -1078,19 +1752,19 @@ main() {
 
         test('media-199', () {
           makeNormal199Error();
-          expect(requester.requestMedia('abc', 'GET'),
+          expect(requester.request('abc', 'GET', downloadOptions: options),
                  throwsA(isApiRequestError));
         });
 
         test('media-no-content-type', () {
           makeInvalidContentTypeError();
-          expect(requester.requestMedia('abc', 'GET'),
+          expect(requester.request('abc', 'GET', downloadOptions: options),
                  throwsA(isApiRequestError));
         });
 
         test('media-invalid-content-type', () {
           makeInvalidContentTypeError(contentType: 'foobar');
-          expect(requester.requestMedia('abc', 'GET'),
+          expect(requester.request('abc', 'GET', downloadOptions: options),
                  throwsA(isApiRequestError));
         });
       });
@@ -1137,6 +1811,5 @@ main() {
     });
   });
 }
-
 """;
 }
