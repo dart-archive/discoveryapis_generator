@@ -285,6 +285,15 @@ class UploadOptions {
  * Specifies options for resumable uploads.
  */
 class ResumableUploadOptions extends UploadOptions {
+  static final core.Function ExponentialBackoff = (core.int failedAttempts) {
+    // Do not retry more than 5 times.
+    if (failedAttempts > 5) return null;
+
+    // Wait for 2^(failedAttempts-1) seconds, before retrying.
+    // i.e. 1 second, 2 seconds, 4 seconds, ...
+    return new core.Duration(seconds: 1 << (failedAttempts - 1));
+  };
+
   /**
    * Maximum number of upload attempts per chunk.
    */
@@ -298,8 +307,17 @@ class ResumableUploadOptions extends UploadOptions {
    */
   final core.int chunkSize;
 
+  /**
+   * Function for determining the [core.Duration] to wait before making the
+   * next attempt. See [ExponentialBackoff] for an example.
+   */
+  final core.Function backoffFunction;
+
   ResumableUploadOptions({this.numberOfAttempts: 3,
-                          this.chunkSize: 1024 * 1024}) {
+                          this.chunkSize: 1024 * 1024,
+                          core.Function backoffFunction})
+      : backoffFunction = backoffFunction == null ?
+          ExponentialBackoff : backoffFunction {
     // See e.g. here:
     // https://developers.google.com/maps-engine/documentation/resumable-upload
     //
@@ -398,7 +416,6 @@ class DetailedApiRequestError extends ApiRequestError {
   core.String toString()
       => 'DetailedApiRequestError(status: $status, message: $message)';
 }
-
 """;
 
 
@@ -816,22 +833,32 @@ class ResumableUploadHelper {
         if (attemptsLeft > 0 &&
             (status == 500 || (502 <= status && status < 504))) {
           return response.read().drain().then((_) {
-            // TODO:
-            // We should implement an exponential backoff algorithm.
-            return tryUpload(attemptsLeft - 1);
+            // Delay the next attempt. Default backoff function is exponential.
+            int failedAttemts = _options.numberOfAttempts - attemptsLeft;
+            var duration = _options.backoffFunction(failedAttemts);
+            if (duration == null) {
+              throw new common_external.DetailedApiRequestError(
+                  status,
+                  'Resumable upload: Uploading a chunk resulted in status '
+                  '$status. Maximum number of retries reached.');
+            }
+
+            return new Future.delayed(duration).then((_) {
+              return tryUpload(attemptsLeft - 1);
+            });
           });
         } else if (!lastChunk && status != 308) {
             return response.read().drain().then((_) {
               throw new common_external.DetailedApiRequestError(
                   status,
-                  'Resumable upload: Uploading a chunk resulted in '
+                  'Resumable upload: Uploading a chunk resulted in status '
                   '$status instead of 308.');
             });
         } else if (lastChunk && status != 201 && status != 200) {
           return response.read().drain().then((_) {
             throw new common_external.DetailedApiRequestError(
                 status,
-                'Resumable upload: Uploading a chunk resulted in '
+                'Resumable upload: Uploading a chunk resulted in status '
                 '$status instead of 200 or 201.');
           });
         } else {
@@ -1088,7 +1115,6 @@ Map mapMap(Map source, [Object convert(Object source) = null]) {
   });
   return result;
 }
-
 """;
 
 
@@ -1679,6 +1705,15 @@ main() {
             }
           }
 
+          Function backoffWrapper(int callCount) {
+            return expectAsync((int failedAttempts) {
+              var exp = ResumableUploadOptions.ExponentialBackoff;
+              Duration duration = exp(failedAttempts);
+              expect(duration.inSeconds, equals(1 << (failedAttempts - 1)));
+              return const Duration(milliseconds: 1);
+            }, count: callCount);
+          }
+
           test('length-small-block', () {
             runTest(1, 10, [10], false);
           });
@@ -1724,8 +1759,10 @@ main() {
           });
 
           test('stream-big-block-parts--with-server-error-recovery', () {
+            var numFailedAttempts = 4 * 3;
             var options = new ResumableUploadOptions(
-                chunkSize: 256 * 1024, numberOfAttempts: 4);
+                chunkSize: 256 * 1024, numberOfAttempts: 4,
+                backoffFunction: backoffWrapper(numFailedAttempts));
             runTest(1, 1024 * 1024,
                     [1,
                      256*1024-1,
@@ -1739,8 +1776,10 @@ main() {
           });
 
           test('stream-big-block-parts--server-error', () {
+            var numFailedAttempts = 2;
             var options = new ResumableUploadOptions(
-                chunkSize: 256 * 1024, numberOfAttempts: 3);
+                chunkSize: 256 * 1024, numberOfAttempts: 3,
+                backoffFunction: backoffWrapper(numFailedAttempts));
             runTest(1, 1024 * 1024,
                     [1,
                      256*1024-1,
