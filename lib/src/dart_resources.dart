@@ -135,12 +135,54 @@ class DartResourceMethod {
     commentBuilder.writeln(comment.rawComment);
     commentBuilder.writeln();
 
+    if (requestParameter != null) {
+      commentBuilder.writeln('[${requestParameter.name.name}] - '
+                             '${requestParameter.comment.rawComment}\n');
+    }
+
+    commentBuilder.writeln('Request parameters:\n');
+
     parameters.forEach((p) {
       commentBuilder.writeln('[${p.name}] - ${p.comment.rawComment}\n');
     });
     namedParameters.forEach((p) {
       commentBuilder.writeln('[${p.name}] - ${p.comment.rawComment}\n');
     });
+
+    if (mediaUpload) {
+      commentBuilder.writeln('[uploadMedia] - The media to upload.\n');
+      commentBuilder.writeln('[uploadOptions] - Options for the media upload. '
+                             'Streaming Media without the length being known '
+                             'ahead of time is only supported via resumable '
+                             'uploads.\n');
+    }
+
+    if (mediaDownload) {
+      commentBuilder.writeln('[downloadOptions] - Options for downloading. '
+                             'A download can be either a Metadata (default) '
+                             'or Media download. Partial Media downloads '
+                             'are possible as well.\n');
+    }
+
+    if (returnType != null) {
+      if (mediaDownload) {
+        commentBuilder.writeln('Completes with a\n');
+        commentBuilder.writeln('- [${returnType.declaration}] for Metadata '
+                               'downloads (see [downloadOptions]).\n');
+        commentBuilder.writeln('- [${imports.external}.Media] for Media '
+                               'downloads (see [downloadOptions]).\n');
+      } else {
+        commentBuilder.writeln(
+            'Completes with a [${returnType.declaration}].\n');
+      }
+    }
+    commentBuilder.writeln('Completes with a '
+                           '[${imports.external}.ApiRequestError] '
+                           'if the API endpoint returned an error.\n');
+    commentBuilder.writeln('If the used [${imports.httpBase}.Client] completes '
+                           'with an error when making a REST call, this method '
+                           'will complete with the same error.\n');
+
     var methodComment = new Comment('$commentBuilder');
 
     if (requestParameter != null) {
@@ -483,7 +525,7 @@ DartApiClass parseResources(DartApiImports imports,
         var type = getValidReference(method.request.$ref);
         // FIXME: Is `required: true` really the right thing?
         var requestName = parameterScope.newIdentifier('request');
-        var comment = new Comment('Request object');
+        var comment = new Comment('The metadata request object.');
         dartRequestParameter =
             new MethodParameter(requestName, comment, true, type, null, null);
       }
