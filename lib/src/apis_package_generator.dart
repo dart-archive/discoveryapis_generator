@@ -390,14 +390,13 @@ class ApiRequestError extends core.Error {
 /**
  * Represents a specific error reported by the API endpoint.
  */
-class DetailedApiRequestError extends core.Error {
+class DetailedApiRequestError extends ApiRequestError {
   final core.int status;
-  final core.String message;
 
-  DetailedApiRequestError(this.status, this.message);
+  DetailedApiRequestError(this.status, core.String message) : super(message);
 
   core.String toString()
-      => 'DetailedApiRequestError(code: $status, message: $message)';
+      => 'DetailedApiRequestError(status: $status, message: $message)';
 }
 
 """;
@@ -486,7 +485,7 @@ class ApiRequester {
    * decoded as JSON.
    *
    * [downloadOptions] must never be null.
-   * 
+   *
    * Otherwise the result will be downloaded as a [common_external.Media]
    */
   Future request(String requestUrl, String method,
@@ -719,7 +718,7 @@ class ResumableUploadHelper {
           subscription.pause();
 
           Future<http_base.Response> upload(ResumableChunk chunk) {
-            return _uploadChunk(uploadUri, chunk).then((response) {
+            return _uploadChunkResumable(uploadUri, chunk).then((response) {
               return response.read().drain();
             });
           }
@@ -757,7 +756,7 @@ class ResumableUploadHelper {
 
           // Upload last chunk and *do not drain the response* but complete
           // with it.
-          _uploadChunk(uploadUri, chunkStack.last, lastChunk: true)
+          _uploadChunkResumable(uploadUri, chunkStack.last, lastChunk: true)
               .then((response) {
             completer.complete(response);
           }).catchError((error, stack) {
@@ -807,6 +806,43 @@ class ResumableUploadHelper {
     });
   }
 
+  Future _uploadChunkResumable(Uri uri,
+                               ResumableChunk chunk,
+                               {bool lastChunk: false}) {
+    tryUpload(int attemptsLeft) {
+      return _uploadChunk(uri, chunk, lastChunk: lastChunk)
+          .then((http_base.Response response) {
+        var status = response.status;
+        if (attemptsLeft > 0 &&
+            (status == 500 || (502 <= status && status < 504))) {
+          return response.read().drain().then((_) {
+            // TODO:
+            // We should implement an exponential backoff algorithm.
+            return tryUpload(attemptsLeft - 1);
+          });
+        } else if (!lastChunk && status != 308) {
+            return response.read().drain().then((_) {
+              throw new common_external.DetailedApiRequestError(
+                  status,
+                  'Resumable upload: Uploading a chunk resulted in '
+                  '$status instead of 308.');
+            });
+        } else if (lastChunk && status != 201 && status != 200) {
+          return response.read().drain().then((_) {
+            throw new common_external.DetailedApiRequestError(
+                status,
+                'Resumable upload: Uploading a chunk resulted in '
+                '$status instead of 200 or 201.');
+          });
+        } else {
+          return response;
+        }
+      });
+    }
+
+    return tryUpload(_options.numberOfAttempts - 1);
+  }
+
   /**
    * Uploads [length] bytes in [byteArrays] and ensures the upload was
    * successful.
@@ -836,20 +872,7 @@ class ResumableUploadHelper {
 
     var stream = _listOfBytes2Stream(chunk.byteArrays);
     var request = new RequestImpl('PUT', uri, headers, stream);
-    return _httpClient(request).then((http_base.Response response) {
-      if (!lastChunk && response.status != 308) {
-        throw new common_external.ApiRequestError(
-            'Resumable upload: Uploading a chunk resulted in '
-            '${response.status} instead of 308.');
-      } else if (lastChunk &&
-                 response.status != 201 &&
-                 response.status != 200) {
-        throw new common_external.ApiRequestError(
-            'Resumable upload: Uploading a chunk resulted in '
-            '${response.status} instead of 200 or 201.');
-      }
-      return response;
-    });
+    return _httpClient(request);
   }
 
   Stream<List<int>> _bytes2Stream(List<int> bytes) {
@@ -1065,6 +1088,7 @@ Map mapMap(Map source, [Object convert(Object source) = null]) {
   });
   return result;
 }
+
 """;
 
 
@@ -1458,17 +1482,19 @@ main() {
                            contentType: 'foobar');
         }
         validateServerRequest(e, http_base.Request request, List<int> data) {
-          var h = e['headers'];
-          var r = e['response'];
+          return new Future.sync(() {
+            var h = e['headers'];
+            var r = e['response'];
 
-          expect(request.url.toString(), equals(e['url']));
-          expect(request.method, equals(e['method']));
-          h.forEach((k, v) {
-            expect(request.headers[k], equals(v));
+            expect(request.url.toString(), equals(e['url']));
+            expect(request.method, equals(e['method']));
+            h.forEach((k, v) {
+              expect(request.headers[k], equals(v));
+            });
+
+            expect(data, equals(e['data']));
+            return r;
           });
-
-          expect(data, equals(e['data']));
-          return r;
         }
         serverRequestValidator(List expectations) {
           int i = 0;
@@ -1510,7 +1536,8 @@ main() {
 
         group('resumable-upload', () {
           // TODO: respect [stream]
-          buildExpectations(List<int> bytes, int chunkSize, bool stream) {
+          buildExpectations(List<int> bytes, int chunkSize, bool stream,
+              {int numberOfServerErrors: 0}) {
             int totalLength = bytes.length;
             int numberOfChunks = totalLength ~/ chunkSize;
             int numberOfBytesInLastChunk = totalLength % chunkSize;
@@ -1560,25 +1587,37 @@ main() {
               var firstRange =
                   'bytes=0-${end-1}';
 
-              expectations.add({
-                'url' : 'http://upload.com/',
-                'method' : 'PUT',
-                'data' : sublist,
-                'headers' : {
-                  'content-length' : '${sublist.length}',
-                  'content-range' : firstContentRange,
-                  'content-type' : 'foobar',
-                },
-                'response' : emptyResponse(
-                    isLast ? 200 : 308,
-                    new HeadersImpl(
-                        isLast ? {
-                          'content-type' : ['application/json; charset=utf-8'],
-                        } : {
-                          'range' : [firstRange],
-                        }),
-                    '')
-              });
+              // We issue [numberOfServerErrors] 503 errors first, and then a
+              // successfull response.
+              for (var j = 0; j < (numberOfServerErrors + 1); j++) {
+                bool successfullResponse = j == numberOfServerErrors;
+
+                var response;
+                if (successfullResponse) {
+                  var headers = new HeadersImpl(
+                      isLast ? {
+                        'content-type' : ['application/json; charset=utf-8'],
+                      } : {
+                        'range' : [firstRange],
+                      });
+                  response = emptyResponse(isLast ? 200 : 308, headers, '');
+                } else {
+                  var headers = new HeadersImpl({});
+                  response = emptyResponse(503, headers, '');
+                }
+
+                expectations.add({
+                  'url' : 'http://upload.com/',
+                  'method' : 'PUT',
+                  'data' : sublist,
+                  'headers' : {
+                    'content-length' : '${sublist.length}',
+                    'content-range' : firstContentRange,
+                    'content-type' : 'foobar',
+                  },
+                  'response' : response,
+                });
+              }
             }
             return expectations;
           }
@@ -1593,7 +1632,9 @@ main() {
             return parts;
           }
 
-          runTest(int chunkSizeInBlocks, int length, List splits, bool stream) {
+          runTest(int chunkSizeInBlocks, int length, List splits, bool stream,
+                  {int numberOfServerErrors: 0, resumableOptions,
+                   int expectedErrorStatus, int messagesNrOfFailure}) {
             int chunkSize = chunkSizeInBlocks * 256 * 1024;
 
             int i = 0;
@@ -1601,7 +1642,17 @@ main() {
             var parts = makeParts(bytes, splits);
 
             // Simulation of our server
-            var expectations = buildExpectations(bytes, chunkSize, false);
+            var expectations = buildExpectations(
+                bytes, chunkSize, false,
+                numberOfServerErrors: numberOfServerErrors);
+            // If the server simulates 50X errors and the client resumes only
+            // a limited amount of time, we'll trunkate the number of requests
+            // the server expects.
+            // [The client will give up and if the server expects more, the test
+            //  would timeout.]
+            if (expectedErrorStatus != null) {
+              expectations = expectations.sublist(0, messagesNrOfFailure);
+            }
             httpMock.register(
                 expectAsync(serverRequestValidator(expectations),
                             count: expectations.length),
@@ -1609,13 +1660,23 @@ main() {
 
             // Our client
             var media = mediaFromByteArrays(parts);
-            var resumable = new ResumableUploadOptions(chunkSize: chunkSize);
-            requester.request('abc',
-                              'POST',
-                              uploadMedia: media,
-                              uploadMediaPath: '/xyz',
-                              uploadOptions: resumable)
-                .then(expectAsync((response) {}));
+            if (resumableOptions == null) {
+              resumableOptions =
+                  new ResumableUploadOptions(chunkSize: chunkSize);
+            }
+            var result = requester.request('abc',
+                                           'POST',
+                                           uploadMedia: media,
+                                           uploadMediaPath: '/xyz',
+                                           uploadOptions: resumableOptions);
+            if (expectedErrorStatus != null) {
+              result.catchError(expectAsync((error) {
+                expect(error is DetailedApiRequestError, isTrue);
+                expect(error.status, equals(expectedErrorStatus));
+              }));
+            } else {
+              result.then(expectAsync((_) {}));
+            }
           }
 
           test('length-small-block', () {
@@ -1660,6 +1721,38 @@ main() {
                      256*1024+1,
                      1024*1024-1,
                      1024*1024], true);
+          });
+
+          test('stream-big-block-parts--with-server-error-recovery', () {
+            var options = new ResumableUploadOptions(
+                chunkSize: 256 * 1024, numberOfAttempts: 4);
+            runTest(1, 1024 * 1024,
+                    [1,
+                     256*1024-1,
+                     256*1024,
+                     256*1024+1,
+                     1024*1024-1,
+                     1024*1024],
+                     true,
+                     numberOfServerErrors: 3,
+                     resumableOptions: options);
+          });
+
+          test('stream-big-block-parts--server-error', () {
+            var options = new ResumableUploadOptions(
+                chunkSize: 256 * 1024, numberOfAttempts: 3);
+            runTest(1, 1024 * 1024,
+                    [1,
+                     256*1024-1,
+                     256*1024,
+                     256*1024+1,
+                     1024*1024-1,
+                     1024*1024],
+                     true,
+                     numberOfServerErrors: 3,
+                     resumableOptions: options,
+                     expectedErrorStatus: 503,
+                     messagesNrOfFailure: 4);
           });
         });
       });
