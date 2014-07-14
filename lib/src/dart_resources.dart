@@ -476,6 +476,21 @@ DartApiClass parseResources(DartApiImports imports,
             parameter.location != 'query'));
       }
 
+      Comment parameterComment(JsonSchema parameter) {
+        var sb = new StringBuffer();
+        sb.write(parameter.description);
+
+        var min = parameter.minimum;
+        var max = parameter.maximum;
+        if (min != null && max != null) {
+          sb.write('\nValue must be between "$min" and "$max".');
+        }
+        if (parameter.pattern != null) {
+          sb.write('\nValue must have pattern "${parameter.pattern}".');
+        }
+        return new Comment('$sb');
+      }
+
       DartSchemaType getValidReference(String ref) {
         var type = db.namedSchemaTypes[ref];
         if (type == null) {
@@ -495,7 +510,7 @@ DartApiClass parseResources(DartApiImports imports,
                 description.version,
                 'Parameters for method $jsonName does not have a type!');
           }
-          var comment = new Comment(method.parameters[jsonName].description);
+          var comment = parameterComment(method.parameters[jsonName]);
 
           tryEnqueuePositionalParameter(
               jsonName, comment, method.parameters[jsonName]);
@@ -506,7 +521,7 @@ DartApiClass parseResources(DartApiImports imports,
       // we append them at the end.
       if (method.parameters != null) {
         method.parameters.forEach((String jsonName, JsonSchema parameter) {
-          var comment = new Comment(parameter.description);
+          var comment = parameterComment(parameter);
           tryEnqueuePositionalParameter(
               jsonName, comment, method.parameters[jsonName]);
         });
@@ -514,7 +529,7 @@ DartApiClass parseResources(DartApiImports imports,
 
       // The remaining parameters are optional.
       for (var jsonName in pendingParameterNames) {
-        var comment = new Comment(method.parameters[jsonName].description);
+        var comment = parameterComment(method.parameters[jsonName]);
         enqueueOptionalParameter(
             jsonName, comment, method.parameters[jsonName]);
       }
