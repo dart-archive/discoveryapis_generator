@@ -386,6 +386,9 @@ class ByteRange {
   /** Last byte of media (inclusive) */
   final core.int end;
 
+  /** Length of this range (i.e. number of bytes) */
+  core.int get length => end - start + 1;
+
   ByteRange(this.start, this.end) {
     if (!(start == 0  && end == -1 || start >= 0 && end > start)) {
       throw new core.ArgumentError('Invalid media range [$start, $end]');
@@ -510,17 +513,24 @@ class ApiRequester {
                  common_external.Media uploadMedia,
                  common_external.UploadOptions uploadOptions,
                  common_external.DownloadOptions downloadOptions:
-                     common_external.DownloadOptions.Metadata,
+                 common_external.DownloadOptions.Metadata,
                  String uploadMediaPath}) {
     if (uploadMedia != null &&
         downloadOptions != common_external.DownloadOptions.Metadata) {
       throw new ArgumentError('When uploading a [Media] you cannot download a '
                               '[Media] at the same time!');
     }
+    common_external.ByteRange downloadRange;
+    if (downloadOptions is common_external.PartialDownloadOptions &&
+        !downloadOptions.isFullDownload) {
+      downloadRange = downloadOptions.range;
+    }
+
     return _request(requestUrl, method, body, urlParams, queryParams,
                     uploadMedia, uploadOptions,
                     downloadOptions,
-                    uploadMediaPath)
+                    uploadMediaPath,
+                    downloadRange)
         .then(_validateResponse).then((http_base.Response response) {
       if (downloadOptions == common_external.DownloadOptions.Metadata) {
         // Downloading JSON Metadata
@@ -549,6 +559,22 @@ class ApiRequester {
           throw new common_external.ApiRequestError(
               "No or invalid 'content-length' header in media response.");
         }
+
+        if (downloadRange != null) {
+          if (contentLength != downloadRange.length) {
+            throw new common_external.ApiRequestError(
+                "Content length of response does not match requested range "
+                "length.");
+          }
+          var contentRange = response.headers['content-range'];
+          var expected = 'bytes ${downloadRange.start}-${downloadRange.end}/';
+          if (contentRange == null || !contentRange.startsWith(expected)) {
+            throw new common_external.ApiRequestError("Attempting partial "
+                "download but got invalid 'Content-Range' header "
+                "(was: $contentRange, expected: $expected).");
+          }
+        }
+
         return new common_external.Media(
             response.read(), contentLength, contentType: contentType);
       }
@@ -561,7 +587,8 @@ class ApiRequester {
                   common_external.Media uploadMedia,
                   common_external.UploadOptions uploadOptions,
                   common_external.DownloadOptions downloadOptions,
-                  String uploadMediaPath) {
+                  String uploadMediaPath,
+                  common_external.ByteRange downloadRange) {
     bool downloadAsMedia =
         downloadOptions != common_external.DownloadOptions.Metadata;
 
@@ -581,22 +608,22 @@ class ApiRequester {
       var url = new UrlPattern(path).generate(urlParams, queryParams);
       var uri = Uri.parse(url);
       if (uploadMedia != null || downloadAsMedia) {
-        if (uri.query.isEmpty) {
-          url = '$url?';
-        }
-
+        var prefix = uri.query.isEmpty ? '?' : '&';
         if (uploadMedia != null) {
           if (uploadOptions is common_external.ResumableUploadOptions) {
-            url = '${url}&uploadType=resumable';
+            url = '${url}${prefix}uploadType=resumable';
+            prefix = '&';
           } else if (body == null) {
-            url = '${url}&uploadType=media';
+            url = '${url}${prefix}uploadType=media';
+            prefix = '&';
           } else {
-            url = '${url}&uploadType=multipart';
+            url = '${url}${prefix}uploadType=multipart';
+            prefix = '&';
           }
         }
 
         if (downloadAsMedia) {
-          url = '${url}&alt=media';
+          url = '${url}${prefix}alt=media';
         }
 
         uri = Uri.parse(url);
@@ -656,10 +683,22 @@ class ApiRequester {
       }
       bodyController.close();
 
-      var headers = new HeadersImpl({
+      var headers;
+      if (downloadRange != null) {
+        headers = new HeadersImpl({
           'content-type' : [CONTENT_TYPE_UTF8],
           'content-length' : ['$length'],
-      });
+          'range' : [
+              'bytes=${downloadRange.start}-${downloadRange.end}',
+          ],
+        });
+      } else {
+        headers = new HeadersImpl({
+          'content-type' : [CONTENT_TYPE_UTF8],
+          'content-length' : ['$length'],
+        });
+      }
+
       return _httpClient(
           new RequestImpl(method, uri, headers, bodyController.stream));
     }
@@ -1160,13 +1199,22 @@ class HttpServerMock {
   }
 }
 
-http_base.Response emptyResponse(int status,
-                                 http_base.Headers headers,
-                                 String body) {
+http_base.Response stringResponse(int status,
+                                  http_base.Headers headers,
+                                  String body) {
   if (headers == null) {
     headers = new HeadersImpl({});
   }
   return new ResponseImpl(status, headers, byteStream(body));
+}
+
+http_base.Response binaryResponse(int status,
+                                 http_base.Headers headers,
+                                 List<int> bytes) {
+  if (headers == null) {
+    headers = new HeadersImpl({});
+  }
+  return new ResponseImpl(status, headers, new Stream.fromIterable([bytes]));
 }
 
 Stream<List<int>> byteStream(String s) {
@@ -1437,56 +1485,148 @@ main() {
 
       // Tests for Request, Response
 
-      test('empty-request-empty-response', () {
-        httpMock.register(expectAsync((http_base.Request request, json) {
-          expect(request.method, equals('GET'));
-          expect('${request.url}', equals('http://example.com/base/abc'));
-          return emptyResponse(200, responseHeaders, '');
-        }), true);
-        requester.request('abc', 'GET').then(expectAsync((response) {
-          expect(response, isNull);
-        }));
+      group('metadata-request-response', () {
+        test('empty-request-empty-response', () {
+          httpMock.register(expectAsync((http_base.Request request, json) {
+            expect(request.method, equals('GET'));
+            expect('${request.url}', equals('http://example.com/base/abc'));
+            return stringResponse(200, responseHeaders, '');
+          }), true);
+          requester.request('abc', 'GET').then(expectAsync((response) {
+            expect(response, isNull);
+          }));
+        });
+
+        test('json-map-request-json-map-response', () {
+          httpMock.register(expectAsync((http_base.Request request, json) {
+            expect(request.method, equals('GET'));
+            expect('${request.url}', equals('http://example.com/base/abc'));
+            expect(json is Map, isTrue);
+            expect(json, hasLength(1));
+            expect(json['foo'], equals('bar'));
+            return stringResponse(200, responseHeaders, '{"foo2" : "bar2"}');
+          }), true);
+          requester.request('abc',
+                            'GET',
+                            body: JSON.encode({'foo' : 'bar'})).then(
+              expectAsync((response) {
+            expect(response is Map, isTrue);
+            expect(response, hasLength(1));
+            expect(response['foo2'], equals('bar2'));
+          }));
+        });
+
+        test('json-list-request-json-list-response', () {
+          httpMock.register(expectAsync((http_base.Request request, json) {
+            expect(request.method, equals('GET'));
+            expect('${request.url}', equals('http://example.com/base/abc'));
+            expect(json is List, isTrue);
+            expect(json, hasLength(2));
+            expect(json[0], equals('a'));
+            expect(json[1], equals(1));
+            return stringResponse(200, responseHeaders, '["b", 2]');
+          }), true);
+          requester.request('abc',
+                            'GET',
+                            body: JSON.encode(['a', 1])).then(
+              expectAsync((response) {
+            expect(response is List, isTrue);
+            expect(response[0], equals('b'));
+            expect(response[1], equals(2));
+          }));
+        });
       });
 
-      test('json-map-request-json-map-response', () {
-        httpMock.register(expectAsync((http_base.Request request, json) {
-          expect(request.method, equals('GET'));
-          expect('${request.url}', equals('http://example.com/base/abc'));
-          expect(json is Map, isTrue);
-          expect(json, hasLength(1));
-          expect(json['foo'], equals('bar'));
-          return emptyResponse(200, responseHeaders, '{"foo2" : "bar2"}');
-        }), true);
-        requester.request('abc',
-                          'GET',
-                          body: JSON.encode({'foo' : 'bar'})).then(
-            expectAsync((response) {
-          expect(response is Map, isTrue);
-          expect(response, hasLength(1));
-          expect(response['foo2'], equals('bar2'));
-        }));
-      });
+      group('media-download', () {
+        test('media-download', () {
+          var data256 = new List.generate(256, (i) => i);
+          httpMock.register(expectAsync((http_base.Request request, data) {
+            expect(request.method, equals('GET'));
+            expect('${request.url}',
+                   equals('http://example.com/base/abc?alt=media'));
+            expect(data, isEmpty);
+            var headers = new HeadersImpl({
+                'content-length' : ['${data256.length}'],
+                'content-type' : ['foobar'],
+            });
+            return binaryResponse(200, headers, data256);
+          }), false);
+          requester.request('abc',
+                            'GET',
+                            body: '',
+                            downloadOptions: DownloadOptions.FullMedia).then(
+              expectAsync((Media media) {
+            expect(media.contentType, equals('foobar'));
+            expect(media.length, equals(data256.length));
+            media.stream.fold([], (b, d) => b..addAll(d)).then(expectAsync((d) {
+              expect(d, equals(data256));
+            }));
+          }));
+        });
 
-      test('json-list-request-json-list-response', () {
-        httpMock.register(expectAsync((http_base.Request request, json) {
-          expect(request.method, equals('GET'));
-          expect('${request.url}', equals('http://example.com/base/abc'));
-          expect(json is List, isTrue);
-          expect(json, hasLength(2));
-          expect(json[0], equals('a'));
-          expect(json[1], equals(1));
-          return emptyResponse(200, responseHeaders, '["b", 2]');
-        }), true);
-        requester.request('abc',
-                          'GET',
-                          body: JSON.encode(['a', 1])).then(
-            expectAsync((response) {
-          expect(response is List, isTrue);
-          expect(response[0], equals('b'));
-          expect(response[1], equals(2));
-        }));
-      });
+        test('media-download-partial', () {
+          var data256 = new List.generate(256, (i) => i);
+          var data64 = data256.sublist(128, 128 + 64);
 
+          httpMock.register(expectAsync((http_base.Request request, data) {
+            expect(request.method, equals('GET'));
+            expect('${request.url}',
+                   equals('http://example.com/base/abc?alt=media'));
+            expect(data, isEmpty);
+            expect(request.headers['range'],
+                   equals('bytes=128-191'));
+            var headers = new HeadersImpl({
+                'content-length' : ['${data64.length}'],
+                'content-type' : ['foobar'],
+                'content-range' : ['bytes 128-191/256'],
+            });
+            return binaryResponse(200, headers, data64);
+          }), false);
+          var range = new ByteRange(128, 128 + 64 - 1);
+          var options = new PartialDownloadOptions(range);
+          requester.request('abc',
+                            'GET',
+                            body: '',
+                            downloadOptions: options).then(
+              expectAsync((Media media) {
+            expect(media.contentType, equals('foobar'));
+            expect(media.length, equals(data64.length));
+            media.stream.fold([], (b, d) => b..addAll(d)).then(expectAsync((d) {
+              expect(d, equals(data64));
+            }));
+          }));
+        });
+
+        test('json-upload-media-download', () {
+          var data256 = new List.generate(256, (i) => i);
+          httpMock.register(expectAsync((http_base.Request request, json) {
+            expect(request.method, equals('GET'));
+            expect('${request.url}',
+                    equals('http://example.com/base/abc?alt=media'));
+            expect(json is List, isTrue);
+            expect(json, hasLength(2));
+            expect(json[0], equals('a'));
+            expect(json[1], equals(1));
+
+            var headers = new HeadersImpl({
+                'content-length' : ['${data256.length}'],
+                'content-type' : ['foobar'],
+            });
+            return binaryResponse(200, headers, data256);
+          }), true);
+          requester.request('abc',
+                            'GET',
+                            body: JSON.encode(['a', 1]),
+                            downloadOptions: DownloadOptions.FullMedia).then(
+              expectAsync((Media media) {
+            expect(media.contentType, equals('foobar'));
+            expect(media.length, equals(data256.length));
+            media.stream.fold([], (b, d) => b..addAll(d)).then(expectAsync((d) {
+              expect(d, equals(data256));
+            }));
+          }));
+        });
+      });
 
       // Tests for media uploads
 
@@ -1530,19 +1670,18 @@ main() {
         }
 
         test('simple', () {
-          int i = 0;
           var bytes =
-              new List.filled(10 * 256 * 1024 + 1, () => (i++) % 256);
+              new List.generate(10 * 256 * 1024 + 1, (i) => i % 256);
           var expectations = [
               {
-                'url' : 'http://example.com/xyz?&uploadType=media',
+                'url' : 'http://example.com/xyz?uploadType=media',
                 'method' : 'POST',
                 'data' : bytes,
                 'headers' : {
                   'content-length' : '${bytes.length}',
                   'content-type' : 'foobar',
                 },
-                'response' : emptyResponse(200, responseHeaders, '')
+                'response' : stringResponse(200, responseHeaders, '')
               },
           ];
 
@@ -1578,7 +1717,7 @@ main() {
 
             // First request is making a POST and gets the upload URL.
             expectations.add({
-              'url' : 'http://example.com/xyz?&uploadType=resumable',
+              'url' : 'http://example.com/xyz?uploadType=resumable',
               'method' : 'POST',
               'data' : [],
               'headers' : {
@@ -1588,7 +1727,7 @@ main() {
               }..addAll(stream ? {} : {
                 'x-upload-content-length' : '$totalLength',
               }),
-              'response' : emptyResponse(
+              'response' : stringResponse(
                   200,
                   new HeadersImpl({'location' : ['http://upload.com/'],}),
                   '')
@@ -1626,10 +1765,10 @@ main() {
                       } : {
                         'range' : [firstRange],
                       });
-                  response = emptyResponse(isLast ? 200 : 308, headers, '');
+                  response = stringResponse(isLast ? 200 : 308, headers, '');
                 } else {
                   var headers = new HeadersImpl({});
-                  response = emptyResponse(503, headers, '');
+                  response = stringResponse(503, headers, '');
                 }
 
                 expectations.add({
@@ -1664,7 +1803,7 @@ main() {
             int chunkSize = chunkSizeInBlocks * 256 * 1024;
 
             int i = 0;
-            var bytes = new List.filled(length, () => (i++) % 256);
+            var bytes = new List.generate(length, (i) => i % 256);
             var parts = makeParts(bytes, splits);
 
             // Simulation of our server
@@ -1808,7 +1947,7 @@ main() {
 
         makeDetailed400Error() {
           httpMock.register(expectAsync((http_base.Request request, string) {
-            return emptyResponse(400,
+            return stringResponse(400,
                                  responseHeaders,
                                  '{"error" : {"code" : 42, "message": "foo"}}');
           }), false);
@@ -1816,7 +1955,7 @@ main() {
 
         makeNormal199Error() {
           httpMock.register(expectAsync((http_base.Request request, string) {
-            return emptyResponse(200, null, '');
+            return stringResponse(200, null, '');
           }), false);
         }
 
@@ -1828,7 +1967,7 @@ main() {
                 'content-type' : [contentType],
               });
             }
-            return emptyResponse(200, null, '');
+            return stringResponse(200, null, '');
           }), false);
         }
 
@@ -1913,7 +2052,7 @@ main() {
           expect(request.method, equals('GET'));
           expect('${request.url}',
                  equals('http://example.com/base/abc?a=a1&a=a2&s=s1'));
-          return emptyResponse(200, responseHeaders, '');
+          return stringResponse(200, responseHeaders, '');
         }), true);
         requester.request('abc', 'GET', queryParams: queryParams)
             .then(expectAsync((response) {
@@ -1930,7 +2069,7 @@ main() {
           expect(request.method, equals('GET'));
           expect('${request.url}',
                  equals('http://example.com/base/s/foo/a1/a2/bar/s1/e'));
-          return emptyResponse(200, responseHeaders, '');
+          return stringResponse(200, responseHeaders, '');
         }), true);
         requester.request('s/foo{/a*}/bar/{s}/e', 'GET', urlParams: pathParams)
             .then(expectAsync((response) {
