@@ -284,7 +284,7 @@ class DartResourceMethod {
     } else {
       requestCode.write(
 '''
-    return _response;
+    return _response.then((data) => $plainResponse);
 '''
       );
     }

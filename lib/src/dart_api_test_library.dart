@@ -9,17 +9,38 @@ class DartApiTestLibrary extends TestHelper {
   final String apiImportPath;
 
   final Map<DartSchemaType, SchemaTest> schemaTests = {};
+  final List<ResourceTest> resourceTests = [];
+  final Map<ResourceTest, ResourceTest> parentResourceTests = {};
 
   /**
    * Generates a API test library for [apiLibrary].
    */
   DartApiTestLibrary.build(this.apiLibrary, this.apiImportPath) {
-    // Do all the work.
-
     handleType(DartSchemaType schema) {
-      schemaTests[schema] = testFromSchema(this, schema);
+      schemaTests.putIfAbsent(schema, () => testFromSchema(this, schema));
     }
 
+    traverseResource(DartResourceClass resource, parent, nameInParent) {
+      // Method parameters might have more types we need to register
+      // (e.g. List<String>):
+      for (var method in resource.methods) {
+        method.parameters.forEach((p) => handleType(p.type));
+        method.namedParameters.forEach((p) => handleType(p.type));
+      }
+
+      // Register resource tests.
+      var test = new ResourceTest(this, resource, parent, nameInParent);
+      if (resource.methods.length > 0) {
+        resourceTests.add(test);
+      }
+      for (int i = 0; i < resource.subResources.length; i++) {
+        var subResource = resource.subResources[i];
+        var subResourceName = resource.subResourceIdentifiers[i];
+        traverseResource(subResource, test, subResourceName);
+      }
+    }
+
+    // Build up [schemaTests] and [resourceTests].
     var db = apiLibrary.schemaDB;
     handleType(db.integerType);
     handleType(db.numberType);
@@ -27,9 +48,10 @@ class DartApiTestLibrary extends TestHelper {
     handleType(db.booleanType);
     handleType(db.stringType);
     handleType(db.anyType);
-    // TODO: Any type missing.
 
     apiLibrary.schemaDB.dartTypes.forEach(handleType);
+
+    traverseResource(apiLibrary.apiClass, null, null);
   }
 
   String get librarySource {
@@ -49,6 +71,7 @@ class DartApiTestLibrary extends TestHelper {
       schemaTests.forEach((DartSchemaType schema, SchemaTest test) {
         sink.write(test.schemaTest);
       });
+      resourceTests.forEach((test) => sink.write(test.resourceTest));
     });
 
     return '$sink';
@@ -67,11 +90,118 @@ import "dart:convert" as convert;
 import 'package:http_base/http_base.dart' as http_base;
 import 'package:unittest/unittest.dart' as unittest;
 import 'package:googleapis/common/common.dart' as common;
+import 'package:googleapis/src/common_internal.dart' as common_internal;
+import '../common/common_internal_test.dart' as common_test;
 
 import '$apiImportPath' as api;
 
 
 """;
+  }
+}
+
+/**
+ * Will generate tests for [resource] of [apiLibrary].
+ */
+class ResourceTest extends TestHelper {
+  final DartApiTestLibrary apiTestLibrary;
+  final DartResourceClass resource;
+  DartApiLibrary apiLibrary;
+  final ResourceTest parent;
+  final Identifier nameInParent;
+
+  ResourceTest(
+      this.apiTestLibrary, this.resource, this.parent, this.nameInParent) {
+    apiLibrary = apiTestLibrary.apiLibrary;
+  }
+
+  String apiConstruction(String clientName) {
+    if (parent == null) {
+      return 'new api.${resource.className.name}($clientName)';
+    } else {
+      return '${parent.apiConstruction(clientName)}.${nameInParent.name}';
+    }
+  }
+
+  String get resourceTest {
+    var sb = new StringBuffer();
+
+    var db = apiLibrary.schemaDB;
+    withTestGroup(2, sb, 'resource-${resource.className}', () {
+      for (var method in resource.methods) {
+        withTest(4, sb, 'method--${method.name.name}', () {
+          sb.writeln('      // TODO: Implement tests for media upload;');
+          sb.writeln('      // TODO: Implement tests for media download;');
+          sb.writeln();
+
+          // Method building.
+          sb.writeln('      var mock = new common_test.HttpServerMock();');
+          sb.writeln('      mock.register(unittest.expectAsync('
+                     '(http_base.Request req, json) {');
+          if (method.requestParameter != null) {
+            var t = apiTestLibrary.schemaTests[method.requestParameter.type];
+            var name = method.requestParameter.type.className;
+            sb.writeln('        var obj = new api.${name}.fromJson(json);');
+            sb.writeln('        ${t.checkSchemaStatement('obj')}');
+            sb.writeln();
+          }
+
+          sb.writeln('        // TODO: Validate [req.uri].');
+          sb.writeln();
+          sb.writeln('        var h = new common_internal.HeadersImpl({');
+          sb.writeln('          '
+                     '"content-type" : ["application/json; charset=utf-8"],');
+          sb.writeln('        });');
+          if (method.returnType == null) {
+            sb.writeln('        var resp = "";');
+          } else {
+            var t = apiTestLibrary.schemaTests[method.returnType];
+            sb.writeln('        var resp = '
+                       'convert.JSON.encode(${t.newSchemaExpr});');
+          }
+          sb.writeln('        return new async.Future.value('
+                     'common_test.stringResponse(200, h, resp));');
+          sb.writeln('      }), true);');
+
+          // Method argument building
+          sb.writeln('      api.${resource.className} res = '
+                     '${apiConstruction('mock')};');
+
+          var args = [];
+          void newParameter(MethodParameter p) {
+            var schemaTest = apiTestLibrary.schemaTests[p.type];
+            var name = 'arg_${p.name}';
+            sb.writeln('      var $name = ${schemaTest.newSchemaExpr};');
+            if (p.required) {
+              args.add(name);
+            } else {
+              args.add('${p.name}: $name');
+            }
+          }
+
+          if (method.requestParameter != null) {
+            newParameter(method.requestParameter);
+          }
+          method.parameters.forEach(newParameter);
+          method.namedParameters.forEach(newParameter);
+
+          // Method call
+          sb.write('      res.${method.name}(${args.join(', ')})'
+                   '.then(unittest.expectAsync(');
+          if (method.returnType == null) {
+            sb.write('(_) {}');
+          } else {
+            var t = apiTestLibrary.schemaTests[method.returnType];
+            sb.writeln('((api.${method.returnType.className} response) {');
+            sb.writeln('        ${t.checkSchemaStatement('response')}');
+            sb.write('      })');
+          }
+          sb.writeln('));');
+        });
+        sb.writeln();
+      }
+    });
+    return '$sb';
   }
 }
 
