@@ -732,8 +732,11 @@ class ApiRequester {
   }
 }
 
-// TODO: Handle [uploadOptions.numberOfAttempts]
+
 // TODO: Buffer less if we know the content length in advance.
+/**
+ * Does media uploads using the resumable upload protocol.
+ */
 class ResumableUploadHelper {
   final http_base.Client _httpClient;
   final common_external.Media _uploadMedia;
@@ -756,35 +759,23 @@ class ResumableUploadHelper {
     return _startSession().then((Uri uploadUri) {
       StreamSubscription subscription;
 
-      // Uploading state
-      int chunkSize = _options.chunkSize;
-      List<ResumableChunk> chunkStack = [];
-      var emptyChunk = new ResumableChunk(chunkSize, chunkStack, 0);
-      chunkStack.add(emptyChunk);
-
       var completer = new Completer<http_base.Response>();
       bool completed = false;
 
+      var chunkStack = new ChunkStack(_options.chunkSize);
       subscription = _uploadMedia.stream.listen((List<int> bytes) {
-        chunkStack.last.addBytes(bytes);
+        chunkStack.addBytes(bytes);
+
         // Upload all but the last chunk.
         // The final send will be done in the [onDone] handler.
         if (chunkStack.length > 1) {
           // Pause the input stream.
           subscription.pause();
 
-          Future<http_base.Response> upload(ResumableChunk chunk) {
-            return _uploadChunkResumable(uploadUri, chunk).then((response) {
-              return response.read().drain();
-            });
-          }
-
-          var fullChunks = chunkStack.sublist(0, chunkStack.length - 1);
-
           // Upload all chunks except the last one.
-          Future.forEach(fullChunks, upload).then((_) {
-            chunkStack.removeRange(0, chunkStack.length - 1);
-
+          var fullChunks = chunkStack.removeSublist(0, chunkStack.length - 1);
+          Future.forEach(fullChunks,
+                         (c) => _uploadChunkDrained(uploadUri, c)).then((_) {
             // All chunks uploaded, we can continue consuming data.
             subscription.resume();
           }).catchError((error, stack) {
@@ -793,12 +784,27 @@ class ResumableUploadHelper {
             completer.completeError(error, stack);
           });
         }
+      }, onError: (error, stack) {
+        subscription.cancel();
+        if (!completed) {
+          completed = true;
+          completer.completeError(error, stack);
+        }
       }, onDone: () {
         if (!completed) {
+          chunkStack.finalize();
+          var lastChunk;
+          if (chunkStack.totalByteLength > 0) {
+            assert(chunkStack.length == 1);
+            lastChunk = chunkStack.removeSublist(0, chunkStack.length).first;
+          } else {
+            lastChunk = new ResumableChunk([], 0, 0);
+          }
+          var end = lastChunk.endOfChunk;
+
           // Validate that we have the correct number of bytes if length was
           // specified.
           if (_uploadMedia.length != null) {
-            var end = chunkStack.last.endOfChunk;
             if (end < _uploadMedia.length) {
               completer.completeError(new common_external.ApiRequestError(
                   'Received less bytes than indicated by [Media.length].'));
@@ -812,7 +818,7 @@ class ResumableUploadHelper {
 
           // Upload last chunk and *do not drain the response* but complete
           // with it.
-          _uploadChunkResumable(uploadUri, chunkStack.last, lastChunk: true)
+          _uploadChunkResumable(uploadUri, lastChunk, lastChunk: true)
               .then((response) {
             completer.complete(response);
           }).catchError((error, stack) {
@@ -824,7 +830,6 @@ class ResumableUploadHelper {
       return completer.future;
     });
   }
-
 
   /**
    * Starts a resumable upload.
@@ -862,6 +867,19 @@ class ResumableUploadHelper {
     });
   }
 
+  /**
+   * Uploads [chunk], retries upon server errors. The response stream will be
+   * drained.
+   */
+  Future _uploadChunkDrained(Uri uri, ResumableChunk chunk) {
+    return _uploadChunkResumable(uri, chunk).then((response) {
+      return response.read().drain();
+    });
+  }
+
+  /**
+   * Does repeated attempts to upload [chunk].
+   */
   Future _uploadChunkResumable(Uri uri,
                                ResumableChunk chunk,
                                {bool lastChunk: false}) {
@@ -962,38 +980,100 @@ class ResumableUploadHelper {
 
 
 /**
- * Represents a chunk of data that will be transferred in one go.
+ * Represents a stack of [ResumableChunk]s.
  */
-class ResumableChunk {
-  final int chunkSize;
-  final List<ResumableChunk> chunkStack;
-  final int offset;
+class ChunkStack {
+  final int _chunkSize;
+  final List<ResumableChunk> _chunkStack = [];
 
-  List<List<int>> byteArrays = [];
-  int length = 0;
+  // Currently accumulated data.
+  List<List<int>> _byteArrays = [];
+  int _length = 0;
+  int _totalLength = 0;
+  int _offset = 0;
 
-  int get endOfChunk => offset + length;
+  bool _finalized = false;
 
-  ResumableChunk(this.chunkSize, this.chunkStack, this.offset);
+  ChunkStack(this._chunkSize);
 
+  int get length => _chunkStack.length;
+
+  int get totalByteLength => _offset;
+
+  /**
+   * Returns the chunks [from] ... [to] and deletes it from the stack.
+   */
+  List<ResumableChunk> removeSublist(int from, int to) {
+    var sublist = _chunkStack.sublist(from, to);
+    _chunkStack.removeRange(from, to);
+    return sublist;
+  }
+
+  /**
+   * Adds [bytes] to the buffer. If the buffer is larger than the given chunk
+   * size a new [ResumableChunk] will be created.
+   */
   void addBytes(List<int> bytes) {
-    var remaining = chunkSize - length;
+    if (_finalized) {
+      throw new StateError('ChunkStack has already been finalized.');
+    }
 
-    if (bytes.length > remaining) {
+    var remaining = _chunkSize - _length;
+
+    if (bytes.length >= remaining) {
       var left = bytes.sublist(0, remaining);
       var right = bytes.sublist(remaining);
-      byteArrays.add(left);
-      length += left.length;
 
-      var c = new ResumableChunk(chunkSize, chunkStack, offset + chunkSize);
-      chunkStack.add(c);
-      c.addBytes(right);
-    } else {
-      byteArrays.add(bytes);
-      length += bytes.length;
+      _byteArrays.add(left);
+      _length += left.length;
+
+      _chunkStack.add(new ResumableChunk(_byteArrays, _offset, _length));
+
+      _byteArrays = [];
+      _offset += _length;
+      _length = 0;
+
+      addBytes(right);
+    } else if (bytes.length > 0) {
+      _byteArrays.add(bytes);
+      _length += bytes.length;
+    }
+  }
+
+  /**
+   * Finalizes this [ChunkStack] and creates the last chunk (may have less bytes
+   * than the chunk size, but not zero).
+   */
+  void finalize() {
+    if (_finalized) {
+      throw new StateError('ChunkStack has already been finalized.');
+    }
+    _finalized = true;
+
+    if (_length > 0) {
+      _chunkStack.add(new ResumableChunk(_byteArrays, _offset, _length));
+      _offset += _length;
     }
   }
 }
+
+
+/**
+ * Represents a chunk of data that will be transferred in one http request.
+ */
+class ResumableChunk {
+  final List<List<int>> byteArrays;
+  final int offset;
+  final int length;
+
+  /**
+   * Index of the next byte after this chunk.
+   */
+  int get endOfChunk => offset + length;
+
+  ResumableChunk(this.byteArrays, this.offset, this.length);
+}
+
 
 Future<http_base.Response> _validateResponse(http_base.Response response) {
   var statusCode = response.status;
@@ -1026,6 +1106,7 @@ Future<http_base.Response> _validateResponse(http_base.Response response) {
 
   return new Future.value(response);
 }
+
 
 Stream<String> _decodeStreamAsText(http_base.Response response) {
   // TODO: Correctly handle the response content-types, using correct
@@ -1420,6 +1501,100 @@ main() {
       expect(headers.getMultiple('A'), equals(a));
       expect(headers.getMultiple('b'), equals(b));
       expect(headers.getMultiple('B'), equals(b));
+    });
+
+    group('chunk-stack', () {
+      var chunkSize = 9;
+
+      folded(List<List<int>> byteArrays) {
+        return byteArrays.fold([], (buf, e) => buf..addAll(e));
+      }
+
+      test('finalize', () {
+        var chunkStack = new ChunkStack(9);
+        chunkStack.finalize();
+        expect(() => chunkStack.addBytes([1]), throwsA(isStateError));
+        expect(() => chunkStack.finalize(), throwsA(isStateError));
+      });
+
+      test('empty', () {
+        var chunkStack = new ChunkStack(9);
+        expect(chunkStack.length, equals(0));
+        chunkStack.finalize();
+        expect(chunkStack.length, equals(0));
+      });
+
+      test('sub-chunk-size', () {
+        var bytes = [1, 2, 3];
+
+        var chunkStack = new ChunkStack(9);
+        chunkStack.addBytes(bytes);
+        expect(chunkStack.length, equals(0));
+        chunkStack.finalize();
+        expect(chunkStack.length, equals(1));
+        expect(chunkStack.totalByteLength, equals(bytes.length));
+
+        var chunks = chunkStack.removeSublist(0, chunkStack.length);
+        expect(chunkStack.length, equals(0));
+        expect(chunks, hasLength(1));
+
+        expect(folded(chunks.first.byteArrays), equals(bytes));
+        expect(chunks.first.offset, equals(0));
+        expect(chunks.first.length, equals(3));
+        expect(chunks.first.endOfChunk, equals(bytes.length));
+      });
+
+      test('exact-chunk-size', () {
+        var bytes = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+
+        var chunkStack = new ChunkStack(9);
+        chunkStack.addBytes(bytes);
+        expect(chunkStack.length, equals(1));
+        chunkStack.finalize();
+        expect(chunkStack.length, equals(1));
+        expect(chunkStack.totalByteLength, equals(bytes.length));
+
+        var chunks = chunkStack.removeSublist(0, chunkStack.length);
+        expect(chunkStack.length, equals(0));
+        expect(chunks, hasLength(1));
+
+        expect(folded(chunks.first.byteArrays), equals(bytes));
+        expect(chunks.first.offset, equals(0));
+        expect(chunks.first.length, equals(bytes.length));
+        expect(chunks.first.endOfChunk, equals(bytes.length));
+      });
+
+      test('super-chunk-size', () {
+        var bytes0 = [1, 2, 3, 4];
+        var bytes1 = [1, 2, 3, 4];
+        var bytes2 = [5, 6, 7, 8, 9, 10, 11];
+        var bytes = folded([bytes0, bytes1, bytes2]);
+
+        var chunkStack = new ChunkStack(9);
+        chunkStack.addBytes(bytes0);
+        chunkStack.addBytes(bytes1);
+        chunkStack.addBytes(bytes2);
+        expect(chunkStack.length, equals(1));
+        chunkStack.finalize();
+        expect(chunkStack.length, equals(2));
+        expect(chunkStack.totalByteLength, equals(bytes.length));
+
+        var chunks = chunkStack.removeSublist(0, chunkStack.length);
+        expect(chunkStack.length, equals(0));
+        expect(chunks, hasLength(2));
+
+        expect(folded(chunks.first.byteArrays),
+               equals(bytes.sublist(0, chunkSize)));
+        expect(chunks.first.offset, equals(0));
+        expect(chunks.first.length, equals(chunkSize));
+        expect(chunks.first.endOfChunk, equals(chunkSize));
+
+        expect(folded(chunks.last.byteArrays),
+               equals(bytes.sublist(chunkSize)));
+        expect(chunks.last.offset, equals(chunkSize));
+        expect(chunks.last.length, equals(bytes.length - chunkSize));
+        expect(chunks.last.endOfChunk, equals(bytes.length));
+      });
     });
 
     test('media', () {
