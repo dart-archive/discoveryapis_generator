@@ -433,7 +433,7 @@ import "package:crypto/crypto.dart" as crypto;
 import "package:googleapis/common/common.dart" as common_external;
 import "package:http_base/http_base.dart" as http_base;
 
-const CONTENT_TYPE_UTF8 = 'application/json; charset=utf-8';
+const CONTENT_TYPE_JSON_UTF8 = 'application/json; charset=utf-8';
 
 class HeadersImpl implements http_base.Headers {
   final Map<String, List<String>> _m = {};
@@ -491,7 +491,6 @@ class ApiRequester {
 
   ApiRequester(this._httpClient, this._rootUrl, this._basePath);
 
-  static const _boundaryString = "314159265358979323846";
 
   /**
    * Sends a HTTPRequest using [method] (usually GET or POST) to [requestUrl]
@@ -581,7 +580,6 @@ class ApiRequester {
     });
   }
 
-  // TODO: Handle [downloadOptions] -- e.g. partial media downloads.
   Future _request(String requestUrl, String method,
                   String body, Map urlParams, Map queryParams,
                   common_external.Media uploadMedia,
@@ -633,36 +631,6 @@ class ApiRequester {
 
     var uri = buildRequestUri();
 
-    Future multipartUpload() {
-      // TODO: This needs to be made streaming based and much more efficient.
-
-      var bodyController = new StreamController<List<int>>();
-      var bodyStream = bodyController.stream;
-      return uploadMedia.stream.fold(
-          [], (buffer, data) => buffer..addAll(data)).then((List<int> data) {
-
-        var bodyString = new StringBuffer();
-        bodyString
-            ..write('--$_boundaryString\r\n')
-            ..write("Content-Type: $CONTENT_TYPE_UTF8\r\n\r\n")
-            ..write(body)
-            ..write('\r\n--$_boundaryString\r\n')
-            ..write("Content-Type: ${uploadMedia.contentType}\r\n")
-            ..write("Content-Transfer-Encoding: base64\r\n\r\n")
-            ..write(crypto.CryptoUtils.bytesToBase64(data))
-            ..write('\r\n--$_boundaryString--');
-        var bytes = UTF8.encode(bodyString.toString());
-        bodyController.add(bytes);
-        bodyController.close();
-        var headers = new HeadersImpl({
-          'content-type' : [
-              "multipart/mixed; boundary=\"$_boundaryString\""],
-          'content-length' : ['${bytes.length}']
-        });
-        return _httpClient(new RequestImpl(method, uri, headers, bodyStream));
-      });
-    }
-
     Future simpleUpload() {
       var headers = new HeadersImpl({
         'content-type' : [uploadMedia.contentType],
@@ -686,7 +654,7 @@ class ApiRequester {
       var headers;
       if (downloadRange != null) {
         headers = new HeadersImpl({
-          'content-type' : [CONTENT_TYPE_UTF8],
+          'content-type' : [CONTENT_TYPE_JSON_UTF8],
           'content-length' : ['$length'],
           'range' : [
               'bytes=${downloadRange.start}-${downloadRange.end}',
@@ -694,7 +662,7 @@ class ApiRequester {
         });
       } else {
         headers = new HeadersImpl({
-          'content-type' : [CONTENT_TYPE_UTF8],
+          'content-type' : [CONTENT_TYPE_JSON_UTF8],
           'content-length' : ['$length'],
         });
       }
@@ -703,7 +671,6 @@ class ApiRequester {
           new RequestImpl(method, uri, headers, bodyController.stream));
     }
 
-    // FIXME: Validate content-length of media?
     if (uploadMedia != null) {
       // Three upload types:
       // 1. Resumable: Upload of data + metdata with multiple requests.
@@ -711,7 +678,7 @@ class ApiRequester {
       // 3. Multipart: Upload of data + metadata.
 
       if (uploadOptions is common_external.ResumableUploadOptions) {
-        var helper = new ResumableUploadHelper(
+        var helper = new ResumableMediaUploader(
             _httpClient, uploadMedia, body, uri, method, uploadOptions);
         return helper.upload();
       }
@@ -725,10 +692,157 @@ class ApiRequester {
       if (body == null) {
         return simpleUpload();
       } else {
-        return multipartUpload();
+        var uploader = new MultipartMediaUploader(
+            _httpClient, uploadMedia, body, uri, method);
+        return uploader.upload();
       }
     }
     return simpleRequest();
+  }
+}
+
+
+/**
+ * Does media uploads using the multipart upload protocol.
+ */
+class MultipartMediaUploader {
+  static final _boundary = '314159265358979323846';
+  static final _base64Encoder = new Base64Encoder();
+
+  final http_base.Client _httpClient;
+  final common_external.Media _uploadMedia;
+  final Uri _uri;
+  final String _body;
+  final String _method;
+
+  MultipartMediaUploader(
+      this._httpClient, this._uploadMedia, this._body, this._uri, this._method);
+
+  Future<http_base.Response> upload() {
+    var base64MediaStream =
+        _uploadMedia.stream.transform(_base64Encoder).transform(ASCII.encoder);
+    var base64MediaStreamLength =
+        Base64Encoder.lengthOfBase64Stream(_uploadMedia.length);
+
+    // NOTE: We assume that [_body] is encoded JSON without any \r or \n in it.
+    // This guarantees us that [_body] cannot contain a valid multipart
+    // boundary.
+    var bodyHead =
+        '--$_boundary\r\n'
+        "Content-Type: $CONTENT_TYPE_JSON_UTF8\r\n\r\n"
+        + _body +
+        '\r\n--$_boundary\r\n'
+        "Content-Type: ${_uploadMedia.contentType}\r\n"
+        "Content-Transfer-Encoding: base64\r\n\r\n";
+    var bodyTail = '\r\n--$_boundary--';
+
+    var totalLength =
+        bodyHead.length + base64MediaStreamLength + bodyTail.length;
+
+    var bodyController = new StreamController<List<int>>();
+    bodyController.add(UTF8.encode(bodyHead));
+    bodyController.addStream(base64MediaStream).then((_) {
+      bodyController.add(UTF8.encode(bodyTail));
+    }).catchError((error, stack) {
+      bodyController.addError(error, stack);
+    }).then((_) {
+      bodyController.close();
+    });
+
+    var headers = new HeadersImpl({
+        'content-type' : ["multipart/related; boundary=\"$_boundary\""],
+        'content-length' : ['$totalLength']
+    });
+    var bodyStream = bodyController.stream;
+    return _httpClient(new RequestImpl(_method, _uri, headers, bodyStream));
+  }
+}
+
+
+/**
+ * Base64 encodes a stream of bytes.
+ */
+class Base64Encoder implements StreamTransformer<List<int>, String> {
+  static int lengthOfBase64Stream(int lengthOfByteStream) {
+    return ((lengthOfByteStream + 2) ~/ 3) * 4;
+  }
+
+  Stream<String> bind(Stream<List<int>> stream) {
+    StreamController<String> controller;
+
+    // Holds between 0 and 3 bytes and is used as a buffer.
+    List<int> remainingBytes = [];
+
+    void onData(List<int> bytes) {
+      if ((remainingBytes.length + bytes.length) < 3) {
+        remainingBytes.addAll(bytes);
+        return;
+      }
+      int start;
+      if (remainingBytes.length == 0) {
+        start = 0;
+      } else if (remainingBytes.length == 1) {
+        remainingBytes.add(bytes[0]);
+        remainingBytes.add(bytes[1]);
+        start = 2;
+      } else if (remainingBytes.length == 2) {
+        remainingBytes.add(bytes[0]);
+        start = 1;
+      }
+
+      // Convert & Send bytes from buffer (if necessary).
+      if (remainingBytes.length > 0) {
+        controller.add(crypto.CryptoUtils.bytesToBase64(remainingBytes));
+        remainingBytes.clear();
+      }
+
+      int chunksOf3 = (bytes.length - start) ~/ 3;
+      int end = start + 3 * chunksOf3;
+      int remaining = bytes.length - end;
+
+      // Convert & Send main bytes.
+      if (start == 0 && end == bytes.length) {
+        // Fast path if [bytes] are devisible by 3.
+        controller.add(crypto.CryptoUtils.bytesToBase64(bytes));
+      } else {
+        controller.add(
+            crypto.CryptoUtils.bytesToBase64(bytes.sublist(start, end)));
+
+        // Buffer remaining bytes if necessary.
+        if (end < bytes.length) {
+          remainingBytes.addAll(bytes.sublist(end));
+        }
+      }
+    }
+
+    void onError(error, stack) {
+      controller.addError(error, stack);
+    }
+
+    void onDone() {
+      if (remainingBytes.length > 0) {
+        controller.add(crypto.CryptoUtils.bytesToBase64(remainingBytes));
+        remainingBytes.clear();
+      }
+      controller.close();
+    }
+
+    var subscription;
+    controller = new StreamController<String>(
+        onListen: () {
+          subscription = stream.listen(
+              onData, onError: onError, onDone: onDone);
+        },
+        onPause: () {
+          subscription.pause();
+        },
+        onResume: () {
+          subscription.resume();
+        },
+        onCancel: () {
+          subscription.cancel();
+        });
+    return controller.stream;
   }
 }
 
@@ -737,7 +851,7 @@ class ApiRequester {
 /**
  * Does media uploads using the resumable upload protocol.
  */
-class ResumableUploadHelper {
+class ResumableMediaUploader {
   final http_base.Client _httpClient;
   final common_external.Media _uploadMedia;
   final Uri _uri;
@@ -745,7 +859,7 @@ class ResumableUploadHelper {
   final String _method;
   final common_external.ResumableUploadOptions _options;
 
-  ResumableUploadHelper(
+  ResumableMediaUploader(
       this._httpClient, this._uploadMedia, this._body, this._uri, this._method,
       this._options);
 
@@ -793,6 +907,7 @@ class ResumableUploadHelper {
       }, onDone: () {
         if (!completed) {
           chunkStack.finalize();
+
           var lastChunk;
           if (chunkStack.totalByteLength > 0) {
             assert(chunkStack.length == 1);
@@ -846,7 +961,7 @@ class ResumableUploadHelper {
     var bodyStream = _bytes2Stream(bytes);
 
     var headers = new HeadersImpl({
-        'content-type' : [CONTENT_TYPE_UTF8],
+        'content-type' : [CONTENT_TYPE_JSON_UTF8],
         'content-length' : ['$length'],
         'x-upload-content-type' : [_uploadMedia.contentType],
         'x-upload-content-length' : ['${_uploadMedia.length}'],
@@ -1242,6 +1357,7 @@ Map mapMap(Map source, [Object convert(Object source) = null]) {
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:crypto/crypto.dart' as crypto;
 import 'package:googleapis/common/common.dart';
 import 'package:googleapis/src/common_internal.dart';
 import 'package:http_base/http_base.dart' as http_base;
@@ -1467,6 +1583,54 @@ main() {
              throwsArgumentError);
       expect(() => pattern('{a}').generate({}, {'a': 'var'}),
              throwsArgumentError);
+    });
+
+    test('base64-encoder', () {
+      var base64encoder = new Base64Encoder();
+
+      testString(String msg, String expectedBase64) {
+        var msgBytes = UTF8.encode(msg);
+
+        Stream singleByteStream(List<int> msgBytes) {
+          var controller = new StreamController();
+          for (var byte in msgBytes) {
+            controller.add([byte]);
+          }
+          controller.close();
+          return controller.stream;
+        }
+
+        Stream allByteStream(List<int> msgBytes) {
+          var controller = new StreamController();
+          controller.add(msgBytes);
+          controller.close();
+          return controller.stream;
+        }
+
+        singleByteStream(msgBytes)
+            .transform(base64encoder)
+            .join('')
+            .then(expectAsync((String result) {
+          expect(result, equals(expectedBase64));
+        }));
+
+        allByteStream(msgBytes)
+            .transform(base64encoder)
+            .join('')
+            .then(expectAsync((String result) {
+          expect(result, equals(expectedBase64));
+        }));
+
+        expect(Base64Encoder.lengthOfBase64Stream(msg.length),
+               equals(expectedBase64.length));
+      }
+
+      testString('pleasure.', 'cGxlYXN1cmUu');
+      testString('leasure.', 'bGVhc3VyZS4=');
+      testString('easure.', 'ZWFzdXJlLg==');
+      testString('asure.', 'YXN1cmUu');
+      testString('sure.', 'c3VyZS4=');
+      testString('', '');
     });
 
     test('http-headers', () {
@@ -1845,8 +2009,7 @@ main() {
         }
 
         test('simple', () {
-          var bytes =
-              new List.generate(10 * 256 * 1024 + 1, (i) => i % 256);
+          var bytes = new List.generate(10 * 256 * 1024 + 1, (i) => i % 256);
           var expectations = [
               {
                 'url' : 'http://example.com/xyz?uploadType=media',
@@ -1871,7 +2034,40 @@ main() {
         });
 
         test('multipart-upload', () {
-          // TODO
+          var bytes = new List.generate(10 * 256 * 1024 + 1, (i) => i % 256);
+          var contentBytes =
+              '--314159265358979323846\r\n'
+              'Content-Type: $CONTENT_TYPE_JSON_UTF8\r\n\r\n'
+              'BODY'
+              '\r\n--314159265358979323846\r\n'
+              'Content-Type: foobar\r\n'
+              'Content-Transfer-Encoding: base64\r\n\r\n'
+              '${crypto.CryptoUtils.bytesToBase64(bytes)}'
+              '\r\n--314159265358979323846--';
+
+          var expectations = [
+              {
+                'url' : 'http://example.com/xyz?uploadType=multipart',
+                'method' : 'POST',
+                'data' : UTF8.encode('$contentBytes'),
+                'headers' : {
+                  'content-length' : '${contentBytes.length}',
+                  'content-type' :
+                      'multipart/related; boundary="314159265358979323846"',
+                },
+                'response' : stringResponse(200, responseHeaders, '')
+              },
+          ];
+
+          httpMock.register(
+              expectAsync(serverRequestValidator(expectations)), false);
+          var media = mediaFromByteArrays([bytes]);
+          requester.request('abc',
+                            'POST',
+                            body: 'BODY',
+                            uploadMedia: media,
+                            uploadMediaPath: '/xyz').then(
+              expectAsync((response) {}));
         });
 
         group('resumable-upload', () {
