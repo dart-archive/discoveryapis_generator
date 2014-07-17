@@ -14,6 +14,7 @@ part "src/dart_resources.dart";
 part "src/dart_schemas.dart";
 part "src/namer.dart";
 part "src/utils.dart";
+part "src/uri_template.dart";
 
 List<GenerateResult> generateApiPackage(
     List<RestDescription> descriptions, String outputDirectory) {

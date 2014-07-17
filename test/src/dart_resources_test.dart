@@ -110,7 +110,11 @@ main() {
       expect(methods, hasLength(1));
       var foo = methods.first;
       expect(foo, isNotNull);
-      expect(foo.urlPattern, equals('foo$i/{id$i}'));
+      expect(foo.urlPattern.parts, hasLength(2));
+      expect(foo.urlPattern.parts[0] is StringPart, isTrue);
+      expect(foo.urlPattern.parts[0].staticString, equals('foo$i/'));
+      expect(foo.urlPattern.parts[1] is VariableExpression, isTrue);
+      expect(foo.urlPattern.parts[1].templateVar, equals('id$i'));
       expect(foo.httpMethod, equals('GET'));
       expect(foo.parameters, hasLength(3));
 

@@ -489,7 +489,9 @@ class ApiRequester {
   final String _rootUrl;
   final String _basePath;
 
-  ApiRequester(this._httpClient, this._rootUrl, this._basePath);
+  ApiRequester(this._httpClient, this._rootUrl, this._basePath) {
+    assert(_rootUrl.endsWith('/'));
+  }
 
 
   /**
@@ -508,12 +510,11 @@ class ApiRequester {
    * Otherwise the result will be downloaded as a [common_external.Media]
    */
   Future request(String requestUrl, String method,
-                {String body, Map urlParams, Map queryParams,
-                 common_external.Media uploadMedia,
-                 common_external.UploadOptions uploadOptions,
-                 common_external.DownloadOptions downloadOptions:
-                 common_external.DownloadOptions.Metadata,
-                 String uploadMediaPath}) {
+                 {String body, Map queryParams,
+                  common_external.Media uploadMedia,
+                  common_external.UploadOptions uploadOptions,
+                  common_external.DownloadOptions downloadOptions:
+                  common_external.DownloadOptions.Metadata}) {
     if (uploadMedia != null &&
         downloadOptions != common_external.DownloadOptions.Metadata) {
       throw new ArgumentError('When uploading a [Media] you cannot download a '
@@ -525,10 +526,9 @@ class ApiRequester {
       downloadRange = downloadOptions.range;
     }
 
-    return _request(requestUrl, method, body, urlParams, queryParams,
+    return _request(requestUrl, method, body, queryParams,
                     uploadMedia, uploadOptions,
                     downloadOptions,
-                    uploadMediaPath,
                     downloadRange)
         .then(_validateResponse).then((http_base.Response response) {
       if (downloadOptions == common_external.DownloadOptions.Metadata) {
@@ -581,55 +581,57 @@ class ApiRequester {
   }
 
   Future _request(String requestUrl, String method,
-                  String body, Map urlParams, Map queryParams,
+                  String body, Map queryParams,
                   common_external.Media uploadMedia,
                   common_external.UploadOptions uploadOptions,
                   common_external.DownloadOptions downloadOptions,
-                  String uploadMediaPath,
                   common_external.ByteRange downloadRange) {
     bool downloadAsMedia =
         downloadOptions != common_external.DownloadOptions.Metadata;
 
-    Uri buildRequestUri() {
-      if (queryParams == null) queryParams = const {};
-      var path;
-      if (uploadMedia != null) {
-        requestUrl = uploadMediaPath;
-      }
+    if (queryParams == null) queryParams = {};
 
-      if (requestUrl.startsWith("/")) {
-        path ="$_rootUrl${requestUrl.substring(1)}";
+    if (uploadMedia != null) {
+      if (uploadOptions is common_external.ResumableUploadOptions) {
+        queryParams['uploadType'] = const ['resumable'];
+      } else if (body == null) {
+        queryParams['uploadType'] = const ['media'];
       } else {
-        path ="$_rootUrl${_basePath.substring(1)}$requestUrl";
+        queryParams['uploadType'] = const ['multipart'];
       }
-
-      var url = new UrlPattern(path).generate(urlParams, queryParams);
-      var uri = Uri.parse(url);
-      if (uploadMedia != null || downloadAsMedia) {
-        var prefix = uri.query.isEmpty ? '?' : '&';
-        if (uploadMedia != null) {
-          if (uploadOptions is common_external.ResumableUploadOptions) {
-            url = '${url}${prefix}uploadType=resumable';
-            prefix = '&';
-          } else if (body == null) {
-            url = '${url}${prefix}uploadType=media';
-            prefix = '&';
-          } else {
-            url = '${url}${prefix}uploadType=multipart';
-            prefix = '&';
-          }
-        }
-
-        if (downloadAsMedia) {
-          url = '${url}${prefix}alt=media';
-        }
-
-        uri = Uri.parse(url);
-      }
-      return uri;
     }
 
-    var uri = buildRequestUri();
+    if (downloadAsMedia) {
+      queryParams['alt'] = const ['media'];
+    } else {
+      queryParams['alt'] = const ['json'];
+    }
+
+    var path;
+    if (requestUrl.startsWith('/')) {
+      path ="$_rootUrl${requestUrl.substring(1)}";
+    } else {
+      path ="$_rootUrl${_basePath.substring(1)}$requestUrl";
+    }
+
+    bool containsQueryParameter = path.contains('?');
+    addQueryParameter(String name, String value) {
+      name = Escaper.escapeQueryComponent(name);
+      value = Escaper.escapeQueryComponent(value);
+      if (containsQueryParameter) {
+        path = '$path&$name=$value';
+      } else {
+        path = '$path?$name=$value';
+      }
+      containsQueryParameter = true;
+    }
+    queryParams.forEach((String key, List<String> values) {
+      for (var value in values) {
+        addQueryParameter(key, value);
+      }
+    });
+
+    var uri = Uri.parse(path);
 
     Future simpleUpload() {
       var headers = new HeadersImpl({
@@ -1189,6 +1191,81 @@ class ResumableChunk {
   ResumableChunk(this.byteArrays, this.offset, this.length);
 }
 
+class Escaper {
+  // Character class definitions from RFC 6570 
+  // (see http://tools.ietf.org/html/rfc6570)
+  // ALPHA          =  %x41-5A / %x61-7A   ; A-Z / a-z
+  // DIGIT          =  %x30-39             ; 0
+  // HEXDIG         =  DIGIT / "A" / "B" / "C" / "D" / "E" / "F"
+  // pct-encoded    =  "%" HEXDIG HEXDIG
+  // unreserved     =  ALPHA / DIGIT / "-" / "." / "_" / "~"
+  // reserved       =  gen-delims / sub-delims
+  // gen-delims     =  ":" / "/" / "?" / "#" / "[" / "]" / "@"
+  // sub-delims     =  "!" / "$" / "&" / "'" / "(" / ")"
+  //                /  "*" / "+" / "," / ";" / "="
+
+  // NOTE: Uri.encodeQueryComponent() does the following:
+  // ...
+  // Then the resulting bytes are "percent-encoded". This transforms spaces
+  // (U+0020) to a plus sign ('+') and all bytes that are not the ASCII decimal
+  // digits, letters or one of '-._~' are written as a percent sign '%'
+  // followed by the two-digit hexadecimal representation of the byte.
+  // ...
+
+  // NOTE: Uri.encodeFull() does the following:
+  // ...
+  // All characters except uppercase and lowercase letters, digits and the
+  // characters !#$&'()*+,-./:;=?@_~ are percent-encoded.
+  // ...
+
+  static String ecapeVariableReserved(String name) {
+    // ... perform variable expansion, as defined in Section 3.2.1, with the
+    // allowed characters being those in the set
+    // (unreserved / reserved / pct-encoded)
+
+    // NOTE: The chracters [ and ] need (according to URI Template spec) not be
+    // percent encoded. The dart implementation does percent-encode [ and ].
+    // This gives us in effect a conservative encoding, since the server side
+    // must interpret percent-encoded parts anyway due to arbitrary unicode.
+
+    // FIXME: This is broken in the discovery protocol. It allows ? and & to be
+    // expanded via URI Templates which may generate completely bogus URIs.
+    // TODO/FIXME: Should we change this to _encodeUnreserved() as well
+    // (disadvantage, slashes get encoded at this point)?
+    return Uri.encodeFull(name);
+  }
+
+  static String ecapePathComponent(String name) {
+    // For each defined variable in the variable-list, append "/" to the
+    // result string and then perform variable expansion, as defined in
+    // Section 3.2.1, with the allowed characters being those in the
+    // *unreserved set*.
+    return _encodeUnreserved(name);
+  }
+
+  static String ecapeVariable(String name) {
+    // ... perform variable expansion, as defined in Section 3.2.1, with the
+    // allowed characters being those in the *unreserved set*.
+    return _encodeUnreserved(name);
+  }
+
+  static String escapeQueryComponent(String name) {
+    // This method will not be used by UriTemplate, but rather for encoding
+    // normal query name/value pairs.
+
+    // NOTE: For safety reasons we use '%20' instead of '+' here as well.
+    // FIXME: Should we do this?
+    return _encodeUnreserved(name);
+  }
+
+  static String _encodeUnreserved(String name) {
+    // The only difference between dart's [Uri.encodeQueryComponent] and the
+    // encoding defined by RFC 6570 for the above-defined unreserved character
+    // set is the encoding of space.
+    // Dart's Uri class will convert spaces to '+' which we replace by '%20'.
+    return Uri.encodeQueryComponent(name).replaceAll('+', '%20');
+  }
+}
 
 Future<http_base.Response> _validateResponse(http_base.Response response) {
   var statusCode = response.status;
@@ -1234,106 +1311,6 @@ Stream<String> _decodeStreamAsText(http_base.Response response) {
     return response.read().transform(new Utf8Decoder(allowMalformed: true));
   } else {
     return null;
-  }
-}
-
-
-// NOTE NOTE NOTE NOTE NOTE NOTE NOTE:
-// The following is comming from google_oauth2_client package
-
-
-/** Produces part of a URL, when the template parameters are provided. */
-typedef String _UrlPatternToken(Map<String, Object> params);
-
-/** URL template with placeholders that can be filled in to produce a URL. */
-class UrlPattern {
-  final List<_UrlPatternToken> _tokens;
-
-  /**
-   * Creates a UrlPattern from the specification [:pattern:].
-   * See http://tools.ietf.org/html/draft-gregorio-uritemplate-07
-   * We only implement a very simple subset for now.
-   */
-  UrlPattern(String pattern) : _tokens = [] {
-    var cursor = 0;
-    while (cursor < pattern.length) {
-      final open = pattern.indexOf("{", cursor);
-      if (open < 0) {
-        final rest = pattern.substring(cursor);
-        _tokens.add((params) => rest);
-        cursor = pattern.length;
-      } else {
-        if (open > cursor) {
-          final intermediate = pattern.substring(cursor, open);
-          _tokens.add((params) => intermediate);
-        }
-        final close = pattern.indexOf("}", open);
-        if (close < 0) {
-          throw new ArgumentError("Token meets end of text: $pattern");
-        }
-        // FIXME: This is a really hacky way of detecting paths like
-        //  - "customer/{customerId}/orgunits{/orgUnitPath*}"
-        // TODO: We should write a proper UrlPattern class.
-        // TODO: Make sure that the call sites guarantee that the values
-        // are not `null`.
-        String variable = pattern.substring(open + 1, close);
-        if (variable.startsWith('/') && variable.endsWith('*')) {
-          variable = variable.substring(1, variable.length - 1);
-          _tokens.add((params) {
-            if (params[variable] is! List) {
-              throw new ArgumentError(
-                "Url variable '$variable' must be a valid List.");
-            }
-            return '/' + params[variable]
-                .map((item) => Uri.encodeComponent('$item'))
-                .join('/');
-          });
-        }  else {
-          _tokens.add((params) {
-            var listValue = params[variable];
-            if (listValue is! List || listValue.length != 1) {
-              throw new ArgumentError(
-                "Url variable '$variable' must be a valid List with one item.");
-            }
-            return Uri.encodeComponent(listValue[0].toString());
-          });
-        }
-        cursor = close + 1;
-      }
-    }
-  }
-
-  /** Generate a URL with the specified list of URL and query parameters. */
-  String generate(Map<String, Object> urlParams,
-                  Map<String, Object> queryParams) {
-    final buffer = new StringBuffer();
-    _tokens.forEach((token) => buffer.write(token(urlParams)));
-    var first = true;
-    queryParams.forEach((key, value) {
-      if (value == null) return;
-      if (value is List) {
-        value.forEach((listValue) {
-          buffer.write(first ? '?' : '&');
-          if (first) first = false;
-          buffer.write(Uri.encodeComponent(key.toString()));
-          buffer.write('=');
-          buffer.write(Uri.encodeComponent(listValue.toString()));
-        });
-      } else {
-        buffer.write(first ? '?' : '&');
-        if (first) first = false;
-        buffer.write(Uri.encodeComponent(key.toString()));
-        buffer.write('=');
-        buffer.write(Uri.encodeComponent(value.toString()));
-      }
-    });
-    return buffer.toString();
-  }
-
-  static String generatePattern(String pattern, Map<String, Object> urlParams,
-                                Map<String, Object> queryParams) {
-    var urlPattern = new UrlPattern(pattern);
-    return urlPattern.generate(urlParams, queryParams);
   }
 }
 
@@ -1445,6 +1422,13 @@ const isTestError = const _TestError();
 
 main() {
   group('common-external', () {
+    test('escaper', () {
+      expect(Escaper.ecapePathComponent('a/b%c '), equals('a%2Fb%25c%20'));
+      expect(Escaper.ecapeVariable('a/b%c '), equals('a%2Fb%25c%20'));
+      expect(Escaper.ecapeVariableReserved('a/b%c+ '), equals('a/b%25c+%20'));
+      expect(Escaper.escapeQueryComponent('a/b%c '), equals('a%2Fb%25c%20'));
+    });
+
     test('mapMap', () {
       newTestMap() => {
         's' : 'string',
@@ -1461,128 +1445,6 @@ main() {
       expect(mod, hasLength(2));
       expect(mod['s'], equals('string foobar'));
       expect(mod['i'], equals('42 foobar'));
-    });
-
-    test('url-pattern', () {
-      // The [UrlPattern] class currently only implements a very limited subset
-      // of the uri template specification, namely:
-      //   -  /{var}/
-      //   -  /{/vars*}/
-      // See: http://tools.ietf.org/html/draft-gregorio-uritemplate-07
-      // TODO: Extend [UrlPattern] and implement corresponding tests.
-
-      var pathVars = {
-          'a' : ['AA'],
-          'b' : ['B/B'],
-          'c' : [''],
-          'va' : ['1', 'x/y', 'z'],
-          'vb' : ['4'],
-          'vc' : [],
-      };
-
-      pattern(String p) => new UrlPattern(p);
-
-      var patterns = [
-          // No variables
-          pattern(''),
-          pattern('/'),
-          pattern('fixed'),
-          pattern('/fixed/'),
-
-          pattern('fixed/with/long/relative/path'),
-          pattern('/fixed/with/long/relative/path/'),
-
-          // Normal variables
-          pattern('{a}/variable'),
-          pattern('/{a}/variable/'),
-
-          pattern('{a}/variable/with/{b}'),
-          pattern('/{a}/variable/with/{b}/'),
-
-          pattern('variable/{b}'),
-          pattern('/variable/{b}/'),
-
-          pattern('start/{a}/relative/{b}/end/{c}'),
-          pattern('/start/{a}/relative/{b}/end/{c}/'),
-
-          pattern('{a}{b}'),
-          pattern('/{a}{b}/'),
-
-          // Variable-length variables + normal variables
-          pattern('{a}start/{/va*}/rel/{/vb*}/ative/{/vc*}/end{b}'),
-          pattern('{a}/start/{/va*}/rel/{/vb*}/ative/{/vc*}/end/{b}'),
-      ];
-
-      var results = [
-          // No variables
-          '',
-          '/',
-          'fixed',
-          '/fixed/',
-
-          'fixed/with/long/relative/path',
-          '/fixed/with/long/relative/path/',
-
-          // Normal variables
-          'AA/variable',
-          '/AA/variable/',
-
-          'AA/variable/with/B%2FB',
-          '/AA/variable/with/B%2FB/',
-
-          'variable/B%2FB',
-          '/variable/B%2FB/',
-
-          'start/AA/relative/B%2FB/end/',
-          '/start/AA/relative/B%2FB/end//',
-
-          'AAB%2FB',
-          '/AAB%2FB/',
-
-          // Variable-length variables + normal variables
-          'AAstart//1/x%2Fy/z/rel//4/ative///endB%2FB',
-          'AA/start//1/x%2Fy/z/rel//4/ative///end/B%2FB',
-      ];
-
-      var queryVarList = [
-          {},
-          {
-            'a' : ['foo'],
-          },
-          {
-            'a' : ['foo'],
-            'b' : ['b1', 'b2'],
-          },
-          {
-            '/x' : ['x/y/z'],
-          }
-      ];
-      var queryResults = [
-          '',
-          '?a=foo',
-          '?a=foo&b=b1&b=b2',
-          '?%2Fx=x%2Fy%2Fz',
-      ];
-
-      for (int i = 0; i < patterns.length; i++) {
-        for (int j = 0; j < queryVarList.length; j++) {
-          expect(patterns[i].generate(pathVars, queryVarList[j]),
-                 equals('${results[i]}${queryResults[j]}'));
-        }
-      }
-
-      expect(() => pattern('{'), throwsArgumentError);
-
-      expect(() => pattern('{a}').generate({}, {}), throwsArgumentError);
-      expect(() => pattern('{a}').generate({'a': null}, {}),
-             throwsArgumentError);
-      expect(() => pattern('{a}').generate({'a': 'var'}, {}),
-             throwsArgumentError);
-
-      expect(() => pattern('{a}').generate({}, {'a': null}),
-             throwsArgumentError);
-      expect(() => pattern('{a}').generate({}, {'a': 'var'}),
-             throwsArgumentError);
     });
 
     test('base64-encoder', () {
@@ -1828,7 +1690,8 @@ main() {
         test('empty-request-empty-response', () {
           httpMock.register(expectAsync((http_base.Request request, json) {
             expect(request.method, equals('GET'));
-            expect('${request.url}', equals('http://example.com/base/abc'));
+            expect('${request.url}',
+                   equals('http://example.com/base/abc?alt=json'));
             return stringResponse(200, responseHeaders, '');
           }), true);
           requester.request('abc', 'GET').then(expectAsync((response) {
@@ -1839,7 +1702,8 @@ main() {
         test('json-map-request-json-map-response', () {
           httpMock.register(expectAsync((http_base.Request request, json) {
             expect(request.method, equals('GET'));
-            expect('${request.url}', equals('http://example.com/base/abc'));
+            expect('${request.url}',
+                   equals('http://example.com/base/abc?alt=json'));
             expect(json is Map, isTrue);
             expect(json, hasLength(1));
             expect(json['foo'], equals('bar'));
@@ -1858,7 +1722,8 @@ main() {
         test('json-list-request-json-list-response', () {
           httpMock.register(expectAsync((http_base.Request request, json) {
             expect(request.method, equals('GET'));
-            expect('${request.url}', equals('http://example.com/base/abc'));
+            expect('${request.url}',
+                   equals('http://example.com/base/abc?alt=json'));
             expect(json is List, isTrue);
             expect(json, hasLength(2));
             expect(json[0], equals('a'));
@@ -2012,7 +1877,7 @@ main() {
           var bytes = new List.generate(10 * 256 * 1024 + 1, (i) => i % 256);
           var expectations = [
               {
-                'url' : 'http://example.com/xyz?uploadType=media',
+                'url' : 'http://example.com/xyz?uploadType=media&alt=json',
                 'method' : 'POST',
                 'data' : bytes,
                 'headers' : {
@@ -2026,10 +1891,9 @@ main() {
           httpMock.register(
               expectAsync(serverRequestValidator(expectations)), false);
           var media = mediaFromByteArrays([bytes]);
-          requester.request('abc',
+          requester.request('/xyz',
                             'POST',
-                            uploadMedia: media,
-                            uploadMediaPath: '/xyz').then(
+                            uploadMedia: media).then(
               expectAsync((response) {}));
         });
 
@@ -2047,7 +1911,7 @@ main() {
 
           var expectations = [
               {
-                'url' : 'http://example.com/xyz?uploadType=multipart',
+                'url' : 'http://example.com/xyz?uploadType=multipart&alt=json',
                 'method' : 'POST',
                 'data' : UTF8.encode('$contentBytes'),
                 'headers' : {
@@ -2062,11 +1926,10 @@ main() {
           httpMock.register(
               expectAsync(serverRequestValidator(expectations)), false);
           var media = mediaFromByteArrays([bytes]);
-          requester.request('abc',
+          requester.request('/xyz',
                             'POST',
                             body: 'BODY',
-                            uploadMedia: media,
-                            uploadMediaPath: '/xyz').then(
+                            uploadMedia: media).then(
               expectAsync((response) {}));
         });
 
@@ -2088,7 +1951,7 @@ main() {
 
             // First request is making a POST and gets the upload URL.
             expectations.add({
-              'url' : 'http://example.com/xyz?uploadType=resumable',
+              'url' : 'http://example.com/xyz?uploadType=resumable&alt=json',
               'method' : 'POST',
               'data' : [],
               'headers' : {
@@ -2200,10 +2063,9 @@ main() {
               resumableOptions =
                   new ResumableUploadOptions(chunkSize: chunkSize);
             }
-            var result = requester.request('abc',
+            var result = requester.request('/xyz',
                                            'POST',
                                            uploadMedia: media,
-                                           uploadMediaPath: '/xyz',
                                            uploadOptions: resumableOptions);
             if (expectedErrorStatus != null) {
               result.catchError(expectAsync((error) {
@@ -2422,7 +2284,7 @@ main() {
         httpMock.register(expectAsync((http_base.Request request, json) {
           expect(request.method, equals('GET'));
           expect('${request.url}',
-                 equals('http://example.com/base/abc?a=a1&a=a2&s=s1'));
+                 equals('http://example.com/base/abc?a=a1&a=a2&s=s1&alt=json'));
           return stringResponse(200, responseHeaders, '');
         }), true);
         requester.request('abc', 'GET', queryParams: queryParams)
@@ -2432,24 +2294,17 @@ main() {
       });
 
       test('request-parameters-path', () {
-        var pathParams = {
-            'a' : ['a1', 'a2'],
-            's' : ['s1']
-        };
         httpMock.register(expectAsync((http_base.Request request, json) {
           expect(request.method, equals('GET'));
-          expect('${request.url}',
-                 equals('http://example.com/base/s/foo/a1/a2/bar/s1/e'));
+          expect('${request.url}', equals(
+              'http://example.com/base/s/foo/a1/a2/bar/s1/e?alt=json'));
           return stringResponse(200, responseHeaders, '');
         }), true);
-        requester.request('s/foo{/a*}/bar/{s}/e', 'GET', urlParams: pathParams)
+        requester.request('s/foo/a1/a2/bar/s1/e', 'GET')
             .then(expectAsync((response) {
           expect(response, isNull);
         }));
       });
-
-      // TODO: Tests for media upload / media download
-
     });
   });
 }

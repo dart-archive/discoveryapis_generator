@@ -18,7 +18,12 @@ String fileDate(DateTime date) => "${date.year}${(date.month < 10) ? 0 : ""}${da
 String cleanName(String name) => name.replaceAll(_cleanRegEx, "_");
 
 // TODO: Is this all we have to do?
-String escapeString(String string) => string.replaceAll(r'$', r'\$');
+String escapeString(String string){
+  return string
+      .replaceAll(r'$', r'\$')
+      .replaceAll("'", "\\'")
+      .replaceAll('"', '\\"');
+}
 
 /// Escapes [comment] to ensure it can safely be used inside a /* ... */ block.
 String escapeComment(String comment) {

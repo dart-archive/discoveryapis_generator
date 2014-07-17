@@ -64,18 +64,21 @@ class DartResourceMethod {
   final List<MethodParameter> parameters;
   final List<MethodParameter> namedParameters;
   final String jsonName;
-  final String urlPattern;
   final String httpMethod;
   final bool mediaUpload;
   final bool mediaDownload;
-  final RestMethodMediaUpload mediaUploadSpec;
+
+  final UriTemplate urlPattern;
+
+  // Keys are always 'simple' and 'resumable'
+  final Map<String, UriTemplate> mediaUploadPatterns;
 
   DartResourceMethod(this.imports, this.name, this.comment,
                      this.requestParameter, this.parameters,
                      this.namedParameters, this.returnType,
                      this.jsonName, this.urlPattern, this.httpMethod,
                      this.mediaUpload, this.mediaDownload,
-                     this.mediaUploadSpec);
+                     this.mediaUploadPatterns);
 
   String get signature {
     var parameterString = new StringBuffer();
@@ -194,10 +197,31 @@ class DartResourceMethod {
       params.writeln('    }');
     }
 
-    encodeQueryParam(MethodParameter param, String mapName) {
+    Map<String, Identifier> templateVars = {};
+
+    validatePathParam(MethodParameter param) {
+      templateVars[param.jsonName] = param.name;
+
+      if (param.required) {
+        if (param.type is UnnamedArrayType) {
+          params.writeln(
+              '    if (${param.name} == null || ${param.name}.isEmpty) {');
+        } else {
+          params.writeln('    if (${param.name} == null) {');
+        }
+        params.writeln('      throw new ${imports.core}.ArgumentError'
+                       '("Parameter ${param.name} is required.");');
+        params.writeln('    }');
+      } else {
+        // Is this an error?
+        throw 'non-required path parameter';
+      }
+    }
+
+    encodeQueryParam(MethodParameter param) {
       var propertyAssignment =
           '_addParameter'
-          '($mapName, "${escapeString(param.jsonName)}", ${param.name});';
+          '("${escapeString(param.jsonName)}", ${param.name});';
 
       if (param.required) {
         if (param.type is UnnamedArrayType) {
@@ -215,22 +239,21 @@ class DartResourceMethod {
         params.writeln('      $propertyAssignment');
         params.writeln('    }');
       }
-      if (param.encodedInPath) {
-        params.writeln();
-      }
     }
+
     parameters.forEach((p) {
       if (p.encodedInPath) {
-        encodeQueryParam(p, '_urlParams');
+        validatePathParam(p);
       } else {
-        encodeQueryParam(p, '_queryParams');
+        encodeQueryParam(p);
       }
     });
+
     namedParameters.forEach(( p) {
       if (p.encodedInPath) {
-        encodeQueryParam(p, '_urlParams');
+        validatePathParam(p);
       } else {
-        encodeQueryParam(p, '_queryParams');
+        encodeQueryParam(p);
       }
     });
 
@@ -245,25 +268,33 @@ class DartResourceMethod {
       requestCode.writeln('    _downloadOptions = downloadOptions;');
     }
 
-    // FIXME: We need to pass this differently.
-    var uploadPath = '';
-    if (mediaUpload) {
-      if (mediaUploadSpec == null ||
-          mediaUploadSpec.protocols.simple.path == null) {
-        throw new StateError('Simple uploads are not supported.');
-      }
-      uploadPath =
-          ', uploadMediaPath: "${mediaUploadSpec.protocols.simple.path}"';
+    var urlPatternCode = new StringBuffer();
+    var patternExpr = urlPattern.stringExpression(templateVars);
+    if (!mediaUpload) {
+      urlPatternCode.write('    _url = $patternExpr;');
+    } else {
+      urlPatternCode.write('''
+    if (_uploadMedia == null) {
+      _url = $patternExpr;
+    } else if (_uploadOptions is ${imports.external}.ResumableUploadOptions) {
+      _url = ${mediaUploadPatterns['resumable'].stringExpression(templateVars)};
+    } else {
+      _url = ${mediaUploadPatterns['simple'].stringExpression(templateVars)};
+    }
+''');
     }
 
     requestCode.write(
 '''
-    var _response = _httpClient.request(_url, "$httpMethod",
+
+$urlPatternCode
+
+    var _response = _httpClient.request(_url,
+                                        "$httpMethod",
                                         body: _body,
-                                        urlParams: _urlParams,
                                         queryParams: _queryParams,
                                         uploadOptions: _uploadOptions,
-                                        uploadMedia: _uploadMedia$uploadPath,
+                                        uploadMedia: _uploadMedia,
                                         downloadOptions: _downloadOptions);
 '''
     );
@@ -288,22 +319,22 @@ class DartResourceMethod {
 '''
       );
     }
+
     var methodString = new StringBuffer();
     methodString.write(methodComment.asDartDoc(2));
     methodString.writeln('  $signature {');
 
     methodString.write('''
-    var _url = "${escapeString(urlPattern)}";
-    var _urlParams = new ${imports.core}.Map();
+    var _url = null;
     var _queryParams = new ${imports.core}.Map();
     var _uploadMedia = null;
     var _uploadOptions = null;
     var _downloadOptions = ${imports.external}.DownloadOptions.Metadata;
     var _body = null;
 
-    _addParameter(params, ${imports.core}.String name, value) {
-      var values = params.putIfAbsent(name, () => []);
-      values.add(value);
+    _addParameter(${imports.core}.String name, value) {
+      var values = _queryParams.putIfAbsent(name, () => []);
+      values.add('\$value');
     }
 
 $params$requestCode''');
@@ -554,12 +585,28 @@ DartApiClass parseResources(DartApiImports imports,
 
       makeBoolean(bool x) => x != null ? x : false;
 
+      var mediaUploadPatterns;
+
+      if (method.supportsMediaUpload == true) {
+        mediaUploadPatterns = {
+            'simple' : UriTemplate.parse(
+                imports, method.mediaUpload.protocols.simple.path),
+            'resumable' : UriTemplate.parse(
+                imports, method.mediaUpload.protocols.resumable.path),
+        };
+        if (method.mediaUpload.protocols.simple.multipart != true ||
+            method.mediaUpload.protocols.resumable.multipart != true) {
+          throw new ArgumentError('We always require simple/resumable upload '
+                                  'protocols with multipart support.');
+        }
+      }
+
       return new DartResourceMethod(imports, methodName, comment,
           dartRequestParameter,
           positionalParameters, optionalParameters, dartResponseType, jsonName,
-          method.path, method.httpMethod,
+          UriTemplate.parse(imports, method.path), method.httpMethod,
           makeBoolean(method.supportsMediaUpload),
-          makeBoolean(method.supportsMediaDownload), method.mediaUpload);
+          makeBoolean(method.supportsMediaDownload), mediaUploadPatterns);
     }
 
     bool topLevel = parentName.isEmpty;
