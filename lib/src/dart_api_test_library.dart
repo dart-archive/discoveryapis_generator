@@ -215,8 +215,7 @@ testFromSchema(apiTestLibrary, schema) {
   } else if (schema is DoubleType) {
     return new DoubleSchemaTest(apiTestLibrary, schema);
   } else if (schema is NumberType) {
-    // We're using DoubleSchemaTest here, but it really doesn't matter.
-    return new DoubleSchemaTest(apiTestLibrary, schema);
+    return new NumberSchemaTest(apiTestLibrary, schema);
   } else if (schema is BooleanType) {
     return new BooleanSchemaTest(apiTestLibrary, schema);
   } else if (schema is StringType) {
@@ -278,6 +277,14 @@ class IntSchemaTest extends PrimitiveSchemaTest<IntegerType> {
 class DoubleSchemaTest extends PrimitiveSchemaTest<DoubleType> {
   DoubleSchemaTest(apiTestLibrary, schema) : super(apiTestLibrary, schema);
   String get declaration => 'core.double';
+  String get newSchemaExpr => '42.0';
+  String checkSchemaStatement(String o)
+      => 'unittest.expect($o, unittest.equals(42.0));';
+}
+
+class NumberSchemaTest extends PrimitiveSchemaTest<NumberType> {
+  NumberSchemaTest(apiTestLibrary, schema) : super(apiTestLibrary, schema);
+  String get declaration => 'core.num';
   String get newSchemaExpr => '42.0';
   String checkSchemaStatement(String o)
       => 'unittest.expect($o, unittest.equals(42.0));';
