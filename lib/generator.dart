@@ -2,6 +2,7 @@ library discovery_api_client_generator;
 
 import "dart:io";
 import "dart:async";
+import "dart:convert";
 import 'package:google_discovery_v1_api/discovery_v1_api_client.dart';
 import 'package:google_discovery_v1_api/discovery_v1_api_console.dart';
 
@@ -25,31 +26,43 @@ List<GenerateResult> generateApiPackage(
   return apisPackageGenerator.generateApiPackage();
 }
 
-Future<RestDescription> fetchApiDescriptions(String name, String version) {
-  return _discoveryClient.apis.getRest(name, version);
+List<GenerateResult> generateAllLibraries(String inputDirectory,
+                                          String outputDirectory) {
+  var apiDescriptions = new Directory(inputDirectory).listSync()
+      .where((fse) => fse is File && fse.path.endsWith('.json'))
+      .map((File file) {
+    return new RestDescription.fromJson(JSON.decode(file.readAsStringSync()));
+  }).toList();
+  return generateApiPackage(apiDescriptions, outputDirectory);
 }
 
-Future<GenerateResult> generateLibrary(
-    String apiName, String apiVersion, String output) {
-
-  return fetchApiDescriptions(apiName, apiVersion).then((RestDescription doc) {
-    return generateApiPackage([doc], output).first;
-  });
-}
-
-Future<List<GenerateResult>> generateAllLibraries(String outputDirectory) {
+Future<List<GenerateResult>> downloadDiscoveryDocuments(String outputDir) {
   var apiDescriptions = <RestDescription>[];
 
   return _discoveryClient.apis.list().then((DirectoryList list) {
     var futures = <Future>[];
     for (var item in list.items) {
-      futures.add(fetchApiDescriptions(item.name, item.version).then((doc) {
+      futures.add(_discoveryClient.apis.getRest(item.name, item.version)
+          .then((doc) {
         apiDescriptions.add(doc);
       }));
     }
     return Future.wait(futures);
   }).then((_) {
-    return generateApiPackage(apiDescriptions, outputDirectory);
+    var directory = new Directory(outputDir);
+    if (directory.existsSync()) {
+      print('Deleting directory $outputDir.');
+      directory.deleteSync(recursive: true);
+    }
+    directory.createSync();
+
+    for (var description in apiDescriptions) {
+      var name = '$outputDir/${description.name}__${description.version}.json';
+      var file = new File(name);
+      var encoder = new JsonEncoder.withIndent('    ');
+      file.writeAsStringSync(encoder.convert(description.toJson()));
+      print('Written: $name');
+    }
   });
 }
 

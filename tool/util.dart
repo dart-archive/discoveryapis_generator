@@ -3,18 +3,8 @@ library discovery_api_client_generator.util;
 import 'dart:async';
 import 'dart:io';
 import 'package:path/path.dart' as pathos;
-import 'package:bot_io/bot_io.dart';
-import 'package:hop/hop.dart';
 
 import "package:discovery_api_client_generator/generator.dart";
-
-dynamic generateAnalyzeAll(TaskContext ctx) {
-  return TempDir.then((Directory dir) {
-    return generateAllLibraries(dir.path).then((List<GenerateResult> results) {
-      return analyzePackage(dir.path, results);
-    });
-  });
-}
 
 Future<AnalyzerResult> analyzePackage(String dir,
                                       List<GenerateResult> results) {

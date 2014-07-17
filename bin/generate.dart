@@ -6,140 +6,72 @@ import "dart:convert";
 
 import "package:args/args.dart";
 import "package:discovery_api_client_generator/generator.dart";
-import 'package:google_discovery_v1_api/discovery_v1_api_client.dart';
 
-void printUsage(parser) {
-  print("""
-discovery_api_client_generator: creates a Client library based on a discovery document
-
-Usage:
-   generate.dart -a <API> -v <Version> -o <Directory> (to load from Google Discovery API)
-or generate.dart -u <URL> -o <Directory> (to load discovery document from specified URL)
-or generate.dart -i <File> -o <Directory> (to load discovery document from local file)
-or generate.dart --all -o <Directory> (to create libraries for all Google APIs)
-""");
-  print(parser.getUsage());
+ArgParser downloadCommandArgParser() {
+  return new ArgParser()
+      ..addOption('output-dir',
+                  abbr: 'o',
+                  help: 'Output directory of discovery documents.',
+                  defaultsTo: 'googleapis-discovery-documents');
 }
 
-const _argHelp = 'help';
-const _argAll = 'all';
-const _argApi = 'api';
-const _argVersion = 'version';
-const _argUrl = 'url';
-const _argInput = 'input';
-const _argOutput = 'output';
-const _argDate = 'date';
+ArgParser generateCommandArgParser() {
+  return new ArgParser()
+      ..addOption('input-dir',
+                  abbr: 'i',
+                  help: 'Input directory of discovery documents.',
+                  defaultsTo: 'googleapis-discovery-documents')
+      ..addOption('output-dir',
+                  abbr: 'o',
+                  help: 'Output directory of generated API package.',
+                  defaultsTo: 'googleapis');
+}
 
-ArgParser _getParser() => new ArgParser()
-  ..addOption(_argApi, abbr: "a", help: "Short name of the Google API (plus, drive, ...)")
-  ..addOption(_argVersion, abbr: "v", help: "Google API version (v1, v2, v1alpha, ...)")
-  ..addOption(_argInput, abbr: "i", help: "Local Discovery document file")
-  ..addOption(_argUrl, abbr: "u", help: "URL of a Discovery document")
-  ..addFlag(_argAll, help: "Create client libraries for all Google APIs", negatable: false)
-  ..addOption(_argOutput, abbr: "o", help: "Output Directory")
-  ..addFlag(_argDate, help: "Create sub folder with current date", negatable: false)
-  ..addFlag(_argHelp, abbr: "h", help: "Display this information and exit", negatable: false);
+ArgParser globalArgParser() {
+  return new ArgParser()
+      ..addCommand('download', downloadCommandArgParser())
+      ..addCommand('generate', generateCommandArgParser())
+      ..addOption('help',
+                  abbr: 'h',
+                  help: 'Displays usage information.');
+}
 
-ArgResults _getParserResults(ArgParser parser, List<String> arguments) {
+ArgResults parseArguments(ArgParser parser, List<String> arguments) {
   try {
     return parser.parse(arguments);
   } on FormatException catch(e) {
-    print("Error parsing arguments:\n${e.message}\n");
-    printUsage(parser);
-    exit(1);
+    dieWithUsage(parser, "Error parsing arguments:\n${e.message}\n");
   }
 }
 
+void dieWithUsage(ArgParser parser, [String message]) {
+  if (message != null) {
+    print(message);
+  }
+  print("Usage:");
+  print(parser.getUsage());
+  exit(1);
+}
+
 void main(List<String> arguments) {
-  var parser = _getParser();
-  var result = _getParserResults(parser, arguments);
+  var parser = globalArgParser();
+  var options = parseArguments(parser, arguments);
+  var commandOptions = options.command;
 
-  bool help = result[_argHelp];
-
-  if(result.rest.isNotEmpty) {
-    print('Unexpected arguments: ${result.rest}');
-    printUsage(parser);
-
-    exit(1);
-    // unneeded, but paranoid
-    return;
+  if (options['help'] != null ||
+      commandOptions == null ||
+      !['download', 'generate'].contains(commandOptions.name)) {
+    dieWithUsage(parser, 'Invalid command');
   }
 
-  if (help) {
-    printUsage(parser);
-    return;
-  }
-
-  bool all = result[_argAll];
-
-  String api = result[_argApi];
-  String version = result[_argVersion];
-  String input = result[_argInput];
-  String url = result[_argUrl];
-
-  if ((api == null || version == null)
-      && input == null && url == null
-      && !all) {
-    print("Missing arguments\n");
-    printUsage(parser);
-
-    exit(1);
-    // unneeded, but paranoid
-    return;
-  }
-
-  var argumentErrors = false;
-  argumentErrors = argumentErrors ||
-      (api != null &&  (input != null || url != null || all));
-  argumentErrors = argumentErrors||
-      (input != null && (url != null || all));
-  argumentErrors = argumentErrors ||
-      (url != null && all);
-  if (argumentErrors) {
-    print("You can only define one kind of operation.\n");
-    printUsage(parser);
-
-    exit(1);
-    // unneeded, but paranoid
-    return;
-  }
-
-  String output = result[_argOutput];
-  if(output == null || output.isEmpty) {
-    print('Must provide an ouput directory');
-    printUsage(parser);
-
-    exit(1);
-    // unneeded, but paranoid
-    return;
-  }
-
-  // TODO: validate valid path?
-
-  bool useDate = result[_argDate];
-  assert(useDate != null);
-
-  if (useDate) {
-    output = "$output/${fileDate(new DateTime.now())}";
-  }
-
-  if (api != null) {
-    generateLibrary(api, version, output);
-  } else if (!all) {
-    Future<String> loader;
-    if (url != null) {
-      loader = _loadDocumentFromUrl(url);
-    } else {
-      assert(input != null);
-      loader = _loadDocumentFromFile(input);
-    }
-
-    loader.then((String doc) {
-      var description = new RestDescription.fromJson(JSON.decode(doc));
-      printResults(generateApiPackage([description], output));
-    });
-  } else {
-    generateAllLibraries(output).then(printResults);
+  switch (commandOptions.name) {
+    case 'download' :
+      downloadDiscoveryDocuments(commandOptions['output-dir']);
+      break;
+    case 'generate' :
+      printResults(generateAllLibraries(commandOptions['input-dir'],
+                                        commandOptions['output-dir']));
+      break;
   }
 }
 
@@ -150,6 +82,9 @@ void printResults(List<GenerateResult> results) {
     if (result.success) successfull++;
   }
   print("Successfull: $successfull, Failed: ${results.length - successfull}");
+  /*if (successfull != results.length) {
+    exit(1);
+  }*/
 }
 
 Future<String> _loadDocumentFromUrl(String url) {
