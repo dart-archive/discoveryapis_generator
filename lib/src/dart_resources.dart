@@ -8,9 +8,10 @@ const RESERVED_METHOD_PARAMETER_NAMES =
  */
 class OAuth2Scope {
   final String url;
+  final Identifier identifier;
   final Comment comment;
 
-  OAuth2Scope(this.url, this.comment);
+  OAuth2Scope(this.url, this.identifier, this.comment);
 }
 
 /**
@@ -416,7 +417,6 @@ class DartApiClass extends DartResourceClass {
   final String rootUrl;
   final String basePath;
   final List<OAuth2Scope> scopes;
-  final Identifier scopesName;
 
   DartApiClass(DartApiImports imports,
                Identifier name,
@@ -424,25 +424,19 @@ class DartApiClass extends DartResourceClass {
                List<DartResourceMethod> methods,
                List<Identifier> subResourceIdentifiers,
                List<DartResourceClass> subResources,
-               this.rootUrl, this.basePath, this.scopes, this.scopesName)
+               this.rootUrl, this.basePath, this.scopes)
       : super(imports, name, comment, methods,
               subResourceIdentifiers, subResources);
 
   String get preamble {
     var sb = new StringBuffer();
-    sb.writeln('  /** List of Oauth2 scopes for [${className.name}] */');
-    if (scopes.isEmpty) {
-      sb.writeln('  static final Scopes = const [];');
-    } else {
-      sb.writeln('  static final Scopes = const [');
-      scopes.forEach((OAuth2Scope scope) {
-        var doc = scope.comment.asDartDoc(4);
-        sb.writeln('$doc    "${escapeString(scope.url)}",');
-      });
-      sb.writeln('  ];');
+    scopes.forEach((OAuth2Scope scope) {
+      var doc = scope.comment.asDartDoc(2);
+      sb.writeln('$doc  static final ${scope.identifier} = '
+                 '"${escapeString(scope.url)}";');
       sb.writeln('');
-    }
-
+    });
+    sb.writeln('');
     return '$sb';
   }
 
@@ -630,7 +624,6 @@ DartApiClass parseResources(DartApiImports imports,
     }
 
     var classScope = namer.newClassScope();
-    var scopeId = classScope.newIdentifier('Scopes');
 
     var dartMethods = [];
     if (methods != null) {
@@ -659,15 +652,19 @@ DartApiClass parseResources(DartApiImports imports,
 
       if (description.auth != null && description.auth.oauth2 != null) {
         orderedForEach(description.auth.oauth2.scopes, (scope, description) {
+
+        var scopeId = classScope.newIdentifier(
+            Scope.toValidScopeName(scope));
+
           scopes.add(new OAuth2Scope(scope,
+                                     scopeId,
                                      new Comment(description.description)));
         });
       }
 
       return new DartApiClass(
           imports, className, coment, dartMethods, dartSubResourceIdentifiers,
-          dartSubResource, description.rootUrl, description.basePath, scopes,
-          scopeId);
+          dartSubResource, description.rootUrl, description.basePath, scopes);
     } else {
       return new DartResourceClass(
           imports, className, coment, dartMethods, dartSubResourceIdentifiers,

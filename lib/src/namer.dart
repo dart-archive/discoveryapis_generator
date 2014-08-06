@@ -89,19 +89,10 @@ class Scope {
    */
   static String toValidIdentifier(String preferredName,
                                   {bool removeUnderscores: true}) {
-    // Replace all a_b with aB.
+    // Replace all abc_xyz with abcXyz.
     if (removeUnderscores) {
-      int index = -1;
-      while ((index = preferredName.indexOf('_', 1)) > 0) {
-        if (index < (preferredName.length - 1)) {
-          var a = preferredName.substring(0, index);
-          var b = preferredName.substring(index + 1, index + 2);
-          var c = preferredName.substring(index + 2);
-          preferredName = '$a${b.toUpperCase()}$c';
-        } else {
-          break;
-        }
-      }
+      preferredName = Scope.capitalizeAtChar(
+          preferredName, '_', keepEnding: true);
     }
 
     preferredName = preferredName.replaceAll('-', '_').replaceAll('.', '_');
@@ -117,6 +108,50 @@ class Scope {
       preferredName = '${preferredName}_';
     }
     return preferredName;
+  }
+
+  static String toValidScopeName(String scope) {
+    var googleAuthPrefix = 'https://www.googleapis.com/auth/';
+    var httpsPrefix = 'https://';
+
+    var name;
+    if (scope.startsWith(googleAuthPrefix)) {
+      name = scope.substring(googleAuthPrefix.length);
+    } else if (scope.startsWith(httpsPrefix)){
+      name = scope.substring(httpsPrefix.length);
+    } else {
+      throw new ArgumentError('Scope $scope is not an https scope URL.');
+    }
+
+    name = Scope.capitalizeAtChar(name, '.');
+    name = Scope.capitalizeAtChar(name, '-');
+    name = Scope.capitalizeAtChar(name, '_');
+    name = Scope.capitalizeAtChar(name, '/');
+
+    return toValidIdentifier(capitalize('${name}Scope'));
+  }
+
+  static String capitalizeAtChar(String name,
+                                 String char,
+                                 {bool keepEnding: false}) {
+    int index = -1;
+    while ((index = name.indexOf(char, 1)) > 0) {
+      if (index == (name.length - 1)) {
+        if (!keepEnding) {
+          // Drop [char] at the end of the string.
+          name = name.substring(0, name.length - 1);
+        } else {
+          break;
+        }
+      } else {
+        // Drop [char] and make the next character and uppercase.
+        var a = name.substring(0, index);
+        var b = name.substring(index + 1 , index + 2);
+        var c = name.substring(index + 2);
+        name = '$a${b.toUpperCase()}$c';
+      }
+    }
+    return name;
   }
 
   /**

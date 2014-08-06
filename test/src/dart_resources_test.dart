@@ -229,10 +229,10 @@ main() {
             'auth' : {
               'oauth2' : {
                 'scopes' : {
-                  'http://foo.com' : {
+                  'https://foo.com' : {
                     'description' : 'com1',
                   },
-                  'http://bar.com' : {
+                  'https://bar.com' : {
                     'description' : 'com2',
                   }
                 }
@@ -243,9 +243,9 @@ main() {
           expect(apiClass.methods, isEmpty);
           expect(apiClass.subResources, isEmpty);
           expect(apiClass.scopes, hasLength(2));
-          expect(apiClass.scopes[0].url, equals('http://bar.com'));
+          expect(apiClass.scopes[0].url, equals('https://bar.com'));
           expect(apiClass.scopes[0].comment.rawComment, equals('com2'));
-          expect(apiClass.scopes[1].url, equals('http://foo.com'));
+          expect(apiClass.scopes[1].url, equals('https://foo.com'));
           expect(apiClass.scopes[1].comment.rawComment, equals('com1'));
         });
       });

@@ -30,6 +30,24 @@ main() {
       expect(capitalize('Abc'), equals('Abc'));
     });
 
+    test('scope-name', () {
+      scopename(x) => Scope.toValidScopeName(x);
+      expect(scopename('https://www.googleapis.com/auth/youtube.readonly'),
+             equals('YoutubeReadonlyScope'));
+      expect(scopename('https://www.googleapis.com/auth/youtube-readonly'),
+             equals('YoutubeReadonlyScope'));
+      expect(scopename('https://www.googleapis.com/auth/youtube_readonly'),
+             equals('YoutubeReadonlyScope'));
+      expect(scopename('https://www.googleapis.com/auth/youtube/readonly'),
+             equals('YoutubeReadonlyScope'));
+
+      expect(scopename('https://mail.google.com'),
+             equals('MailGoogleComScope'));
+      expect(scopename('https://mail.google.com/'),
+                   equals('MailGoogleComScope'));
+
+    });
+
     test('identifier', () {
       var identifier = new Identifier('x');
 
