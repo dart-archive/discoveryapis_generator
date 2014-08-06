@@ -67,8 +67,10 @@ class Scope {
    * Returns a valid identifier based on [preferredName] but different from all
    * other names previously returned by this method.
    */
-  Identifier newIdentifier(String preferredName) {
-    var identifier = new Identifier(Scope.toValidIdentifier(preferredName));
+  Identifier newIdentifier(String preferredName,
+                           {bool removeUnderscores: true}) {
+    var identifier = new Identifier(Scope.toValidIdentifier(
+        preferredName, removeUnderscores: removeUnderscores));
     identifiers.add(identifier);
     return identifier;
   }
@@ -85,8 +87,23 @@ class Scope {
   /**
    * Converts [preferredName] to a valid identifier.
    */
-  static String toValidIdentifier(String preferredName) {
-    // TODO: We may want to convert xx_yy to xxYx!
+  static String toValidIdentifier(String preferredName,
+                                  {bool removeUnderscores: true}) {
+    // Replace all a_b with aB.
+    if (removeUnderscores) {
+      int index = -1;
+      while ((index = preferredName.indexOf('_', 1)) > 0) {
+        if (index < (preferredName.length - 1)) {
+          var a = preferredName.substring(0, index);
+          var b = preferredName.substring(index + 1, index + 2);
+          var c = preferredName.substring(index + 2);
+          preferredName = '$a${b.toUpperCase()}$c';
+        } else {
+          break;
+        }
+      }
+    }
+
     preferredName = preferredName.replaceAll('-', '_').replaceAll('.', '_');
     preferredName = preferredName.replaceAll(_NonAscii, '_');
 
@@ -189,13 +206,14 @@ class ApiLibraryNamer {
   Scope get libraryScope => _libraryScope;
 
   String libraryName(String package, String api, String version) {
-    package = Scope.toValidIdentifier(package);
-    api = Scope.toValidIdentifier(api);
-    version = Scope.toValidIdentifier(version);
+    package = Scope.toValidIdentifier(package, removeUnderscores: false);
+    api = Scope.toValidIdentifier(api, removeUnderscores: false);
+    version = Scope.toValidIdentifier(version, removeUnderscores: false);
     return '$package.$api.$version';
   }
 
-  Identifier import(String name) => importScope.newIdentifier(name);
+  Identifier import(String name)
+      => importScope.newIdentifier(name, removeUnderscores: false);
 
   Identifier apiClass(String name)
       => _libraryScope.newIdentifier('${Scope.capitalize(name)}Api');
