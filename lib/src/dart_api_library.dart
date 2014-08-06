@@ -8,6 +8,7 @@ class DartApiImports {
 
   Identifier core;
   Identifier collection;
+  Identifier crypto;
   Identifier async;
   Identifier convert;
   Identifier httpBase;
@@ -25,6 +26,7 @@ class DartApiImports {
   DartApiImports.fromNamer(this.namer) {
     core = namer.import('core');
     collection = namer.import('collection');
+    crypto = namer.import('crypto');
     async = namer.import('async');
     convert = namer.import('convert');
     httpBase = namer.import('http_base');
@@ -91,6 +93,7 @@ import "dart:collection" as ${imports.collection};
 import "dart:async" as ${imports.async};
 import "dart:convert" as ${imports.convert};
 
+import "package:crypto/crypto.dart" as ${imports.crypto};
 import 'package:http_base/http_base.dart' as ${imports.httpBase};
 import '$internalSharedLibraryUri' as ${imports.internal};
 import '$externalSharedLibraryUri' as ${imports.external};

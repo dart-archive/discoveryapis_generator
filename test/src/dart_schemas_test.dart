@@ -51,6 +51,7 @@ main() {
             'properties' : {
               'age' : { 'type': 'integer' },
               'any' : { 'type': 'any' },
+              'icon' : { 'type': 'string', 'format' : 'byte' },
               'isMale' : { 'type': 'boolean' },
               'labels' : {
                 'type': 'array',
@@ -96,12 +97,18 @@ main() {
         expect(any.name.name, equals('any'));
         expect(any.type, equals(db.anyType));
 
-        var isMale = task.properties[2];
+        var icon = task.properties[2];
+        expect(icon, isNotNull);
+        expect(icon.name.name, equals('icon'));
+        expect(icon.type, equals(db.stringType));
+        expect(icon.byteArrayAccessor.name, equals('iconAsBytes'));
+
+        var isMale = task.properties[3];
         expect(isMale, isNotNull);
         expect(isMale.name.name, equals('isMale'));
         expect(isMale.type, equals(db.booleanType));
 
-        var labels = task.properties[3];
+        var labels = task.properties[4];
         expect(labels, isNotNull);
         expect(labels.name.name, equals('labels'));
         expect(labels.type is UnnamedArrayType, isTrue);
@@ -109,12 +116,12 @@ main() {
         expect(lablesTyped.className, isNull);
         expect(lablesTyped.innerType, equals(db.integerType));
 
-        var name = task.properties[4];
+        var name = task.properties[5];
         expect(name, isNotNull);
         expect(name.name.name, equals('name'));
         expect(name.type, equals(db.stringType));
 
-        var properties = task.properties[5];
+        var properties = task.properties[6];
         expect(properties, isNotNull);
         expect(properties.name.name, equals('properties'));
         expect(properties.type is UnnamedMapType, isTrue);

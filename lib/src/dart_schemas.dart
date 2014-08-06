@@ -45,7 +45,12 @@ class DartClassProperty {
   final DartSchemaType type;
   final String jsonName;
 
-  DartClassProperty(this.name, this.comment, this.type, this.jsonName);
+  // If this property is a base64 encoded bytes, this identifier will represent
+  // the name used for a setter/getter.
+  final Identifier byteArrayAccessor;
+
+  DartClassProperty(this.name, this.comment, this.type, this.jsonName,
+                    {this.byteArrayAccessor: null});
 }
 
 
@@ -472,7 +477,7 @@ class ObjectType extends ComplexDartSchemaType {
       var property = properties[i];
       var resolvedProperty = new DartClassProperty(
           property.name, property.comment, property.type.resolve(db),
-          property.jsonName);
+          property.jsonName, byteArrayAccessor: property.byteArrayAccessor);
       properties[i] = resolvedProperty;
     }
     return this;
@@ -498,6 +503,28 @@ class ObjectType extends ComplexDartSchemaType {
           '$comment  $prefix${property.type.declaration} ${property.name}'
           '$postfix;');
       propertyString.writeln();
+
+      if (property.byteArrayAccessor != null) {
+        propertyString.writeln(
+            '  ${imports.core}.List<${imports.core}.int> get '
+            '${property.byteArrayAccessor} {');
+        propertyString.writeln('    return '
+            '${imports.crypto}.CryptoUtils.base64StringToBytes'
+            '(${property.name});');
+        propertyString.writeln('  }');
+
+        propertyString.writeln();
+
+        propertyString.write(
+            '  void set ${property.byteArrayAccessor}');
+        propertyString.writeln(
+            '(${imports.core}.List<${imports.core}.int> _bytes) {');
+        propertyString.writeln('    ${property.name} = '
+            '${imports.crypto}.CryptoUtils.bytesToBase64(_bytes);');
+        propertyString.writeln('  }');
+
+        propertyString.writeln();
+      }
     });
 
     var fromJsonString = new StringBuffer();
@@ -766,8 +793,14 @@ DartSchemaTypeDB parseSchemas(DartApiImports imports,
             var propertyType = parse(propertyClass, propertyClassScope, value);
 
             var comment = new Comment(value.description);
+            var byteArrayAccessor = null;
+            if (value.format == 'byte' && value.type == 'string') {
+              byteArrayAccessor =
+                  classScope.newIdentifier('${jsonPName}AsBytes');
+            }
             var property = new DartClassProperty(
-                propertyName, comment, propertyType, jsonPName);
+                propertyName, comment, propertyType, jsonPName,
+                byteArrayAccessor: byteArrayAccessor);
             properties.add(property);
           });
         }
