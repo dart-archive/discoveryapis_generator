@@ -67,13 +67,8 @@ class Scope {
    * Returns a valid identifier based on [preferredName] but different from all
    * other names previously returned by this method.
    */
-  Identifier newIdentifier(String preferredName, {bool public: true}) {
-    var identifier;
-    if (public) {
-      identifier = new Identifier(Scope.toValidIdentifier(preferredName));
-    } else {
-      identifier = new Identifier('_${Scope.toValidIdentifier(preferredName)}');
-    }
+  Identifier newIdentifier(String preferredName) {
+    var identifier = new Identifier(Scope.toValidIdentifier(preferredName));
     identifiers.add(identifier);
     return identifier;
   }

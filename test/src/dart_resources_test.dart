@@ -79,7 +79,7 @@ main() {
     }
 
     Map buildMethods(String i) {
-      return {
+      var map = {
          'foo$i' : {
            'path' : 'foo$i/{id$i}',
            'httpMethod' : 'GET',
@@ -100,10 +100,18 @@ main() {
               'required' : true,
               'repeated' : true,
               'location' : 'query',
-            },
+            }
            },
          },
-       };
+      };
+      for (var reserved in RESERVED_METHOD_PARAMETER_NAMES) {
+        map['foo$i']['parameters'][reserved] = {
+            'type' : 'string',
+            'required' : true,
+            'location' : 'path',
+        };
+      }
+      return map;
     }
 
     checkMethods(String i, List<DartResourceMethod> methods) {
@@ -116,7 +124,8 @@ main() {
       expect(foo.urlPattern.parts[1] is VariableExpression, isTrue);
       expect(foo.urlPattern.parts[1].templateVar, equals('id$i'));
       expect(foo.httpMethod, equals('GET'));
-      expect(foo.parameters, hasLength(3));
+      expect(foo.parameters,
+             hasLength(3 + RESERVED_METHOD_PARAMETER_NAMES.length));
 
       var id = foo.parameters[0];
       expect(id, isNotNull);
@@ -140,6 +149,17 @@ main() {
       expect(reapetedQueryParam.type.innerType, equals(db.stringType));
       expect(reapetedQueryParam.required, isTrue);
       expect(reapetedQueryParam.encodedInPath, isFalse);
+
+      var rest = foo.parameters.skip(3).toList();
+      for (var reserved in RESERVED_METHOD_PARAMETER_NAMES) {
+        bool found = false;
+        for (var p in rest) {
+          if ('${reserved}_1' == p.name.name) {
+            found = true;
+          }
+        }
+        expect(found, isTrue);
+      }
     }
 
     Map buildResources(String i, {int level: 0}) {

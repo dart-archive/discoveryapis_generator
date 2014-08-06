@@ -1,5 +1,8 @@
 part of discovery_api_client_generator;
 
+const RESERVED_METHOD_PARAMETER_NAMES =
+    const ['uploadMedia', 'uploadOptions', 'downloadOptions', 'callOptions'];
+
 /**
  * Represents a oauth2 authentication scope.
  */
@@ -289,13 +292,13 @@ class DartResourceMethod {
 
 $urlPatternCode
 
-    var _response = _httpClient.request(_url,
-                                        "$httpMethod",
-                                        body: _body,
-                                        queryParams: _queryParams,
-                                        uploadOptions: _uploadOptions,
-                                        uploadMedia: _uploadMedia,
-                                        downloadOptions: _downloadOptions);
+    var _response = _requester.request(_url,
+                                       "$httpMethod",
+                                       body: _body,
+                                       queryParams: _queryParams,
+                                       uploadOptions: _uploadOptions,
+                                       uploadMedia: _uploadMedia,
+                                       downloadOptions: _downloadOptions);
 '''
     );
 
@@ -369,7 +372,7 @@ class DartResourceClass {
       var identifier = subResourceIdentifiers[i];
       var resource = subResources[i];
       str.writeln('  ${resource.className} get ${identifier.name} '
-                  '=> new ${resource.className}(_httpClient);');
+                  '=> new ${resource.className}(_requester);');
     }
     if (!str.isEmpty) str.writeln();
     return '$str';
@@ -378,7 +381,7 @@ class DartResourceClass {
   String get constructor {
     var str = new StringBuffer();
     str.writeln('  $className(${imports.internal}.ApiRequester client) : ');
-    str.writeln('      _httpClient = client;');
+    str.writeln('      _requester = client;');
     return '$str';
   }
 
@@ -395,7 +398,7 @@ class DartResourceClass {
     str.write(comment.asDartDoc(0));
     str.writeln('class $className {');
     str.write(preamble);
-    str.writeln('  final ${imports.internal}.ApiRequester _httpClient;');
+    str.writeln('  final ${imports.internal}.ApiRequester _requester;');
     str.writeln('');
     str.write('$fields$constructor$functions');
     str.writeln('}');
@@ -446,7 +449,7 @@ class DartApiClass extends DartResourceClass {
   String get constructor {
     var str = new StringBuffer();
     str.writeln('  $className(${imports.httpBase}.Client client) : ');
-    str.write('      _httpClient = new ${imports.internal}.ApiRequester'
+    str.write('      _requester = new ${imports.internal}.ApiRequester'
               '(client, "${escapeString(rootUrl)}", '
               '"${escapeString(basePath)}")');
     str.writeln(';');
@@ -471,6 +474,13 @@ DartApiClass parseResources(DartApiImports imports,
                                    RestMethod method) {
       var methodName = classScope.newIdentifier(jsonName);
       var parameterScope = classScope.newChildScope();
+
+      for (var reserved in RESERVED_METHOD_PARAMETER_NAMES) {
+        // We allocate all identifiers in [RESERVED_METHOD_PARAMETER_NAMES]
+        // at the beginning of the parameter scope, so they'll get the correct
+        // name.
+        parameterScope.newIdentifier(reserved);
+      }
 
       // This set will be reduced to all optional parameters.
       var pendingParameterNames = method.parameters != null
