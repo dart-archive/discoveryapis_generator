@@ -9,7 +9,8 @@ class Config {
   String get sdkConstraint => '>=1.0.0 <2.0.0';
 
   Map<String, Object> get dependencies => const {
-    'http_base': '\'>=0.0.1 <0.0.2\'',
+    // The Upper bound is due to bug http://dartbug.com/20404
+    'http_base': '\'>=0.0.2-dev <0.0.3\'',
     'crypto': '\'>=0.9.0 <0.10.0\'',
   };
 

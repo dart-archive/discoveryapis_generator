@@ -148,7 +148,7 @@ class ResourceTest extends TestHelper {
 
           sb.writeln('        // TODO: Validate [req.uri].');
           sb.writeln();
-          sb.writeln('        var h = new common_internal.HeadersImpl({');
+          sb.writeln('        var h = new http_base.HeadersImpl({');
           sb.writeln('          '
                      '"content-type" : ["application/json; charset=utf-8"],');
           sb.writeln('        });');

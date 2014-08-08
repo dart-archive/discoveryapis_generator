@@ -435,57 +435,12 @@ import "package:http_base/http_base.dart" as http_base;
 
 const CONTENT_TYPE_JSON_UTF8 = 'application/json; charset=utf-8';
 
-class HeadersImpl implements http_base.Headers {
-  final Map<String, List<String>> _m = {};
-
-  HeadersImpl(Map map) {
-    map.forEach((String key, List<String> values) {
-      _m[key.toLowerCase()] = values;
-    });
-  }
-
-  Iterable<String> get names => _m.keys;
-
-  bool contains(String name) =>  _m.containsKey(name.toLowerCase());
-
-  String operator [](String name) {
-    var values = _m[name.toLowerCase()];
-    if (values == null) return null;
-    if (values.length == 1) return values.first;
-    return values.join(',');
-  }
-
-  Iterable<String> getMultiple(String name) => _m[name.toLowerCase()];
-}
-
-class RequestImpl implements http_base.Request {
-  final String method;
-  final Uri url;
-  final http_base.Headers headers;
-  final Stream<List<int>> _body;
-
-  Stream<List<int>> read() => _body;
-
-  RequestImpl(this.method, this.url, this.headers, this._body);
-}
-
-class ResponseImpl implements http_base.Response {
-  final int status;
-  final http_base.Headers headers;
-  final Stream<List<int>> _body;
-
-  Stream<List<int>> read() => _body;
-
-  ResponseImpl(this.status, this.headers, this._body);
-}
-
-
 /**
  * Base class for all API clients, offering generic methods for
  * HTTP Requests to the API
  */
 class ApiRequester {
-  final http_base.Client _httpClient;
+  final http_base.RequestHandler _httpClient;
   final String _rootUrl;
   final String _basePath;
 
@@ -634,12 +589,13 @@ class ApiRequester {
     var uri = Uri.parse(path);
 
     Future simpleUpload() {
-      var headers = new HeadersImpl({
+      var headers = new http_base.HeadersImpl({
         'content-type' : [uploadMedia.contentType],
         'content-length' : ['${uploadMedia.length}']
       });
       var bodyStream = uploadMedia.stream;
-      var request = new RequestImpl(method, uri, headers, bodyStream);
+      var request = new http_base.RequestImpl(
+          method, uri, headers: headers, body: bodyStream);
       return _httpClient(request);
     }
 
@@ -655,7 +611,7 @@ class ApiRequester {
 
       var headers;
       if (downloadRange != null) {
-        headers = new HeadersImpl({
+        headers = new http_base.HeadersImpl({
           'content-type' : [CONTENT_TYPE_JSON_UTF8],
           'content-length' : ['$length'],
           'range' : [
@@ -663,14 +619,14 @@ class ApiRequester {
           ],
         });
       } else {
-        headers = new HeadersImpl({
+        headers = new http_base.HeadersImpl({
           'content-type' : [CONTENT_TYPE_JSON_UTF8],
           'content-length' : ['$length'],
         });
       }
 
-      return _httpClient(
-          new RequestImpl(method, uri, headers, bodyController.stream));
+      return _httpClient(new http_base.RequestImpl(
+          method, uri, headers: headers, body: bodyController.stream));
     }
 
     if (uploadMedia != null) {
@@ -711,7 +667,7 @@ class MultipartMediaUploader {
   static final _boundary = '314159265358979323846';
   static final _base64Encoder = new Base64Encoder();
 
-  final http_base.Client _httpClient;
+  final http_base.RequestHandler _httpClient;
   final common_external.Media _uploadMedia;
   final Uri _uri;
   final String _body;
@@ -751,12 +707,13 @@ class MultipartMediaUploader {
       bodyController.close();
     });
 
-    var headers = new HeadersImpl({
+    var headers = new http_base.HeadersImpl({
         'content-type' : ["multipart/related; boundary=\"$_boundary\""],
         'content-length' : ['$totalLength']
     });
     var bodyStream = bodyController.stream;
-    return _httpClient(new RequestImpl(_method, _uri, headers, bodyStream));
+    return _httpClient(new http_base.RequestImpl(
+        _method, _uri, headers: headers, body: bodyStream));
   }
 }
 
@@ -854,7 +811,7 @@ class Base64Encoder implements StreamTransformer<List<int>, String> {
  * Does media uploads using the resumable upload protocol.
  */
 class ResumableMediaUploader {
-  final http_base.Client _httpClient;
+  final http_base.RequestHandler _httpClient;
   final common_external.Media _uploadMedia;
   final Uri _uri;
   final String _body;
@@ -962,22 +919,22 @@ class ResumableMediaUploader {
     }
     var bodyStream = _bytes2Stream(bytes);
 
-    var headers = new HeadersImpl({
+    var headers = new http_base.HeadersImpl({
         'content-type' : [CONTENT_TYPE_JSON_UTF8],
         'content-length' : ['$length'],
         'x-upload-content-type' : [_uploadMedia.contentType],
         'x-upload-content-length' : ['${_uploadMedia.length}'],
     });
-    var request =
-        new RequestImpl(_method, _uri, headers, bodyStream);
+    var request = new http_base.RequestImpl(
+        _method, _uri, headers: headers, body: bodyStream);
 
     return _httpClient(request).then((http_base.Response response) {
       return response.read().drain().then((_) {
         var uploadUri = response.headers['location'];
-        if (response.status != 200 || uploadUri == null) {
+        if (response.statusCode != 200 || uploadUri == null) {
           throw new common_external.ApiRequestError(
               'Invalid response for resumable upload attempt '
-              '(status was: ${response.status})');
+              '(status was: ${response.statusCode})');
         }
         return Uri.parse(uploadUri);
       });
@@ -1003,7 +960,7 @@ class ResumableMediaUploader {
     tryUpload(int attemptsLeft) {
       return _uploadChunk(uri, chunk, lastChunk: lastChunk)
           .then((http_base.Response response) {
-        var status = response.status;
+        var status = response.statusCode;
         if (attemptsLeft > 0 &&
             (status == 500 || (502 <= status && status < 504))) {
           return response.read().drain().then((_) {
@@ -1064,7 +1021,7 @@ class ResumableMediaUploader {
       }
     }
 
-    var headers = new HeadersImpl({
+    var headers = new http_base.HeadersImpl({
         'content-type' : [_uploadMedia.contentType],
         'content-length' : ['${chunk.length}'],
         'content-range' :
@@ -1072,7 +1029,8 @@ class ResumableMediaUploader {
     });
 
     var stream = _listOfBytes2Stream(chunk.byteArrays);
-    var request = new RequestImpl('PUT', uri, headers, stream);
+    var request = new http_base.RequestImpl(
+        'PUT', uri, headers: headers, body: stream);
     return _httpClient(request);
   }
 
@@ -1268,14 +1226,14 @@ class Escaper {
 }
 
 Future<http_base.Response> _validateResponse(http_base.Response response) {
-  var statusCode = response.status;
+  var statusCode = response.statusCode;
 
   // TODO: We assume that status codes between [200..400[ are OK.
   // Can we assume this?
   if (statusCode < 200 || statusCode >= 400) {
     throwGeneralError() {
       throw new common_external.ApiRequestError(
-          'No error details. Http status was: ${response.status}.');
+          'No error details. Http status was: ${response.statusCode}.');
     }
 
     // Some error happened, try to decode the response and fetch the error.
@@ -1377,18 +1335,20 @@ http_base.Response stringResponse(int status,
                                   http_base.Headers headers,
                                   String body) {
   if (headers == null) {
-    headers = new HeadersImpl({});
+    headers = http_base.HeadersImpl.Empty;
   }
-  return new ResponseImpl(status, headers, byteStream(body));
+  return new http_base.ResponseImpl(
+      status, headers: headers, body: byteStream(body));
 }
 
 http_base.Response binaryResponse(int status,
                                  http_base.Headers headers,
                                  List<int> bytes) {
   if (headers == null) {
-    headers = new HeadersImpl({});
+    headers = http_base.HeadersImpl.Empty;
   }
-  return new ResponseImpl(status, headers, new Stream.fromIterable([bytes]));
+  return new http_base.ResponseImpl(
+      status, headers: headers, body: new Stream.fromIterable([bytes]));
 }
 
 Stream<List<int>> byteStream(String s) {
@@ -1500,7 +1460,7 @@ main() {
 
       var a = ['a1', 'a2', 'a3'];
       var b = ['b1'];
-      var headers = new HeadersImpl({'A' : a, 'b' : b});
+      var headers = new http_base.HeadersImpl({'A' : a, 'b' : b});
 
       expect(headers.contains('a'), isTrue);
       expect(headers.contains('A'), isTrue);
@@ -1672,7 +1632,7 @@ main() {
       var httpMock, rootUrl, basePath;
       ApiRequester requester;
 
-      var responseHeaders = new HeadersImpl({
+      var responseHeaders = new http_base.HeadersImpl({
           'content-type' : ['application/json; charset=utf-8'],
       });
 
@@ -1749,7 +1709,7 @@ main() {
             expect('${request.url}',
                    equals('http://example.com/base/abc?alt=media'));
             expect(data, isEmpty);
-            var headers = new HeadersImpl({
+            var headers = new http_base.HeadersImpl({
                 'content-length' : ['${data256.length}'],
                 'content-type' : ['foobar'],
             });
@@ -1779,7 +1739,7 @@ main() {
             expect(data, isEmpty);
             expect(request.headers['range'],
                    equals('bytes=128-191'));
-            var headers = new HeadersImpl({
+            var headers = new http_base.HeadersImpl({
                 'content-length' : ['${data64.length}'],
                 'content-type' : ['foobar'],
                 'content-range' : ['bytes 128-191/256'],
@@ -1812,7 +1772,7 @@ main() {
             expect(json[0], equals('a'));
             expect(json[1], equals(1));
 
-            var headers = new HeadersImpl({
+            var headers = new http_base.HeadersImpl({
                 'content-length' : ['${data256.length}'],
                 'content-type' : ['foobar'],
             });
@@ -1963,7 +1923,8 @@ main() {
               }),
               'response' : stringResponse(
                   200,
-                  new HeadersImpl({'location' : ['http://upload.com/'],}),
+                  new http_base.HeadersImpl(
+                      {'location' : 'http://upload.com/'}),
                   '')
             });
 
@@ -1993,7 +1954,7 @@ main() {
 
                 var response;
                 if (successfullResponse) {
-                  var headers = new HeadersImpl(
+                  var headers = new http_base.HeadersImpl(
                       isLast ? {
                         'content-type' : ['application/json; charset=utf-8'],
                       } : {
@@ -2001,7 +1962,7 @@ main() {
                       });
                   response = stringResponse(isLast ? 200 : 308, headers, '');
                 } else {
-                  var headers = new HeadersImpl({});
+                  var headers = new http_base.HeadersImpl({});
                   response = stringResponse(503, headers, '');
                 }
 
@@ -2171,7 +2132,7 @@ main() {
       // Tests for error responses
       group('request-errors', () {
         makeTestError() {
-          // All errors from the [http_base.Client] propagate through.
+          // All errors from the [http_base.RequestHandler] propagate through.
           // We use [TestError] to simulate it.
           httpMock.register(expectAsync((http_base.Request request, string) {
             return new Future.error(new TestError());
@@ -2196,7 +2157,7 @@ main() {
           httpMock.register(expectAsync((http_base.Request request, string) {
             var responseHeaders;
             if (contentType != null) {
-              responseHeaders = new HeadersImpl({
+              responseHeaders = new http_base.HeadersImpl({
                 'content-type' : [contentType],
               });
             }
