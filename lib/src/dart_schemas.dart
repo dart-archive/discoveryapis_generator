@@ -189,6 +189,20 @@ class StringType extends PrimitiveDartSchemaType {
 }
 
 
+class EnumType extends StringType {
+  final List<String> enumValues;
+  final List<String> enumDescriptions;
+
+  EnumType(DartApiImports imports, this.enumValues, this.enumDescriptions)
+      : super(imports) {
+    if (enumValues.length != enumDescriptions.length) {
+      throw new ArgumentError('Number of enum values does not match number of '
+          'enum descriptions.');
+    }
+  }
+}
+
+
 /**
  * Class representing "any" schema type.
  *
@@ -670,6 +684,7 @@ $toJsonString
 }
 
 
+
 /**
  * Parses all schemas in [description] and returns a [DartSchemaTypeDB].
  */
@@ -793,6 +808,7 @@ DartSchemaTypeDB parseSchemas(DartApiImports imports,
             var propertyType = parse(propertyClass, propertyClassScope, value);
 
             var comment = new Comment(value.description);
+            comment = extendEnumComment(comment, propertyType);
             var byteArrayAccessor = null;
             if (value.format == 'byte' && value.type == 'string') {
               byteArrayAccessor =
@@ -826,8 +842,12 @@ DartSchemaTypeDB parseSchemas(DartApiImports imports,
     } else if (schema.type == 'boolean') {
       return db.booleanType;
     } else if (schema.type == 'string') {
-      // FIXME: What about string enums?
-      return db.stringType;
+      if (schema.enumProperty != null) {
+        return register(new EnumType(
+            imports, schema.enumProperty, schema.enumDescriptions));
+      } else {
+        return db.stringType;
+      }
     } else if (schema.type == 'number') {
       return db.numberType;
     } else if (schema.type == 'double') {
@@ -881,6 +901,10 @@ DartSchemaType parseResolved(DartApiImports imports,
     throw new ArgumentError('Invalid JsonSchema.type (was: ${schema.type}).');
   }
   if (schema.repeated == null || !schema.repeated) {
+    if (schema.enumProperty != null) {
+      return new EnumType(
+          imports, schema.enumProperty, schema.enumDescriptions);
+    }
     return primitiveType;
   } else {
     return new UnnamedArrayType(imports, primitiveType);
@@ -902,4 +926,23 @@ String generateSchemas(DartSchemaTypeDB db) {
   });
 
   return '$sb';
+}
+
+
+Comment extendEnumComment(Comment baseComment, DartSchemaType type) {
+  if (type is EnumType) {
+    var s = new StringBuffer()
+        ..writeln(baseComment.rawComment)
+        ..writeln('Possible string values are:');
+    for (int i = 0; i < type.enumValues.length; i++) {
+      var description = type.enumDescriptions[i];
+      if (description != null && description.trim().length > 0) {
+        s.writeln('- "${type.enumValues[i]}" : $description');
+      } else {
+        s.writeln('- "${type.enumValues[i]}"');
+      }
+    }
+    return new Comment('$s');
+  }
+  return baseComment;
 }

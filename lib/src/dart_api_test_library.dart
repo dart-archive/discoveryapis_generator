@@ -220,6 +220,8 @@ testFromSchema(apiTestLibrary, schema) {
     return new BooleanSchemaTest(apiTestLibrary, schema);
   } else if (schema is StringType) {
     return new StringSchemaTest(apiTestLibrary, schema);
+  } else if (schema is EnumType) {
+    return new EnumSchemaTest(apiTestLibrary, schema);
   } else if (schema is UnnamedArrayType) {
     return new UnnamedArrayTest(apiTestLibrary, schema);
   } else if (schema is UnnamedMapType) {
@@ -304,6 +306,10 @@ class StringSchemaTest extends PrimitiveSchemaTest<StringType> {
   String get newSchemaExpr => '"foo"';
   String checkSchemaStatement(String o)
       => 'unittest.expect($o, unittest.equals("foo"));';
+}
+
+class EnumSchemaTest extends StringSchemaTest {
+  EnumSchemaTest(apiTestLibrary, schema) : super(apiTestLibrary, schema);
 }
 
 abstract class UnnamedSchemaTest<T> extends SchemaTest<T> {
