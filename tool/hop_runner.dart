@@ -71,6 +71,7 @@ Function commandRunner(String executable, List<String> arguments, {cwd}) {
     return Process.run(executable, arguments, workingDirectory: cwd)
         .then((ProcessResult result) {
       print("Running '$cmd' ... Done.");
+
       var code = result.exitCode;
       if (code != 0) {
         throw new Exception("Running '$executable ${arguments.join(' ')}' "

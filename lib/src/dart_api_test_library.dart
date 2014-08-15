@@ -125,67 +125,97 @@ class ResourceTest extends TestHelper {
 
   String get resourceTest {
     var sb = new StringBuffer();
+    var basePath = new StringPart(
+        apiLibrary.imports, apiLibrary.apiClass.basePath);
 
     var db = apiLibrary.schemaDB;
     withTestGroup(2, sb, 'resource-${resource.className}', () {
       for (var method in resource.methods) {
         withTest(4, sb, 'method--${method.name.name}', () {
-          sb.writeln('      // TODO: Implement tests for media upload;');
-          sb.writeln('      // TODO: Implement tests for media download;');
-          sb.writeln();
+          registerRequestHandlerMock(Map<MethodParameter, String> paramValues) {
+            sb.writeln('      mock.register(unittest.expectAsync('
+                       '(http_base.Request req, json) {');
+            if (method.requestParameter != null) {
+              var t = apiTestLibrary.schemaTests[method.requestParameter.type];
+              var name = method.requestParameter.type.className;
+              sb.writeln('        var obj = new api.${name}.fromJson(json);');
+              sb.writeln('        ${t.checkSchemaStatement('obj')}');
+              sb.writeln();
+            }
 
-          // Method building.
-          sb.writeln('      var mock = new common_test.HttpServerMock();');
-          sb.writeln('      mock.register(unittest.expectAsync('
-                     '(http_base.Request req, json) {');
-          if (method.requestParameter != null) {
-            var t = apiTestLibrary.schemaTests[method.requestParameter.type];
-            var name = method.requestParameter.type.className;
-            sb.writeln('        var obj = new api.${name}.fromJson(json);');
-            sb.writeln('        ${t.checkSchemaStatement('obj')}');
+            var test = new MethodArgsTest(
+                '(req.url)', basePath, method, paramValues);
+            sb.writeln(test.uriValidationStatements(8));
+            sb.writeln(test.queryValidationStatements(8));
             sb.writeln();
+            sb.writeln('        var h = new http_base.HeadersImpl({');
+            sb.writeln('          '
+                       '"content-type" : "application/json; charset=utf-8",');
+            sb.writeln('        });');
+            if (method.returnType == null) {
+              sb.writeln('        var resp = "";');
+            } else {
+              var t = apiTestLibrary.schemaTests[method.returnType];
+              sb.writeln('        var resp = '
+                         'convert.JSON.encode(${t.newSchemaExpr});');
+            }
+            sb.writeln('        return new async.Future.value('
+                       'common_test.stringResponse(200, h, resp));');
+            sb.writeln('      }), true);');
           }
 
-          sb.writeln('        // TODO: Validate [req.uri].');
+          Map<MethodParameter, String> buildParameterValues() {
+            var parameterValues = new Map<MethodParameter, String>();
+
+            void newParameter(MethodParameter p) {
+              var schemaTest = apiTestLibrary.schemaTests[p.type];
+              var name = 'arg_${p.name}';
+              sb.writeln('      var $name = ${schemaTest.newSchemaExpr};');
+              parameterValues[p] = name;
+            }
+
+            if (method.requestParameter != null) {
+              newParameter(method.requestParameter);
+            }
+            method.parameters.forEach(newParameter);
+            method.namedParameters.forEach(newParameter);
+
+            return parameterValues;
+          }
+
+          if (method.mediaUpload || method.mediaDownload) {
+            sb.writeln('      // TODO: Implement tests for media upload;');
+            sb.writeln('      // TODO: Implement tests for media download;');
+          }
           sb.writeln();
-          sb.writeln('        var h = new http_base.HeadersImpl({');
-          sb.writeln('          '
-                     '"content-type" : ["application/json; charset=utf-8"],');
-          sb.writeln('        });');
-          if (method.returnType == null) {
-            sb.writeln('        var resp = "";');
-          } else {
-            var t = apiTestLibrary.schemaTests[method.returnType];
-            sb.writeln('        var resp = '
-                       'convert.JSON.encode(${t.newSchemaExpr});');
-          }
-          sb.writeln('        return new async.Future.value('
-                     'common_test.stringResponse(200, h, resp));');
-          sb.writeln('      }), true);');
 
-          // Method argument building
+          // Construct http request handler mock.
+          sb.writeln('      var mock = new common_test.HttpServerMock();');
+          // Construct resource class
           sb.writeln('      api.${resource.className} res = '
                      '${apiConstruction('mock')};');
+          // Build method arguments
+          var paramValues = buildParameterValues();
+          // Build the http request handler mock implementation
+          registerRequestHandlerMock(paramValues);
 
+          // Build the method call arguments.
           var args = [];
-          void newParameter(MethodParameter p) {
-            var schemaTest = apiTestLibrary.schemaTests[p.type];
-            var name = 'arg_${p.name}';
-            sb.writeln('      var $name = ${schemaTest.newSchemaExpr};');
+          addArg(p, name) {
             if (p.required) {
               args.add(name);
             } else {
               args.add('${p.name}: $name');
             }
           }
-
           if (method.requestParameter != null) {
-            newParameter(method.requestParameter);
+            addArg(method.requestParameter,
+                   paramValues[method.requestParameter]);
           }
-          method.parameters.forEach(newParameter);
-          method.namedParameters.forEach(newParameter);
+          method.parameters.forEach((p) => addArg(p, paramValues[p]));
+          method.namedParameters.forEach((p) => addArg(p, paramValues[p]));
 
-          // Method call
+          // Call the method & check the result
           sb.write('      res.${method.name}(${args.join(', ')})'
                    '.then(unittest.expectAsync(');
           if (method.returnType == null) {
@@ -204,6 +234,152 @@ class ResourceTest extends TestHelper {
     return '$sb';
   }
 }
+
+
+class MethodArgsTest {
+  final String uriExpr;
+  final StringPart basePath;
+  final DartResourceMethod method;
+  final Map<MethodParameter, String> parameterValues;
+
+  MethodArgsTest(
+      this.uriExpr, this.basePath, this.method, this.parameterValues);
+
+  String uriValidationStatements(int indentationLevel) {
+    var sb = new StringBuffer();
+    var spaces = ' ' * indentationLevel;
+    ln(x) => sb.writeln(spaces + x);
+
+    ln('var path = ${uriExpr}.path;');
+    ln('var pathOffset = 0;');
+    ln('var index;');
+    ln('var subPart;');
+
+    var parts = [];
+    var firstPart = method.urlPattern.parts.first;
+    if (!(firstPart is StringPart && firstPart.staticString.startsWith('/'))) {
+      parts.add(basePath);
+    }
+    parts.addAll(method.urlPattern.parts);
+
+    for (int i = 0; i < parts.length; i++) {
+      var part = parts[i];
+      var isLast = i == (parts.length - 1);
+      if (part is StringPart) {
+        var str = part.staticString;
+        ln(expectEqual('path.substring(pathOffset, pathOffset + ${str.length})',
+                       '"${escapeString(str)}"'));
+        ln('pathOffset += ${str.length};');
+      } else if (part is VariableExpression) {
+        if (!isLast) {
+          var nextPart = parts[i+1];
+          if (nextPart is! StringPart) {
+            throw "two variable expansions in a row not supported";
+          }
+          ln('index = path.indexOf('
+              '"${escapeString(nextPart.staticString)}", pathOffset);');
+          ln(expectIsTrue('index >= 0'));
+          ln('subPart = core.Uri.decodeQueryComponent'
+             '(path.substring(pathOffset, index));');
+          ln('pathOffset = index;');
+        } else {
+          ln('subPart = core.Uri.decodeQueryComponent'
+              '(path.substring(pathOffset));');
+          ln('pathOffset = path.length;');
+        }
+        var name = parameterValues[_findMethodParameter(part.templateVar)];
+        ln(expectEqual('subPart', '"\$$name"'));
+      } else if (part is PathVariableExpression) {
+        if (!isLast) {
+          throw 'path variable expansions are only supported at the end';
+        }
+        var name = parameterValues[_findMethodParameter(part.templateVar)];
+        ln('var parts = path.substring(pathOffset).split("/")'
+           '.map(core.Uri.decodeQueryComponent).where((p) => p.length > 0)'
+           '.toList();');
+        ln(expectEqual('parts', '$name'));
+      } else {
+        // This is probably pub sub with the broken usage of the reserved
+        // variable expansions
+        ln('// NOTE: We cannot test reserved expansions due to the inability to'
+            ' reverse the operation;');
+        break;
+      }
+    }
+    return '$sb';
+  }
+
+  String queryValidationStatements(int indentationLevel) {
+    var sb = new StringBuffer();
+    var spaces = ' ' * indentationLevel;
+    ln(x) => sb.writeln(spaces + x);
+
+    ln('var query = ${uriExpr}.query;');
+    ln('var queryOffset = 0;');
+    ln('var queryMap = {};');
+    ln('addQueryParam(n, v) => queryMap.putIfAbsent(n, () => []).add(v);');
+    ln('for (var part in query.split("&")) {');
+    ln('  var keyvalue = part.split("=");');
+    ln('  addQueryParam(core.Uri.decodeQueryComponent(keyvalue[0]), '
+       'core.Uri.decodeQueryComponent(keyvalue[1]));');
+    ln('}');
+
+    checkParameter(MethodParameter p) {
+      var name = parameterValues[p];
+      var type = p.type;
+      var queryMapValue = 'queryMap["${escapeString(p.jsonName)}"]';
+
+      if (!p.encodedInPath) {
+        if (type is IntegerType) {
+          ln(expectEqual(intParse('${queryMapValue}.first'), name));
+        } else if (p.type is UnnamedArrayType) {
+          if (type.innerType is IntegerType) {
+            ln(expectEqual('${queryMapValue}.map(core.int.parse).toList()',
+                           name));
+          } else if (type.innerType is StringType) {
+            ln(expectEqual('${queryMapValue}', name));
+          } else {
+            throw 'unsupported inner type ${type.innerType}';
+          }
+        } else if (type is StringType) {
+          ln(expectEqual('${queryMapValue}.first', name));
+        } else if (type is NumberType) {
+          ln(expectEqual(numParse('${queryMapValue}.first'), name));
+        } else if (type is BooleanType) {
+          ln(expectEqual('${queryMapValue}.first', '"\$$name"'));
+        } else {
+          throw 'unsupported parameter type ${p.type}';
+        }
+      }
+    }
+
+    method.parameters.forEach(checkParameter);
+    method.namedParameters.forEach(checkParameter);
+
+    return '$sb';
+  }
+
+  expectEqual(a, b) => 'unittest.expect($a, unittest.equals($b));';
+
+  expectIsTrue(a) => 'unittest.expect($a, unittest.isTrue);';
+
+  intParse(arg) => 'core.int.parse($arg)';
+
+  numParse(arg) => 'core.num.parse($arg)';
+
+  _findMethodParameter(String varname) {
+    var parameters = parameterValues
+        .keys
+        .where((parameter) => parameter.jsonName == varname)
+        .toList();
+    if (parameters.length != 1) {
+      throw "Invalid generator. Expected exactly one parameter of name "
+            "$varname";
+    }
+    return parameters[0];
+  }
+}
+
 
 testFromSchema(apiTestLibrary, schema) {
   if (schema is ObjectType) {

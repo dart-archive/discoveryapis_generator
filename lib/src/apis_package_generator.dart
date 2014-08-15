@@ -173,42 +173,71 @@ class ApisPackageGenerator {
   }
 
   void _writeReadme(StringSink sink) {
-    sink.write("""
-# ${config.name}
+    sink.write(r"""
+# Package of Google APIs.
 
-### Description
+## Description
 
-Auto-generated client libraries for accessing Google APIs.
+This repository contains auto-generated client libraries for accessing 
+Google APIs using dart. It has the usual dart package layout.
 
-### Usage
+## Usage
 
-Adding dependency to pubspec.yaml
+The first step is to obtain oauth2 access credentials. This can be done using
+the `googleapis_auth` package. Your application can access APIs on behalf of a
+user or using a service account.
+
+After obtaining credentials, an API from the `googleapis` package can be
+accessed with an authenticated HTTP client.
+
+The following is an example of a command line application which lists files
+in Google Drive by using a service account. 
+
+Create a pubspec.yaml file with the `googleapis_auth` and `googleapis`
+dependencies.
 
 ```
-  dependencies:
-    googleapis: any
+...
+dependencies:
+  googleapis: any
+  googleapis_auth: any
 ```
 
-TODO(kustermann):
-Add instructions on how to get an authenticated client.
-
-Import API and use it, e.g.
+Create a service account in the Google Cloud Console and save the credential
+information. After that the Cloud Storage API can be accessed like this:
 
 ```
-  import 'package:googleapis/drive/v1.dart' as drive_api;
+import 'package:googleapis/storage/v1.dart';
+import 'package:googleapis_auth/auth_io.dart';
 
-  main() {
-    var drive = new drive_api.Drive();
-    // TODO(kustermann: Make a real example here.
-    drive.list().then((List<Files> files) {
+final Credentials = new ServiceAccountCredentials.fromJson(r'''
+{
+  "private_key_id": ...,
+  "private_key": ...,
+  "client_email": ...,
+  "client_id": ...,
+  "type": "service_account"
+}
+''');
+
+void main() {
+  clientViaServiceAccount(Credentials,
+                          [StorageApi.DevstorageReadOnlyScope]).then((http) {
+    var storage = new StorageApi(http);
+    storage.buckets.list('dart-on-cloud').then((buckets) {
+      print("Received ${buckets.items.length} bucket names:");
+      for (var file in buckets.items) {
+        print(file.name);
+      }
     });
-  }
-
+  });
+}
 ```
 
-');
+## Available Google APIs
 
-
+The following is a list of APIs that are currently available inside this
+pacakge.
 """);
     for (RestDescription description in descriptions) {
       sink.write("#### ");

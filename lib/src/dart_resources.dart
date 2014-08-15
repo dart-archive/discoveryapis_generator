@@ -223,9 +223,11 @@ class DartResourceMethod {
     }
 
     encodeQueryParam(MethodParameter param) {
+      var isList = param.type is UnnamedArrayType ||
+                   param.type is NamedArrayType;
       var propertyAssignment =
           '_addParameter'
-          '("${escapeString(param.jsonName)}", ${param.name});';
+          '("${escapeString(param.jsonName)}", ${param.name}, ${isList});';
 
       if (param.required) {
         if (param.type is UnnamedArrayType) {
@@ -336,9 +338,14 @@ $urlPatternCode
     var _downloadOptions = ${imports.external}.DownloadOptions.Metadata;
     var _body = null;
 
-    _addParameter(${imports.core}.String name, value) {
+    _addParameter(${imports.core}.String name, value,
+                  ${imports.core}.bool isList) {
       var values = _queryParams.putIfAbsent(name, () => []);
-      values.add('\$value');
+      if (isList) {
+        values.addAll(value.map((item) => '\$item'));
+      } else {
+        values.add('\$value');
+      }
     }
 
 $params$requestCode''');
