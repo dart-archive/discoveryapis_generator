@@ -17,6 +17,13 @@ part "src/namer.dart";
 part "src/utils.dart";
 part "src/uri_template.dart";
 
+
+Future<List<DirectoryListItems>> listAllApis() {
+  return _discoveryClient.apis.list().then((DirectoryList list) {
+    return list.items;
+  });
+}
+
 List<GenerateResult> generateApiPackage(
     List<RestDescription> descriptions, String outputDirectory) {
   var config = new Config('googleapis', '0.1.0-dev');
@@ -36,16 +43,19 @@ List<GenerateResult> generateAllLibraries(String inputDirectory,
   return generateApiPackage(apiDescriptions, outputDirectory);
 }
 
-Future<List<GenerateResult>> downloadDiscoveryDocuments(String outputDir) {
+Future<List<GenerateResult>> downloadDiscoveryDocuments(
+    String outputDir, {List<String> ids}) {
   var apiDescriptions = <RestDescription>[];
 
   return _discoveryClient.apis.list().then((DirectoryList list) {
     var futures = <Future>[];
     for (var item in list.items) {
-      futures.add(_discoveryClient.apis.getRest(item.name, item.version)
-          .then((doc) {
-        apiDescriptions.add(doc);
-      }));
+      if (ids == null || ids.contains(item.id)) {
+        futures.add(_discoveryClient.apis.getRest(item.name, item.version)
+            .then((doc) {
+          apiDescriptions.add(doc);
+        }));
+      }
     }
     return Future.wait(futures);
   }).then((_) {
@@ -54,7 +64,7 @@ Future<List<GenerateResult>> downloadDiscoveryDocuments(String outputDir) {
       print('Deleting directory $outputDir.');
       directory.deleteSync(recursive: true);
     }
-    directory.createSync();
+    directory.createSync(recursive: true);
 
     for (var description in apiDescriptions) {
       var name = '$outputDir/${description.name}__${description.version}.json';
