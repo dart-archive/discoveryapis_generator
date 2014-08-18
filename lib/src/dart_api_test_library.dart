@@ -236,7 +236,7 @@ class ResourceTest extends TestHelper {
 }
 
 
-class MethodArgsTest {
+class MethodArgsTest extends TestHelper {
   final String uriExpr;
   final StringPart basePath;
   final DartResourceMethod method;
@@ -318,6 +318,12 @@ class MethodArgsTest {
     ln('var queryOffset = 0;');
     ln('var queryMap = {};');
     ln('addQueryParam(n, v) => queryMap.putIfAbsent(n, () => []).add(v);');
+    ln('parseBool(n) {');
+    ln('  if (n == "true") return true;');
+    ln('  if (n == "false") return false;');
+    ln('  if (n == null) return null;');
+    ln('  throw new ArgumentError("Invalid boolean: \$n");');
+    ln('}');
     ln('for (var part in query.split("&")) {');
     ln('  var keyvalue = part.split("=");');
     ln('  addQueryParam(core.Uri.decodeQueryComponent(keyvalue[0]), '
@@ -338,6 +344,9 @@ class MethodArgsTest {
                            name));
           } else if (type.innerType is StringType) {
             ln(expectEqual('${queryMapValue}', name));
+          } else if (type.innerType is BooleanType) {
+            ln(expectEqual('${queryMapValue}.map(parseBool).toList()',
+                           name));
           } else {
             throw 'unsupported inner type ${type.innerType}';
           }
@@ -358,14 +367,6 @@ class MethodArgsTest {
 
     return '$sb';
   }
-
-  expectEqual(a, b) => 'unittest.expect($a, unittest.equals($b));';
-
-  expectIsTrue(a) => 'unittest.expect($a, unittest.isTrue);';
-
-  intParse(arg) => 'core.int.parse($arg)';
-
-  numParse(arg) => 'core.num.parse($arg)';
 
   _findMethodParameter(String varname) {
     var parameters = parameterValues
@@ -448,40 +449,35 @@ class IntSchemaTest extends PrimitiveSchemaTest<IntegerType> {
   IntSchemaTest(apiTestLibrary, schema) : super(apiTestLibrary, schema);
   String get declaration => 'core.int';
   String get newSchemaExpr => '42';
-  String checkSchemaStatement(String o)
-      => 'unittest.expect($o, unittest.equals(42));';
+  String checkSchemaStatement(String o) => expectEqual(o, '42');
 }
 
 class DoubleSchemaTest extends PrimitiveSchemaTest<DoubleType> {
   DoubleSchemaTest(apiTestLibrary, schema) : super(apiTestLibrary, schema);
   String get declaration => 'core.double';
   String get newSchemaExpr => '42.0';
-  String checkSchemaStatement(String o)
-      => 'unittest.expect($o, unittest.equals(42.0));';
+  String checkSchemaStatement(String o) => expectEqual(o, '42.0');
 }
 
 class NumberSchemaTest extends PrimitiveSchemaTest<NumberType> {
   NumberSchemaTest(apiTestLibrary, schema) : super(apiTestLibrary, schema);
   String get declaration => 'core.num';
   String get newSchemaExpr => '42.0';
-  String checkSchemaStatement(String o)
-      => 'unittest.expect($o, unittest.equals(42.0));';
+  String checkSchemaStatement(String o) => expectEqual(o, '42.0');
 }
 
 class BooleanSchemaTest extends PrimitiveSchemaTest<BooleanType> {
   BooleanSchemaTest(apiTestLibrary, schema) : super(apiTestLibrary, schema);
   String get declaration => 'core.bool';
   String get newSchemaExpr => 'true';
-  String checkSchemaStatement(String o)
-      => 'unittest.expect($o, unittest.isTrue);';
+  String checkSchemaStatement(String o) => expectIsTrue(o);
 }
 
 class StringSchemaTest extends PrimitiveSchemaTest<StringType> {
   StringSchemaTest(apiTestLibrary, schema) : super(apiTestLibrary, schema);
   String get declaration => 'core.String';
   String get newSchemaExpr => '"foo"';
-  String checkSchemaStatement(String o)
-      => 'unittest.expect($o, unittest.equals("foo"));';
+  String checkSchemaStatement(String o) => expectEqual(o, "'foo'");
 }
 
 class EnumSchemaTest extends StringSchemaTest {
@@ -527,7 +523,7 @@ class UnnamedMapTest extends UnnamedSchemaTest<UnnamedMapType> {
 
     var sb = new StringBuffer();
     withFunc(0, sb, 'checkUnnamed$_id', '$declaration o', () {
-      sb.writeln('  unittest.expect(o, unittest.hasLength(2));');
+      sb.writeln('  ${expectHasLength('o', '2')}');
       sb.writeln('  ${innerTest.checkSchemaStatement('o["x"]')}');
       sb.writeln('  ${innerTest.checkSchemaStatement('o["y"]')}');
     });
@@ -561,7 +557,7 @@ class UnnamedArrayTest<T> extends UnnamedSchemaTest<UnnamedArrayType> {
 
     var sb = new StringBuffer();
     withFunc(0, sb, 'checkUnnamed$_id', '$declaration o', () {
-      sb.writeln('  unittest.expect(o, unittest.hasLength(2));');
+      sb.writeln('  ${expectHasLength('o', '2')}');
       sb.writeln('  ${innerTest.checkSchemaStatement('o[0]')}');
       sb.writeln('  ${innerTest.checkSchemaStatement('o[1]')}');
     });
@@ -667,7 +663,7 @@ class NamedArraySchemaTest extends NamedSchemaTest<NamedArrayType> {
 
     var sb = new StringBuffer();
     withFunc(0, sb, 'check${schema.className.name}', '$declaration o', () {
-      sb.writeln('  unittest.expect(o, unittest.hasLength(2));');
+      sb.writeln('  ${expectHasLength('o', '2')}');
       sb.writeln('  ${innerTest.checkSchemaStatement('o[0]')}');
       sb.writeln('  ${innerTest.checkSchemaStatement('o[1]')}');
     });
@@ -696,7 +692,7 @@ class NamedMapSchemaTest extends NamedSchemaTest<NamedMapType> {
 
     var sb = new StringBuffer();
     withFunc(0, sb, 'check${schema.className.name}', '$declaration o', () {
-      sb.writeln('  unittest.expect(o, unittest.hasLength(2));');
+      sb.writeln('  ${expectHasLength('o', '2')}');
       sb.writeln('  ${innerTest.checkSchemaStatement('o["a"]')}');
       sb.writeln('  ${innerTest.checkSchemaStatement('o["b"]')}');
     });
@@ -758,14 +754,12 @@ class AnySchemaTest extends SchemaTest<AnyType> {
 
   String checkSchemaStatement(String o) {
     _counter++;
-    var uhl = 'unittest.hasLength';
-    var ue = 'unittest.expect';
-    var ueq = 'unittest.equals';
-    return "var casted$_counter = ($o) as core.Map; "
-           "$ue(casted$_counter, $uhl(3)); "
-           "$ue(casted$_counter['list'], $ueq([1, 2, 3])); "
-           "$ue(casted$_counter['bool'], $ueq(true)); "
-           "$ue(casted$_counter['string'], $ueq('foo'));";
+    var name = 'casted$_counter';
+    return "var $name = ($o) as core.Map; "
+           "${expectHasLength(name, '3')} "
+           "${expectEqual('$name["list"]', [1, 2, 3])} "
+           "${expectEqual('$name["bool"]', true)} "
+           "${expectEqual('$name["string"]', "'foo'")} ";
   }
 }
 
@@ -802,4 +796,16 @@ class TestHelper {
     buffer.write(spaces);
     buffer.writeln('});');
   }
+
+
+  expectEqual(a, b) => 'unittest.expect($a, unittest.equals($b));';
+
+  expectIsTrue(a) => 'unittest.expect($a, unittest.isTrue);';
+
+  expectHasLength(a, b) => 'unittest.expect($a, unittest.hasLength($b));';
+
+  intParse(arg) => 'core.int.parse($arg)';
+
+  numParse(arg) => 'core.num.parse($arg)';
+
 }

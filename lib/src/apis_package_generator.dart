@@ -459,7 +459,7 @@ import "dart:convert";
 import "dart:collection" as collection;
 
 import "package:crypto/crypto.dart" as crypto;
-import "package:googleapis/common/common.dart" as common_external;
+import "../common/common.dart" as common_external;
 import "package:http_base/http_base.dart" as http_base;
 
 const CONTENT_TYPE_JSON_UTF8 = 'application/json; charset=utf-8';

@@ -671,9 +671,11 @@ DartApiClass parseResources(DartApiImports imports,
         });
       }
 
+      var rootUrl = Uri.parse(description.rootUrl).resolve('/').toString();
+
       return new DartApiClass(
           imports, className, coment, dartMethods, dartSubResourceIdentifiers,
-          dartSubResource, description.rootUrl, description.basePath, scopes);
+          dartSubResource, rootUrl, description.basePath, scopes);
     } else {
       return new DartResourceClass(
           imports, className, coment, dartMethods, dartSubResourceIdentifiers,
