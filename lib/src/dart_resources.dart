@@ -272,6 +272,8 @@ class DartResourceMethod {
     }
     if (mediaDownload) {
       requestCode.writeln('    _downloadOptions = downloadOptions;');
+    } else if (returnType == null) {
+      requestCode.writeln('    _downloadOptions = null;');
     }
 
     var urlPatternCode = new StringBuffer();

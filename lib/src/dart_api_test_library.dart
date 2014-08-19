@@ -322,12 +322,14 @@ class MethodArgsTest extends TestHelper {
     ln('  if (n == "true") return true;');
     ln('  if (n == "false") return false;');
     ln('  if (n == null) return null;');
-    ln('  throw new ArgumentError("Invalid boolean: \$n");');
+    ln('  throw new core.ArgumentError("Invalid boolean: \$n");');
     ln('}');
-    ln('for (var part in query.split("&")) {');
-    ln('  var keyvalue = part.split("=");');
-    ln('  addQueryParam(core.Uri.decodeQueryComponent(keyvalue[0]), '
+    ln('if (query.length > 0) {');
+    ln('  for (var part in query.split("&")) {');
+    ln('    var keyvalue = part.split("=");');
+    ln('    addQueryParam(core.Uri.decodeQueryComponent(keyvalue[0]), '
        'core.Uri.decodeQueryComponent(keyvalue[1]));');
+    ln('  }');
     ln('}');
 
     checkParameter(MethodParameter p) {

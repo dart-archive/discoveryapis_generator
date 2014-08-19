@@ -484,12 +484,13 @@ class ApiRequester {
    * [body] and/or [uploadMedia] in the request.
    *
    * If [uploadMedia] was specified [downloadOptions] must be
-   * [DownloadOptions.Metadata].
+   * [DownloadOptions.Metadata] or `null`.
    *
    * If [downloadOptions] is [DownloadOptions.Metadata] the result will be
    * decoded as JSON.
    *
-   * [downloadOptions] must never be null.
+   * If [downloadOptions] is `null` the result will be a Future completing with
+   * `null`.
    *
    * Otherwise the result will be downloaded as a [common_external.Media]
    */
@@ -515,7 +516,11 @@ class ApiRequester {
                     downloadOptions,
                     downloadRange)
         .then(_validateResponse).then((http_base.Response response) {
-      if (downloadOptions == common_external.DownloadOptions.Metadata) {
+      if (downloadOptions == null) {
+        // If no download options are given, the response is of no interest
+        // and we will drain the stream.
+        return response.read().drain();
+      } else if (downloadOptions == common_external.DownloadOptions.Metadata) {
         // Downloading JSON Metadata
         var stringStream = _decodeStreamAsText(response);
         if (stringStream != null) {
@@ -571,6 +576,7 @@ class ApiRequester {
                   common_external.DownloadOptions downloadOptions,
                   common_external.ByteRange downloadRange) {
     bool downloadAsMedia =
+        downloadOptions != null &&
         downloadOptions != common_external.DownloadOptions.Metadata;
 
     if (queryParams == null) queryParams = {};
@@ -587,7 +593,7 @@ class ApiRequester {
 
     if (downloadAsMedia) {
       queryParams['alt'] = const ['media'];
-    } else {
+    } else if (downloadOptions != null) {
       queryParams['alt'] = const ['json'];
     }
 
@@ -1179,7 +1185,7 @@ class ResumableChunk {
 }
 
 class Escaper {
-  // Character class definitions from RFC 6570 
+  // Character class definitions from RFC 6570
   // (see http://tools.ietf.org/html/rfc6570)
   // ALPHA          =  %x41-5A / %x61-7A   ; A-Z / a-z
   // DIGIT          =  %x30-39             ; 0
@@ -1314,6 +1320,7 @@ Map mapMap(Map source, [Object convert(Object source) = null]) {
   });
   return result;
 }
+
 """;
 
 
