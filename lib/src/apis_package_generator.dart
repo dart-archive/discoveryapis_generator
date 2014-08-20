@@ -18,7 +18,7 @@ part of discovery_api_client_generator;
 class ApisPackageGenerator {
   final List<RestDescription> descriptions;
   final String packageFolderPath;
-  final Config config;
+  final Pubspec config;
 
   /// [descriptions] is a list of API descriptions we want to generate code for.
   /// [config] contains configuration parameters for this API package generator.
@@ -69,10 +69,6 @@ class ApisPackageGenerator {
     new Directory(testCommonFolderPath).createSync(recursive: true);
 
     _writeFile(pubspecYamlPath, _writePubspec);
-
-    _writeString(licensePath, _license);
-
-    _writeFile(readmePath, _writeReadme);
 
     _writeString(gitIgnorePath, _gitIgnore);
 
@@ -158,106 +154,19 @@ class ApisPackageGenerator {
 
     sink.writeln("name: ${config.name}");
     sink.writeln("version: ${config.version}");
-    sink.writeln("author: Dart Team <misc@dartlang.org>");
-    sink.writeln("description: Auto-generated client libraries for accessing "
-                 "the following APIS.\n"
-                 "TODO(kustermann): insert all apis here.");
-    sink.writeln("homepage: https://github.com/dart-lang/"
-                 "discovery_api_dart_client_generator");
+    if (config.author != null) {
+      sink.writeln("author: ${config.author}");
+    }
+    sink.writeln("description: ${config.description}");
+    if (config.homepage != null) {
+      sink.writeln("homepage: ${config.homepage}");
+    }
     sink.writeln("environment:");
     sink.writeln("  sdk: '${config.sdkConstraint}'");
     sink.writeln("dependencies:");
     writeDependencies(config.dependencies);
     sink.writeln("dev_dependencies:");
     writeDependencies(config.devDependencies);
-  }
-
-  void _writeReadme(StringSink sink) {
-    sink.write(r"""
-# Package of Google APIs.
-
-## Description
-
-This repository contains auto-generated client libraries for accessing 
-Google APIs using dart. It has the usual dart package layout.
-
-## Usage
-
-The first step is to obtain oauth2 access credentials. This can be done using
-the `googleapis_auth` package. Your application can access APIs on behalf of a
-user or using a service account.
-
-After obtaining credentials, an API from the `googleapis` package can be
-accessed with an authenticated HTTP client.
-
-The following is an example of a command line application which lists files
-in Google Drive by using a service account. 
-
-Create a pubspec.yaml file with the `googleapis_auth` and `googleapis`
-dependencies.
-
-```
-...
-dependencies:
-  googleapis: any
-  googleapis_auth: any
-```
-
-Create a service account in the Google Cloud Console and save the credential
-information. After that the Cloud Storage API can be accessed like this:
-
-```
-import 'package:googleapis/storage/v1.dart';
-import 'package:googleapis_auth/auth_io.dart';
-
-final Credentials = new ServiceAccountCredentials.fromJson(r'''
-{
-  "private_key_id": ...,
-  "private_key": ...,
-  "client_email": ...,
-  "client_id": ...,
-  "type": "service_account"
-}
-''');
-
-void main() {
-  clientViaServiceAccount(Credentials,
-                          [StorageApi.DevstorageReadOnlyScope]).then((http) {
-    var storage = new StorageApi(http);
-    storage.buckets.list('dart-on-cloud').then((buckets) {
-      print("Received ${buckets.items.length} bucket names:");
-      for (var file in buckets.items) {
-        print(file.name);
-      }
-    });
-  });
-}
-```
-
-## Available Google APIs
-
-The following is a list of APIs that are currently available inside this
-pacakge.
-""");
-    for (RestDescription description in descriptions) {
-      sink.write("#### ");
-      if (description.icons != null && description.icons.x16 != null) {
-        sink.write("![Logo](${description.icons.x16}) ");
-      }
-      sink.writeln(
-          '${description.title} - ${description.name} ${description.version}');
-      sink.writeln();
-      sink.writeln('${description.description}');
-      sink.writeln();
-      if (description.documentationLink != null) {
-        sink.writeln(
-            'Official API documentation: ${description.documentationLink}');
-        sink.writeln();
-      }
-    }
-    sink.writeln('### Licenses\n\n```');
-    sink.write(_license);
-    sink.writeln('```');
   }
 
   static const _COMMON_EXTERNAL_LIBRARY = r"""

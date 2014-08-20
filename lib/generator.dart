@@ -7,7 +7,6 @@ import 'package:google_discovery_v1_api/discovery_v1_api_client.dart';
 import 'package:google_discovery_v1_api/discovery_v1_api_console.dart';
 
 part "src/apis_package_generator.dart";
-part "src/config.dart";
 part "src/dart_api_library.dart";
 part "src/dart_api_test_library.dart";
 part "src/dart_comments.dart";
@@ -17,6 +16,34 @@ part "src/namer.dart";
 part "src/utils.dart";
 part "src/uri_template.dart";
 
+/**
+ * Specifaction of the pubspec.yaml for a generated package.
+ */
+class Pubspec {
+  final String name;
+  final String version;
+  final String description;
+  final String author;
+  final String homepage;
+
+  Pubspec(this.name,
+          this.version,
+          this.description,
+          {this.author,
+           this.homepage});
+
+  String get sdkConstraint => '>=1.0.0 <2.0.0';
+
+  Map<String, Object> get dependencies => const {
+    // The Upper bound is due to bug http://dartbug.com/20404
+    'http_base': '\'>=0.0.2-dev <0.0.3\'',
+    'crypto': '\'>=0.9.0 <0.10.0\'',
+  };
+
+  Map<String, Object> get devDependencies => const {
+    'unittest': '\'>=0.10.0 <0.12.0\'',
+  };
+}
 
 Future<List<DirectoryListItems>> listAllApis() {
   return _discoveryClient.apis.list().then((DirectoryList list) {
@@ -24,23 +51,24 @@ Future<List<DirectoryListItems>> listAllApis() {
   });
 }
 
-List<GenerateResult> generateApiPackage(
-    List<RestDescription> descriptions, String outputDirectory) {
-  var config = new Config('googleapis', '0.1.0-dev');
+List<GenerateResult> generateApiPackage(List<RestDescription> descriptions,
+                                        String outputDirectory,
+                                        Pubspec pubspec) {
   var apisPackageGenerator = new ApisPackageGenerator(
-      descriptions, config, outputDirectory);
+      descriptions, pubspec, outputDirectory);
 
   return apisPackageGenerator.generateApiPackage();
 }
 
 List<GenerateResult> generateAllLibraries(String inputDirectory,
-                                          String outputDirectory) {
+                                          String outputDirectory,
+                                          Pubspec pubspec) {
   var apiDescriptions = new Directory(inputDirectory).listSync()
       .where((fse) => fse is File && fse.path.endsWith('.json'))
       .map((File file) {
     return new RestDescription.fromJson(JSON.decode(file.readAsStringSync()));
   }).toList();
-  return generateApiPackage(apiDescriptions, outputDirectory);
+  return generateApiPackage(apiDescriptions, outputDirectory, pubspec);
 }
 
 Future<List<GenerateResult>> downloadDiscoveryDocuments(

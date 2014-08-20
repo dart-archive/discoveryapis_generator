@@ -23,8 +23,21 @@ ArgParser generateCommandArgParser() {
                   defaultsTo: 'googleapis-discovery-documents')
       ..addOption('output-dir',
                   abbr: 'o',
-                  help: 'Output directory of generated API package.',
-                  defaultsTo: 'googleapis');
+                  help: 'Output directory of the generated API package.',
+                  defaultsTo: 'googleapis')
+      ..addOption('package-name',
+                  help: 'Name of the generated API package.',
+                  defaultsTo: 'googleapis')
+      ..addOption('package-version',
+                  help: 'Version of the generated API package.',
+                  defaultsTo: '0.1.0-dev')
+      ..addOption('package-description',
+                  help: 'Description of the generated API package.',
+                  defaultsTo: 'Auto-generated client libraries.')
+      ..addOption('package-author',
+                  help: 'Author of the generated API package.')
+      ..addOption('package-homepage',
+                  help: 'Homepage of the generated API package.');
 }
 
 ArgParser globalArgParser() {
@@ -69,8 +82,14 @@ void main(List<String> arguments) {
       downloadDiscoveryDocuments(commandOptions['output-dir']);
       break;
     case 'generate' :
+      var pubspec = new Pubspec(commandOptions['package-name'],
+                                commandOptions['package-version'],
+                                commandOptions['package-description'],
+                                author: commandOptions['package-author'],
+                                homepage: commandOptions['package-homepage']);
       printResults(generateAllLibraries(commandOptions['input-dir'],
-                                        commandOptions['output-dir']));
+                                        commandOptions['output-dir'],
+                                        pubspec));
       break;
   }
 }
