@@ -11,7 +11,7 @@ class DartApiImports {
   Identifier crypto;
   Identifier async;
   Identifier convert;
-  Identifier httpBase;
+  Identifier http;
 
   /**
    * A symbol for the prefix import of the shared internal library.
@@ -29,7 +29,7 @@ class DartApiImports {
     crypto = namer.import('crypto');
     async = namer.import('async');
     convert = namer.import('convert');
-    httpBase = namer.import('http_base');
+    http = namer.import('http');
     internal = namer.import('common_internal');
     external = namer.import('common');
   }
@@ -94,7 +94,7 @@ import "dart:async" as ${imports.async};
 import "dart:convert" as ${imports.convert};
 
 import "package:crypto/crypto.dart" as ${imports.crypto};
-import 'package:http_base/http_base.dart' as ${imports.httpBase};
+import 'package:http/http.dart' as ${imports.http};
 import '$internalSharedLibraryUri' as ${imports.internal};
 import '$externalSharedLibraryUri' as ${imports.external};
 

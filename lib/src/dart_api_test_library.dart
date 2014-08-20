@@ -87,7 +87,8 @@ import "dart:collection" as collection;
 import "dart:async" as async;
 import "dart:convert" as convert;
 
-import 'package:http_base/http_base.dart' as http_base;
+import 'package:http/http.dart' as http;
+import 'package:http/testing.dart' as http_testing;
 import 'package:unittest/unittest.dart' as unittest;
 import 'package:googleapis/common/common.dart' as common;
 import 'package:googleapis/src/common_internal.dart' as common_internal;
@@ -134,7 +135,7 @@ class ResourceTest extends TestHelper {
         withTest(4, sb, 'method--${method.name.name}', () {
           registerRequestHandlerMock(Map<MethodParameter, String> paramValues) {
             sb.writeln('      mock.register(unittest.expectAsync('
-                       '(http_base.Request req, json) {');
+                       '(http.BaseRequest req, json) {');
             if (method.requestParameter != null) {
               var t = apiTestLibrary.schemaTests[method.requestParameter.type];
               var name = method.requestParameter.type.className;
@@ -148,10 +149,10 @@ class ResourceTest extends TestHelper {
             sb.writeln(test.uriValidationStatements(8));
             sb.writeln(test.queryValidationStatements(8));
             sb.writeln();
-            sb.writeln('        var h = new http_base.HeadersImpl({');
+            sb.writeln('        var h = {');
             sb.writeln('          '
                        '"content-type" : "application/json; charset=utf-8",');
-            sb.writeln('        });');
+            sb.writeln('        };');
             if (method.returnType == null) {
               sb.writeln('        var resp = "";');
             } else {

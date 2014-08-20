@@ -369,7 +369,7 @@ import "dart:collection" as collection;
 
 import "package:crypto/crypto.dart" as crypto;
 import "../common/common.dart" as common_external;
-import "package:http_base/http_base.dart" as http_base;
+import "package:http/http.dart" as http;
 
 const CONTENT_TYPE_JSON_UTF8 = 'application/json; charset=utf-8';
 
@@ -378,7 +378,7 @@ const CONTENT_TYPE_JSON_UTF8 = 'application/json; charset=utf-8';
  * HTTP Requests to the API
  */
 class ApiRequester {
-  final http_base.RequestHandler _httpClient;
+  final http.Client _httpClient;
   final String _rootUrl;
   final String _basePath;
 
@@ -424,11 +424,11 @@ class ApiRequester {
                     uploadMedia, uploadOptions,
                     downloadOptions,
                     downloadRange)
-        .then(_validateResponse).then((http_base.Response response) {
+        .then(_validateResponse).then((http.StreamedResponse response) {
       if (downloadOptions == null) {
         // If no download options are given, the response is of no interest
         // and we will drain the stream.
-        return response.read().drain();
+        return response.stream.drain();
       } else if (downloadOptions == common_external.DownloadOptions.Metadata) {
         // Downloading JSON Metadata
         var stringStream = _decodeStreamAsText(response);
@@ -473,7 +473,7 @@ class ApiRequester {
         }
 
         return new common_external.Media(
-            response.read(), contentLength, contentType: contentType);
+            response.stream, contentLength, contentType: contentType);
       }
     });
   }
@@ -533,14 +533,13 @@ class ApiRequester {
     var uri = Uri.parse(path);
 
     Future simpleUpload() {
-      var headers = new http_base.HeadersImpl({
-        'content-type' : [uploadMedia.contentType],
-        'content-length' : ['${uploadMedia.length}']
-      });
       var bodyStream = uploadMedia.stream;
-      var request = new http_base.RequestImpl(
-          method, uri, headers: headers, body: bodyStream);
-      return _httpClient(request);
+      var request = new RequestImpl(method, uri, bodyStream);
+      request.headers.addAll({
+        'content-type' : uploadMedia.contentType,
+        'content-length' : '${uploadMedia.length}'
+      });
+      return _httpClient.send(request);
     }
 
     Future simpleRequest() {
@@ -555,22 +554,21 @@ class ApiRequester {
 
       var headers;
       if (downloadRange != null) {
-        headers = new http_base.HeadersImpl({
-          'content-type' : [CONTENT_TYPE_JSON_UTF8],
-          'content-length' : ['$length'],
-          'range' : [
-              'bytes=${downloadRange.start}-${downloadRange.end}',
-          ],
-        });
+        headers = {
+          'content-type' : CONTENT_TYPE_JSON_UTF8,
+          'content-length' : '$length',
+          'range' :  'bytes=${downloadRange.start}-${downloadRange.end}',
+        };
       } else {
-        headers = new http_base.HeadersImpl({
-          'content-type' : [CONTENT_TYPE_JSON_UTF8],
-          'content-length' : ['$length'],
-        });
+        headers = {
+          'content-type' : CONTENT_TYPE_JSON_UTF8,
+          'content-length' : '$length',
+        };
       }
 
-      return _httpClient(new http_base.RequestImpl(
-          method, uri, headers: headers, body: bodyController.stream));
+      var request = new RequestImpl(method, uri, bodyController.stream);
+      request.headers.addAll(headers);
+      return _httpClient.send(request);
     }
 
     if (uploadMedia != null) {
@@ -611,7 +609,7 @@ class MultipartMediaUploader {
   static final _boundary = '314159265358979323846';
   static final _base64Encoder = new Base64Encoder();
 
-  final http_base.RequestHandler _httpClient;
+  final http.Client _httpClient;
   final common_external.Media _uploadMedia;
   final Uri _uri;
   final String _body;
@@ -620,7 +618,7 @@ class MultipartMediaUploader {
   MultipartMediaUploader(
       this._httpClient, this._uploadMedia, this._body, this._uri, this._method);
 
-  Future<http_base.Response> upload() {
+  Future<http.StreamedResponse> upload() {
     var base64MediaStream =
         _uploadMedia.stream.transform(_base64Encoder).transform(ASCII.encoder);
     var base64MediaStreamLength =
@@ -651,13 +649,14 @@ class MultipartMediaUploader {
       bodyController.close();
     });
 
-    var headers = new http_base.HeadersImpl({
-        'content-type' : ["multipart/related; boundary=\"$_boundary\""],
-        'content-length' : ['$totalLength']
-    });
+    var headers = {
+        'content-type' : "multipart/related; boundary=\"$_boundary\"",
+        'content-length' : '$totalLength'
+    };
     var bodyStream = bodyController.stream;
-    return _httpClient(new http_base.RequestImpl(
-        _method, _uri, headers: headers, body: bodyStream));
+    var request = new RequestImpl(_method, _uri, bodyStream);
+    request.headers.addAll(headers);
+    return _httpClient.send(request);
   }
 }
 
@@ -755,7 +754,7 @@ class Base64Encoder implements StreamTransformer<List<int>, String> {
  * Does media uploads using the resumable upload protocol.
  */
 class ResumableMediaUploader {
-  final http_base.RequestHandler _httpClient;
+  final http.Client _httpClient;
   final common_external.Media _uploadMedia;
   final Uri _uri;
   final String _body;
@@ -767,16 +766,16 @@ class ResumableMediaUploader {
       this._options);
 
   /**
-   * Returns the final [http_base.Response] if the upload succeded and completes
-   * with an error otherwise.
+   * Returns the final [http.StreamedResponse] if the upload succeded and
+   * completes with an error otherwise.
    *
    * The returned response stream has not been listened to.
    */
-  Future<http_base.Response> upload() {
+  Future<http.StreamedResponse> upload() {
     return _startSession().then((Uri uploadUri) {
       StreamSubscription subscription;
 
-      var completer = new Completer<http_base.Response>();
+      var completer = new Completer<http.StreamedResponse>();
       bool completed = false;
 
       var chunkStack = new ChunkStack(_options.chunkSize);
@@ -863,17 +862,16 @@ class ResumableMediaUploader {
     }
     var bodyStream = _bytes2Stream(bytes);
 
-    var headers = new http_base.HeadersImpl({
-        'content-type' : [CONTENT_TYPE_JSON_UTF8],
-        'content-length' : ['$length'],
-        'x-upload-content-type' : [_uploadMedia.contentType],
-        'x-upload-content-length' : ['${_uploadMedia.length}'],
+    var request = new RequestImpl(_method, _uri, bodyStream);
+    request.headers.addAll({
+      'content-type' : CONTENT_TYPE_JSON_UTF8,
+      'content-length' : '$length',
+      'x-upload-content-type' : _uploadMedia.contentType,
+      'x-upload-content-length' : '${_uploadMedia.length}',
     });
-    var request = new http_base.RequestImpl(
-        _method, _uri, headers: headers, body: bodyStream);
 
-    return _httpClient(request).then((http_base.Response response) {
-      return response.read().drain().then((_) {
+    return _httpClient.send(request).then((http.StreamedResponse response) {
+      return response.stream.drain().then((_) {
         var uploadUri = response.headers['location'];
         if (response.statusCode != 200 || uploadUri == null) {
           throw new common_external.ApiRequestError(
@@ -891,7 +889,7 @@ class ResumableMediaUploader {
    */
   Future _uploadChunkDrained(Uri uri, ResumableChunk chunk) {
     return _uploadChunkResumable(uri, chunk).then((response) {
-      return response.read().drain();
+      return response.stream.drain();
     });
   }
 
@@ -903,11 +901,11 @@ class ResumableMediaUploader {
                                {bool lastChunk: false}) {
     tryUpload(int attemptsLeft) {
       return _uploadChunk(uri, chunk, lastChunk: lastChunk)
-          .then((http_base.Response response) {
+          .then((http.StreamedResponse response) {
         var status = response.statusCode;
         if (attemptsLeft > 0 &&
             (status == 500 || (502 <= status && status < 504))) {
-          return response.read().drain().then((_) {
+          return response.stream.drain().then((_) {
             // Delay the next attempt. Default backoff function is exponential.
             int failedAttemts = _options.numberOfAttempts - attemptsLeft;
             var duration = _options.backoffFunction(failedAttemts);
@@ -923,14 +921,14 @@ class ResumableMediaUploader {
             });
           });
         } else if (!lastChunk && status != 308) {
-            return response.read().drain().then((_) {
+            return response.stream.drain().then((_) {
               throw new common_external.DetailedApiRequestError(
                   status,
                   'Resumable upload: Uploading a chunk resulted in status '
                   '$status instead of 308.');
             });
         } else if (lastChunk && status != 201 && status != 200) {
-          return response.read().drain().then((_) {
+          return response.stream.drain().then((_) {
             throw new common_external.DetailedApiRequestError(
                 status,
                 'Resumable upload: Uploading a chunk resulted in status '
@@ -951,7 +949,7 @@ class ResumableMediaUploader {
    *
    * Content-Range: [start ... (start + length)[
    *
-   * Returns the returned [http_base.Response] or completes with an error if
+   * Returns the returned [http.StreamedResponse] or completes with an error if
    * the upload did not succeed. The response stream will not be listened to.
    */
   Future _uploadChunk(Uri uri, ResumableChunk chunk, {bool lastChunk: false}) {
@@ -965,17 +963,17 @@ class ResumableMediaUploader {
       }
     }
 
-    var headers = new http_base.HeadersImpl({
-        'content-type' : [_uploadMedia.contentType],
-        'content-length' : ['${chunk.length}'],
+    var headers = {
+        'content-type' : _uploadMedia.contentType,
+        'content-length' : '${chunk.length}',
         'content-range' :
-            ['bytes ${chunk.offset}-${chunk.endOfChunk - 1}/$mediaTotalLength'],
-    });
+            'bytes ${chunk.offset}-${chunk.endOfChunk - 1}/$mediaTotalLength',
+    };
 
     var stream = _listOfBytes2Stream(chunk.byteArrays);
-    var request = new http_base.RequestImpl(
-        'PUT', uri, headers: headers, body: stream);
-    return _httpClient(request);
+    var request = new RequestImpl('PUT', uri, stream);
+    request.headers.addAll(headers);
+    return _httpClient.send(request);
   }
 
   Stream<List<int>> _bytes2Stream(List<int> bytes) {
@@ -1093,6 +1091,20 @@ class ResumableChunk {
   ResumableChunk(this.byteArrays, this.offset, this.length);
 }
 
+class RequestImpl extends http.BaseRequest {
+  final Stream<List<int>> _stream;
+
+  RequestImpl(String method, Uri url, [Stream<List<int>> stream])
+      : _stream = stream == null ? new Stream.fromIterable([]) : stream,
+        super(method, url);
+
+  http.ByteStream finalize() {
+    super.finalize();
+    return new http.ByteStream(_stream);
+  }
+}
+
+
 class Escaper {
   // Character class definitions from RFC 6570
   // (see http://tools.ietf.org/html/rfc6570)
@@ -1169,7 +1181,9 @@ class Escaper {
   }
 }
 
-Future<http_base.Response> _validateResponse(http_base.Response response) {
+
+Future<http.StreamedResponse> _validateResponse(
+    http.StreamedResponse response) {
   var statusCode = response.statusCode;
 
   // TODO: We assume that status codes between [200..400[ are OK.
@@ -1202,15 +1216,15 @@ Future<http_base.Response> _validateResponse(http_base.Response response) {
 }
 
 
-Stream<String> _decodeStreamAsText(http_base.Response response) {
+Stream<String> _decodeStreamAsText(http.StreamedResponse response) {
   // TODO: Correctly handle the response content-types, using correct
   // decoder.
   // Currently we assume that the api endpoint is responding with exactly
   // "application/json; charset=utf-8"
-  String contentType = response.headers['Content-Type'];
+  String contentType = response.headers['content-type'];
   if (contentType != null &&
       contentType.toLowerCase() == 'application/json; charset=utf-8') {
-    return response.read().transform(new Utf8Decoder(allowMalformed: true));
+    return response.stream.transform(new Utf8Decoder(allowMalformed: true));
   } else {
     return null;
   }
@@ -1240,10 +1254,10 @@ import 'dart:convert';
 import 'package:crypto/crypto.dart' as crypto;
 import 'package:googleapis/common/common.dart';
 import 'package:googleapis/src/common_internal.dart';
-import 'package:http_base/http_base.dart' as http_base;
+import 'package:http/http.dart' as http;
 import 'package:unittest/unittest.dart';
 
-class HttpServerMock {
+class HttpServerMock extends http.BaseClient {
   Function _callback;
   bool _expectJson;
 
@@ -1252,10 +1266,9 @@ class HttpServerMock {
     _expectJson = expectJson;
   }
 
-  Future<http_base.Response> call(http_base.Request request) {
+  Future<http.StreamedResponse> send(http.BaseRequest request) {
     if (_expectJson) {
-      return request
-          .read()
+      return request.finalize()
           .transform(UTF8.decoder)
           .join('')
           .then((String jsonString) {
@@ -1266,34 +1279,28 @@ class HttpServerMock {
         }
       });
     } else {
-      return request
-          .read()
-          .fold([], (buff, data) => buff..addAll(data))
-          .then((data) {
-        return _callback(request, data);
-      });
+      var stream = request.finalize();
+      if (stream == null) {
+        return _callback(request, []);
+      } else {
+        return stream.toBytes().then((data) {
+          return _callback(request, data);
+        });
+      }
     }
   }
 }
 
-http_base.Response stringResponse(int status,
-                                  http_base.Headers headers,
-                                  String body) {
-  if (headers == null) {
-    headers = http_base.HeadersImpl.Empty;
-  }
-  return new http_base.ResponseImpl(
-      status, headers: headers, body: byteStream(body));
+http.StreamedResponse stringResponse(int status, Map headers, String body) {
+  var stream = new Stream.fromIterable([UTF8.encode(body)]);
+  return new http.StreamedResponse(stream, status, headers: headers);
 }
 
-http_base.Response binaryResponse(int status,
-                                 http_base.Headers headers,
-                                 List<int> bytes) {
-  if (headers == null) {
-    headers = http_base.HeadersImpl.Empty;
-  }
-  return new http_base.ResponseImpl(
-      status, headers: headers, body: new Stream.fromIterable([bytes]));
+http.StreamedResponse binaryResponse(int status,
+                                     Map<String,String> headers,
+                                     List<int> bytes) {
+  var stream = new Stream.fromIterable([bytes]);
+  return new http.StreamedResponse(stream, status, headers: headers);
 }
 
 Stream<List<int>> byteStream(String s) {
@@ -1398,40 +1405,6 @@ main() {
       testString('asure.', 'YXN1cmUu');
       testString('sure.', 'c3VyZS4=');
       testString('', '');
-    });
-
-    test('http-headers', () {
-      // TODO: Cookie headers are not special cased so far: impl+test missing.
-
-      var a = ['a1', 'a2', 'a3'];
-      var b = ['b1'];
-      var headers = new http_base.HeadersImpl({'A' : a, 'b' : b});
-
-      expect(headers.contains('a'), isTrue);
-      expect(headers.contains('A'), isTrue);
-      expect(headers.contains('b'), isTrue);
-      expect(headers.contains('B'), isTrue);
-      expect(headers.contains('c'), isFalse);
-      expect(headers.contains('C'), isFalse);
-
-      expect(headers.names, hasLength(2));
-      expect(headers.names.contains('a'), isTrue);
-      expect(headers.names.contains('b'), isTrue);
-      expect(headers.names.contains('c'), isFalse);
-
-      expect(headers.names.contains('A'), isFalse);
-      expect(headers.names.contains('B'), isFalse);
-      expect(headers.names.contains('C'), isFalse);
-
-      expect(headers['a'], equals('a1,a2,a3'));
-      expect(headers['A'], equals('a1,a2,a3'));
-      expect(headers['b'], equals('b1'));
-      expect(headers['B'], equals('b1'));
-
-      expect(headers.getMultiple('a'), equals(a));
-      expect(headers.getMultiple('A'), equals(a));
-      expect(headers.getMultiple('b'), equals(b));
-      expect(headers.getMultiple('B'), equals(b));
     });
 
     group('chunk-stack', () {
@@ -1577,9 +1550,9 @@ main() {
       var httpMock, rootUrl, basePath;
       ApiRequester requester;
 
-      var responseHeaders = new http_base.HeadersImpl({
-          'content-type' : ['application/json; charset=utf-8'],
-      });
+      var responseHeaders = {
+          'content-type' : 'application/json; charset=utf-8',
+      };
 
       setUp(() {
         httpMock = new HttpServerMock();
@@ -1593,7 +1566,7 @@ main() {
 
       group('metadata-request-response', () {
         test('empty-request-empty-response', () {
-          httpMock.register(expectAsync((http_base.Request request, json) {
+          httpMock.register(expectAsync((http.BaseRequest request, json) {
             expect(request.method, equals('GET'));
             expect('${request.url}',
                    equals('http://example.com/base/abc?alt=json'));
@@ -1605,7 +1578,7 @@ main() {
         });
 
         test('json-map-request-json-map-response', () {
-          httpMock.register(expectAsync((http_base.Request request, json) {
+          httpMock.register(expectAsync((http.BaseRequest request, json) {
             expect(request.method, equals('GET'));
             expect('${request.url}',
                    equals('http://example.com/base/abc?alt=json'));
@@ -1625,7 +1598,7 @@ main() {
         });
 
         test('json-list-request-json-list-response', () {
-          httpMock.register(expectAsync((http_base.Request request, json) {
+          httpMock.register(expectAsync((http.BaseRequest request, json) {
             expect(request.method, equals('GET'));
             expect('${request.url}',
                    equals('http://example.com/base/abc?alt=json'));
@@ -1649,15 +1622,15 @@ main() {
       group('media-download', () {
         test('media-download', () {
           var data256 = new List.generate(256, (i) => i);
-          httpMock.register(expectAsync((http_base.Request request, data) {
+          httpMock.register(expectAsync((http.BaseRequest request, data) {
             expect(request.method, equals('GET'));
             expect('${request.url}',
                    equals('http://example.com/base/abc?alt=media'));
             expect(data, isEmpty);
-            var headers = new http_base.HeadersImpl({
-                'content-length' : ['${data256.length}'],
-                'content-type' : ['foobar'],
-            });
+            var headers = {
+                'content-length' : '${data256.length}',
+                'content-type' : 'foobar',
+            };
             return binaryResponse(200, headers, data256);
           }), false);
           requester.request('abc',
@@ -1677,18 +1650,18 @@ main() {
           var data256 = new List.generate(256, (i) => i);
           var data64 = data256.sublist(128, 128 + 64);
 
-          httpMock.register(expectAsync((http_base.Request request, data) {
+          httpMock.register(expectAsync((http.BaseRequest request, data) {
             expect(request.method, equals('GET'));
             expect('${request.url}',
                    equals('http://example.com/base/abc?alt=media'));
             expect(data, isEmpty);
             expect(request.headers['range'],
                    equals('bytes=128-191'));
-            var headers = new http_base.HeadersImpl({
-                'content-length' : ['${data64.length}'],
-                'content-type' : ['foobar'],
-                'content-range' : ['bytes 128-191/256'],
-            });
+            var headers = {
+                'content-length' : '${data64.length}',
+                'content-type' : 'foobar',
+                'content-range' : 'bytes 128-191/256',
+            };
             return binaryResponse(200, headers, data64);
           }), false);
           var range = new ByteRange(128, 128 + 64 - 1);
@@ -1708,7 +1681,7 @@ main() {
 
         test('json-upload-media-download', () {
           var data256 = new List.generate(256, (i) => i);
-          httpMock.register(expectAsync((http_base.Request request, json) {
+          httpMock.register(expectAsync((http.BaseRequest request, json) {
             expect(request.method, equals('GET'));
             expect('${request.url}',
                     equals('http://example.com/base/abc?alt=media'));
@@ -1717,10 +1690,10 @@ main() {
             expect(json[0], equals('a'));
             expect(json[1], equals(1));
 
-            var headers = new http_base.HeadersImpl({
-                'content-length' : ['${data256.length}'],
-                'content-type' : ['foobar'],
-            });
+            var headers = {
+                'content-length' : '${data256.length}',
+                'content-type' : 'foobar',
+            };
             return binaryResponse(200, headers, data256);
           }), true);
           requester.request('abc',
@@ -1756,7 +1729,7 @@ main() {
                            len,
                            contentType: 'foobar');
         }
-        validateServerRequest(e, http_base.Request request, List<int> data) {
+        validateServerRequest(e, http.BaseRequest request, List<int> data) {
           return new Future.sync(() {
             var h = e['headers'];
             var r = e['response'];
@@ -1773,7 +1746,7 @@ main() {
         }
         serverRequestValidator(List expectations) {
           int i = 0;
-          return (http_base.Request request, List<int> data) {
+          return (http.BaseRequest request, List<int> data) {
             return validateServerRequest(expectations[i++], request, data);
           };
         }
@@ -1867,10 +1840,7 @@ main() {
                 'x-upload-content-length' : '$totalLength',
               }),
               'response' : stringResponse(
-                  200,
-                  new http_base.HeadersImpl(
-                      {'location' : 'http://upload.com/'}),
-                  '')
+                  200, {'location' : 'http://upload.com/'}, '')
             });
 
             var lastEnd = 0;
@@ -1899,15 +1869,12 @@ main() {
 
                 var response;
                 if (successfullResponse) {
-                  var headers = new http_base.HeadersImpl(
-                      isLast ? {
-                        'content-type' : ['application/json; charset=utf-8'],
-                      } : {
-                        'range' : [firstRange],
-                      });
+                  var headers = isLast
+                      ? { 'content-type' : 'application/json; charset=utf-8' }
+                      : {'range' : firstRange };
                   response = stringResponse(isLast ? 200 : 308, headers, '');
                 } else {
-                  var headers = new http_base.HeadersImpl({});
+                  var headers = {};
                   response = stringResponse(503, headers, '');
                 }
 
@@ -2077,15 +2044,15 @@ main() {
       // Tests for error responses
       group('request-errors', () {
         makeTestError() {
-          // All errors from the [http_base.RequestHandler] propagate through.
+          // All errors from the [http.Client] propagate through.
           // We use [TestError] to simulate it.
-          httpMock.register(expectAsync((http_base.Request request, string) {
+          httpMock.register(expectAsync((http.BaseRequest request, string) {
             return new Future.error(new TestError());
           }), false);
         }
 
         makeDetailed400Error() {
-          httpMock.register(expectAsync((http_base.Request request, string) {
+          httpMock.register(expectAsync((http.BaseRequest request, string) {
             return stringResponse(400,
                                  responseHeaders,
                                  '{"error" : {"code" : 42, "message": "foo"}}');
@@ -2093,20 +2060,15 @@ main() {
         }
 
         makeNormal199Error() {
-          httpMock.register(expectAsync((http_base.Request request, string) {
-            return stringResponse(200, null, '');
+          httpMock.register(expectAsync((http.BaseRequest request, string) {
+            return stringResponse(199, {}, '');
           }), false);
         }
 
-        makeInvalidContentTypeError({String contentType}) {
-          httpMock.register(expectAsync((http_base.Request request, string) {
-            var responseHeaders;
-            if (contentType != null) {
-              responseHeaders = new http_base.HeadersImpl({
-                'content-type' : [contentType],
-              });
-            }
-            return stringResponse(200, null, '');
+        makeInvalidContentTypeError() {
+          httpMock.register(expectAsync((http.BaseRequest request, string) {
+            var responseHeaders = { 'content-type' : 'image/png'};
+            return stringResponse(200, responseHeaders, '');
           }), false);
         }
 
@@ -2132,13 +2094,8 @@ main() {
           expect(requester.request('abc', 'GET'), throwsA(isApiRequestError));
         });
 
-        test('normal-no-content-type', () {
-          makeInvalidContentTypeError();
-          expect(requester.request('abc', 'GET'), throwsA(isApiRequestError));
-        });
-
         test('normal-invalid-content-type', () {
-          makeInvalidContentTypeError(contentType: 'foobar');
+          makeInvalidContentTypeError();
           expect(requester.request('abc', 'GET'), throwsA(isApiRequestError));
         });
 
@@ -2166,14 +2123,8 @@ main() {
                  throwsA(isApiRequestError));
         });
 
-        test('media-no-content-type', () {
-          makeInvalidContentTypeError();
-          expect(requester.request('abc', 'GET', downloadOptions: options),
-                 throwsA(isApiRequestError));
-        });
-
         test('media-invalid-content-type', () {
-          makeInvalidContentTypeError(contentType: 'foobar');
+          makeInvalidContentTypeError();
           expect(requester.request('abc', 'GET', downloadOptions: options),
                  throwsA(isApiRequestError));
         });
@@ -2187,7 +2138,7 @@ main() {
             'a' : ['a1', 'a2'],
             's' : ['s1']
         };
-        httpMock.register(expectAsync((http_base.Request request, json) {
+        httpMock.register(expectAsync((http.BaseRequest request, json) {
           expect(request.method, equals('GET'));
           expect('${request.url}',
                  equals('http://example.com/base/abc?a=a1&a=a2&s=s1&alt=json'));
@@ -2200,7 +2151,7 @@ main() {
       });
 
       test('request-parameters-path', () {
-        httpMock.register(expectAsync((http_base.Request request, json) {
+        httpMock.register(expectAsync((http.BaseRequest request, json) {
           expect(request.method, equals('GET'));
           expect('${request.url}', equals(
               'http://example.com/base/s/foo/a1/a2/bar/s1/e?alt=json'));

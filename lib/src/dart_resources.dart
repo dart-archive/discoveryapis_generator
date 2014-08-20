@@ -186,7 +186,7 @@ class DartResourceMethod {
     commentBuilder.writeln('Completes with a '
                            '[${imports.external}.ApiRequestError] '
                            'if the API endpoint returned an error.\n');
-    commentBuilder.writeln('If the used [${imports.httpBase}.RequestHandler] '
+    commentBuilder.writeln('If the used [${imports.http}.Client] '
                            'completes with an error when making a REST call, '
                            'this method  will complete with the same error.\n');
 
@@ -451,7 +451,7 @@ class DartApiClass extends DartResourceClass {
 
   String get constructor {
     var str = new StringBuffer();
-    str.writeln('  $className(${imports.httpBase}.RequestHandler client) : ');
+    str.writeln('  $className(${imports.http}.Client client) : ');
     str.write('      _requester = new ${imports.internal}.ApiRequester'
               '(client, "${escapeString(rootUrl)}", '
               '"${escapeString(basePath)}")');
