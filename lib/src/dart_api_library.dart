@@ -44,6 +44,7 @@ class DartApiLibrary {
   final RestDescription description;
   final String internalSharedLibraryUri;
   final String externalSharedLibraryUri;
+  final String packageName;
 
   String libraryName;
   DartApiImports imports;
@@ -61,9 +62,10 @@ class DartApiLibrary {
    */
   DartApiLibrary.build(this.description,
                        this.internalSharedLibraryUri,
-                       this.externalSharedLibraryUri) {
+                       this.externalSharedLibraryUri,
+                       this.packageName) {
     libraryName = namer.libraryName(
-        'googleapis', description.name, description.version);
+        packageName, description.name, description.version);
     imports = new DartApiImports.fromNamer(namer);
     schemaDB = parseSchemas(imports, description);
     apiClass = parseResources(imports, schemaDB, description);

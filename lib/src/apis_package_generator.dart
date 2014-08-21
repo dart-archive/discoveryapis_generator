@@ -72,13 +72,16 @@ class ApisPackageGenerator {
 
     _writeString(gitIgnorePath, _gitIgnore);
 
-    // These libraries are used by all APIs for making requests.
-    _writeString(commonExternalLibraryPath, _COMMON_EXTERNAL_LIBRARY);
-    _writeString(commonInternalLibraryPath, _COMMON_INTERAL_LIBRARY);
-    _writeString(commonInternalTestLibraryPath, _COMMON_INTERAL_TEST_LIBRARY);
+    var libraryPrefix = Scope.toValidIdentifier(
+        config.name, removeUnderscores: false);
 
-    // TODO(kustermann):
-    // _writeString(versionPath, _description.etag);
+    // These libraries are used by all APIs for making requests.
+    _writeString(commonExternalLibraryPath,
+                 _COMMON_EXTERNAL_LIBRARY(libraryPrefix, config.name));
+    _writeString(commonInternalLibraryPath,
+                 _COMMON_INTERAL_LIBRARY(libraryPrefix, config.name));
+    _writeString(commonInternalTestLibraryPath,
+                 _COMMON_INTERAL_TEST_LIBRARY(libraryPrefix, config.name));
 
     var results = <GenerateResult>[];
     for (RestDescription description in descriptions) {
@@ -92,7 +95,7 @@ class ApisPackageGenerator {
       String apiVersionFile = "$libFolderPath/$name/$version.dart";
       String apiTestVersionFile = "$testFolderPath/$name/$version.dart";
 
-      String packagePath = 'package:googleapis/$name/$version.dart';
+      String packagePath = 'package:${config.name}/$name/$version.dart';
 
       try {
         // Create API itself.
@@ -126,7 +129,8 @@ class ApisPackageGenerator {
                                      RestDescription description,
                                      String internalUri,
                                      String externalUri) {
-    var lib = new DartApiLibrary.build(description, internalUri, externalUri);
+    var lib = new DartApiLibrary.build(
+        description, internalUri, externalUri, config.name);
     _writeString(outputFile, lib.librarySource);
     return lib;
   }
@@ -134,7 +138,8 @@ class ApisPackageGenerator {
   void _generateApiTestLibrary(String outputFile,
                                String packageImportPath,
                                DartApiLibrary apiLibrary) {
-    var testLib = new DartApiTestLibrary.build(apiLibrary, packageImportPath);
+    var testLib = new DartApiTestLibrary.build(
+        apiLibrary, packageImportPath, config.name);
     _writeString(outputFile, testLib.librarySource);
   }
 
@@ -169,13 +174,13 @@ class ApisPackageGenerator {
     writeDependencies(config.devDependencies);
   }
 
-  static const _COMMON_EXTERNAL_LIBRARY = r"""
-library googleapis.common;
+  String _COMMON_EXTERNAL_LIBRARY(String libPrefix, String packageName) =>
+"""library ${libPrefix}.common;
 
 import 'dart:async' as async;
 import 'dart:core' as core;
 import 'dart:collection' as collection;
-
+""" + r"""
 /**
  * Represents a media consisting of a stream of bytes, a content type and a
  * length.
@@ -359,9 +364,9 @@ class DetailedApiRequestError extends ApiRequestError {
 }
 """;
 
-
-  static const _COMMON_INTERAL_LIBRARY = r"""
-library googleapis.common_internal;
+  String _COMMON_INTERAL_LIBRARY(String libPrefix, String packageName) =>
+"""
+library ${libPrefix}.common_internal;
 
 import "dart:async";
 import "dart:convert";
@@ -370,7 +375,7 @@ import "dart:collection" as collection;
 import "package:crypto/crypto.dart" as crypto;
 import "../common/common.dart" as common_external;
 import "package:http/http.dart" as http;
-
+""" + r"""
 const CONTENT_TYPE_JSON_UTF8 = 'application/json; charset=utf-8';
 
 /**
@@ -1219,11 +1224,11 @@ Future<http.StreamedResponse> _validateResponse(
 Stream<String> _decodeStreamAsText(http.StreamedResponse response) {
   // TODO: Correctly handle the response content-types, using correct
   // decoder.
-  // Currently we assume that the api endpoint is responding with exactly
-  // "application/json; charset=utf-8"
+  // Currently we assume that the api endpoint is responding with json
+  // encoded in UTF8.
   String contentType = response.headers['content-type'];
   if (contentType != null &&
-      contentType.toLowerCase() == 'application/json; charset=utf-8') {
+      contentType.toLowerCase().startsWith('application/json') {
     return response.stream.transform(new Utf8Decoder(allowMalformed: true));
   } else {
     return null;
@@ -1247,16 +1252,17 @@ Map mapMap(Map source, [Object convert(Object source) = null]) {
 """;
 
 
-  static const _COMMON_INTERAL_TEST_LIBRARY = r"""
+  String _COMMON_INTERAL_TEST_LIBRARY(String libPrefix, String packageName) =>
+"""library ${libPrefix}.common_internal_test;
 import 'dart:async';
 import 'dart:convert';
 
 import 'package:crypto/crypto.dart' as crypto;
-import 'package:googleapis/common/common.dart';
-import 'package:googleapis/src/common_internal.dart';
+import 'package:$packageName/common/common.dart';
+import 'package:$packageName/src/common_internal.dart';
 import 'package:http/http.dart' as http;
 import 'package:unittest/unittest.dart';
-
+""" + r"""
 class HttpServerMock extends http.BaseClient {
   Function _callback;
   bool _expectJson;

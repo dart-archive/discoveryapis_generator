@@ -7,6 +7,7 @@ part of discovery_api_client_generator;
 class DartApiTestLibrary extends TestHelper {
   final DartApiLibrary apiLibrary;
   final String apiImportPath;
+  final String packageName;
 
   final Map<DartSchemaType, SchemaTest> schemaTests = {};
   final List<ResourceTest> resourceTests = [];
@@ -15,7 +16,8 @@ class DartApiTestLibrary extends TestHelper {
   /**
    * Generates a API test library for [apiLibrary].
    */
-  DartApiTestLibrary.build(this.apiLibrary, this.apiImportPath) {
+  DartApiTestLibrary.build(
+      this.apiLibrary, this.apiImportPath, this.packageName) {
     handleType(DartSchemaType schema) {
       schemaTests.putIfAbsent(schema, () => testFromSchema(this, schema));
     }
@@ -90,8 +92,8 @@ import "dart:convert" as convert;
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart' as http_testing;
 import 'package:unittest/unittest.dart' as unittest;
-import 'package:googleapis/common/common.dart' as common;
-import 'package:googleapis/src/common_internal.dart' as common_internal;
+import 'package:$packageName/common/common.dart' as common;
+import 'package:$packageName/src/common_internal.dart' as common_internal;
 import '../common/common_internal_test.dart' as common_test;
 
 import '$apiImportPath' as api;
