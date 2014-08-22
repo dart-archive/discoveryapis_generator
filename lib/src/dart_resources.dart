@@ -223,11 +223,20 @@ class DartResourceMethod {
     }
 
     encodeQueryParam(MethodParameter param) {
-      var isList = param.type is UnnamedArrayType ||
-                   param.type is NamedArrayType;
-      var propertyAssignment =
-          '_addParameter'
-          '("${escapeString(param.jsonName)}", ${param.name}, ${isList});';
+      var propertyAssignment;
+      // NOTE: We need to special case array values, since they get encoded
+      // as repeated query parameters.
+      if (param.type is UnnamedArrayType || param.type is NamedArrayType) {
+        DartSchemaType innerType = (param.type as dynamic).innerType;
+        var expr = '${param.name}.map('
+            '(item) => ${innerType.primitiveEncoding('item')})';
+        propertyAssignment =
+          '_addParameterList("${escapeString(param.jsonName)}", $expr);';
+      } else {
+        var expr = param.type.primitiveEncoding(param.name.name);
+        propertyAssignment =
+          '_addParameter("${escapeString(param.jsonName)}", $expr);';
+      }
 
       if (param.required) {
         if (param.type is UnnamedArrayType) {
@@ -340,14 +349,13 @@ $urlPatternCode
     var _downloadOptions = ${imports.external}.DownloadOptions.Metadata;
     var _body = null;
 
-    _addParameter(${imports.core}.String name, value,
-                  ${imports.core}.bool isList) {
+    _addParameter(${imports.core}.String name, ${imports.core}.String value) {
       var values = _queryParams.putIfAbsent(name, () => []);
-      if (isList) {
-        values.addAll(value.map((item) => '\$item'));
-      } else {
-        values.add('\$value');
-      }
+      values.add(value);
+    }
+    _addParameterList(${imports.core}.String name, ${imports.core}.Iterable v) {
+      var values = _queryParams.putIfAbsent(name, () => []);
+      values.addAll(v);
     }
 
 $params$requestCode''');
@@ -488,8 +496,6 @@ DartApiClass parseResources(DartApiImports imports,
       // This set will be reduced to all optional parameters.
       var pendingParameterNames = method.parameters != null
           ? method.parameters.keys.toSet() : new Set<String>();
-
-      // TODO: Handle parameters with `parameter.repeated == true`.
 
       var positionalParameters = new List<MethodParameter>();
       tryEnqueuePositionalParameter(String jsonName,

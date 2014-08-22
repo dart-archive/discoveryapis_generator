@@ -49,6 +49,7 @@ class DartApiTestLibrary extends TestHelper {
     handleType(db.doubleType);
     handleType(db.booleanType);
     handleType(db.stringType);
+    handleType(db.dateTimeType);
     handleType(db.anyType);
 
     apiLibrary.schemaDB.dartTypes.forEach(handleType);
@@ -355,6 +356,8 @@ class MethodArgsTest extends TestHelper {
           } else {
             throw 'unsupported inner type ${type.innerType}';
           }
+        } else if (type is DateTimeType) {
+          ln(expectEqual('core.DateTime.parse(${queryMapValue}.first)', name));
         } else if (type is StringType) {
           ln(expectEqual('${queryMapValue}.first', name));
         } else if (type is NumberType) {
@@ -400,10 +403,12 @@ testFromSchema(apiTestLibrary, schema) {
     return new NumberSchemaTest(apiTestLibrary, schema);
   } else if (schema is BooleanType) {
     return new BooleanSchemaTest(apiTestLibrary, schema);
-  } else if (schema is StringType) {
-    return new StringSchemaTest(apiTestLibrary, schema);
   } else if (schema is EnumType) {
     return new EnumSchemaTest(apiTestLibrary, schema);
+  } else if (schema is DateTimeType) {
+    return new DateTimeSchemaTest(apiTestLibrary, schema);
+  } else if (schema is StringType) {
+    return new StringSchemaTest(apiTestLibrary, schema);
   } else if (schema is UnnamedArrayType) {
     return new UnnamedArrayTest(apiTestLibrary, schema);
   } else if (schema is UnnamedMapType) {
@@ -483,6 +488,14 @@ class StringSchemaTest extends PrimitiveSchemaTest<StringType> {
   String get declaration => 'core.String';
   String get newSchemaExpr => '"foo"';
   String checkSchemaStatement(String o) => expectEqual(o, "'foo'");
+}
+
+class DateTimeSchemaTest extends PrimitiveSchemaTest<DateTimeType> {
+  DateTimeSchemaTest(apiTestLibrary, schema) : super(apiTestLibrary, schema);
+  String get declaration => 'core.DateTime';
+  String get newSchemaExpr => 'core.DateTime.parse("2002-02-27T14:00:00-0500")';
+  String checkSchemaStatement(String o)
+      => expectEqual(o, 'core.DateTime.parse("2002-02-27T14:00:00-0500")');
 }
 
 class EnumSchemaTest extends StringSchemaTest {

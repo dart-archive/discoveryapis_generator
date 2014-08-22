@@ -14,6 +14,7 @@ class DartSchemaTypeDB {
   final NumberType numberType;
   final DoubleType doubleType;
   final BooleanType booleanType;
+  final DateTimeType dateTimeType;
   final AnyType anyType;
 
   DartSchemaTypeDB(DartApiImports imports)
@@ -22,6 +23,7 @@ class DartSchemaTypeDB {
         numberType = new NumberType(imports),
         doubleType = new DoubleType(imports),
         booleanType = new BooleanType(imports),
+        dateTimeType = new DateTimeType(imports),
         anyType = new AnyType(imports);
 
   // List of all [DartSchemaType]s.
@@ -91,6 +93,14 @@ abstract class DartSchemaType {
   String get declaration;
 
   /**
+   * [value] is the string expression of this [DartSchemType] that needs to be
+   * encoded.
+   *
+   * This method is used for encoding parameter types for the URI query part.
+   */
+  String primitiveEncoding(String value);
+
+  /**
    * [value] is the string expression of this [DartSchemaType] that needs to be
    * encoded.
    */
@@ -128,6 +138,11 @@ class DartSchemaForwardRef extends DartSchemaType {
                          'resolving references.');
   }
 
+  String primitiveEncoding(String) {
+    throw new StateError('Encoding methods can only be called after '
+                         'resolving references.');
+  }
+
   String jsonEncode(String value) {
     throw new StateError('JSON methods can only be called after '
                          'resolving references.');
@@ -149,6 +164,7 @@ abstract class PrimitiveDartSchemaType extends DartSchemaType {
 
   DartSchemaType _resolve(DartSchemaTypeDB db) => this;
 
+  String primitiveEncoding(String value) => '"\${${value}}"';
   String jsonEncode(String value) => value;
   String jsonDecode(String json) => json;
 }
@@ -185,6 +201,7 @@ class DoubleType extends PrimitiveDartSchemaType {
 class StringType extends PrimitiveDartSchemaType {
   StringType(DartApiImports imports) : super(imports);
 
+  String primitiveEncoding(String value) => value;
   String get declaration => '${imports.core}.String';
 }
 
@@ -202,6 +219,18 @@ class EnumType extends StringType {
   }
 }
 
+
+class DateTimeType extends StringType {
+  DateTimeType(DartApiImports imports) : super(imports);
+
+  String get declaration => '${imports.core}.DateTime';
+
+  String primitiveEncoding(String value) => '($value).toIso8601String()';
+
+  String jsonEncode(String value) => '($value).toIso8601String()';
+
+  String jsonDecode(String json) => '${imports.core}.DateTime.parse($json)';
+}
 
 /**
  * Class representing "any" schema type.
@@ -236,6 +265,12 @@ abstract class ComplexDartSchemaType extends DartSchemaType {
   String get classDefinition;
 
   String get declaration;
+
+  String primitiveEncoding(String value) {
+    throw new UnsupportedError(
+        'Complex schema types do not have a primitive string encoding for URI'
+        'query parameters.');
+  }
 }
 
 
@@ -845,6 +880,10 @@ DartSchemaTypeDB parseSchemas(DartApiImports imports,
       if (schema.enumProperty != null) {
         return register(new EnumType(
             imports, schema.enumProperty, schema.enumDescriptions));
+      } else if (schema.format == 'date-time') {
+        // TODO: We may also want to use [format == 'date'] here. We would need
+        // to reuse the DateTime class for it, though.
+        return db.dateTimeType;
       } else {
         return db.stringType;
       }
@@ -904,6 +943,10 @@ DartSchemaType parseResolved(DartApiImports imports,
     if (schema.enumProperty != null) {
       return new EnumType(
           imports, schema.enumProperty, schema.enumDescriptions);
+    } else if (schema.format == 'date-time') {
+      // TODO: We may also want to use [format == 'date'] here. We would need
+      // to reuse the DateTime class for it, though.
+      return db.dateTimeType;
     }
     return primitiveType;
   } else {

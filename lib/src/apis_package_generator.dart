@@ -1228,7 +1228,7 @@ Stream<String> _decodeStreamAsText(http.StreamedResponse response) {
   // encoded in UTF8.
   String contentType = response.headers['content-type'];
   if (contentType != null &&
-      contentType.toLowerCase().startsWith('application/json') {
+      contentType.toLowerCase().startsWith('application/json')) {
     return response.stream.transform(new Utf8Decoder(allowMalformed: true));
   } else {
     return null;
