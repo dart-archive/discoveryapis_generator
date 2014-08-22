@@ -14,6 +14,7 @@ class DartSchemaTypeDB {
   final NumberType numberType;
   final DoubleType doubleType;
   final BooleanType booleanType;
+  final DateType dateType;
   final DateTimeType dateTimeType;
   final AnyType anyType;
 
@@ -23,6 +24,7 @@ class DartSchemaTypeDB {
         numberType = new NumberType(imports),
         doubleType = new DoubleType(imports),
         booleanType = new BooleanType(imports),
+        dateType = new DateType(imports),
         dateTimeType = new DateTimeType(imports),
         anyType = new AnyType(imports);
 
@@ -220,6 +222,22 @@ class EnumType extends StringType {
 }
 
 
+class DateType extends StringType {
+  DateType(DartApiImports imports) : super(imports);
+
+  String get declaration => '${imports.core}.DateTime';
+
+  String primitiveEncoding(String value)
+      => '"\${($value).year.toString().padLeft(4, \'0\')}-'
+         '\${($value).month.toString().padLeft(2, \'0\')}-'
+         '\${($value).day.toString().padLeft(2, \'0\')}"';
+
+  String jsonEncode(String value) => primitiveEncoding(value);
+
+  String jsonDecode(String json) => '${imports.core}.DateTime.parse($json)';
+}
+
+
 class DateTimeType extends StringType {
   DateTimeType(DartApiImports imports) : super(imports);
 
@@ -231,6 +249,7 @@ class DateTimeType extends StringType {
 
   String jsonDecode(String json) => '${imports.core}.DateTime.parse($json)';
 }
+
 
 /**
  * Class representing "any" schema type.
@@ -881,9 +900,9 @@ DartSchemaTypeDB parseSchemas(DartApiImports imports,
         return register(new EnumType(
             imports, schema.enumProperty, schema.enumDescriptions));
       } else if (schema.format == 'date-time') {
-        // TODO: We may also want to use [format == 'date'] here. We would need
-        // to reuse the DateTime class for it, though.
         return db.dateTimeType;
+      } else if (schema.format == 'date') {
+        return db.dateType;
       } else {
         return db.stringType;
       }
@@ -944,9 +963,9 @@ DartSchemaType parseResolved(DartApiImports imports,
       return new EnumType(
           imports, schema.enumProperty, schema.enumDescriptions);
     } else if (schema.format == 'date-time') {
-      // TODO: We may also want to use [format == 'date'] here. We would need
-      // to reuse the DateTime class for it, though.
       return db.dateTimeType;
+    } else if (schema.format == 'date') {
+      return db.dateType;
     }
     return primitiveType;
   } else {

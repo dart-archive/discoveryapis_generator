@@ -66,6 +66,8 @@ main() {
                   'type' : 'string',
                 },
               },
+              'x1Date' : { 'type': 'string', 'format' : 'date'},
+              'x2DateTime' : { 'type': 'string', 'format' : 'date-time'},
             },
           },
         }
@@ -129,6 +131,16 @@ main() {
         expect(propertiesTyped.className, isNull);
         expect(propertiesTyped.fromType, equals(db.stringType));
         expect(propertiesTyped.toType, equals(db.stringType));
+
+        var date = task.properties[7];
+        expect(date, isNotNull);
+        expect(date.name.name, equals('x1Date'));
+        expect(date.type is DateType, isTrue);
+
+        var dateTime = task.properties[8];
+        expect(dateTime, isNotNull);
+        expect(dateTime.name.name, equals('x2DateTime'));
+        expect(dateTime.type is DateTimeType, isTrue);
       });
     });
 

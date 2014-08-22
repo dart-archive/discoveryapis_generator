@@ -49,6 +49,7 @@ class DartApiTestLibrary extends TestHelper {
     handleType(db.doubleType);
     handleType(db.booleanType);
     handleType(db.stringType);
+    handleType(db.dateType);
     handleType(db.dateTimeType);
     handleType(db.anyType);
 
@@ -356,6 +357,8 @@ class MethodArgsTest extends TestHelper {
           } else {
             throw 'unsupported inner type ${type.innerType}';
           }
+        } else if (type is DateType) {
+          ln(expectEqual('core.DateTime.parse(${queryMapValue}.first)', name));
         } else if (type is DateTimeType) {
           ln(expectEqual('core.DateTime.parse(${queryMapValue}.first)', name));
         } else if (type is StringType) {
@@ -405,6 +408,8 @@ testFromSchema(apiTestLibrary, schema) {
     return new BooleanSchemaTest(apiTestLibrary, schema);
   } else if (schema is EnumType) {
     return new EnumSchemaTest(apiTestLibrary, schema);
+  } else if (schema is DateType) {
+    return new DateSchemaTest(apiTestLibrary, schema);
   } else if (schema is DateTimeType) {
     return new DateTimeSchemaTest(apiTestLibrary, schema);
   } else if (schema is StringType) {
@@ -490,12 +495,20 @@ class StringSchemaTest extends PrimitiveSchemaTest<StringType> {
   String checkSchemaStatement(String o) => expectEqual(o, "'foo'");
 }
 
+class DateSchemaTest extends PrimitiveSchemaTest<DateType> {
+  DateSchemaTest(apiTestLibrary, schema) : super(apiTestLibrary, schema);
+  String get declaration => 'core.DateTime';
+  String get newSchemaExpr => 'core.DateTime.parse("2002-02-27T14:01:02Z")';
+  String checkSchemaStatement(String o)
+      => expectEqual(o, 'core.DateTime.parse("2002-02-27T00:00:00")');
+}
+
 class DateTimeSchemaTest extends PrimitiveSchemaTest<DateTimeType> {
   DateTimeSchemaTest(apiTestLibrary, schema) : super(apiTestLibrary, schema);
   String get declaration => 'core.DateTime';
-  String get newSchemaExpr => 'core.DateTime.parse("2002-02-27T14:00:00-0500")';
+  String get newSchemaExpr => 'core.DateTime.parse("2002-02-27T14:01:02")';
   String checkSchemaStatement(String o)
-      => expectEqual(o, 'core.DateTime.parse("2002-02-27T14:00:00-0500")');
+      => expectEqual(o, 'core.DateTime.parse("2002-02-27T14:01:02")');
 }
 
 class EnumSchemaTest extends StringSchemaTest {
