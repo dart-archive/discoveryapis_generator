@@ -812,7 +812,6 @@ DartSchemaTypeDB parseSchemas(DartApiImports imports,
 
     if (schema.type == 'object') {
       var comment = new Comment(schema.description);
-
       if (schema.additionalProperties != null) {
         var anonValueClassName =
             namer.schemaClassName('${className}Value');
@@ -863,6 +862,7 @@ DartSchemaTypeDB parseSchemas(DartApiImports imports,
 
             var comment = new Comment(value.description);
             comment = extendEnumComment(comment, propertyType);
+            comment = extendAnyTypeComment(comment, propertyType);
             var byteArrayAccessor = null;
             if (value.format == 'byte' && value.type == 'string') {
               byteArrayAccessor =
@@ -1005,6 +1005,42 @@ Comment extendEnumComment(Comment baseComment, DartSchemaType type) {
       }
     }
     return new Comment('$s');
+  }
+  return baseComment;
+}
+
+Comment extendAnyTypeComment(Comment baseComment,
+                             DartSchemaType type,
+                             {bool includeNamedTypes: false}) {
+  const String AnyTypeComment =
+      'The values for Object must be JSON objects. It can consist of `num`, '
+      '`String`, `bool` and `null` as well as `Map` and `List` values.';
+
+  // This will detect if [type] contains usages of the general AnyType, e.g.
+  //   - Object
+  //   - List<List<Object>>
+  //   - Map<String,List<Object>>
+  //   - ...
+  bool traverseType(DartSchemaType type) {
+    if (includeNamedTypes) {
+      if (type is NamedArrayType) {
+        return traverseType(type.innerType);
+      } else if (type is NamedMapType) {
+        return traverseType(type.toType);
+      }
+    }
+    if (type is UnnamedArrayType) {
+      return traverseType(type.innerType);
+    } else if (type is UnnamedMapType) {
+      return traverseType(type.toType);
+    } else if (type is AnyType) {
+      return true;
+    }
+    return false;
+  }
+
+  if (traverseType(type)) {
+    return new Comment('${baseComment.rawComment}\n\n$AnyTypeComment');
   }
   return baseComment;
 }

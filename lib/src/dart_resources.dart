@@ -509,6 +509,7 @@ DartApiClass parseResources(DartApiImports imports,
           pendingParameterNames.remove(jsonName);
           var type = parseResolved(imports, db, parameter);
           comment = extendEnumComment(comment, type);
+          comment = extendAnyTypeComment(comment, type);
           positionalParameters.add(new MethodParameter(
               name, comment, true, type, jsonName,
               parameter.location != 'query'));
@@ -523,6 +524,7 @@ DartApiClass parseResources(DartApiImports imports,
         var parameter = method.parameters[jsonName];
         var type = parseResolved(imports, db, parameter);
         comment = extendEnumComment(comment, type);
+        comment = extendAnyTypeComment(comment, type);
         optionalParameters.add(new MethodParameter(
             name, comment, false, type, jsonName,
             parameter.location != 'query'));
