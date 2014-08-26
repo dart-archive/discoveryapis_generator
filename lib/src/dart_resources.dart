@@ -449,7 +449,7 @@ class DartApiClass extends DartResourceClass {
     var sb = new StringBuffer();
     scopes.forEach((OAuth2Scope scope) {
       var doc = scope.comment.asDartDoc(2);
-      sb.writeln('$doc  static final ${scope.identifier} = '
+      sb.writeln('$doc  static const ${scope.identifier} = '
                  '"${escapeString(scope.url)}";');
       sb.writeln('');
     });
