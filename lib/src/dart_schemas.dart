@@ -115,6 +115,11 @@ abstract class DartSchemaType {
   String primitiveEncoding(String value);
 
   /**
+   * Whether this value needs a primitive encoding.
+   */
+  bool get needsPrimitiveEncoding => primitiveEncoding('foo') != 'foo';
+
+  /**
    * [value] is the string expression of this [DartSchemaType] that needs to be
    * encoded.
    */

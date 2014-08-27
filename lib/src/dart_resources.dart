@@ -228,17 +228,20 @@ class DartResourceMethod {
       // as repeated query parameters.
       if (param.type is UnnamedArrayType || param.type is NamedArrayType) {
         DartSchemaType innerType = (param.type as dynamic).innerType;
-        var expr = '${param.name}.map('
-            '(item) => ${innerType.primitiveEncoding('item')})';
+        var expr;
+        if (innerType.needsPrimitiveEncoding) {
+          expr = '${param.name}.map('
+              '(item) => ${innerType.primitiveEncoding('item')}).toList()';
+        } else {
+          expr = param.name.name;
+        }
 
         propertyAssignment =
-            '_queryParams.putIfAbsent("${escapeString(param.jsonName)}"'
-            ', () => []).addAll($expr);';
+            '_queryParams["${escapeString(param.jsonName)}"] = $expr;';
       } else {
         var expr = param.type.primitiveEncoding(param.name.name);
         propertyAssignment =
-            '_queryParams.putIfAbsent("${escapeString(param.jsonName)}"'
-            ', () => []).add($expr);';
+            '_queryParams["${escapeString(param.jsonName)}"] = [$expr];';
       }
 
       if (param.required) {
