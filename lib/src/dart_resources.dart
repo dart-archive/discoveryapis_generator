@@ -230,12 +230,15 @@ class DartResourceMethod {
         DartSchemaType innerType = (param.type as dynamic).innerType;
         var expr = '${param.name}.map('
             '(item) => ${innerType.primitiveEncoding('item')})';
+
         propertyAssignment =
-          '_addParameterList("${escapeString(param.jsonName)}", $expr);';
+            '_queryParams.putIfAbsent("${escapeString(param.jsonName)}"'
+            ', () => []).addAll($expr);';
       } else {
         var expr = param.type.primitiveEncoding(param.name.name);
         propertyAssignment =
-          '_addParameter("${escapeString(param.jsonName)}", $expr);';
+            '_queryParams.putIfAbsent("${escapeString(param.jsonName)}"'
+            ', () => []).all($expr);';
       }
 
       if (param.required) {
@@ -348,15 +351,6 @@ $urlPatternCode
     var _uploadOptions = null;
     var _downloadOptions = ${imports.external}.DownloadOptions.Metadata;
     var _body = null;
-
-    _addParameter(${imports.core}.String name, ${imports.core}.String value) {
-      var values = _queryParams.putIfAbsent(name, () => []);
-      values.add(value);
-    }
-    _addParameterList(${imports.core}.String name, ${imports.core}.Iterable v) {
-      var values = _queryParams.putIfAbsent(name, () => []);
-      values.addAll(v);
-    }
 
 $params$requestCode''');
 
