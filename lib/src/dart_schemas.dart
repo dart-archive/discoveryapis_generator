@@ -125,6 +125,16 @@ abstract class DartSchemaType {
    * a [DartSchemaType].
    */
   String jsonDecode(String json);
+
+  /**
+   * Whether this value needs a JSON encoding or not.
+   */
+  bool get needsJsonEncoding => jsonEncode('foo') != 'foo';
+
+  /**
+   * Whether this value needs a JSON decoding or not.
+   */
+  bool get needsJsonDecoding => jsonDecode('foo') != 'foo';
 }
 
 
@@ -318,11 +328,26 @@ class UnnamedArrayType extends ComplexDartSchemaType {
   String get declaration => '${imports.core}.List<${innerType.declaration}>';
 
   String jsonEncode(String value) {
-    return '${value}.map((value) => ${innerType.jsonEncode('value')}).toList()';
+    if (innerType.needsJsonEncoding) {
+      return
+          '${value}.map((value) => ${innerType.jsonEncode('value')}).toList()';
+    } else {
+      // NOTE: The List from the user is already JSON. We have a big
+      // ASSUMPTION here: The user does not modify the list while we're
+      // converting JSON -> String (-> Bytes).
+      return value;
+    }
   }
 
   String jsonDecode(String json) {
-    return '${json}.map((value) => ${innerType.jsonDecode('value')}).toList()';
+    if (innerType.needsJsonDecoding) {
+      return
+          '${json}.map((value) => ${innerType.jsonDecode('value')}).toList()';
+    } else {
+      // NOTE: The List returned from JSON.decode() transfers ownership to the
+      // user (i.e. we don't need to make a copy of it).
+      return json;
+    }
   }
 }
 
@@ -375,7 +400,7 @@ $encode
 
   void set length(${imports.core}.int newLength) {
     _inner.length = newLength;
-  } 
+  }
 }
 ''';
   }
@@ -383,7 +408,14 @@ $encode
   String get declaration => '${className.name}';
 
   String jsonEncode(String value) {
-    return '(${value}).toJson()';
+    if (innerType.needsJsonEncoding) {
+      return '(${value}).toJson()';
+    } else {
+      // NOTE: The List from the user can be encoded directly. We have a big
+      // ASSUMPTION here: The user does not modify the list while we're
+      // converting JSON -> String (-> Bytes).
+      return value;
+    }
   }
 
   String jsonDecode(String json) {
@@ -422,13 +454,26 @@ class UnnamedMapType extends ComplexDartSchemaType {
   }
 
   String jsonEncode(String value) {
-    return '${imports.internal}.mapMap'
-           '(${value}, (item) => ${toType.jsonEncode('item')})';
+    if (fromType.needsJsonEncoding || toType.needsJsonEncoding) {
+      return '${imports.internal}.mapMap'
+             '(${value}, (item) => ${toType.jsonEncode('item')})';
+    } else {
+      // NOTE: The Map from the user can be encoded directly. We have a big
+      // ASSUMPTION here: The user does not modify the map while we're
+      // converting JSON -> String (-> Bytes).
+      return value;
+    }
   }
 
   String jsonDecode(String json) {
-    return '${imports.internal}.mapMap'
-           '(${json}, (item) => ${toType.jsonDecode('item')})';
+    if (fromType.needsJsonEncoding || toType.needsJsonEncoding) {
+      return '${imports.internal}.mapMap'
+            '(${json}, (item) => ${toType.jsonDecode('item')})';
+    } else {
+      // NOTE: The Map returned from JSON.decode() transfers ownership to the
+      // user (i.e. we don't need to make a copy of it).
+      return json;
+    }
   }
 }
 
@@ -508,7 +553,14 @@ $encode
   String get declaration => '$className';
 
   String jsonEncode(String value) {
-    return '(${value}).toJson()';
+    if (fromType.needsJsonEncoding || toType.needsJsonEncoding) {
+      return '(${value}).toJson()';
+    } else {
+      // NOTE: The Map from the user can be encoded directly. We have a big
+      // ASSUMPTION here: The user does not modify the map while we're
+      // converting JSON -> String (-> Bytes).
+      return value;
+    }
   }
 
   String jsonDecode(String json) {

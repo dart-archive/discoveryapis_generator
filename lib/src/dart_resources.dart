@@ -238,7 +238,7 @@ class DartResourceMethod {
         var expr = param.type.primitiveEncoding(param.name.name);
         propertyAssignment =
             '_queryParams.putIfAbsent("${escapeString(param.jsonName)}"'
-            ', () => []).all($expr);';
+            ', () => []).add($expr);';
       }
 
       if (param.required) {
