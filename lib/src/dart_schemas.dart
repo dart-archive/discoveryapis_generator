@@ -37,6 +37,18 @@ class DartSchemaTypeDB {
 
   // Name of dart class to [DartSchemaType].
   final List<ComplexDartSchemaType> dartClassTypes = [];
+
+  DartSchemaType register(DartSchemaType type) {
+    if (type is! DartSchemaForwardRef) {
+      // Add [type] to list of all types.
+      dartTypes.add(type);
+    }
+    return type;
+  }
+
+  void registerTopLevel(String schemaName, DartSchemaType type) {
+    namedSchemaTypes[schemaName] = type;
+  }
 }
 
 
@@ -254,11 +266,8 @@ class DateTimeType extends StringType {
 /**
  * Class representing "any" schema type.
  *
- * FIXME/TODO:
- *
- * This is unimplemented and not supported right now.
- * It does not work with jsonEncode/jsonDecode and probably many
- * other things.
+ * A decodeded any type object is the JSON the server sent. The any type object
+ * a user supplies is expected to be JSON and transferred to the server "as is".
  */
 class AnyType extends PrimitiveDartSchemaType {
   AnyType(DartApiImports imports) : super(imports);
@@ -277,9 +286,6 @@ abstract class ComplexDartSchemaType extends DartSchemaType {
                         Identifier name,
                         {Comment comment})
       : super(imports, name, comment_: comment);
-
-  // TODO: Remove this.
-  String get instantiation;
 
   String get classDefinition;
 
@@ -306,9 +312,6 @@ class UnnamedArrayType extends ComplexDartSchemaType {
     innerType = innerType.resolve(db);
     return this;
   }
-
-  String get instantiation =>
-      'new ${imports.core}.List<${innerType.declaration}>()';
 
   String get classDefinition => null;
 
@@ -337,8 +340,6 @@ class NamedArrayType extends ComplexDartSchemaType {
     innerType = innerType.resolve(db);
     return this;
   }
-
-  String get instantiation => 'new ${className.name}()';
 
   String get classDefinition {
     var decode = new StringBuffer();
@@ -412,12 +413,6 @@ class UnnamedMapType extends ComplexDartSchemaType {
     return this;
   }
 
-  String get instantiation {
-    var from = fromType.declaration;
-    var to = toType.declaration;
-    return 'new ${imports.core}.Map<$from, $to>()';
-  }
-
   String get classDefinition => null;
 
   String get declaration {
@@ -459,12 +454,6 @@ class NamedMapType extends ComplexDartSchemaType {
     fromType = fromType.resolve(db);
     toType = toType.resolve(db);
     return this;
-  }
-
-  String get instantiation {
-    var from = fromType.declaration;
-    var to = toType.declaration;
-    return 'new $className()';
   }
 
   String get classDefinition {
@@ -533,7 +522,8 @@ $encode
  */
 class ObjectType extends ComplexDartSchemaType {
   final List<DartClassProperty> properties;
-  // FIXME: Can we have subclasses of subclasses ???
+
+  // Will be set by the superVariantType when resolving forward references.
   AbstractVariantType superVariantType;
 
   ObjectType(DartApiImports imports, Identifier name, this.properties,
@@ -550,8 +540,6 @@ class ObjectType extends ComplexDartSchemaType {
     }
     return this;
   }
-
-  String get instantiation => 'new $className()';
 
   String get classDefinition {
     var superClassString = '';
@@ -683,6 +671,10 @@ class AbstractVariantType extends ComplexDartSchemaType {
         map[name] = resolvedType;
         // Set superclass to ourselves.
         if (resolvedType.superVariantType == null) {
+          if (resolvedType is AbstractVariantType) {
+            throw new StateError('Variant types cannot have subclasses which '
+                                 'are variant types themselves.');
+          }
           resolvedType.superVariantType = this;
         } else {
           throw new StateError('Superclass already set. A object type should '
@@ -695,8 +687,6 @@ class AbstractVariantType extends ComplexDartSchemaType {
     });
     return this;
   }
-
-  String get instantiation => null;
 
   String get classDefinition {
     var fromJsonString = new StringBuffer();
@@ -746,18 +736,6 @@ DartSchemaTypeDB parseSchemas(DartApiImports imports,
                               RestDescription description) {
   var namer = imports.namer;
   var db = new DartSchemaTypeDB(imports);
-
-  DartSchemaType register(DartSchemaType type) {
-    if (type is! DartSchemaForwardRef) {
-      // Add [type] to list of all types.
-      db.dartTypes.add(type);
-    }
-    return type;
-  }
-
-  void registerTopLevel(String schemaName, DartSchemaType type) {
-    db.namedSchemaTypes[schemaName] = type;
-  }
 
   /*
    * Primitive types "integer"/"boolean"/"double"/"number"/"string":
@@ -827,11 +805,11 @@ DartSchemaTypeDB parseSchemas(DartApiImports imports,
           }
           // This is a named map type.
           var classId = namer.schemaClass(className);
-          return register(new NamedMapType(
+          return db.register(new NamedMapType(
               imports, classId, db.stringType, valueType, comment: comment));
         } else {
           // This is an unnamed map type.
-          return register(
+          return db.register(
               new UnnamedMapType(imports, db.stringType, valueType));
         }
       } else if (schema.variant != null) {
@@ -843,7 +821,7 @@ DartSchemaTypeDB parseSchemas(DartApiImports imports,
               new DartSchemaForwardRef(imports, mapItem.$ref);
         });
         var classId = namer.schemaClass(className);
-        return register(new AbstractVariantType(
+        return db.register(new AbstractVariantType(
             imports, classId, schema.variant.discriminant, map));
       } else {
         // This is a normal named schema class, we generate a normal
@@ -874,61 +852,41 @@ DartSchemaTypeDB parseSchemas(DartApiImports imports,
             properties.add(property);
           });
         }
-        return register(
+        return db.register(
             new ObjectType(imports, classId, properties, comment: comment));
       }
     } else if (schema.type == 'array') {
       var comment = new Comment(schema.description);
       if (topLevel) {
-        var elementClassName =
-            namer.schemaClassName('${className}Element');
+        var elementClassName = namer.schemaClassName('${className}Element');
         var classId = namer.schemaClass(className);
-        return register(new NamedArrayType(imports,
+        return db.register(new NamedArrayType(imports,
                         classId,
                         parse(elementClassName,
                               namer.newClassScope(),
                               schema.items),
                         comment: comment));
       } else {
-        return register(new UnnamedArrayType(imports,
+        return db.register(new UnnamedArrayType(imports,
                 parse(className, namer.newClassScope(), schema.items)));
       }
-    } else if (schema.type == 'boolean') {
-      return db.booleanType;
-    } else if (schema.type == 'string') {
-      if (schema.enumProperty != null) {
-        return register(new EnumType(
-            imports, schema.enumProperty, schema.enumDescriptions));
-      } else if (schema.format == 'date-time') {
-        return db.dateTimeType;
-      } else if (schema.format == 'date') {
-        return db.dateType;
-      } else {
-        return db.stringType;
-      }
-    } else if (schema.type == 'number') {
-      return db.numberType;
-    } else if (schema.type == 'double') {
-      return db.doubleType;
-    } else if (schema.type == 'integer') {
-      // FIXME: Also take [schema.format] into account, e.g. "int64"
-      return db.integerType;
     } else if (schema.type == 'any') {
-      return db.anyType; // FIXME: What do we do here?
+      return db.anyType;
     } else if (schema.$ref != null) {
       // This is a forward or backward reference, it will be resolved in
       // another pass following the parsing.
-      return register(new DartSchemaForwardRef(imports, schema.$ref));
+      return db.register(new DartSchemaForwardRef(imports, schema.$ref));
+    } else {
+      return parsePrimitive(imports, db, schema);
     }
-    throw new ArgumentError('Invalid JsonSchema.type (was: ${schema.type}).');
   }
 
   if (description.schemas != null) {
     orderedForEach(description.schemas, (String name, JsonSchema schema) {
       var className = namer.schemaClassName(name);
       var classScope = namer.newClassScope();
-      registerTopLevel(name,
-                       parse(className, classScope, schema, topLevel: true));
+      db.registerTopLevel(name,
+                          parse(className, classScope, schema, topLevel: true));
     });
 
     // Resolve all forward references and save list in [db.dartTypes].
@@ -947,32 +905,46 @@ DartSchemaTypeDB parseSchemas(DartApiImports imports,
 DartSchemaType parseResolved(DartApiImports imports,
                              DartSchemaTypeDB db,
                              JsonSchema schema) {
-  var primitiveTypes = {
-    'boolean' : db.booleanType,
-    'string' : db.stringType,
-    'number' : db.numberType,
-    'double' : db.doubleType,
-    'integer' : db.integerType,
-  };
-  var primitiveType = primitiveTypes[schema.type];
-  if (primitiveType == null) {
-    throw new ArgumentError('Invalid JsonSchema.type (was: ${schema.type}).');
+  if (schema.repeated != null && schema.repeated) {
+    var innerType = parsePrimitive(imports, db, schema);
+    return new UnnamedArrayType(imports, innerType);
   }
-  if (schema.repeated == null || !schema.repeated) {
-    if (schema.enumProperty != null) {
-      return new EnumType(
-          imports, schema.enumProperty, schema.enumDescriptions);
-    } else if (schema.format == 'date-time') {
-      return db.dateTimeType;
-    } else if (schema.format == 'date') {
-      return db.dateType;
-    }
-    return primitiveType;
-  } else {
-    return new UnnamedArrayType(imports, primitiveType);
-  }
+  return parsePrimitive(imports, db, schema);
 }
 
+DartSchemaType parsePrimitive(DartApiImports imports,
+                              DartSchemaTypeDB db,
+                              JsonSchema schema) {
+  switch(schema.type) {
+    case 'boolean':
+      return db.booleanType;
+    case 'string':
+      switch(schema.format) {
+        case 'date-time':
+          return db.dateTimeType;
+        case 'date':
+          return db.dateType;
+        default:
+          if (schema.enumProperty != null) {
+            return db.register(new EnumType(
+                imports, schema.enumProperty, schema.enumDescriptions));
+          }
+          return db.stringType;
+      }
+      return db.stringType;
+    case 'number':
+      return db.numberType;
+    case 'double':
+      return db.doubleType;
+    case 'integer':
+      var format = schema.format;
+      if (format != null && !['int32', 'uint32'].contains(format)) {
+        throw new Exception('Integer format $format is not not supported.');
+      }
+      return db.integerType;
+  }
+  throw new ArgumentError('Invalid JsonSchema.type (was: ${schema.type}).');
+}
 
 /**
  * Generates the codegen'ed dart string for all schema classes.

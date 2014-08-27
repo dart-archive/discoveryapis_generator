@@ -1147,7 +1147,7 @@ class Escaper {
     // This gives us in effect a conservative encoding, since the server side
     // must interpret percent-encoded parts anyway due to arbitrary unicode.
 
-    // FIXME: This is broken in the discovery protocol. It allows ? and & to be
+    // NOTE: This is broken in the discovery protocol. It allows ? and & to be
     // expanded via URI Templates which may generate completely bogus URIs.
     // TODO/FIXME: Should we change this to _encodeUnreserved() as well
     // (disadvantage, slashes get encoded at this point)?
@@ -1173,7 +1173,7 @@ class Escaper {
     // normal query name/value pairs.
 
     // NOTE: For safety reasons we use '%20' instead of '+' here as well.
-    // FIXME: Should we do this?
+    // TODO/FIXME: Should we do this?
     return _encodeUnreserved(name);
   }
 

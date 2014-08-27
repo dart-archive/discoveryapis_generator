@@ -429,8 +429,6 @@ class DartResourceClass {
  * Represents the API resource of an Apiary API.
  */
 class DartApiClass extends DartResourceClass {
-  // TODO: parameters (like prettyPrint)
-  // TODO: Url base?
   final String rootUrl;
   final String basePath;
   final List<OAuth2Scope> scopes;
@@ -592,7 +590,6 @@ DartApiClass parseResources(DartApiImports imports,
       var dartRequestParameter = null;
       if (method.request != null) {
         var type = getValidReference(method.request.$ref);
-        // FIXME: Is `required: true` really the right thing?
         var requestName = parameterScope.newIdentifier('request');
         var comment = new Comment('The metadata request object.');
         dartRequestParameter =
@@ -682,7 +679,6 @@ DartApiClass parseResources(DartApiImports imports,
       }
 
       var rootUrl = Uri.parse(description.rootUrl).resolve('/').toString();
-
       return new DartApiClass(
           imports, className, coment, dartMethods, dartSubResourceIdentifiers,
           dartSubResource, rootUrl, description.basePath, scopes);
