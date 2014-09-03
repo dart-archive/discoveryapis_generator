@@ -5,6 +5,8 @@ import "dart:async";
 import "dart:convert";
 import 'package:google_discovery_v1_api/discovery_v1_api_client.dart';
 import 'package:google_discovery_v1_api/discovery_v1_api_console.dart';
+import 'package:yaml/yaml.dart';
+
 
 part "src/apis_package_generator.dart";
 part "src/dart_api_library.dart";
@@ -13,6 +15,7 @@ part "src/dart_comments.dart";
 part "src/dart_resources.dart";
 part "src/dart_schemas.dart";
 part "src/namer.dart";
+part "src/package_configuration.dart";
 part "src/utils.dart";
 part "src/uri_template.dart";
 
@@ -134,6 +137,27 @@ class GenerateResult {
     var msg = message != null && !message.isEmpty ? ':\n  => $message' : '';
     return '$flag $apiName $apiVersion @ $packagePath $msg';
   }
+}
+
+Future generateFromConfiguration(String configFile) {
+  return listAllApis().then((List<DirectoryListItems> items) {
+    var configuration = new DiscoveryPackagesConfiguration(configFile, items);
+
+    // Print warnings for APIs not mentioned.
+    if (configuration.missingApis.isNotEmpty) {
+      print('WARNING: No configuration for the following APIs:');
+      configuration.missingApis.forEach((id) => print('- $id'));
+    }
+    if (configuration.excessApis.isNotEmpty) {
+      print('WARNING: The following APIs do not exist:');
+      configuration.excessApis.forEach((id) => print('- $id'));
+    }
+
+    // Generate the packages.
+    var configFileUri = new Uri.file(configFile);
+    return configuration.generate(configFileUri.resolve('discovery').path,
+                                  configFileUri.resolve('generated').path);
+  });
 }
 
 final _discoveryClient = new Discovery();
