@@ -462,8 +462,10 @@ class ApiRequester {
         try {
           contentLength = int.parse(response.headers['content-length']);
         } catch (_) {
-          throw new common_external.ApiRequestError(
-              "No or invalid 'content-length' header in media response.");
+          // We silently ignore errors here. If no content-length was specified
+          // we use `null`.
+          // Please note that the code below still asserts the content-length
+          // is correct for range downloads.
         }
 
         if (downloadRange != null) {
@@ -2135,12 +2137,6 @@ main() {
 
         test('media-199', () {
           makeNormal199Error();
-          expect(requester.request('abc', 'GET', downloadOptions: options),
-                 throwsA(isApiRequestError));
-        });
-
-        test('media-invalid-content-type', () {
-          makeInvalidContentTypeError();
           expect(requester.request('abc', 'GET', downloadOptions: options),
                  throwsA(isApiRequestError));
         });
