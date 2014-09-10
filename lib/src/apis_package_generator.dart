@@ -375,6 +375,10 @@ import "dart:collection" as collection;
 import "package:crypto/crypto.dart" as crypto;
 import "../common/common.dart" as common_external;
 import "package:http/http.dart" as http;
+
+const String USER_AGENT_STRING =
+    'google-api-dart-client ${config.name}/${config.version}';
+
 """ + r"""
 const CONTENT_TYPE_JSON_UTF8 = 'application/json; charset=utf-8';
 
@@ -541,6 +545,7 @@ class ApiRequester {
       var bodyStream = uploadMedia.stream;
       var request = new RequestImpl(method, uri, bodyStream);
       request.headers.addAll({
+        'user-agent' : USER_AGENT_STRING,
         'content-type' : uploadMedia.contentType,
         'content-length' : '${uploadMedia.length}'
       });
@@ -560,12 +565,14 @@ class ApiRequester {
       var headers;
       if (downloadRange != null) {
         headers = {
+          'user-agent' : USER_AGENT_STRING,
           'content-type' : CONTENT_TYPE_JSON_UTF8,
           'content-length' : '$length',
           'range' :  'bytes=${downloadRange.start}-${downloadRange.end}',
         };
       } else {
         headers = {
+          'user-agent' : USER_AGENT_STRING,
           'content-type' : CONTENT_TYPE_JSON_UTF8,
           'content-length' : '$length',
         };
@@ -655,6 +662,7 @@ class MultipartMediaUploader {
     });
 
     var headers = {
+        'user-agent' : USER_AGENT_STRING,
         'content-type' : "multipart/related; boundary=\"$_boundary\"",
         'content-length' : '$totalLength'
     };
@@ -869,6 +877,7 @@ class ResumableMediaUploader {
 
     var request = new RequestImpl(_method, _uri, bodyStream);
     request.headers.addAll({
+      'user-agent' : USER_AGENT_STRING,
       'content-type' : CONTENT_TYPE_JSON_UTF8,
       'content-length' : '$length',
       'x-upload-content-type' : _uploadMedia.contentType,
@@ -969,6 +978,7 @@ class ResumableMediaUploader {
     }
 
     var headers = {
+        'user-agent' : USER_AGENT_STRING,
         'content-type' : _uploadMedia.contentType,
         'content-length' : '${chunk.length}',
         'content-range' :
