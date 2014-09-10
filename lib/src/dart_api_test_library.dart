@@ -45,7 +45,6 @@ class DartApiTestLibrary extends TestHelper {
     // Build up [schemaTests] and [resourceTests].
     var db = apiLibrary.schemaDB;
     handleType(db.integerType);
-    handleType(db.numberType);
     handleType(db.doubleType);
     handleType(db.booleanType);
     handleType(db.stringType);
@@ -363,7 +362,7 @@ class MethodArgsTest extends TestHelper {
           ln(expectEqual('core.DateTime.parse(${queryMapValue}.first)', name));
         } else if (type is StringType) {
           ln(expectEqual('${queryMapValue}.first', name));
-        } else if (type is NumberType) {
+        } else if (type is DoubleType) {
           ln(expectEqual(numParse('${queryMapValue}.first'), name));
         } else if (type is BooleanType) {
           ln(expectEqual('${queryMapValue}.first', '"\$$name"'));
@@ -402,8 +401,6 @@ testFromSchema(apiTestLibrary, schema) {
     return new IntSchemaTest(apiTestLibrary, schema);
   } else if (schema is DoubleType) {
     return new DoubleSchemaTest(apiTestLibrary, schema);
-  } else if (schema is NumberType) {
-    return new NumberSchemaTest(apiTestLibrary, schema);
   } else if (schema is BooleanType) {
     return new BooleanSchemaTest(apiTestLibrary, schema);
   } else if (schema is EnumType) {
@@ -470,13 +467,6 @@ class IntSchemaTest extends PrimitiveSchemaTest<IntegerType> {
 class DoubleSchemaTest extends PrimitiveSchemaTest<DoubleType> {
   DoubleSchemaTest(apiTestLibrary, schema) : super(apiTestLibrary, schema);
   String get declaration => 'core.double';
-  String get newSchemaExpr => '42.0';
-  String checkSchemaStatement(String o) => expectEqual(o, '42.0');
-}
-
-class NumberSchemaTest extends PrimitiveSchemaTest<NumberType> {
-  NumberSchemaTest(apiTestLibrary, schema) : super(apiTestLibrary, schema);
-  String get declaration => 'core.num';
   String get newSchemaExpr => '42.0';
   String checkSchemaStatement(String o) => expectEqual(o, '42.0');
 }

@@ -11,7 +11,6 @@ class DartSchemaTypeDB {
   // Builtin types
   final StringType stringType;
   final IntegerType integerType;
-  final NumberType numberType;
   final DoubleType doubleType;
   final BooleanType booleanType;
   final DateType dateType;
@@ -21,7 +20,6 @@ class DartSchemaTypeDB {
   DartSchemaTypeDB(DartApiImports imports)
       : stringType = new StringType(imports),
         integerType = new IntegerType(imports),
-        numberType = new NumberType(imports),
         doubleType = new DoubleType(imports),
         booleanType = new BooleanType(imports),
         dateType = new DateType(imports),
@@ -210,13 +208,6 @@ class IntegerType extends PrimitiveDartSchemaType {
   IntegerType(DartApiImports imports) : super(imports);
 
   String get declaration => '${imports.core}.int';
-}
-
-
-class NumberType extends PrimitiveDartSchemaType {
-  NumberType(DartApiImports imports) : super(imports);
-
-  String get declaration => '${imports.core}.num';
 }
 
 
@@ -632,8 +623,8 @@ class ObjectType extends ComplexDartSchemaType {
             '  void set ${property.byteArrayAccessor}');
         propertyString.writeln(
             '(${imports.core}.List<${imports.core}.int> _bytes) {');
-        propertyString.writeln('    ${property.name} = '
-            '${imports.crypto}.CryptoUtils.bytesToBase64(_bytes);');
+        propertyString.writeln('    ${property.name} = ${imports.crypto}.'
+            'CryptoUtils.bytesToBase64(_bytes, urlSafe: true);');
         propertyString.writeln('  }');
 
         propertyString.writeln();
@@ -990,8 +981,10 @@ DartSchemaType parsePrimitive(DartApiImports imports,
       }
       return db.stringType;
     case 'number':
-      return db.numberType;
-    case 'double':
+      if (!['float', 'double'].contains(schema.format)) {
+        throw new ArgumentError(
+            'Only number types with float/double format are supported.');
+      }
       return db.doubleType;
     case 'integer':
       var format = schema.format;
