@@ -1,5 +1,9 @@
 # Changelog - discovery_api_client_generator
 
+## v0.5.0
+
+- Merged new generator implementation from experimental branch to master 
+
 ## 0.4.5 2014-05-16 (SDK 1.4.0-dev.6.7 r36210)
 
 - Set `uploadType` as `multipart` by default 
