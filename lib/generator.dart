@@ -5,68 +5,122 @@ import "dart:async";
 import "dart:convert";
 import 'package:google_discovery_v1_api/discovery_v1_api_client.dart';
 import 'package:google_discovery_v1_api/discovery_v1_api_console.dart';
+import 'package:yaml/yaml.dart';
 
-part "src/config.dart";
-part "src/generator.dart";
-part "src/properties.dart";
+
+part "src/apis_package_generator.dart";
+part "src/dart_api_library.dart";
+part "src/dart_api_test_library.dart";
+part "src/dart_comments.dart";
+part "src/dart_resources.dart";
+part "src/dart_schemas.dart";
+part "src/namer.dart";
+part "src/package_configuration.dart";
 part "src/utils.dart";
-part "src/writers.dart";
+part "src/uri_template.dart";
 
 /**
- * [source] must be one of:
- *
- *  * A [String] representing the unparsed JSON content of a [RestDescription]
- *  * A [Map] representing the parsed JSON content of a [RestDescription]
- *  * An instance of [RestDescription]
+ * Specifaction of the pubspec.yaml for a generated package.
  */
-GenerateResult generateLibraryFromSource(source, String outputDirectory,
-    {String prefix:'', bool check: false, bool force: false}) {
+class Pubspec {
+  final String name;
+  final String version;
+  final String description;
+  final String author;
+  final String homepage;
 
-  if(source is String) {
-    source = JSON.decode(source);
-  }
+  Pubspec(this.name,
+          this.version,
+          this.description,
+          {this.author,
+           this.homepage});
 
-  if(source is Map) {
-    source = new RestDescription.fromJson(source);
-  }
+  String get sdkConstraint => '>=1.0.0 <2.0.0';
 
-  assert(source is RestDescription);
+  Map<String, Object> get dependencies => const {
+    'http': '\'>=0.11.1 <0.12.0\'',
+    'crypto': '\'>=0.9.0 <0.10.0\'',
+  };
 
-  var generator = new Generator(source, prefix);
-
-  return generator.generateClient(outputDirectory, check: check, force: force);
+  Map<String, Object> get devDependencies => const {
+    'unittest': '\'>=0.10.0 <0.12.0\'',
+  };
 }
 
-Future<GenerateResult> generateLibrary(String apiName, String apiVersion, String output,
-    {String prefix:'', bool check: false, bool force: false}) {
-  return _discoveryClient.apis.getRest(apiName, apiVersion)
-      .then((RestDescription doc) => generateLibraryFromSource(doc, output,
-                  prefix: prefix, check: check, force: force));
+Future<List<DirectoryListItems>> listAllApis() {
+  return _discoveryClient.apis.list().then((DirectoryList list) {
+    return list.items;
+  });
 }
 
-Future<List<GenerateResult>> generateAllLibraries(String output,
-    {String prefix:'', bool check: false, bool force: false}) {
+List<GenerateResult> generateApiPackage(List<RestDescription> descriptions,
+                                        String outputDirectory,
+                                        Pubspec pubspec) {
+  var apisPackageGenerator = new ApisPackageGenerator(
+      descriptions, pubspec, outputDirectory);
 
-  var results = new List<GenerateResult>();
-  return _discoveryClient.apis.list()
-      .then((DirectoryList list) {
-        return Future.forEach(list.items, (DirectoryListItems item) {
-          return _discoveryClient.apis.getRest(item.name, item.version)
-              .then((RestDescription doc) => generateLibraryFromSource(doc, output,
-                  prefix: prefix, check: check, force: force))
-              .then(results.add);
-          });
-      })
-      .then((_) => results);
+  return apisPackageGenerator.generateApiPackage();
+}
+
+List<GenerateResult> generateAllLibraries(String inputDirectory,
+                                          String outputDirectory,
+                                          Pubspec pubspec) {
+  var apiDescriptions = new Directory(inputDirectory).listSync()
+      .where((fse) => fse is File && fse.path.endsWith('.json'))
+      .map((File file) {
+    return new RestDescription.fromJson(JSON.decode(file.readAsStringSync()));
+  }).toList();
+  return generateApiPackage(apiDescriptions, outputDirectory, pubspec);
+}
+
+Future<List<GenerateResult>> downloadDiscoveryDocuments(
+    String outputDir, {List<String> ids}) {
+  var apiDescriptions = <RestDescription>[];
+
+  return _discoveryClient.apis.list().then((DirectoryList list) {
+    var futures = <Future>[];
+    for (var item in list.items) {
+      if (ids == null || ids.contains(item.id)) {
+        futures.add(_discoveryClient.apis.getRest(item.name, item.version)
+            .then((doc) {
+          apiDescriptions.add(doc);
+        }));
+      }
+    }
+    return Future.wait(futures);
+  }).then((_) {
+    var directory = new Directory(outputDir);
+    if (directory.existsSync()) {
+      print('Deleting directory $outputDir.');
+      directory.deleteSync(recursive: true);
+    }
+    directory.createSync(recursive: true);
+
+    for (var description in apiDescriptions) {
+      var name = '$outputDir/${description.name}__${description.version}.json';
+      var file = new File(name);
+      var encoder = new JsonEncoder.withIndent('    ');
+      file.writeAsStringSync(encoder.convert(description.toJson()));
+      print('Written: $name');
+    }
+  });
 }
 
 class GenerateResult {
   final String apiName;
   final String apiVersion;
-  final String packagePath;
   final String message;
+  final String packagePath;
 
-  GenerateResult._(this.apiName, this.apiVersion, this.packagePath, [this.message = '']) {
+  GenerateResult(this.apiName, this.apiVersion, this.packagePath)
+      : message = '' {
+    assert(this.apiName != null);
+    assert(this.apiVersion != null);
+    assert(this.packagePath != null);
+  }
+
+  GenerateResult.error(
+     this.apiName, this.apiVersion, this.packagePath, this.message) {
     assert(this.apiName != null);
     assert(this.apiVersion != null);
     assert(this.packagePath != null);
@@ -75,12 +129,35 @@ class GenerateResult {
 
   bool get success => message.isEmpty;
 
-  String get shortName => cleanName("${apiName}_${apiVersion}_api").toLowerCase();
+  String get shortName
+      => cleanName("${apiName}_${apiVersion}_api").toLowerCase();
 
   String toString() {
-    var flag = success ? '[SUCCESS]' : '[FAIL]\r$message';
-    return '$apiName $apiVersion @ $packagePath $flag';
+    var flag = success ? '[SUCCESS]' : '[FAIL]';
+    var msg = message != null && !message.isEmpty ? ':\n  => $message' : '';
+    return '$flag $apiName $apiVersion @ $packagePath $msg';
   }
+}
+
+Future generateFromConfiguration(String configFile) {
+  return listAllApis().then((List<DirectoryListItems> items) {
+    var configuration = new DiscoveryPackagesConfiguration(configFile, items);
+
+    // Print warnings for APIs not mentioned.
+    if (configuration.missingApis.isNotEmpty) {
+      print('WARNING: No configuration for the following APIs:');
+      configuration.missingApis.forEach((id) => print('- $id'));
+    }
+    if (configuration.excessApis.isNotEmpty) {
+      print('WARNING: The following APIs do not exist:');
+      configuration.excessApis.forEach((id) => print('- $id'));
+    }
+
+    // Generate the packages.
+    var configFileUri = new Uri.file(configFile);
+    return configuration.generate(configFileUri.resolve('discovery').path,
+                                  configFileUri.resolve('generated').path);
+  });
 }
 
 final _discoveryClient = new Discovery();
