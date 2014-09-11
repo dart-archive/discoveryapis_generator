@@ -183,16 +183,14 @@ package.
     var apiDescriptions = [];
     var sb = new StringBuffer()
         ..write('"Auto-generated client libraries for accessing '
-                'the following APIs:\\n');
+                'the following APIs:');
+    bool first = true;
     allApis.forEach((DirectoryListItems apiDescription) {
       if (apis.contains(apiDescription.id)) {
-        sb..writeln('')
-            ..write('  ')
-            ..write(apiDescription.id)
-            ..write(' - ')
-            ..write(apiDescription.description)
-            ..write('\\n');
+        if (!first) sb.write(', ');
+        sb.write(apiDescription.id);
         apiDescriptions.add(apiDescription);
+        first = false;
       }
     });
     sb.write('"');
