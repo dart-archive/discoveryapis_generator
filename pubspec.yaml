@@ -7,7 +7,8 @@ environment:
   sdk: '>=1.0.0 <2.0.0'
 dependencies:
   args: '>=0.10.0 <0.12.0'
-  google_discovery_v1_api: '>=0.4.12'
+  googleapis: '>=0.1.1 <0.2.0'
+  http: '>=0.11.1 <0.12.0'
   yaml: '>=2.0.0 <3.0.0'
 dev_dependencies:
   hop: '>=0.30.2 <0.32.0'

@@ -544,7 +544,7 @@ DartApiClass parseResources(DartApiImports imports,
         var type = db.namedSchemaTypes[ref];
         if (type == null) {
           throw new ArgumentError(
-              'Could not find reference ${method.request.$ref}.');
+              'Could not find reference ${method.request.P_ref}.');
         }
         return type;
       }
@@ -586,7 +586,7 @@ DartApiClass parseResources(DartApiImports imports,
       // Check if we have a request object, if so parse it's type.
       var dartRequestParameter = null;
       if (method.request != null) {
-        var type = getValidReference(method.request.$ref);
+        var type = getValidReference(method.request.P_ref);
         var requestName = parameterScope.newIdentifier('request');
         var comment = new Comment('The metadata request object.');
         dartRequestParameter =
@@ -595,7 +595,7 @@ DartApiClass parseResources(DartApiImports imports,
 
       var dartResponseType = null;
       if (method.response != null) {
-        dartResponseType = getValidReference(method.response.$ref);
+        dartResponseType = getValidReference(method.response.P_ref);
       }
 
       var comment = new Comment(method.description);

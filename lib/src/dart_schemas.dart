@@ -865,8 +865,8 @@ DartSchemaTypeDB parseSchemas(DartApiImports imports,
         // subclasses.
         var map = <String, DartSchemaType>{};
         schema.variant.map.forEach((JsonSchemaVariantMap mapItem) {
-          map[mapItem.type_value] =
-              new DartSchemaForwardRef(imports, mapItem.$ref);
+          map[mapItem.typeValue] =
+              new DartSchemaForwardRef(imports, mapItem.P_ref);
         });
         var classId = namer.schemaClass(className);
         return db.register(new AbstractVariantType(
@@ -920,10 +920,10 @@ DartSchemaTypeDB parseSchemas(DartApiImports imports,
       }
     } else if (schema.type == 'any') {
       return db.anyType;
-    } else if (schema.$ref != null) {
+    } else if (schema.P_ref != null) {
       // This is a forward or backward reference, it will be resolved in
       // another pass following the parsing.
-      return db.register(new DartSchemaForwardRef(imports, schema.$ref));
+      return db.register(new DartSchemaForwardRef(imports, schema.P_ref));
     } else {
       return parsePrimitive(imports, db, schema);
     }
@@ -973,9 +973,9 @@ DartSchemaType parsePrimitive(DartApiImports imports,
         case 'date':
           return db.dateType;
         default:
-          if (schema.enumProperty != null) {
+          if (schema.enum_ != null) {
             return db.register(new EnumType(
-                imports, schema.enumProperty, schema.enumDescriptions));
+                imports, schema.enum_, schema.enumDescriptions));
           }
           return db.stringType;
       }

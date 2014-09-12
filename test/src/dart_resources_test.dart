@@ -1,5 +1,5 @@
 import 'package:discovery_api_client_generator/generator.dart';
-import 'package:google_discovery_v1_api/discovery_v1_api_client.dart';
+import 'package:googleapis/discovery/v1.dart';
 import 'package:unittest/unittest.dart';
 
 

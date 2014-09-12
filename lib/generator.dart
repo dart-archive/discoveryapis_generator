@@ -3,8 +3,8 @@ library discovery_api_client_generator;
 import "dart:io";
 import "dart:async";
 import "dart:convert";
-import 'package:google_discovery_v1_api/discovery_v1_api_client.dart';
-import 'package:google_discovery_v1_api/discovery_v1_api_console.dart';
+import 'package:http/http.dart' as http;
+import 'package:googleapis/discovery/v1.dart';
 import 'package:yaml/yaml.dart';
 
 
@@ -48,9 +48,10 @@ class Pubspec {
 }
 
 Future<List<DirectoryListItems>> listAllApis() {
-  return _discoveryClient.apis.list().then((DirectoryList list) {
+  var client = new http.Client();
+  return _discoveryClient(client).apis.list().then((DirectoryList list) {
     return list.items;
-  });
+  }).whenComplete(() => client.close());
 }
 
 List<GenerateResult> generateApiPackage(List<RestDescription> descriptions,
@@ -77,17 +78,18 @@ Future<List<GenerateResult>> downloadDiscoveryDocuments(
     String outputDir, {List<String> ids}) {
   var apiDescriptions = <RestDescription>[];
 
-  return _discoveryClient.apis.list().then((DirectoryList list) {
+  var client = new http.Client();
+  var discovery = _discoveryClient(client);
+  return discovery.apis.list().then((DirectoryList list) {
     var futures = <Future>[];
     for (var item in list.items) {
       if (ids == null || ids.contains(item.id)) {
-        futures.add(_discoveryClient.apis.getRest(item.name, item.version)
-            .then((doc) {
+        futures.add(discovery.apis.getRest(item.name, item.version).then((doc) {
           apiDescriptions.add(doc);
         }));
       }
     }
-    return Future.wait(futures);
+    return Future.wait(futures).whenComplete(() => client.close());
   }).then((_) {
     var directory = new Directory(outputDir);
     if (directory.existsSync()) {
@@ -160,4 +162,4 @@ Future generateFromConfiguration(String configFile) {
   });
 }
 
-final _discoveryClient = new Discovery();
+DiscoveryApi _discoveryClient(http.Client client) => new DiscoveryApi(client);
