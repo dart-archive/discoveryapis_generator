@@ -10,8 +10,10 @@ class Package {
   final Pubspec pubspec;
   final String readme;
   final String license;
+  final String changelog;
 
-  Package(this.name, this.apis, this.pubspec, this.readme, this.license);
+  Package(this.name, this.apis, this.pubspec, this.readme, this.license,
+          this.changelog);
 }
 
 /**
@@ -107,6 +109,10 @@ class DiscoveryPackagesConfiguration {
           new File('$generatedApisDir/$name/LICENSE')
               .writeAsStringSync(package.license);
         }
+        if (package.changelog != null) {
+          new File('$generatedApisDir/$name/CHANGELOG.md')
+              .writeAsStringSync(package.changelog);
+        }
       });
     });
   }
@@ -169,14 +175,20 @@ package.
         values['version'] != null ? values['version'] : '0.1.0-dev';
     var author = values['author'];
     var homepage = values['homepage'];
+
+    var configUri = new Uri.file(configFile);
+
     var readmeFile;
     if (values['readme'] != null) {
-      readmeFile = new Uri.file(configFile).resolve(values['readme']).path;
+      readmeFile = configUri.resolve(values['readme']).path;
     }
     var licenseFile;
     if (values['license'] != null) {
-      licenseFile =
-          new Uri.file(configFile).resolve(values['license']).path;
+      licenseFile = configUri.resolve(values['license']).path;
+    }
+    var changelogFile;
+    if (values['changelog'] != null) {
+      changelogFile = configUri.resolve(values['changelog']).path;
     }
 
     // Generate package description.
@@ -201,10 +213,13 @@ package.
     // Read the LICENSE
     var license = new File(licenseFile).readAsStringSync();
 
+    // Read CHANGELOG.md
+    var changelog = new File(changelogFile).readAsStringSync();
+
     // Create package description with pubspec.yaml information.
     var pubspec = new Pubspec(
         name, version, sb.toString(), author: author, homepage: homepage);
-    return new Package(name, apis, pubspec, readme, license);
+    return new Package(name, apis, pubspec, readme, license, changelog);
   }
 
   /// The known APIs are the APis mentioned in each package together with
