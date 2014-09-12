@@ -93,7 +93,7 @@ class ApisPackageGenerator {
       String apiTestFolderPath = "$testFolderPath/$name";
 
       String apiVersionFile = "$libFolderPath/$name/$version.dart";
-      String apiTestVersionFile = "$testFolderPath/$name/$version.dart";
+      String apiTestVersionFile = "$testFolderPath/$name/${version}_test.dart";
 
       String packagePath = 'package:${config.name}/$name/$version.dart';
 
