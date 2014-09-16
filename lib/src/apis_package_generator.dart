@@ -521,7 +521,7 @@ class ApiRequester {
     if (requestUrl.startsWith('/')) {
       path ="$_rootUrl${requestUrl.substring(1)}";
     } else {
-      path ="$_rootUrl${_basePath.substring(1)}$requestUrl";
+      path ="$_rootUrl${_basePath}$requestUrl";
     }
 
     bool containsQueryParameter = path.contains('?');
@@ -1575,7 +1575,7 @@ main() {
       setUp(() {
         httpMock = new HttpServerMock();
         rootUrl = 'http://example.com/';
-        basePath = '/base/';
+        basePath = 'base/';
         requester = new ApiRequester(httpMock, rootUrl, basePath);
       });
 

@@ -1,6 +1,8 @@
 import 'package:discovery_api_client_generator/generator.dart';
-import 'package:googleapis/discovery/v1.dart';
+import 'package:discovery_api_client_generator/src'
+       '/generated_googleapis/discovery/v1.dart';
 import 'package:unittest/unittest.dart';
+
 
 withParsedDB(json, function) {
   var namer = new ApiLibraryNamer();
@@ -68,6 +70,7 @@ main() {
               },
               'x1Date' : { 'type': 'string', 'format' : 'date'},
               'x2DateTime' : { 'type': 'string', 'format' : 'date-time'},
+              'x3Int16' : { 'type': 'integer', 'format' : 'int16'},
             },
           },
         }
@@ -141,6 +144,11 @@ main() {
         expect(dateTime, isNotNull);
         expect(dateTime.name.name, equals('x2DateTime'));
         expect(dateTime.type is DateTimeType, isTrue);
+
+        var int16 = task.properties[9];
+        expect(int16, isNotNull);
+        expect(int16.name.name, equals('x3Int16'));
+        expect(int16.type is IntegerType, isTrue);
       });
     });
 
@@ -174,11 +182,14 @@ main() {
             'properties' : {
               'points' : {'type' : 'integer' },
             },
+          },
+          'IndirectPolygonGeometry' : {
+            '\$ref' : 'PolygonGeometry',
           }
         }
       }, (DartSchemaTypeDB db) {
         expect(db.dartTypes, hasLength(3));
-        expect(db.namedSchemaTypes, hasLength(3));
+        expect(db.namedSchemaTypes, hasLength(4));
         expect(db.dartClassTypes, hasLength(3));
 
         // 'Geometry' variant schema.
@@ -198,6 +209,12 @@ main() {
         ObjectType polyGeo = db.dartClassTypes[2];
         expect(db.dartTypes, contains(polyGeo));
         expect(db.namedSchemaTypes['PolygonGeometry'], equals(polyGeo));
+
+        // 'IndirectPolygonGeometry'
+        expect(db.namedSchemaTypes, contains('IndirectPolygonGeometry'));
+        DartSchemaForwardRef indirectPolyGeo =
+            db.namedSchemaTypes['IndirectPolygonGeometry'];
+        expect(indirectPolyGeo.forwardRefName, equals('PolygonGeometry'));
 
         // Check variant map
         expect(geo.className.name, equals('Geometry'));
@@ -332,6 +349,27 @@ main() {
         NamedArrayType properties = db.dartClassTypes.first;
         expect(properties.className.name, equals('NamedArray'));
         expect(properties.innerType, equals(db.stringType));
+      });
+    });
+
+    test('no-enum-comments', () {
+      withParsedDB({
+        'schemas' : {
+          'MyClass' : {
+            'type' : 'string',
+            'enum' : ['foo', 'bar'],
+          },
+        }
+      }, (DartSchemaTypeDB db) {
+        expect(db.dartTypes, hasLength(1));
+        expect(db.namedSchemaTypes, hasLength(1));
+        expect(db.dartClassTypes, hasLength(0));
+
+        expect(db.namedSchemaTypes, contains('MyClass'));
+        EnumType enumType = db.dartTypes.first;
+        expect(enumType.enumValues, equals(['foo', 'bar']));
+        expect(enumType.enumDescriptions,
+            equals(['A foo.', 'A bar.']));
       });
     });
   });

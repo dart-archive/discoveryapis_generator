@@ -541,12 +541,7 @@ DartApiClass parseResources(DartApiImports imports,
       }
 
       DartSchemaType getValidReference(String ref) {
-        var type = db.namedSchemaTypes[ref];
-        if (type == null) {
-          throw new ArgumentError(
-              'Could not find reference ${method.request.P_ref}.');
-        }
-        return type;
+        return new DartSchemaForwardRef(imports, ref).resolve(db);
       }
 
       // Enqueue positional parameters with a given order first.
@@ -618,10 +613,20 @@ DartApiClass parseResources(DartApiImports imports,
         }
       }
 
+      var restPath;
+      if (method.path != null) {
+        restPath = method.path;
+      } else if (method.restPath != null) {
+        restPath = method.restPath;
+      } else {
+        throw new StateError(
+            'Neither `Method.path` nor `Method.restPath` was given.');
+      }
+
       return new DartResourceMethod(imports, methodName, comment,
           dartRequestParameter,
           positionalParameters, optionalParameters, dartResponseType, jsonName,
-          UriTemplate.parse(imports, method.path), method.httpMethod,
+          UriTemplate.parse(imports, restPath), method.httpMethod,
           makeBoolean(method.supportsMediaUpload),
           makeBoolean(method.supportsMediaDownload), mediaUploadPatterns);
     }
@@ -675,10 +680,52 @@ DartApiClass parseResources(DartApiImports imports,
         });
       }
 
-      var rootUrl = Uri.parse(description.rootUrl).resolve('/').toString();
+      // The following fields can specify the URL base on which to make API
+      // calls:
+      //   - rootUrl                (ends with slash)
+      //   - servicePath            (does not begin with slash)
+      //   - basePath [deprecaated] (ends with slash)
+      //   - baseUrl [deprecated]   (ends with slash)
+      //
+      // Relationships:
+      //   <rootUrl><servicePath> == <baseUrl>
+      //   <rootUrl.path><servicePath> == <basePath>
+      //
+      // Examples:
+      // a)
+      //   rootUrl = https://www.googleapis.com/
+      //   servicePath = storage/v1/
+      //   basePath = /storage/v1/
+      //   baseUrl = https://www.googleapis.com/storage/v1/
+      //
+      // b)
+      //   rootUrl = https://www.googleapis.com/
+      //   servicePath = sink/v1/
+      //
+      // c)
+      //   rootUrl = https://www.googleapis.com/
+      //   servicePath = ''
+      //   basePath = /
+      //   baseUrl = https://www.googleapis.com/
+
+      // Validate our assumptions in checked mode:
+      assert(description.rootUrl != null);
+      assert(description.rootUrl.endsWith('/'));
+      assert(description.servicePath != null);
+      assert(description.servicePath == '' || (
+             !description.servicePath.startsWith('/') &&
+             description.servicePath.endsWith('/')));
+      if (description.baseUrl != null) {
+        var expectedBaseUrl =
+            '${description.rootUrl}${description.servicePath}';
+        assert(expectedBaseUrl == description.baseUrl);
+      }
+
+      var rootUrl = description.rootUrl;
+      var restPath = description.servicePath;
       return new DartApiClass(
           imports, className, coment, dartMethods, dartSubResourceIdentifiers,
-          dartSubResource, rootUrl, description.basePath, scopes);
+          dartSubResource, rootUrl, restPath, scopes);
     } else {
       return new DartResourceClass(
           imports, className, coment, dartMethods, dartSubResourceIdentifiers,

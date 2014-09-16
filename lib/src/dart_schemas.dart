@@ -152,6 +152,9 @@ class DartSchemaForwardRef extends DartSchemaType {
 
   DartSchemaType resolve(DartSchemaTypeDB db) {
     var concreteType = db.namedSchemaTypes[forwardRefName];
+    while (concreteType is DartSchemaForwardRef) {
+      concreteType = db.namedSchemaTypes[concreteType.forwardRefName];
+    }
     if (concreteType == null) {
       throw new StateError('Invalid forward reference: $forwardRefName');
     }
@@ -230,13 +233,22 @@ class EnumType extends StringType {
   final List<String> enumValues;
   final List<String> enumDescriptions;
 
-  EnumType(DartApiImports imports, this.enumValues, this.enumDescriptions)
-      : super(imports) {
+  factory EnumType(DartApiImports imports,
+                     List<String> enumValues,
+                     List<String> enumDescriptions) {
+    if (enumDescriptions == null) {
+      enumDescriptions = enumValues.map((value) => 'A $value.').toList();
+    }
+
     if (enumValues.length != enumDescriptions.length) {
       throw new ArgumentError('Number of enum values does not match number of '
           'enum descriptions.');
     }
+    return new EnumType._(imports, enumValues, enumDescriptions);
   }
+
+  EnumType._(DartApiImports imports, this.enumValues, this.enumDescriptions)
+      : super(imports);
 }
 
 
@@ -981,14 +993,14 @@ DartSchemaType parsePrimitive(DartApiImports imports,
       }
       return db.stringType;
     case 'number':
-      if (!['float', 'double'].contains(schema.format)) {
+      if (!['float', 'double', null].contains(schema.format)) {
         throw new ArgumentError(
             'Only number types with float/double format are supported.');
       }
       return db.doubleType;
     case 'integer':
       var format = schema.format;
-      if (format != null && !['int32', 'uint32'].contains(format)) {
+      if (format != null && !['int16', 'int32', 'uint32'].contains(format)) {
         throw new Exception('Integer format $format is not not supported.');
       }
       return db.integerType;

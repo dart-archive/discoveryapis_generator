@@ -158,14 +158,15 @@ class UriTemplate {
       bool isLetter =
           (65 <= char && char <= 90) || (97 <= char && char <= 122);
       bool isNumber = (48 <= char && char <= 57);
+      bool isUnderscore = char == 0x5F;
       if (i == 0 && !isLetter) {
         throw new ArgumentError('Variables can only begin with an upper or '
                                 'lowercase letter: "$name".');
       }
-      if (!isLetter && !isNumber) {
+      if (!isLetter && !isNumber && !isUnderscore) {
         throw new ArgumentError('Variables can only consist of uppercase '
-                                'letters, lowercase letters and numbers: '
-                                '"$name".');
+                                'letters, lowercase letters, underscores and '
+                                'numbers: "$name".');
       }
     }
   }

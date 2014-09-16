@@ -129,6 +129,10 @@ class ResourceTest extends TestHelper {
 
   String get resourceTest {
     var sb = new StringBuffer();
+
+    var rootPath = new StringPart(
+        apiLibrary.imports, Uri.parse(apiLibrary.apiClass.rootUrl).path);
+
     var basePath = new StringPart(
         apiLibrary.imports, apiLibrary.apiClass.basePath);
 
@@ -148,7 +152,7 @@ class ResourceTest extends TestHelper {
             }
 
             var test = new MethodArgsTest(
-                '(req.url)', basePath, method, paramValues);
+                '(req.url)', rootPath, basePath, method, paramValues);
             sb.writeln(test.uriValidationStatements(8));
             sb.writeln(test.queryValidationStatements(8));
             sb.writeln();
@@ -242,12 +246,17 @@ class ResourceTest extends TestHelper {
 
 class MethodArgsTest extends TestHelper {
   final String uriExpr;
+  // [rootUrl] ends with a '/'.
+  final StringPart rootUrl;
+  // [basePath] does not start with a '/' but ends with a '/'.
   final StringPart basePath;
+
   final DartResourceMethod method;
   final Map<MethodParameter, String> parameterValues;
 
   MethodArgsTest(
-      this.uriExpr, this.basePath, this.method, this.parameterValues);
+      this.uriExpr, this.rootUrl, this.basePath, this.method,
+      this.parameterValues);
 
   String uriValidationStatements(int indentationLevel) {
     var sb = new StringBuffer();
@@ -259,21 +268,34 @@ class MethodArgsTest extends TestHelper {
     ln('var index;');
     ln('var subPart;');
 
-    var parts = [];
+    // The path starts with the path of the rootUrl ending with a '/'.
+    // The remaining path is either
+    // a) an absolute URI pattern
+    // b) the basePath plus a relative URI pattern
+    var parts = [rootUrl];
     var firstPart = method.urlPattern.parts.first;
-    if (!(firstPart is StringPart && firstPart.staticString.startsWith('/'))) {
+    // First part absolute/relative is handled specially.
+    if (firstPart is StringPart && firstPart.staticString.startsWith('/')) {
+      parts.add(new StringPart(firstPart.imports,
+                               firstPart.staticString.substring(1)));
+      parts.addAll(method.urlPattern.parts.skip(1));
+    } else if (firstPart is StringPart) {
       parts.add(basePath);
+      parts.addAll(method.urlPattern.parts);
     }
-    parts.addAll(method.urlPattern.parts);
 
     for (int i = 0; i < parts.length; i++) {
       var part = parts[i];
       var isLast = i == (parts.length - 1);
       if (part is StringPart) {
         var str = part.staticString;
-        ln(expectEqual('path.substring(pathOffset, pathOffset + ${str.length})',
-                       '"${escapeString(str)}"'));
-        ln('pathOffset += ${str.length};');
+        // NOTE: Sometimes there are empty strings, we do not assert for them.
+        if (str.length > 0) {
+          ln(expectEqual(
+              'path.substring(pathOffset, pathOffset + ${str.length})',
+              '"${escapeString(str)}"'));
+          ln('pathOffset += ${str.length};');
+        }
       } else if (part is VariableExpression) {
         if (!isLast) {
           var nextPart = parts[i+1];

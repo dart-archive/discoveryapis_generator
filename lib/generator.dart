@@ -4,9 +4,9 @@ import "dart:io";
 import "dart:async";
 import "dart:convert";
 import 'package:http/http.dart' as http;
-import 'package:googleapis/discovery/v1.dart';
 import 'package:yaml/yaml.dart';
 
+import 'src/generated_googleapis/discovery/v1.dart';
 
 part "src/apis_package_generator.dart";
 part "src/dart_api_library.dart";

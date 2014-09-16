@@ -20,13 +20,13 @@ main() {
     });
 
     test('variable', () {
-      var template = UriTemplate.parse(imports, '{myvar}');
+      var template = UriTemplate.parse(imports, '{My_var123}');
       expect(template.parts, hasLength(1));
       expect(template.parts.first is VariableExpression, isTrue);
-      expect(template.parts.first.templateVar, equals('myvar'));
+      expect(template.parts.first.templateVar, equals('My_var123'));
 
       expect(() => template.stringExpression({}), throwsA(isArgumentError));
-      expect(template.stringExpression({'myvar' : id('abc')}),
+      expect(template.stringExpression({'My_var123' : id('abc')}),
              equals("common_internal.Escaper.ecapeVariable('\$abc')"));
     });
 
