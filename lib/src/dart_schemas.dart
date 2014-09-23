@@ -152,6 +152,9 @@ class DartSchemaForwardRef extends DartSchemaType {
 
   DartSchemaType resolve(DartSchemaTypeDB db) {
     var concreteType = db.namedSchemaTypes[forwardRefName];
+    while (concreteType is DartSchemaForwardRef) {
+      concreteType = db.namedSchemaTypes[concreteType.forwardRefName];
+    }
     if (concreteType == null) {
       throw new StateError('Invalid forward reference: $forwardRefName');
     }
@@ -230,13 +233,22 @@ class EnumType extends StringType {
   final List<String> enumValues;
   final List<String> enumDescriptions;
 
-  EnumType(DartApiImports imports, this.enumValues, this.enumDescriptions)
-      : super(imports) {
+  factory EnumType(DartApiImports imports,
+                     List<String> enumValues,
+                     List<String> enumDescriptions) {
+    if (enumDescriptions == null) {
+      enumDescriptions = enumValues.map((value) => 'A $value.').toList();
+    }
+
     if (enumValues.length != enumDescriptions.length) {
       throw new ArgumentError('Number of enum values does not match number of '
           'enum descriptions.');
     }
+    return new EnumType._(imports, enumValues, enumDescriptions);
   }
+
+  EnumType._(DartApiImports imports, this.enumValues, this.enumDescriptions)
+      : super(imports);
 }
 
 
@@ -462,7 +474,7 @@ class UnnamedMapType extends ComplexDartSchemaType {
   }
 
   String jsonDecode(String json) {
-    if (fromType.needsJsonEncoding || toType.needsJsonEncoding) {
+    if (fromType.needsJsonDecoding || toType.needsJsonDecoding) {
       return '${imports.internal}.mapMap'
             '(${json}, (item) => ${toType.jsonDecode('item')})';
     } else {
@@ -865,8 +877,8 @@ DartSchemaTypeDB parseSchemas(DartApiImports imports,
         // subclasses.
         var map = <String, DartSchemaType>{};
         schema.variant.map.forEach((JsonSchemaVariantMap mapItem) {
-          map[mapItem.type_value] =
-              new DartSchemaForwardRef(imports, mapItem.$ref);
+          map[mapItem.typeValue] =
+              new DartSchemaForwardRef(imports, mapItem.P_ref);
         });
         var classId = namer.schemaClass(className);
         return db.register(new AbstractVariantType(
@@ -920,10 +932,10 @@ DartSchemaTypeDB parseSchemas(DartApiImports imports,
       }
     } else if (schema.type == 'any') {
       return db.anyType;
-    } else if (schema.$ref != null) {
+    } else if (schema.P_ref != null) {
       // This is a forward or backward reference, it will be resolved in
       // another pass following the parsing.
-      return db.register(new DartSchemaForwardRef(imports, schema.$ref));
+      return db.register(new DartSchemaForwardRef(imports, schema.P_ref));
     } else {
       return parsePrimitive(imports, db, schema);
     }
@@ -973,22 +985,22 @@ DartSchemaType parsePrimitive(DartApiImports imports,
         case 'date':
           return db.dateType;
         default:
-          if (schema.enumProperty != null) {
+          if (schema.enum_ != null) {
             return db.register(new EnumType(
-                imports, schema.enumProperty, schema.enumDescriptions));
+                imports, schema.enum_, schema.enumDescriptions));
           }
           return db.stringType;
       }
       return db.stringType;
     case 'number':
-      if (!['float', 'double'].contains(schema.format)) {
+      if (!['float', 'double', null].contains(schema.format)) {
         throw new ArgumentError(
             'Only number types with float/double format are supported.');
       }
       return db.doubleType;
     case 'integer':
       var format = schema.format;
-      if (format != null && !['int32', 'uint32'].contains(format)) {
+      if (format != null && !['int16', 'int32', 'uint32'].contains(format)) {
         throw new Exception('Integer format $format is not not supported.');
       }
       return db.integerType;

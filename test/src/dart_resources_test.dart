@@ -1,7 +1,7 @@
 import 'package:discovery_api_client_generator/generator.dart';
-import 'package:google_discovery_v1_api/discovery_v1_api_client.dart';
+import 'package:discovery_api_client_generator/src'
+       '/generated_googleapis/discovery/v1.dart';
 import 'package:unittest/unittest.dart';
-
 
 withParsedDB(json, function) {
   var namer = new ApiLibraryNamer();
@@ -60,7 +60,7 @@ main() {
           'name' : 'apiname$i',
           'version' : 'apiversion$i',
           'rootUrl' : 'https://www.googleapis.com/',
-          'basePath' : '/mapsengine/v1',
+          'servicePath' : 'mapsengine/v1/',
       };
       if (methods != null) {
         api['methods'] = methods;
@@ -75,7 +75,7 @@ main() {
       expect(apiClass, isNotNull);
       expect(apiClass.className.name, equals('Apiname${i}Api'));
       expect(apiClass.rootUrl, equals('https://www.googleapis.com/'));
-      expect(apiClass.basePath, equals('/mapsengine/v1'));
+      expect(apiClass.basePath, equals('mapsengine/v1/'));
     }
 
     Map buildMethods(String i) {
@@ -225,7 +225,7 @@ main() {
             'name' : 'apiname',
             'version' : 'apiversion',
             'rootUrl' : 'https://www.googleapis.com/',
-            'basePath' : '/mapsengine/v1',
+            'servicePath' : 'mapsengine/v1/',
             'auth' : {
               'oauth2' : {
                 'scopes' : {
