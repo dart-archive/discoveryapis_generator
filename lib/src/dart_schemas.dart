@@ -474,7 +474,7 @@ class UnnamedMapType extends ComplexDartSchemaType {
   }
 
   String jsonDecode(String json) {
-    if (fromType.needsJsonEncoding || toType.needsJsonEncoding) {
+    if (fromType.needsJsonDecoding || toType.needsJsonDecoding) {
       return '${imports.internal}.mapMap'
             '(${json}, (item) => ${toType.jsonDecode('item')})';
     } else {

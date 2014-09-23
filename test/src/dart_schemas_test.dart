@@ -4,16 +4,21 @@ import 'package:discovery_api_client_generator/src'
 import 'package:unittest/unittest.dart';
 
 
-withParsedDB(json, function) {
+withImports(function) {
   var namer = new ApiLibraryNamer();
   var imports = new DartApiImports.fromNamer(namer);
+  return function(imports, namer);
+}
 
-  var description = new RestDescription.fromJson(json);
-  var db = parseSchemas(imports, description);
+withParsedDB(json, function) {
+  return withImports((imports, namer) {
+    var description = new RestDescription.fromJson(json);
+    var db = parseSchemas(imports, description);
 
-  namer.nameAllIdentifiers();
+    namer.nameAllIdentifiers();
 
-  return function(db);
+    return function(db);
+  });
 }
 
 main() {
@@ -370,6 +375,148 @@ main() {
         expect(enumType.enumValues, equals(['foo', 'bar']));
         expect(enumType.enumDescriptions,
             equals(['A foo.', 'A bar.']));
+      });
+    });
+
+    test('needs-json-encoding-decoding', () {
+      withImports((imports, namer) {
+        namer.nameAllIdentifiers();
+
+        withParsedDB({
+          'schemas' : {
+            'NamedArraySimple' : {
+              'type' : 'array',
+              'items' : {
+                'type' : 'string',
+              },
+            },
+            'NamedMapSimple' : {
+              'type' : 'object',
+              'additionalProperties' : {
+                'type' : 'string',
+              },
+            },
+            'NamedArrayComplex' : {
+              'type' : 'array',
+              'items' : {
+                'type' : 'object',
+              },
+            },
+            'NamedMapComplex' : {
+              'type' : 'object',
+              'additionalProperties' : {
+                'type' : 'object',
+              },
+            },
+            'NamedObject' : {
+              'type' : 'object',
+            },
+            'C' : {
+              'type' : 'object',
+              'properties' : {
+                'pArraySimple' : {
+                  'type' : 'array',
+                  'items' : {
+                    'type' : 'string',
+                  },
+                },
+                'pMapSimple' : {
+                  'type' : 'object',
+                  'additionalProperties' : {
+                    'type' : 'string',
+                  },
+                },
+                'pArrayComplex' : {
+                  'type' : 'array',
+                  'items' : {
+                    'type' : 'object',
+                  },
+                },
+                'pMapComplex' : {
+                  'type' : 'object',
+                  'additionalProperties' : {
+                    'type' : 'object',
+                  },
+                },
+                'pObject' : {
+                  'type' : 'object',
+                },
+              }
+            }
+          },
+        }, (DartSchemaTypeDB db) {
+
+          // Primitive Types
+          expect(db.stringType.needsJsonEncoding, false);
+          expect(db.stringType.needsJsonDecoding, false);
+          expect(db.integerType.needsJsonEncoding, false);
+          expect(db.integerType.needsJsonDecoding, false);
+          expect(db.doubleType.needsJsonEncoding, false);
+          expect(db.doubleType.needsJsonDecoding, false);
+          expect(db.booleanType.needsJsonEncoding, false);
+          expect(db.booleanType.needsJsonDecoding, false);
+          expect(db.dateType.needsJsonEncoding, true);
+          expect(db.dateType.needsJsonDecoding, true);
+          expect(db.dateTimeType.needsJsonEncoding, true);
+          expect(db.dateTimeType.needsJsonDecoding, true);
+          expect(db.anyType.needsJsonEncoding, false);
+          expect(db.anyType.needsJsonDecoding, false);
+
+          // Named complex types
+          var namedArraySimple = db.namedSchemaTypes['NamedArraySimple'];
+          var namedArrayComplex = db.namedSchemaTypes['NamedArrayComplex'];
+          var namedMapSimple = db.namedSchemaTypes['NamedMapSimple'];
+          var namedMapComplex = db.namedSchemaTypes['NamedMapComplex'];
+          var namedObject = db.namedSchemaTypes['NamedObject'];
+
+          // Array simple/complex
+          expect(namedArraySimple.needsJsonEncoding, false);
+          expect(namedArraySimple.needsJsonDecoding, true);
+          expect(namedArrayComplex.needsJsonEncoding, true);
+          expect(namedArrayComplex.needsJsonDecoding, true);
+
+          // Map simple/complex
+          expect(namedMapSimple.needsJsonEncoding, false);
+          expect(namedMapSimple.needsJsonDecoding, true);
+          expect(namedMapComplex.needsJsonEncoding, true);
+          expect(namedMapComplex.needsJsonDecoding, true);
+
+          // Objects
+          expect(namedObject.needsJsonEncoding, true);
+          expect(namedObject.needsJsonDecoding, true);
+
+          // Unnamed complex types
+          var C = db.namedSchemaTypes['C'] as ObjectType;
+          findPropertyType(String name) {
+            for (var property in C.properties) {
+              if (property.name.preferredName == name) return property.type;
+            }
+            throw 'not found';
+          }
+
+          // Unnamed complex types
+          var unNamedArraySimple = findPropertyType('pArraySimple');
+          var unNamedArrayComplex = findPropertyType('pArrayComplex');
+          var unNamedMapSimple = findPropertyType('pMapSimple');
+          var unNamedMapComplex = findPropertyType('pMapComplex');
+          var unNamedObject = findPropertyType('pObject');
+
+          // Array simple/complex
+          expect(unNamedArraySimple.needsJsonEncoding, false);
+          expect(unNamedArraySimple.needsJsonDecoding, false);
+          expect(unNamedArrayComplex.needsJsonEncoding, true);
+          expect(unNamedArrayComplex.needsJsonDecoding, true);
+
+          // Map simple/complex
+          expect(unNamedMapSimple.needsJsonEncoding, false);
+          expect(unNamedMapSimple.needsJsonDecoding, false);
+          expect(unNamedMapComplex.needsJsonEncoding, true);
+          expect(unNamedMapComplex.needsJsonDecoding, true);
+
+          // Objects
+          expect(unNamedObject.needsJsonEncoding, true);
+          expect(unNamedObject.needsJsonDecoding, true);
+        });
       });
     });
   });
