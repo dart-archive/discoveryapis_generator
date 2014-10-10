@@ -852,7 +852,7 @@ class ResumableMediaUploader {
               return;
             } else if (end > _uploadMedia.length) {
               completer.completeError(new common_external.ApiRequestError(
-                  'Received more bytes than indicated by [Media.length].');
+                  'Received more bytes than indicated by [Media.length].'));
               return;
             }
           }
