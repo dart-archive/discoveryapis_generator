@@ -134,7 +134,7 @@ class ResourceTest extends TestHelper {
         apiLibrary.imports, Uri.parse(apiLibrary.apiClass.rootUrl).path);
 
     var basePath = new StringPart(
-        apiLibrary.imports, apiLibrary.apiClass.basePath);
+        apiLibrary.imports, apiLibrary.apiClass.servicePath);
 
     var db = apiLibrary.schemaDB;
     withTestGroup(2, sb, 'resource-${resource.className}', () {

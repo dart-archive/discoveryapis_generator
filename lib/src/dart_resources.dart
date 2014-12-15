@@ -427,7 +427,7 @@ class DartResourceClass {
  */
 class DartApiClass extends DartResourceClass {
   final String rootUrl;
-  final String basePath;
+  final String servicePath;
   final List<OAuth2Scope> scopes;
 
   DartApiClass(DartApiImports imports,
@@ -436,7 +436,7 @@ class DartApiClass extends DartResourceClass {
                List<DartResourceMethod> methods,
                List<Identifier> subResourceIdentifiers,
                List<DartResourceClass> subResources,
-               this.rootUrl, this.basePath, this.scopes)
+               this.rootUrl, this.servicePath, this.scopes)
       : super(imports, name, comment, methods,
               subResourceIdentifiers, subResources);
 
@@ -454,10 +454,15 @@ class DartApiClass extends DartResourceClass {
 
   String get constructor {
     var str = new StringBuffer();
-    str.writeln('  $className(${imports.http}.Client client) : ');
+
+    var parameters = [
+        '${imports.core}.String rootUrl: "${escapeString(rootUrl)}"',
+        '${imports.core}.String servicePath: "${escapeString(servicePath)}"',
+    ].join(', ');
+
+    str.writeln('  $className(${imports.http}.Client client, {$parameters}) :');
     str.write('      _requester = new ${imports.internal}.ApiRequester'
-              '(client, "${escapeString(rootUrl)}", '
-              '"${escapeString(basePath)}")');
+              '(client, rootUrl, servicePath)');
     str.writeln(';');
     return '$str';
   }
