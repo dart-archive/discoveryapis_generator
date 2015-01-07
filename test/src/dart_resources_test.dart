@@ -75,7 +75,7 @@ main() {
       expect(apiClass, isNotNull);
       expect(apiClass.className.name, equals('Apiname${i}Api'));
       expect(apiClass.rootUrl, equals('https://www.googleapis.com/'));
-      expect(apiClass.basePath, equals('mapsengine/v1/'));
+      expect(apiClass.servicePath, equals('mapsengine/v1/'));
     }
 
     Map buildMethods(String i) {
