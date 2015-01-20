@@ -38,9 +38,6 @@ class ApisPackageGenerator {
     var testCommonFolderPath = "$packageFolderPath/test/common";
 
     var pubspecYamlPath = "$packageFolderPath/pubspec.yaml";
-    var licensePath = "$packageFolderPath/LICENSE";
-    var readmePath = "$packageFolderPath/README.md";
-    var versionPath = "$packageFolderPath/VERSION";
     var gitIgnorePath = "$packageFolderPath/.gitignore";
 
     var commonExternalLibraryPath = "$libFolderPath/common/common.dart";

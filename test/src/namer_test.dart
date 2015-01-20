@@ -222,12 +222,12 @@ main() {
 
         namer.apiClass('Book');
 
-        var bookSchema = namer.schemaClass('Book');
+        namer.schemaClass('Book');
         namer.schemaClass('chapter');
         namer.schemaClass('BookApi'); // Will collide with api class
         namer.schemaClass('BooksResourceApi');
 
-        var gustavResource = namer.resourceClass('Gustav');
+        namer.resourceClass('Gustav');
         namer.resourceClass('FooBar');
         namer.resourceClass('Books');
 
