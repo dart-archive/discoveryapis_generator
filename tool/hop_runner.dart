@@ -65,12 +65,12 @@ Function commandRunner(String executable, List<String> arguments, {cwd}) {
   return (_) {
     var cmd = '$executable ${arguments.join(' ')}';
     if (cmd.length > 90) {
-      cmd = cmd.substring(0, 90);
+      cmd = cmd.substring(0, 90) + '...';
     }
-    print("Running '$cmd' ...");
+    print("Running '$cmd'");
     return Process.run(executable, arguments, workingDirectory: cwd)
         .then((ProcessResult result) {
-      print("Running '$cmd' ... Done.");
+      print("   Done '$cmd'");
 
       var code = result.exitCode;
       if (code != 0) {
