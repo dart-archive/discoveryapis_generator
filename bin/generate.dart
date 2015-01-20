@@ -75,18 +75,18 @@ void dieWithUsage([String message]) {
   print("The 'download' subcommand downloads all discovery documents. "
         "It takes the following options:");
   print("");
-  print(downloadCommandArgParser().getUsage());
+  print(downloadCommandArgParser().usage);
   print("");
   print("The 'generate' subcommand generated an API package from already"
         "downloaded discovery documents. It takes the following options:");
   print("");
-  print(generateCommandArgParser().getUsage());
+  print(generateCommandArgParser().usage);
   print("");
   print("The 'run_config' subcommand downloads discovery documents and "
         "generates one or more API packages based on a configuration file. "
         "It takes the following options:");
   print("");
-  print(runConfigCommandArgParser().getUsage());
+  print(runConfigCommandArgParser().usage);
   exit(1);
 }
 
