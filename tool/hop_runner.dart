@@ -43,14 +43,18 @@ Task commandlineTasks(List commandRunners) {
 
 Function apisAnalyzerAndRunner(String dir, String pkgRoot) {
   return (_) {
-    var testFiles = new Directory(dir)
+    List<String> testFiles = new Directory(dir)
         .listSync(recursive: true, followLinks: false)
         .where((fse) => fse is File)
         .where((fse) => fse.path.endsWith('.dart'))
         .map((fse) => fse.path)
         .toList();
 
-    return commandRunner('dartanalyzer', testFiles)(_).then((_) {
+    var args = ['--no-hints', '--package-root', pkgRoot];
+
+    args.addAll(testFiles);
+
+    return commandRunner('dartanalyzer', args)(_).then((_) {
       print("RUNNING: ${testFiles.length} tests now ");
       runTest(String test) {
         return new Future.sync(() => commandRunner('dart',
