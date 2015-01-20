@@ -2,7 +2,6 @@ library googleapis.common;
 
 import 'dart:async' as async;
 import 'dart:core' as core;
-import 'dart:collection' as collection;
 /**
  * Represents a media consisting of a stream of bytes, a content type and a
  * length.

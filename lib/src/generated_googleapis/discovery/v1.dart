@@ -1,11 +1,8 @@
 library googleapis.discovery.v1;
 
 import "dart:core" as core;
-import "dart:collection" as collection;
 import "dart:async" as async;
-import "dart:convert" as convert;
 
-import "package:crypto/crypto.dart" as crypto;
 import 'package:http/http.dart' as http;
 import '../src/common_internal.dart' as common_internal;
 import '../common/common.dart' as common;

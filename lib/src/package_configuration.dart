@@ -155,7 +155,6 @@ package.
       YamlList configPackages,
       String configFile,
       List<DirectoryListItems>  allApis) {
-    var supportedApis = [];
     var packages = {};
     configPackages.forEach((package) {
       package.forEach((name, values) {

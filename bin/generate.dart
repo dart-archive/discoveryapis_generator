@@ -1,8 +1,6 @@
 #!/usr/bin/env dart
 
-import 'dart:async';
 import "dart:io";
-import "dart:convert";
 
 import "package:args/args.dart";
 import "package:discovery_api_client_generator/generator.dart";
@@ -77,18 +75,18 @@ void dieWithUsage([String message]) {
   print("The 'download' subcommand downloads all discovery documents. "
         "It takes the following options:");
   print("");
-  print(downloadCommandArgParser().getUsage());
+  print(downloadCommandArgParser().usage);
   print("");
   print("The 'generate' subcommand generated an API package from already"
         "downloaded discovery documents. It takes the following options:");
   print("");
-  print(generateCommandArgParser().getUsage());
+  print(generateCommandArgParser().usage);
   print("");
   print("The 'run_config' subcommand downloads discovery documents and "
         "generates one or more API packages based on a configuration file. "
         "It takes the following options:");
   print("");
-  print(runConfigCommandArgParser().getUsage());
+  print(runConfigCommandArgParser().usage);
   exit(1);
 }
 
@@ -133,20 +131,4 @@ void printResults(List<GenerateResult> results) {
     if (result.success) successfull++;
   }
   print("Successfull: $successfull, Failed: ${results.length - successfull}");
-}
-
-Future<String> _loadDocumentFromUrl(String url) {
-  var client = new HttpClient();
-
-  return client.getUrl(Uri.parse(url))
-      .then((HttpClientRequest request) => request.close())
-      .then((HttpClientResponse response) => UTF8.decodeStream(response))
-      .whenComplete(() {
-        client.close();
-      });
-}
-
-Future<String> _loadDocumentFromFile(String fileName) {
-  final file = new File(fileName);
-  return file.readAsString();
 }
