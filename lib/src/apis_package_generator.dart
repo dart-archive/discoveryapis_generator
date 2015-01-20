@@ -1,3 +1,7 @@
+// Copyright (c) 2015, the Dart project authors.  Please see the AUTHORS file
+// for details. All rights reserved. Use of this source code is governed by a
+// BSD-style license that can be found in the LICENSE file.
+
 part of discovery_api_client_generator;
 
 /// Generates a dart package with all APIs given in the constructor.
@@ -38,9 +42,6 @@ class ApisPackageGenerator {
     var testCommonFolderPath = "$packageFolderPath/test/common";
 
     var pubspecYamlPath = "$packageFolderPath/pubspec.yaml";
-    var licensePath = "$packageFolderPath/LICENSE";
-    var readmePath = "$packageFolderPath/README.md";
-    var versionPath = "$packageFolderPath/VERSION";
     var gitIgnorePath = "$packageFolderPath/.gitignore";
 
     var commonExternalLibraryPath = "$libFolderPath/common/common.dart";

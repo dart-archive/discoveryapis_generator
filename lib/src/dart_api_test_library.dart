@@ -136,7 +136,6 @@ class ResourceTest extends TestHelper {
     var basePath = new StringPart(
         apiLibrary.imports, apiLibrary.apiClass.servicePath);
 
-    var db = apiLibrary.schemaDB;
     withTestGroup(2, sb, 'resource-${resource.className}', () {
       for (var method in resource.methods) {
         withTest(4, sb, 'method--${method.name.name}', () {
@@ -615,7 +614,6 @@ abstract class NamedSchemaTest<T extends ComplexDartSchemaType>
   String get declaration => 'api.${schema.className}';
 
   String get schemaTest {
-    var db = apiLibrary.schemaDB;
     var sb = new StringBuffer();
     withTestGroup(2, sb, 'obj-schema-${schema.className}', () {
       withTest(4, sb, 'to-json--from-json', () {
