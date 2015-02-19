@@ -1,3 +1,5 @@
 pubspec.lock
 packages
 tool/githubtoken
+.settings/
+.pub/
