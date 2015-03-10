@@ -112,16 +112,16 @@ class DartResourceMethod {
       if (mediaUpload) {
         if (!namedString.isEmpty) namedString.write(', ');
         namedString.write(
-            '${imports.external}.UploadOptions uploadOptions : '
-            '${imports.external}.UploadOptions.Default, ');
-        namedString.write('${imports.external}.Media uploadMedia');
+            '${imports.commons}.UploadOptions uploadOptions : '
+            '${imports.commons}.UploadOptions.Default, ');
+        namedString.write('${imports.commons}.Media uploadMedia');
       }
 
       if (mediaDownload) {
         if (!namedString.isEmpty) namedString.write(', ');
         namedString.write(
-            '${imports.external}.DownloadOptions downloadOptions: '
-            '${imports.external}.DownloadOptions.Metadata');
+            '${imports.commons}.DownloadOptions downloadOptions: '
+            '${imports.commons}.DownloadOptions.Metadata');
       }
 
       parameterString.write('{$namedString}');
@@ -176,7 +176,7 @@ class DartResourceMethod {
         commentBuilder.writeln('Completes with a\n');
         commentBuilder.writeln('- [${returnType.declaration}] for Metadata '
                                'downloads (see [downloadOptions]).\n');
-        commentBuilder.writeln('- [${imports.external}.Media] for Media '
+        commentBuilder.writeln('- [${imports.commons}.Media] for Media '
                                'downloads (see [downloadOptions]).\n');
       } else {
         commentBuilder.writeln(
@@ -184,7 +184,7 @@ class DartResourceMethod {
       }
     }
     commentBuilder.writeln('Completes with a '
-                           '[${imports.external}.ApiRequestError] '
+                           '[${imports.commons}.ApiRequestError] '
                            'if the API endpoint returned an error.\n');
     commentBuilder.writeln('If the used [${imports.http}.Client] '
                            'completes with an error when making a REST call, '
@@ -299,7 +299,7 @@ class DartResourceMethod {
       urlPatternCode.write('''
     if (_uploadMedia == null) {
       _url = $patternExpr;
-    } else if (_uploadOptions is ${imports.external}.ResumableUploadOptions) {
+    } else if (_uploadOptions is ${imports.commons}.ResumableUploadOptions) {
       _url = ${mediaUploadPatterns['resumable'].stringExpression(templateVars)};
     } else {
       _url = ${mediaUploadPatterns['simple'].stringExpression(templateVars)};
@@ -328,7 +328,7 @@ $urlPatternCode
       requestCode.write(
 '''
     if (_downloadOptions == null ||
-        _downloadOptions == ${imports.external}.DownloadOptions.Metadata) {
+        _downloadOptions == ${imports.commons}.DownloadOptions.Metadata) {
       return _response.then((data) => $plainResponse);
     } else {
       return _response;
@@ -352,7 +352,7 @@ $urlPatternCode
     var _queryParams = new ${imports.core}.Map();
     var _uploadMedia = null;
     var _uploadOptions = null;
-    var _downloadOptions = ${imports.external}.DownloadOptions.Metadata;
+    var _downloadOptions = ${imports.commons}.DownloadOptions.Metadata;
     var _body = null;
 
 $params$requestCode''');
@@ -395,7 +395,7 @@ class DartResourceClass {
 
   String get constructor {
     var str = new StringBuffer();
-    str.writeln('  $className(${imports.internal}.ApiRequester client) : ');
+    str.writeln('  $className(${imports.commons}.ApiRequester client) : ');
     str.writeln('      _requester = client;');
     return '$str';
   }
@@ -413,7 +413,7 @@ class DartResourceClass {
     str.write(comment.asDartDoc(0));
     str.writeln('class $className {');
     str.write(preamble);
-    str.writeln('  final ${imports.internal}.ApiRequester _requester;');
+    str.writeln('  final ${imports.commons}.ApiRequester _requester;');
     str.writeln('');
     str.write('$fields$constructor$functions');
     str.writeln('}');
@@ -461,13 +461,32 @@ class DartApiClass extends DartResourceClass {
     ].join(', ');
 
     str.writeln('  $className(${imports.http}.Client client, {$parameters}) :');
-    str.write('      _requester = new ${imports.internal}.ApiRequester'
-              '(client, rootUrl, servicePath)');
+    str.write('      _requester = new ${imports.commons}.ApiRequester'
+              '(client, rootUrl, servicePath, USER_AGENT)');
     str.writeln(';');
     return '$str';
   }
 }
 
+/**
+ * Check if any methods supports media upload or download.
+ * Returns true if supported, false if not.
+ */
+bool parseMediaUse(DartResourceClass resource) {
+  assert(resource.methods != null);
+  for (var method in resource.methods) {
+    if (method.mediaDownload || method.mediaUpload) {
+      return true;
+    }
+  }
+  assert(resource.subResources != null);
+  for (var subResource in resource.subResources) {
+    if (parseMediaUse(subResource)) {
+      return true;
+    }
+  }
+  return false;
+}
 
 /**
  * Parses all resources in [description] and returns the root [DartApiClass].

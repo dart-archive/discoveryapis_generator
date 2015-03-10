@@ -12,16 +12,7 @@ class DartApiImports {
   Identifier async;
   Identifier convert;
   Identifier http;
-
-  /**
-   * A symbol for the prefix import of the shared internal library.
-   */
-  Identifier internal;
-
-  /**
-   * A symbol for the prefix import of the shared externally visible library.
-   */
-  Identifier external;
+  Identifier commons;
 
   DartApiImports.fromNamer(this.namer) {
     core = namer.import('core');
@@ -30,8 +21,7 @@ class DartApiImports {
     async = namer.import('async');
     convert = namer.import('convert');
     http = namer.import('http');
-    internal = namer.import('common_internal');
-    external = namer.import('common');
+    commons = namer.import('commons');
   }
 }
 
@@ -42,33 +32,25 @@ class DartApiLibrary {
   final ApiLibraryNamer namer = new ApiLibraryNamer();
 
   final RestDescription description;
-  final String internalSharedLibraryUri;
-  final String externalSharedLibraryUri;
   final String packageName;
 
   String libraryName;
   DartApiImports imports;
   DartSchemaTypeDB schemaDB;
   DartApiClass apiClass;
+  bool exposeMedia;
 
   /**
    * Generates a API library for [description].
-   *
-   * [internalSharedLibraryUri] is a URI for an internal library which is
-   * shared between all generated APIs but should not be exposed.
-   *
-   * [externalSharedLibraryUri] is a URI for a library which is shared between
-   * all generatedAPIs and is publicly visible.
    */
   DartApiLibrary.build(this.description,
-                       this.internalSharedLibraryUri,
-                       this.externalSharedLibraryUri,
                        this.packageName) {
     libraryName = namer.libraryName(
         packageName, description.name, description.version);
     imports = new DartApiImports.fromNamer(namer);
     schemaDB = parseSchemas(imports, description);
     apiClass = parseResources(imports, schemaDB, description);
+    exposeMedia = parseMediaUse(apiClass);
     namer.nameAllIdentifiers();
   }
 
@@ -76,7 +58,7 @@ class DartApiLibrary {
     var sink = new StringBuffer();
     var schemas = generateSchemas(schemaDB);
     var resources = generateResources(apiClass);
-    sink.write(libraryHeader);
+    sink.write(libraryHeader());
     if (!resources.isEmpty) {
       sink.write('$resources\n$schemas');
     } else {
@@ -85,23 +67,31 @@ class DartApiLibrary {
     return '$sink';
   }
 
-  String get libraryHeader {
+  String libraryHeader() {
+    var exportedMediaClasses = '';
+    if (exposeMedia) {
+      exportedMediaClasses = ', Media, UploadOptions,\n'
+          '    ResumableUploadOptions, DownloadOptions, '
+          'PartialDownloadOptions,\n'
+          '    ByteRange';
+    }
     return
 """
 library $libraryName;
 
-import "dart:core" as ${imports.core};
-import "dart:collection" as ${imports.collection};
-import "dart:async" as ${imports.async};
-import "dart:convert" as ${imports.convert};
+import 'dart:core' as ${imports.core};
+import 'dart:collection' as ${imports.collection};
+import 'dart:async' as ${imports.async};
+import 'dart:convert' as ${imports.convert};
 
-import "package:crypto/crypto.dart" as ${imports.crypto};
+import 'package:_discoveryapis_commons/_discoveryapis_commons.dart' as ${imports.commons};
+import 'package:crypto/crypto.dart' as ${imports.crypto};
 import 'package:http/http.dart' as ${imports.http};
-import '$internalSharedLibraryUri' as ${imports.internal};
-import '$externalSharedLibraryUri' as ${imports.external};
 
-export '$externalSharedLibraryUri' show ApiRequestError;
-export '$externalSharedLibraryUri' show DetailedApiRequestError;
+export 'package:_discoveryapis_commons/_discoveryapis_commons.dart' show
+    ApiRequestError, DetailedApiRequestError${exportedMediaClasses};
+
+const ${imports.core}.String USER_AGENT = 'dart-api-client ${description.name}/${description.version}';
 
 """;
   }

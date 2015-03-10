@@ -40,6 +40,7 @@ class Pubspec {
   Map<String, Object> get dependencies => const {
     'http': '\'>=0.11.1 <0.12.0\'',
     'crypto': '\'>=0.9.0 <0.10.0\'',
+    '_discoveryapis_commons': '\'>=0.1.0 <0.2.0\'',
   };
 
   Map<String, Object> get devDependencies => const {

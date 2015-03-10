@@ -37,7 +37,7 @@ class VariableExpression extends Part {
       : super(imports, templateVar);
 
   String stringExpression(Identifier variable) {
-    return "${imports.internal}.Escaper.ecapeVariable('\$$variable')";
+    return "${imports.commons}.Escaper.ecapeVariable('\$$variable')";
   }
 }
 
@@ -51,7 +51,7 @@ class PathVariableExpression extends Part {
 
   String stringExpression(Identifier variable) {
     return "'/' + ($variable).map((item) => "
-           "${imports.internal}.Escaper.ecapePathComponent(item)).join('/')";
+           "${imports.commons}.Escaper.ecapePathComponent(item)).join('/')";
   }
 }
 
@@ -64,7 +64,7 @@ class ReservedExpansionExpression extends Part {
       : super(imports, templateVar);
 
   String stringExpression(Identifier variable) {
-    return "${imports.internal}.Escaper.ecapeVariableReserved('\$$variable')";
+    return "${imports.commons}.Escaper.ecapeVariableReserved('\$$variable')";
   }
 }
 

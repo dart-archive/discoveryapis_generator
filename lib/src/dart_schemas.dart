@@ -463,7 +463,7 @@ class UnnamedMapType extends ComplexDartSchemaType {
 
   String jsonEncode(String value) {
     if (fromType.needsJsonEncoding || toType.needsJsonEncoding) {
-      return '${imports.internal}.mapMap'
+      return '${imports.commons}.mapMap'
              '(${value}, (item) => ${toType.jsonEncode('item')})';
     } else {
       // NOTE: The Map from the user can be encoded directly. We have a big
@@ -475,7 +475,7 @@ class UnnamedMapType extends ComplexDartSchemaType {
 
   String jsonDecode(String json) {
     if (fromType.needsJsonDecoding || toType.needsJsonDecoding) {
-      return '${imports.internal}.mapMap'
+      return '${imports.commons}.mapMap'
             '(${json}, (item) => ${toType.jsonDecode('item')})';
     } else {
       // NOTE: The Map returned from JSON.decode() transfers ownership to the
