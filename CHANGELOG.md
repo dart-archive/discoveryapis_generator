@@ -1,5 +1,9 @@
 # Changelog - discoveryapis_generator
 
+## v0.6.1
+
+- Updated README
+
 ## v0.6.0
 
 - Change generator to use the discoveryapis_commons package for generated code
