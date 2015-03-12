@@ -2,7 +2,16 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
-part of discovery_api_client_generator;
+library discoveryapis_generator.apis_package_generator;
+
+import "dart:io";
+import 'package:discoveryapis_generator/discoveryapis_generator.dart';
+
+import 'generated_googleapis/discovery/v1.dart';
+import 'dart_api_library.dart';
+import 'dart_api_test_library.dart';
+import 'namer.dart';
+import 'utils.dart';
 
 /// Generates a dart package with all APIs given in the constructor.
 ///
@@ -54,8 +63,8 @@ class ApisPackageGenerator {
     new Directory(libFolderPath).createSync(recursive: true);
     new Directory(testFolderPath).createSync(recursive: true);
 
-    _writeFile(pubspecYamlPath, _writePubspec);
-    _writeString(gitIgnorePath, _gitIgnore);
+    writeFile(pubspecYamlPath, _writePubspec);
+    writeString(gitIgnorePath, gitIgnore);
 
     var libraryPrefix = Scope.toValidIdentifier(
         config.name, removeUnderscores: false);
@@ -102,7 +111,7 @@ class ApisPackageGenerator {
   DartApiLibrary _generateApiLibrary(String outputFile,
                                      RestDescription description) {
     var lib = new DartApiLibrary.build(description, config.name);
-    _writeString(outputFile, lib.librarySource);
+    writeString(outputFile, lib.librarySource);
     return lib;
   }
 
@@ -111,13 +120,17 @@ class ApisPackageGenerator {
                                DartApiLibrary apiLibrary) {
     var testLib = new DartApiTestLibrary.build(
         apiLibrary, packageImportPath, config.name);
-    _writeString(outputFile, testLib.librarySource);
+    writeString(outputFile, testLib.librarySource);
   }
 
   void _writePubspec(StringSink sink) {
     writeDependencies(dependencies) {
       orderedForEach(dependencies, (String lib, Object value) {
         if (value is String) {
+          if (lib.startsWith('_discoveryapis_commons')) {
+            sink.writeln('  # This is a private package dependency used by the '
+                'generated client stubs.');
+          }
           sink.writeln("  $lib: $value");
         } else if (value is Map) {
           sink.writeln("  $lib:\n");

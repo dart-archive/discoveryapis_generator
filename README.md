@@ -1,4 +1,4 @@
-# discovery_api_client_generator
+# discoveryapis_generator
 
 [![Build Status](https://drone.io/github.com/dart-gde/discovery_api_dart_client_generator/status.png)](https://drone.io/github.com/dart-gde/discovery_api_dart_client_generator/latest)
 
@@ -6,8 +6,9 @@
 
 Dart application to generate Dart API Client Libraries based on discovery documents.
 
-This generator is mainly used to generate dart client libraries for Google APIs.
-See [package:googleapis](https://pub.dartlang.org/packages/googleapis) and [package:googleapis_beta](https://pub.dartlang.org/packages/googleapis_beta).
+Besides generating client libraries for the Google APIs (See [package:googleapis](https://pub.dartlang.org/packages/googleapis) and [package:googleapis_beta](https://pub.dartlang.org/packages/googleapis_beta)) this package is used to generate client libraries for
+packages exposing a REST API using the [package:rpc](https://pub.dartlang.org/packages/rpc)
+package.
 
 Examples for how to use the generated client libraries can be found here:
 https://github.com/dart-lang/googleapis_examples
@@ -17,7 +18,7 @@ https://github.com/dart-lang/googleapis_examples
 ```
 $ dart bin/generate.dart -h
 Usage:
-The discovery generator has the following sub-commands:
+The discovery generator supports the following subcommands:
 
   download
   generate
@@ -28,7 +29,7 @@ The 'download' subcommand downloads all discovery documents. It takes the follow
 -o, --output-dir    Output directory of discovery documents.
                     (defaults to "googleapis-discovery-documents")
 
-The 'generate' subcommand generated an API package from alreadydownloaded discovery documents. It takes the following options:
+The 'generate' subcommand generates an API package from already downloaded discovery documents. It takes the following options:
 
 -i, --input-dir              Input directory of discovery documents.
                              (defaults to "googleapis-discovery-documents")
@@ -54,10 +55,10 @@ The 'run_config' subcommand downloads discovery documents and generates one or m
                  (defaults to "config.yaml")
 ```
 
-## Clone dart-lang/discovery_api_dart_client_generator
+## Clone dart-lang/discoveryapis_generator
 
 ```
-$ git clone https://github.com/dart-lang/discovery_api_dart_client_generator
-$ cd discovery_api_dart_client_generator
+$ git clone https://github.com/dart-lang/discoveryapis_generator
+$ cd discoveryapis_generator
 $ pub get
 ```

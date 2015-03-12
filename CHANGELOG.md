@@ -1,4 +1,9 @@
-# Changelog - discovery_api_client_generator
+# Changelog - discoveryapis_generator
+
+## v0.6.0
+
+- Change generator to use the discoveryapis_commons package for generated code
+- Remove googleapis commands and split out separate googleapis library
 
 ## v0.5.0
 

@@ -1,4 +1,10 @@
-part of discovery_api_client_generator;
+// Copyright (c) 2015, the Dart project authors.  Please see the AUTHORS file
+// for details. All rights reserved. Use of this source code is governed by a
+// BSD-style license that can be found in the LICENSE file.
+
+library discoveryapis_generator.utils;
+
+import 'dart:io';
 
 const List keywords = const [
   "assert", "break", "case", "catch", "class", "const", "continue",
@@ -38,21 +44,54 @@ void orderedForEach(Map map, Function fun) {
   }
 }
 
-void _writeString(String path, String content) {
+void writeString(String path, String content) {
   var file = new File(path);
   file.writeAsStringSync(content);
 }
 
-void _writeFile(String path, void writer(StringSink sink)) {
+void writeFile(String path, void writer(StringSink sink)) {
   var sink = new StringBuffer();
   writer(sink);
-  _writeString(path, sink.toString());
+  writeString(path, sink.toString());
 }
 
-const String _gitIgnore ="""
+const String gitIgnore ="""
 packages
 pubspec.lock
 """;
+
+class GenerateResult {
+  final String apiName;
+  final String apiVersion;
+  final String message;
+  final String packagePath;
+
+  GenerateResult(this.apiName, this.apiVersion, this.packagePath)
+      : message = '' {
+    assert(this.apiName != null);
+    assert(this.apiVersion != null);
+    assert(this.packagePath != null);
+  }
+
+  GenerateResult.error(
+     this.apiName, this.apiVersion, this.packagePath, this.message) {
+    assert(this.apiName != null);
+    assert(this.apiVersion != null);
+    assert(this.packagePath != null);
+    assert(this.message != null);
+  }
+
+  bool get success => message.isEmpty;
+
+  String get shortName
+      => cleanName("${apiName}_${apiVersion}_api").toLowerCase();
+
+  String toString() {
+    var flag = success ? '[SUCCESS]' : '[FAIL]';
+    var msg = message != null && !message.isEmpty ? ':\n  => $message' : '';
+    return '$flag $apiName $apiVersion @ $packagePath $msg';
+  }
+}
 
 class GeneratorError implements Exception {
   final String api;

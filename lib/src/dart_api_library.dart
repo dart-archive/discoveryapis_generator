@@ -1,4 +1,13 @@
-part of discovery_api_client_generator;
+// Copyright (c) 2015, the Dart project authors.  Please see the AUTHORS file
+// for details. All rights reserved. Use of this source code is governed by a
+// BSD-style license that can be found in the LICENSE file.
+
+library discoveryapis_generator.dart_api_library;
+
+import 'generated_googleapis/discovery/v1.dart';
+import 'dart_resources.dart';
+import 'dart_schemas.dart';
+import 'namer.dart';
 
 /**
  * Encapsulates names of prefix-imported libraries.

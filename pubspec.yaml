@@ -1,8 +1,8 @@
-name: discovery_api_client_generator
-version: 0.5.1-dev
+name: discoveryapis_generator
+version: 0.6.0
 author: Dart Team <misc@dartlang.org>
 description: Create API Client libraries based on the Discovery API Service.
-homepage: https://github.com/dart-lang/discovery_api_dart_client_generator
+homepage: https://github.com/dart-lang/discoveryapis_generator
 environment:
   sdk: '>=1.0.0 <2.0.0'
 dependencies:

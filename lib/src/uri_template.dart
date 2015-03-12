@@ -1,4 +1,12 @@
-part of discovery_api_client_generator;
+// Copyright (c) 2015, the Dart project authors.  Please see the AUTHORS file
+// for details. All rights reserved. Use of this source code is governed by a
+// BSD-style license that can be found in the LICENSE file.
+
+library discoveryapis_generator.uri_template;
+
+import 'dart_api_library.dart';
+import 'namer.dart';
+import 'utils.dart';
 
 /**
  * Generates code for expanding a URI template.
