@@ -22,20 +22,9 @@ void main(List<String> args) {
       commandRunner('dartanalyzer', tests)
   ]));
 
-  addTask('generated_api_package', commandlineTasks([
-      commandRunner('dart',
-          ['--checked', 'bin/generate.dart', 'download', '-o', '.docs']),
-      commandRunner('dart',
-          ['--checked', 'bin/generate.dart', 'generate', '-i', '.docs',
-           '-o', '.apipkg']),
-     commandRunner('pub', ['get'], cwd: '.apipkg'),
-     apisAnalyzerAndRunner('.apipkg/test', '.apipkg/packages'),
-  ]));
-
   // We are running everything on drone.io.
   addChainedTask('test', ['generator_tests',
-                          'generator_tests_analyze',
-                          'generated_api_package']);
+                          'generator_tests_analyze']);
 
   runHop(args);
 }
