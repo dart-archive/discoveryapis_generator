@@ -1,4 +1,10 @@
-import 'package:discovery_api_client_generator/generator.dart';
+// Copyright (c) 2015, the Dart project authors.  Please see the AUTHORS file
+// for details. All rights reserved. Use of this source code is governed by a
+// BSD-style license that can be found in the LICENSE file.
+
+import 'package:discoveryapis_generator/src/dart_api_library.dart';
+import 'package:discoveryapis_generator/src/namer.dart';
+import 'package:discoveryapis_generator/src/uri_template.dart';
 import 'package:unittest/unittest.dart';
 
 main() {
@@ -27,7 +33,7 @@ main() {
 
       expect(() => template.stringExpression({}), throwsA(isArgumentError));
       expect(template.stringExpression({'My_var123' : id('abc')}),
-             equals("common_internal.Escaper.ecapeVariable('\$abc')"));
+             equals("commons.Escaper.ecapeVariable('\$abc')"));
     });
 
     test('path-variable-expr', () {
@@ -39,7 +45,7 @@ main() {
       expect(() => template.stringExpression({}), throwsA(isArgumentError));
       expect(template.stringExpression({'myvar' : id('abc')}),
              equals("'/' + (abc).map((item) => "
-                    "common_internal.Escaper.ecapePathComponent(item))"
+                    "commons.Escaper.ecapePathComponent(item))"
                     ".join('/')"));
     });
 
@@ -51,7 +57,7 @@ main() {
 
       expect(() => template.stringExpression({}), throwsA(isArgumentError));
       expect(template.stringExpression({'myvar' : id('abc')}),
-             equals("common_internal.Escaper.ecapeVariableReserved('\$abc')"));
+             equals("commons.Escaper.ecapeVariableReserved('\$abc')"));
     });
 
     test('reserved-expansion-expr', () {

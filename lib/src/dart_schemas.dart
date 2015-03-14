@@ -1,5 +1,14 @@
-part of discovery_api_client_generator;
+// Copyright (c) 2015, the Dart project authors.  Please see the AUTHORS file
+// for details. All rights reserved. Use of this source code is governed by a
+// BSD-style license that can be found in the LICENSE file.
 
+library discoveryapis_generator.dart_schemas;
+
+import 'generated_googleapis/discovery/v1.dart';
+import 'dart_comments.dart';
+import 'dart_api_library.dart';
+import 'namer.dart';
+import 'utils.dart';
 
 /**
  * Class for keeping all named schemas. This is used for
@@ -463,7 +472,7 @@ class UnnamedMapType extends ComplexDartSchemaType {
 
   String jsonEncode(String value) {
     if (fromType.needsJsonEncoding || toType.needsJsonEncoding) {
-      return '${imports.internal}.mapMap'
+      return '${imports.commons}.mapMap'
              '(${value}, (item) => ${toType.jsonEncode('item')})';
     } else {
       // NOTE: The Map from the user can be encoded directly. We have a big
@@ -475,7 +484,7 @@ class UnnamedMapType extends ComplexDartSchemaType {
 
   String jsonDecode(String json) {
     if (fromType.needsJsonDecoding || toType.needsJsonDecoding) {
-      return '${imports.internal}.mapMap'
+      return '${imports.commons}.mapMap'
             '(${json}, (item) => ${toType.jsonDecode('item')})';
     } else {
       // NOTE: The Map returned from JSON.decode() transfers ownership to the

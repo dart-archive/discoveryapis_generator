@@ -1,5 +1,10 @@
-pubspec.lock
-packages
-tool/githubtoken
-.settings/
+.buildlog
+.DS_Store
+.idea
+.project
 .pub/
+.settings/
+build/
+packages
+pubspec.lock
+

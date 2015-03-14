@@ -1,4 +1,12 @@
-part of discovery_api_client_generator;
+// Copyright (c) 2015, the Dart project authors.  Please see the AUTHORS file
+// for details. All rights reserved. Use of this source code is governed by a
+// BSD-style license that can be found in the LICENSE file.
+
+library discoveryapis_generator.uri_template;
+
+import 'dart_api_library.dart';
+import 'namer.dart';
+import 'utils.dart';
 
 /**
  * Generates code for expanding a URI template.
@@ -37,7 +45,7 @@ class VariableExpression extends Part {
       : super(imports, templateVar);
 
   String stringExpression(Identifier variable) {
-    return "${imports.internal}.Escaper.ecapeVariable('\$$variable')";
+    return "${imports.commons}.Escaper.ecapeVariable('\$$variable')";
   }
 }
 
@@ -51,7 +59,7 @@ class PathVariableExpression extends Part {
 
   String stringExpression(Identifier variable) {
     return "'/' + ($variable).map((item) => "
-           "${imports.internal}.Escaper.ecapePathComponent(item)).join('/')";
+           "${imports.commons}.Escaper.ecapePathComponent(item)).join('/')";
   }
 }
 
@@ -64,7 +72,7 @@ class ReservedExpansionExpression extends Part {
       : super(imports, templateVar);
 
   String stringExpression(Identifier variable) {
-    return "${imports.internal}.Escaper.ecapeVariableReserved('\$$variable')";
+    return "${imports.commons}.Escaper.ecapeVariableReserved('\$$variable')";
   }
 }
 

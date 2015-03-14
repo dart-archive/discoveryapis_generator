@@ -1,6 +1,12 @@
-import 'package:discovery_api_client_generator/generator.dart';
-import 'package:discovery_api_client_generator/src'
+// Copyright (c) 2015, the Dart project authors.  Please see the AUTHORS file
+// for details. All rights reserved. Use of this source code is governed by a
+// BSD-style license that can be found in the LICENSE file.
+
+import 'package:discoveryapis_generator/src'
        '/generated_googleapis/discovery/v1.dart';
+import 'package:discoveryapis_generator/src/dart_api_library.dart';
+import 'package:discoveryapis_generator/src/dart_schemas.dart';
+import 'package:discoveryapis_generator/src/namer.dart';
 import 'package:unittest/unittest.dart';
 
 

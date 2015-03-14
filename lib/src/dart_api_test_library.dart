@@ -1,5 +1,15 @@
-part of discovery_api_client_generator;
+// Copyright (c) 2015, the Dart project authors.  Please see the AUTHORS file
+// for details. All rights reserved. Use of this source code is governed by a
+// BSD-style license that can be found in the LICENSE file.
 
+library discoveryapis_generator.dart_api_test_library;
+
+import 'dart_api_library.dart';
+import 'dart_resources.dart';
+import 'dart_schemas.dart';
+import 'namer.dart';
+import 'uri_template.dart';
+import 'utils.dart';
 
 /**
  * Generates a API test library based on a [DartApiLibrary].
@@ -93,13 +103,48 @@ import "dart:convert" as convert;
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart' as http_testing;
 import 'package:unittest/unittest.dart' as unittest;
-import 'package:$packageName/common/common.dart' as common;
-import 'package:$packageName/src/common_internal.dart' as common_internal;
-import '../common/common_internal_test.dart' as common_test;
 
 import '$apiImportPath' as api;
 
+class HttpServerMock extends http.BaseClient {
+  core.Function _callback;
+  core.bool _expectJson;
 
+  void register(core.Function callback, core.bool expectJson) {
+    _callback = callback;
+    _expectJson = expectJson;
+  }
+
+  async.Future<http.StreamedResponse> send(http.BaseRequest request) {
+    if (_expectJson) {
+      return request.finalize()
+          .transform(convert.UTF8.decoder)
+          .join('')
+          .then((core.String jsonString) {
+        if (jsonString.isEmpty) {
+          return _callback(request, null);
+        } else {
+          return _callback(request, convert.JSON.decode(jsonString));
+        }
+      });
+    } else {
+      var stream = request.finalize();
+      if (stream == null) {
+        return _callback(request, []);
+      } else {
+        return stream.toBytes().then((data) {
+          return _callback(request, data);
+        });
+      }
+    }
+  }
+}
+
+http.StreamedResponse stringResponse(
+    core.int status, core.Map headers, core.String body) {
+  var stream = new async.Stream.fromIterable([convert.UTF8.encode(body)]);
+  return new http.StreamedResponse(stream, status, headers: headers);
+}
 """;
   }
 }
@@ -167,7 +212,7 @@ class ResourceTest extends TestHelper {
                          'convert.JSON.encode(${t.newSchemaExpr});');
             }
             sb.writeln('        return new async.Future.value('
-                       'common_test.stringResponse(200, h, resp));');
+                       'stringResponse(200, h, resp));');
             sb.writeln('      }), true);');
           }
 
@@ -197,7 +242,7 @@ class ResourceTest extends TestHelper {
           sb.writeln();
 
           // Construct http request handler mock.
-          sb.writeln('      var mock = new common_test.HttpServerMock();');
+          sb.writeln('      var mock = new HttpServerMock();');
           // Construct resource class
           sb.writeln('      api.${resource.className} res = '
                      '${apiConstruction('mock')};');
