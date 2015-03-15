@@ -1,6 +1,6 @@
 # discoveryapis_generator
 
-[![Build Status](https://drone.io/github.com/dart-gde/discovery_api_dart_client_generator/status.png)](https://drone.io/github.com/dart-gde/discovery_api_dart_client_generator/latest)
+[![Build Status](https://travis-ci.org/dart-lang/discoveryapis_generator.svg?branch=master)](https://travis-ci.org/dart-lang/discoveryapis_generator)
 
 ### Description
 
