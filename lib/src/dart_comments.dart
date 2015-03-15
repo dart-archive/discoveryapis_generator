@@ -15,14 +15,17 @@ class Comment {
 
   Comment(String raw)
       : rawComment = (raw != null && raw.length > 0)
-        ? raw.trimRight() : 'Not documented yet.';
+        ? raw.trimRight() : '';
 
   /**
    * Returns a block string which has [indentationLevel] spaces in front of it.
    *
-   * The block will start with spaces and ends with a new line.
+   * If the rawComment is empty, an empty string will be returned. Otherwise,
+   * the block will start with spaces and ends with a new line.
    */
   String asDartDoc(int indentationLevel) {
+    if (rawComment.isEmpty) return '';
+
     var commentString = escapeComment(rawComment);
     var spaces = ' ' * indentationLevel;
 
