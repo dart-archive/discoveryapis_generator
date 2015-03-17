@@ -1,4 +1,4 @@
-library googleapis.dartservices.v1.test;
+library generated_client.dartservices.v1.test;
 
 import "dart:core" as core;
 import "dart:collection" as collection;
@@ -9,7 +9,7 @@ import 'package:http/http.dart' as http;
 import 'package:http/testing.dart' as http_testing;
 import 'package:unittest/unittest.dart' as unittest;
 
-import 'package:googleapis/dartservices/v1.dart' as api;
+import 'package:generated_client/dartservices/v1.dart' as api;
 
 class HttpServerMock extends http.BaseClient {
   core.Function _callback;

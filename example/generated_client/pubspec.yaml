@@ -1,4 +1,4 @@
-name: googleapis
+name: generated_client
 version: 0.1.0-dev
 description: Auto-generated client libraries.
 environment:

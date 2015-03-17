@@ -1,4 +1,4 @@
-library googleapis.dartservices.v1;
+library generated_client.dartservices.v1;
 
 import 'dart:core' as core;
 import 'dart:collection' as collection;

@@ -19,7 +19,8 @@ void main(List<String> args) {
       'bin/generate.dart',
       'generate',
       '--input-dir=example',
-      '--output-dir=example/generated'])
+      '--output-dir=example/generated_client',
+      '--package-name=generated_client'])
   ]));
 
   addTask('generator_tests', commandlineTasks(tests.map((test) {
