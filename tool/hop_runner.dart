@@ -14,6 +14,15 @@ import 'package:hop/hop.dart';
 void main(List<String> args) {
   var tests = findFiles('test');
 
+  addTask('generate_example', commandlineTasks([
+    commandRunner('dart', [
+      'bin/generate.dart',
+      'generate',
+      '--input-dir=example',
+      '--output-dir=example/generated_client',
+      '--package-name=generated_client'])
+  ]));
+
   addTask('generator_tests', commandlineTasks(tests.map((test) {
     return commandRunner('dart', ['--checked', test]);
   }).toList()));
