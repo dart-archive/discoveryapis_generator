@@ -151,8 +151,10 @@ class DartResourceMethod {
     var params = new StringBuffer();
 
     var commentBuilder = new StringBuffer();
-    commentBuilder.writeln(comment.rawComment);
-    commentBuilder.writeln();
+    if (comment.rawComment.isNotEmpty) {
+      commentBuilder.writeln(comment.rawComment);
+      commentBuilder.writeln();
+    }
 
     if (requestParameter != null) {
       commentBuilder.writeln('[${requestParameter.name.name}] - '

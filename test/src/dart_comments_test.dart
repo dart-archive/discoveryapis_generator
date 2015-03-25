@@ -9,8 +9,8 @@ main() {
   group('comments', () {
     test('empty-comment', () {
       expectUndocumented(Comment comment) {
-        expect(comment.asDartDoc(0), equals('/** Not documented yet. */\n'));
-        expect(comment.asDartDoc(2), equals('  /** Not documented yet. */\n'));
+        expect(comment.asDartDoc(0), equals(''));
+        expect(comment.asDartDoc(2), equals(''));
       }
 
       expectUndocumented(new Comment(null));

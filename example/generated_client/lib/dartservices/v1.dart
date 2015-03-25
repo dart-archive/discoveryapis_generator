@@ -16,7 +16,6 @@ export 'package:_discoveryapis_commons/_discoveryapis_commons.dart' show
 
 const core.String USER_AGENT = 'dart-api-client dartservices/v1';
 
-/** Not documented yet. */
 class DartservicesApi {
 
   final commons.ApiRequester _requester;
@@ -25,8 +24,6 @@ class DartservicesApi {
       _requester = new commons.ApiRequester(client, rootUrl, servicePath, USER_AGENT);
 
   /**
-   * Not documented yet.
-   *
    * [request] - The metadata request object.
    *
    * Request parameters:
@@ -65,8 +62,6 @@ class DartservicesApi {
   }
 
   /**
-   * Not documented yet.
-   *
    * Request parameters:
    *
    * [source] - Query parameter: 'source'.
@@ -105,8 +100,6 @@ class DartservicesApi {
   }
 
   /**
-   * Not documented yet.
-   *
    * [request] - The metadata request object.
    *
    * Request parameters:
@@ -145,8 +138,6 @@ class DartservicesApi {
   }
 
   /**
-   * Not documented yet.
-   *
    * Request parameters:
    *
    * [source] - Query parameter: 'source'.
@@ -185,8 +176,6 @@ class DartservicesApi {
   }
 
   /**
-   * Not documented yet.
-   *
    * [request] - The metadata request object.
    *
    * Request parameters:
@@ -224,8 +213,6 @@ class DartservicesApi {
   }
 
   /**
-   * Not documented yet.
-   *
    * Request parameters:
    *
    * [source] - Query parameter: 'source'.
@@ -268,8 +255,6 @@ class DartservicesApi {
   }
 
   /**
-   * Not documented yet.
-   *
    * [request] - The metadata request object.
    *
    * Request parameters:
@@ -308,8 +293,6 @@ class DartservicesApi {
   }
 
   /**
-   * Not documented yet.
-   *
    * Request parameters:
    *
    * [source] - Query parameter: 'source'.
@@ -356,24 +339,17 @@ class DartservicesApi {
 
 
 
-/** Not documented yet. */
 class AnalysisIssue {
-  /** Not documented yet. */
   core.int charLength;
 
-  /** Not documented yet. */
   core.int charStart;
 
-  /** Not documented yet. */
   core.String kind;
 
-  /** Not documented yet. */
   core.int line;
 
-  /** Not documented yet. */
   core.String location;
 
-  /** Not documented yet. */
   core.String message;
 
 
@@ -425,9 +401,7 @@ class AnalysisIssue {
 }
 
 
-/** Not documented yet. */
 class AnalysisResults {
-  /** Not documented yet. */
   core.List<AnalysisIssue> issues;
 
 
@@ -449,9 +423,7 @@ class AnalysisResults {
 }
 
 
-/** Not documented yet. */
 class CompileResponse {
-  /** Not documented yet. */
   core.String result;
 
 
@@ -473,9 +445,7 @@ class CompileResponse {
 }
 
 
-/** Not documented yet. */
 class DocumentResponse {
-  /** Not documented yet. */
   core.Map<core.String, core.String> info;
 
 
@@ -497,12 +467,9 @@ class DocumentResponse {
 }
 
 
-/** Not documented yet. */
 class SourceRequest {
-  /** Not documented yet. */
   core.int offset;
 
-  /** Not documented yet. */
   core.String source;
 
 
