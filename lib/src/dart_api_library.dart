@@ -73,7 +73,7 @@ class DartApiLibrary {
     } else {
       sink.write('$schemas');
     }
-    return '$sink';
+    return '${sink.toString().trimRight()}\n';
   }
 
   String libraryHeader() {
@@ -86,6 +86,8 @@ class DartApiLibrary {
     }
     return
 """
+// This is a generated file (see the discoveryapis_generator project).
+
 library $libraryName;
 
 import 'dart:core' as ${imports.core};
