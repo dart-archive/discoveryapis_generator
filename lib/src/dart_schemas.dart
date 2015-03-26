@@ -627,7 +627,6 @@ class ObjectType extends ComplexDartSchemaType {
       propertyString.writeln(
           '$comment  $prefix${property.type.declaration} ${property.name}'
           '$postfix;');
-      propertyString.writeln();
 
       if (property.byteArrayAccessor != null) {
         propertyString.writeln(
@@ -647,8 +646,6 @@ class ObjectType extends ComplexDartSchemaType {
         propertyString.writeln('    ${property.name} = ${imports.crypto}.'
             'CryptoUtils.bytesToBase64(_bytes, urlSafe: true);');
         propertyString.writeln('  }');
-
-        propertyString.writeln();
       }
     });
 
@@ -1026,7 +1023,6 @@ String generateSchemas(DartSchemaTypeDB db) {
     var classDefinition = value.classDefinition;
     if (classDefinition != null) {
       sb.writeln(classDefinition);
-      sb.writeln();
     }
   });
 
