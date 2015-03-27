@@ -55,6 +55,23 @@ void writeFile(String path, void writer(StringSink sink)) {
   writeString(path, sink.toString());
 }
 
+String findPackageRoot(String path) {
+  String slash = Platform.pathSeparator;
+  if (path == null) {
+    return null;
+  }
+  path = new File(path).absolute.path;
+  path = '$path$slash';
+  File pubspec;
+  do {
+    path = path.substring(0, path.lastIndexOf(slash));
+    // We use the pubspec.yaml file as an indicator of being in the package
+    // root directory.
+    pubspec = new File('$path${slash}pubspec.yaml');
+  } while (!pubspec.existsSync() && path.isNotEmpty);
+  return pubspec.existsSync() ? path : null;
+}
+
 const String gitIgnore ="""
 packages
 pubspec.lock
@@ -65,31 +82,46 @@ class GenerateResult {
   final String apiVersion;
   final String message;
   final String packagePath;
+  bool success = false;
+  bool info = false;
 
   GenerateResult(this.apiName, this.apiVersion, this.packagePath)
-      : message = '' {
+      : success = true,
+        message = null {
     assert(this.apiName != null);
     assert(this.apiVersion != null);
     assert(this.packagePath != null);
   }
 
+  GenerateResult.fromMessage(String message)
+      : info = true,
+        apiName = null,
+        apiVersion = null,
+        packagePath = null,
+        this.message = message;
+
   GenerateResult.error(
-     this.apiName, this.apiVersion, this.packagePath, this.message) {
+      this.apiName, this.apiVersion, this.packagePath, this.message)
+      : success = false {
     assert(this.apiName != null);
     assert(this.apiVersion != null);
     assert(this.packagePath != null);
     assert(this.message != null);
   }
 
-  bool get success => message.isEmpty;
-
   String get shortName
       => cleanName("${apiName}_${apiVersion}_api").toLowerCase();
 
   String toString() {
-    var flag = success ? '[SUCCESS]' : '[FAIL]';
-    var msg = message != null && !message.isEmpty ? ':\n  => $message' : '';
-    return '$flag $apiName $apiVersion @ $packagePath $msg';
+    if (info) {
+      assert(message != null);
+      return message;
+    } else{
+      assert(apiName != null && apiVersion != null && packagePath != null);
+      var flag = success ? '[SUCCESS]' : '[FAIL]';
+      var msg = message != null && !message.isEmpty ? ':\n$message' : '';
+      return '$flag $apiName $apiVersion @ $packagePath $msg';
+    }
   }
 }
 

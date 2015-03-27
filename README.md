@@ -17,9 +17,11 @@ $ dart bin/generate.dart -h
 Usage:
 The discovery generator supports the following subcommands:
 
-  generate
+  package
+  files
 
-The 'generate' subcommand generates an API package from already downloaded discovery documents. It takes the following options:
+The 'package' subcommand generates an API package from already downloaded
+discovery documents. It takes the following options:
 
 -i, --input-dir              Input directory of discovery documents.
                              (defaults to "googleapis-discovery-documents")
@@ -38,4 +40,13 @@ The 'generate' subcommand generates an API package from already downloaded disco
 
     --package-author         Author of the generated API package.
     --package-homepage       Homepage of the generated API package.
+
+The 'files' subcommand generates API files into an existing package from already
+downloaded discovery documents. One file per API. It takes the following
+options:
+
+-i, --input-dir     Input directory of discovery documents.
+-o, --output-dir    Output directory of the generated API files.
+-u, --update-pubspec    Update the pubspec.yaml file with required dependencies. This will remove comments and might change the layout of the pubspec.yaml file.
+                        (defaults to "false")
 ```

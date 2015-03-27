@@ -34,29 +34,34 @@ class DartApiImports {
   }
 }
 
+abstract class BaseApiLibrary {
+  final ApiLibraryNamer namer;
+  final RestDescription description;
+
+  DartApiImports imports;
+
+  BaseApiLibrary(this.description, String apiClassSuffix)
+      : namer = new ApiLibraryNamer(apiClassSuffix: apiClassSuffix) {
+    imports = new DartApiImports.fromNamer(namer);
+  }
+}
+
 /**
  * Generates a API library based on a [RestDescription].
  */
-class DartApiLibrary {
-  final ApiLibraryNamer namer = new ApiLibraryNamer();
-
-  final RestDescription description;
-  final String packageName;
-
-  String libraryName;
-  DartApiImports imports;
+class DartApiLibrary extends BaseApiLibrary {
   DartSchemaTypeDB schemaDB;
   DartApiClass apiClass;
   bool exposeMedia;
+  String libraryName;
 
   /**
    * Generates a API library for [description].
    */
-  DartApiLibrary.build(this.description,
-                       this.packageName) {
+  DartApiLibrary.build(RestDescription description, String packageName)
+      : super(description, 'Api') {
     libraryName = namer.libraryName(
         packageName, description.name, description.version);
-    imports = new DartApiImports.fromNamer(namer);
     schemaDB = parseSchemas(imports, description);
     apiClass = parseResources(imports, schemaDB, description);
     exposeMedia = parseMediaUse(apiClass);

@@ -1,5 +1,14 @@
 # Changelog - discoveryapis_generator
 
+## v0.7.0
+
+- Add support for generating API files inside an existing package instead of
+  generating an entirely new package.
+- Changed the generators command names to 'package' and 'files' respectively
+  to make it clear what is being generated.
+- Added support for generating a client stub API using the same message classes
+  as used on the server.
+
 ## v0.6.1
 
 - Updated README

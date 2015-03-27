@@ -230,6 +230,7 @@ class IdentifierNamer {
  * Helper class for allocating unique names for generating an API library.
  */
 class ApiLibraryNamer {
+  String apiClassSuffix;
   Scope _libraryScope;
 
   /**
@@ -237,7 +238,7 @@ class ApiLibraryNamer {
    */
   final Scope importScope = new Scope();
 
-  ApiLibraryNamer() {
+  ApiLibraryNamer({this.apiClassSuffix: 'Api'}) {
     _libraryScope = importScope.newChildScope();
   }
 
@@ -253,11 +254,17 @@ class ApiLibraryNamer {
     return '$package.$api.$version';
   }
 
+  String clientLibraryName(String package, String api) {
+    package = Scope.toValidIdentifier(package, removeUnderscores: false);
+    api = Scope.toValidIdentifier(api, removeUnderscores: false);
+    return '$package.$api.client';
+  }
+
   Identifier import(String name)
       => importScope.newIdentifier(name, removeUnderscores: false);
 
-  Identifier apiClass(String name)
-      => _libraryScope.newIdentifier('${Scope.capitalize(name)}Api');
+  Identifier apiClass(String name) => _libraryScope.newIdentifier(
+      '${Scope.capitalize(name)}$apiClassSuffix');
 
   Identifier resourceClass(String name, {String parent}) {
     name = Scope.capitalize(name);

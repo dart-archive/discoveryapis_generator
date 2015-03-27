@@ -9,6 +9,7 @@ import "dart:convert";
 
 import 'src/generated_googleapis/discovery/v1.dart';
 import 'src/apis_package_generator.dart';
+import 'src/apis_files_generator.dart';
 import 'src/utils.dart';
 
 export 'src/generated_googleapis/discovery/v1.dart';
@@ -32,13 +33,13 @@ class Pubspec {
 
   String get sdkConstraint => '>=1.0.0 <2.0.0';
 
-  Map<String, Object> get dependencies => const {
+  static Map<String, Object> get dependencies => const {
     'http': '\'>=0.11.1 <0.12.0\'',
     'crypto': '\'>=0.9.0 <0.10.0\'',
     '_discoveryapis_commons': '\'>=0.1.0 <0.2.0\'',
   };
 
-  Map<String, Object> get devDependencies => const {
+  static Map<String, Object> get devDependencies => const {
     'unittest': '\'>=0.10.0 <0.12.0\'',
   };
 }
@@ -61,4 +62,19 @@ List<GenerateResult> generateAllLibraries(String inputDirectory,
     return new RestDescription.fromJson(JSON.decode(file.readAsStringSync()));
   }).toList();
   return generateApiPackage(apiDescriptions, outputDirectory, pubspec);
+}
+
+List<GenerateResult> generateApiFiles(String inputDirectory,
+                                      String outputDirectory,
+                                      {bool updatePubspec: false}) {
+  var descriptions = [];
+  new Directory(inputDirectory).listSync()
+      .where((fse) => fse is File && fse.path.endsWith('.json'))
+      .forEach((File file) {
+    var diPair = new DescriptionImportPair(file.readAsStringSync(), null);
+    descriptions.add(diPair);
+  });
+  var clientFileGenerator = new ApisFilesGenerator(
+      descriptions, outputDirectory, updatePubspec: updatePubspec);
+  return clientFileGenerator.generate();
 }

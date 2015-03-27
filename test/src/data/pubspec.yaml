@@ -1,0 +1,8 @@
+name: discoveryapis-tests
+version: 0.0.1
+description: Pubspec used for unittesting of the discoveryapis_generator package.
+environment:
+  sdk: '>=1.9.0 <2.0.0'
+dependencies:
+dev_dependencies:
+  unittest: '>=0.10.0 <0.12.0'

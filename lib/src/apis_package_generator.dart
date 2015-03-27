@@ -10,7 +10,6 @@ import 'package:discoveryapis_generator/discoveryapis_generator.dart';
 import 'generated_googleapis/discovery/v1.dart';
 import 'dart_api_library.dart';
 import 'dart_api_test_library.dart';
-import 'namer.dart';
 import 'utils.dart';
 
 /// Generates a dart package with all APIs given in the constructor.
@@ -65,9 +64,6 @@ class ApisPackageGenerator {
 
     writeFile(pubspecYamlPath, _writePubspec);
     writeString(gitIgnorePath, gitIgnore);
-
-    var libraryPrefix = Scope.toValidIdentifier(
-        config.name, removeUnderscores: false);
 
     var results = <GenerateResult>[];
     for (RestDescription description in descriptions) {
@@ -153,8 +149,8 @@ class ApisPackageGenerator {
     sink.writeln("environment:");
     sink.writeln("  sdk: '${config.sdkConstraint}'");
     sink.writeln("dependencies:");
-    writeDependencies(config.dependencies);
+    writeDependencies(Pubspec.dependencies);
     sink.writeln("dev_dependencies:");
-    writeDependencies(config.devDependencies);
+    writeDependencies(Pubspec.devDependencies);
   }
 }
