@@ -9,3 +9,6 @@ set -e
 
 # Run Hop.
 dart --checked tool/hop_runner.dart test
+
+# Validate that we can re-generate the example discovery doc.
+dart --checked tool/hop_runner.dart generate_example

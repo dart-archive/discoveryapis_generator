@@ -75,7 +75,7 @@ void dieWithUsage([String message]) {
   print("  package");
   print("  files");
   print("");
-  print("The 'package' subcommand generated an API package from already"
+  print("The 'package' subcommand generates an API package from already "
         "downloaded discovery documents. It takes the following options:");
   print("");
   print(packageCommandArgParser().usage);
