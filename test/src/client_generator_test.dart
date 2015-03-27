@@ -26,7 +26,6 @@ main() {
   // We create our own tmp dir to make it easy to cleanup once the tests are
   // done, independent of whether they failed or not.
   var tmpDir = Directory.systemTemp.createTempSync();
-  print(tmpDir.path);
   unittestConfiguration = new GeneratorTestConfiguration(tmpDir);
   // Common path to the necessary test data.
   var dataPath = path.join(findPackageRoot('.'), 'test/src/data');
@@ -46,7 +45,7 @@ main() {
       // The generated client stub file is named toyapi.dart.
       var stubFile = new File(path.join(outputDir.path, 'toyapi.dart'));
       var expectedStubFile =
-          new File(path.join(dataPath, 'expected_nonidentical.dart'));
+          new File(path.join(dataPath, 'expected_nonidentical.dartt'));
       expect(stubFile.readAsStringSync(), expectedStubFile.readAsStringSync());
     });
     test('identical-messages', () {
@@ -55,9 +54,9 @@ main() {
       var pubspecFile = new File(path.join(dataPath, 'pubspec.yaml'));
       pubspecFile.copySync(path.join(outputDir.path, 'pubspec.yaml'));
       // Make sure we have a dart file with the message classes
-      var messageFile = new File(path.join(dataPath, 'toyapi_messages.dart'));
       var libDir = new Directory(path.join(outputDir.path, 'lib'))
           ..createSync();
+      var messageFile = new File(path.join(dataPath, 'toyapi_messages.dartt'));
       // Copy message dart file and point messageFile to the copy.
       messageFile =
           messageFile.copySync(path.join(libDir.path, 'messages.dart'));
@@ -82,7 +81,7 @@ main() {
       // The generated client stub file is named toyapi.dart.
       var stubFile = new File(path.join(outputDir.path, 'toyapi.dart'));
       var expectedStubFile =
-          new File(path.join(dataPath, 'expected_identical.dart'));
+          new File(path.join(dataPath, 'expected_identical.dartt'));
       expect(stubFile.readAsStringSync(), expectedStubFile.readAsStringSync());
     });
   });
