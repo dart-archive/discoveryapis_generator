@@ -46,7 +46,9 @@ main() {
       var stubFile = new File(path.join(outputDir.path, 'toyapi.dart'));
       var expectedStubFile =
           new File(path.join(dataPath, 'expected_nonidentical.dartt'));
-      expect(stubFile.readAsStringSync(), expectedStubFile.readAsStringSync());
+      expect(
+          _normalizeWhiteSpace(stubFile.readAsStringSync()),
+          _normalizeWhiteSpace(expectedStubFile.readAsStringSync()));
     });
     test('identical-messages', () {
       var outputDir = tmpDir.createTempSync();
@@ -82,7 +84,15 @@ main() {
       var stubFile = new File(path.join(outputDir.path, 'toyapi.dart'));
       var expectedStubFile =
           new File(path.join(dataPath, 'expected_identical.dartt'));
-      expect(stubFile.readAsStringSync(), expectedStubFile.readAsStringSync());
+      expect(
+          _normalizeWhiteSpace(stubFile.readAsStringSync()),
+          _normalizeWhiteSpace(expectedStubFile.readAsStringSync()));
     });
   });
+}
+
+final RegExp _wsRegexp = new RegExp(r'\s+');
+
+String _normalizeWhiteSpace(String str) {
+  return str.replaceAll(_wsRegexp, '');
 }
