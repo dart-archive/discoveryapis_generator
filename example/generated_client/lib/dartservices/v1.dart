@@ -48,7 +48,6 @@ class DartservicesApi {
       _body = convert.JSON.encode((request).toJson());
     }
 
-
     _url = 'analyze';
 
     var _response = _requester.request(_url,
@@ -85,7 +84,6 @@ class DartservicesApi {
     if (source != null) {
       _queryParams["source"] = [source];
     }
-
 
     _url = 'analyze';
 
@@ -124,7 +122,6 @@ class DartservicesApi {
       _body = convert.JSON.encode((request).toJson());
     }
 
-
     _url = 'compile';
 
     var _response = _requester.request(_url,
@@ -161,7 +158,6 @@ class DartservicesApi {
     if (source != null) {
       _queryParams["source"] = [source];
     }
-
 
     _url = 'compile';
 
@@ -279,7 +275,6 @@ class DartservicesApi {
       _body = convert.JSON.encode((request).toJson());
     }
 
-
     _url = 'document';
 
     var _response = _requester.request(_url,
@@ -322,7 +317,6 @@ class DartservicesApi {
       _queryParams["offset"] = ["${offset}"];
     }
 
-
     _url = 'document';
 
     var _response = _requester.request(_url,
@@ -341,17 +335,11 @@ class DartservicesApi {
 
 class AnalysisIssue {
   core.int charLength;
-
   core.int charStart;
-
   core.String kind;
-
   core.int line;
-
   core.String location;
-
   core.String message;
-
 
   AnalysisIssue();
 
@@ -400,10 +388,8 @@ class AnalysisIssue {
   }
 }
 
-
 class AnalysisResults {
   core.List<AnalysisIssue> issues;
-
 
   AnalysisResults();
 
@@ -422,10 +408,8 @@ class AnalysisResults {
   }
 }
 
-
 class CompileResponse {
   core.String result;
-
 
   CompileResponse();
 
@@ -444,10 +428,8 @@ class CompileResponse {
   }
 }
 
-
 class DocumentResponse {
   core.Map<core.String, core.String> info;
-
 
   DocumentResponse();
 
@@ -466,12 +448,9 @@ class DocumentResponse {
   }
 }
 
-
 class SourceRequest {
   core.int offset;
-
   core.String source;
-
 
   SourceRequest();
 

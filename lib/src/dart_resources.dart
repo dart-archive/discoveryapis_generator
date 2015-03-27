@@ -112,7 +112,7 @@ class DartResourceMethod {
           .join(', '));
     }
 
-    // Optional parameters are comming last (including the media parameters).
+    // Optional parameters come last (including the media parameters).
     if (namedParameters.length > 0 || mediaUpload || mediaDownload) {
       if (!parameterString.isEmpty) parameterString.write(', ');
 
@@ -292,16 +292,17 @@ class DartResourceMethod {
       }
     });
 
-    params.writeln('');
-
     var requestCode = new StringBuffer();
     if (mediaUpload) {
+      params.writeln('');
       requestCode.writeln('    _uploadMedia =  uploadMedia;');
       requestCode.writeln('    _uploadOptions =  uploadOptions;');
     }
     if (mediaDownload) {
+      params.writeln('');
       requestCode.writeln('    _downloadOptions = downloadOptions;');
     } else if (returnType == null) {
+      params.writeln('');
       requestCode.writeln('    _downloadOptions = null;');
     }
 
