@@ -5,6 +5,7 @@
 library discoveryapis_generator.utils;
 
 import 'dart:io';
+import 'package:path/path.dart';
 
 const List keywords = const [
   "assert", "break", "case", "catch", "class", "const", "continue",
@@ -56,20 +57,18 @@ void writeFile(String path, void writer(StringSink sink)) {
 }
 
 String findPackageRoot(String path) {
-  String slash = Platform.pathSeparator;
   if (path == null) {
     return null;
   }
-  path = new File(path).absolute.path;
-  path = '$path$slash';
-  File pubspec;
-  do {
-    path = path.substring(0, path.lastIndexOf(slash));
+  path = absolute(path);
+  while (path != dirname(path)) {
     // We use the pubspec.yaml file as an indicator of being in the package
     // root directory.
-    pubspec = new File('$path${slash}pubspec.yaml');
-  } while (!pubspec.existsSync() && path.isNotEmpty);
-  return pubspec.existsSync() ? path : null;
+    File pubspec = new File(join(path, 'pubspec.yaml'));
+    if (pubspec.existsSync()) return path;
+    path = dirname(path);
+  }
+  return null;
 }
 
 const String gitIgnore ="""
