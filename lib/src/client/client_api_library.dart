@@ -4,6 +4,8 @@
 
 library discoveryapis_generator.client_api_library;
 
+import 'package:path/path.dart' as path;
+
 import 'client_schemas.dart' as client;
 import '../dart_api_library.dart';
 import '../dart_resources.dart';
@@ -56,17 +58,18 @@ class ClientApiLibrary extends BaseApiLibrary {
     // Make import paths relative to the package's lib directory and write them
     // out.
     var parsedImports = [];
-    imports.forEach((path) {
-      if (!path.startsWith('package:$packageName')) {
-        var pathPrefix = 'file://$packageRoot/lib';
-        if (!path.startsWith(pathPrefix)) {
+    imports.forEach((importPath) {
+      if (!importPath.startsWith('package:$packageName')) {
+        var pathPrefix = path.toUri(packageRoot).toString() + '/lib';
+        if (!importPath.startsWith(pathPrefix)) {
           throw new GeneratorError(description.name, description.version,
               'RPC message classes must reside in the package\'s lib '
               'directory.');
         }
-        path = path.replaceFirst(pathPrefix, 'package:$packageName');
+        importPath =
+            importPath.replaceFirst(pathPrefix, 'package:$packageName');
       }
-      parsedImports.add('import \'$path\';');
+      parsedImports.add('import \'$importPath\';');
     });
     return parsedImports;
   }

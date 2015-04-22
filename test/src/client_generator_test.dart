@@ -28,7 +28,7 @@ main() {
   var tmpDir = Directory.systemTemp.createTempSync();
   unittestConfiguration = new GeneratorTestConfiguration(tmpDir);
   // Common path to the necessary test data.
-  var dataPath = path.join(findPackageRoot('.'), 'test/src/data');
+  var dataPath = path.join(findPackageRoot('.'), 'test', 'src', 'data');
 
   group('files', () {
     test('non-identical-messages', () {
@@ -73,7 +73,8 @@ main() {
         'ToyAgeRequest': importUri.toString()
       };
       var description =
-          new File(path.join(dataPath, 'rest/toyapi.json')).readAsStringSync();
+          new File(
+              path.join(dataPath, 'rest', 'toyapi.json')).readAsStringSync();
       var diPair = new DescriptionImportPair(description, importMap);
       // Generate the client stubs.
       var results = generateClientStubs([diPair], outputDir.path);

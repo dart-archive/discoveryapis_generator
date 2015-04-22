@@ -5,7 +5,8 @@
 library discoveryapis_generator.apis_package_generator;
 
 import "dart:io";
-import 'package:discoveryapis_generator/discoveryapis_generator.dart';
+import 'package:discoveryapis_generator/discoveryapis_generator.dart'
+    show Pubspec;
 
 import 'generated_googleapis/discovery/v1.dart';
 import 'dart_api_library.dart';
