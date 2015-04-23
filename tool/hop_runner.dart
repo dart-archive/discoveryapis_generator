@@ -17,10 +17,10 @@ void main(List<String> args) {
   addTask('generate_example', commandlineTasks([
     commandRunner('dart', [
       'bin/generate.dart',
-      'package',
+      'files',
       '--input-dir=example',
-      '--output-dir=example/generated_client',
-      '--package-name=generated_client'])
+      '--output-dir=example'
+    ])
   ]));
 
   addTask('generator_tests', commandlineTasks(tests.map((test) {

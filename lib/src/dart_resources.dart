@@ -202,7 +202,7 @@ class DartResourceMethod {
                            'if the API endpoint returned an error.\n');
     commentBuilder.writeln('If the used [${imports.http}.Client] '
                            'completes with an error when making a REST call, '
-                           'this method  will complete with the same error.\n');
+                           'this method will complete with the same error.\n');
 
     var methodComment = new Comment('$commentBuilder');
 

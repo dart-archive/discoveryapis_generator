@@ -1,6 +1,6 @@
 // This is a generated file (see the discoveryapis_generator project).
 
-library generated_client.dartservices.v1;
+library discoveryapis_generator.dartservices.v1;
 
 import 'dart:core' as core;
 import 'dart:collection' as collection;
@@ -34,7 +34,7 @@ class DartservicesApi {
    * error.
    *
    * If the used [http.Client] completes with an error when making a REST call,
-   * this method  will complete with the same error.
+   * this method will complete with the same error.
    */
   async.Future<AnalysisResults> analyze(SourceRequest request) {
     var _url = null;
@@ -71,7 +71,7 @@ class DartservicesApi {
    * error.
    *
    * If the used [http.Client] completes with an error when making a REST call,
-   * this method  will complete with the same error.
+   * this method will complete with the same error.
    */
   async.Future<AnalysisResults> analyzeGet({core.String source}) {
     var _url = null;
@@ -108,7 +108,7 @@ class DartservicesApi {
    * error.
    *
    * If the used [http.Client] completes with an error when making a REST call,
-   * this method  will complete with the same error.
+   * this method will complete with the same error.
    */
   async.Future<CompileResponse> compile(SourceRequest request) {
     var _url = null;
@@ -145,7 +145,7 @@ class DartservicesApi {
    * error.
    *
    * If the used [http.Client] completes with an error when making a REST call,
-   * this method  will complete with the same error.
+   * this method will complete with the same error.
    */
   async.Future<CompileResponse> compileGet({core.String source}) {
     var _url = null;
@@ -180,7 +180,7 @@ class DartservicesApi {
    * error.
    *
    * If the used [http.Client] completes with an error when making a REST call,
-   * this method  will complete with the same error.
+   * this method will complete with the same error.
    */
   async.Future complete(SourceRequest request) {
     var _url = null;
@@ -219,7 +219,7 @@ class DartservicesApi {
    * error.
    *
    * If the used [http.Client] completes with an error when making a REST call,
-   * this method  will complete with the same error.
+   * this method will complete with the same error.
    */
   async.Future completeGet({core.String source, core.int offset}) {
     var _url = null;
@@ -261,7 +261,7 @@ class DartservicesApi {
    * error.
    *
    * If the used [http.Client] completes with an error when making a REST call,
-   * this method  will complete with the same error.
+   * this method will complete with the same error.
    */
   async.Future<DocumentResponse> document(SourceRequest request) {
     var _url = null;
@@ -300,7 +300,7 @@ class DartservicesApi {
    * error.
    *
    * If the used [http.Client] completes with an error when making a REST call,
-   * this method  will complete with the same error.
+   * this method will complete with the same error.
    */
   async.Future<DocumentResponse> documentGet({core.String source, core.int offset}) {
     var _url = null;
