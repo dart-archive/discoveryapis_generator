@@ -126,13 +126,12 @@ void main(List<String> arguments) {
 }
 
 void printResults(List<GenerateResult> results) {
-  int successfull = 0;
+  int successful = 0;
   int info = 0;
   for (var result in results) {
     print(result);
-    if (result.success) successfull++;
+    if (result.success) successful++;
     if (result.info) info++;
   }
-  print("Successfull: $successfull, "
-        "Failed: ${results.length - successfull - info}");
+  print("$successful succeeded, ${results.length - successful - info} failed.");
 }

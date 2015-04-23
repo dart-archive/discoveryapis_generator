@@ -6,11 +6,10 @@ library discoveryapis_generator.apis_files_generator;
 
 import 'dart:io';
 import 'dart:convert';
-
 import 'package:path/path.dart' as path;
 import 'package:yaml/yaml.dart';
 
-import '../discoveryapis_generator.dart';
+import '../discoveryapis_generator.dart' show Pubspec;
 import 'generated_googleapis/discovery/v1.dart';
 import 'dart_api_library.dart';
 import 'client/client_api_library.dart';
@@ -38,7 +37,7 @@ class ApisFilesGenerator {
                      {this.updatePubspec: false}) {
     // Create the output directory.
     var clientDirectory = new Directory(clientFolderPath);
-    packageRoot = findPackageRoot(clientDirectory.absolute.path);
+    packageRoot = findPackageRoot(path.absolute(clientDirectory.path));
     if (packageRoot == null) {
       throw new Exception(
           'Client folder: \'$clientFolderPath\' must be in a package.');

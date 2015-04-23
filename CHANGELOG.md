@@ -1,5 +1,9 @@
 # Changelog - discoveryapis_generator
 
+## v0.7.1
+
+- Fix bug in windows path handling.
+
 ## v0.7.0
 
 - Add support for generating API files inside an existing package instead of
