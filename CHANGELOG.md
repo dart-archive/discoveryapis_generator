@@ -1,5 +1,9 @@
 # Changelog - discoveryapis_generator
 
+## v0.7.1+1
+
+- Make findPackageRoot handle 'file:' paths.
+
 ## v0.7.1
 
 - Fix bug in windows path handling.

@@ -60,6 +60,9 @@ String findPackageRoot(String path) {
   if (path == null) {
     return null;
   }
+  if (path.startsWith('file:')) {
+    path = fromUri(path);
+  }
   path = absolute(path);
   while (path != dirname(path)) {
     // We use the pubspec.yaml file as an indicator of being in the package
