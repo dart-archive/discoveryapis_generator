@@ -87,6 +87,11 @@ class ClientApiLibrary extends BaseApiLibrary {
     return '$sink';
   }
 
+  /**
+   * Create the library header. Note, this must be called after the library
+   * source string has been generated, since it relies on [Identifier] usage
+   * counts being calculated
+   */
   String libraryHeader() {
     var exportedMediaClasses = '';
     if (exposeMedia) {

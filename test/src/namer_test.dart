@@ -172,8 +172,6 @@ main() {
         expect(id.wasCalled, false);
         id.ref();
         expect(id.wasCalled, true);
-        id.resetCallCount();
-        expect(id.wasCalled, false);
       });
 
       test('Identifier.noPrefix()', () {

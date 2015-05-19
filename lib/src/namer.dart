@@ -19,6 +19,9 @@ class Identifier {
    */
   final String preferredName;
 
+  /**
+   * [noPrefix] is used for naming prefix imports which will not get a name.
+   */
   Identifier.noPrefix() : this.preferredName = null {
     sealWithName(null);
   }
@@ -58,16 +61,7 @@ class Identifier {
     return name == null ? '' : '${name}.';
   }
 
-  int get callCount => _callCount;
-
-  bool get wasCalled => callCount > 0;
-
-  /**
-   * Reset the [callCount].
-   */
-  void resetCallCount() {
-    _callCount = 0;
-  }
+  bool get wasCalled => _callCount > 0;
 
   /**
    * Gets a string representation of this [Identifier]. This can only be called
