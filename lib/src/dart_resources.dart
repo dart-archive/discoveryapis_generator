@@ -144,7 +144,7 @@ class DartResourceMethod {
     if (returnType != null && !mediaDownload) {
       genericReturnType = '<${returnType.declaration}>';
     }
-    return '${imports.async}.Future$genericReturnType $name($parameterString)';
+    return '${imports.async.ref()}Future$genericReturnType $name($parameterString)';
   }
 
   String get definition {
@@ -227,7 +227,7 @@ class DartResourceMethod {
         } else {
           params.writeln('    if (${param.name} == null) {');
         }
-        params.writeln('      throw new ${imports.core}.ArgumentError'
+        params.writeln('      throw new ${imports.core.ref()}ArgumentError'
                        '("Parameter ${param.name} is required.");');
         params.writeln('    }');
       } else {
@@ -265,7 +265,7 @@ class DartResourceMethod {
         } else {
           params.writeln('    if (${param.name} == null) {');
         }
-        params.writeln('      throw new ${imports.core}.ArgumentError'
+        params.writeln('      throw new ${imports.core.ref()}ArgumentError'
                        '("Parameter ${param.name} is required.");');
         params.writeln('    }');
         params.writeln('    $propertyAssignment');
@@ -364,7 +364,7 @@ $urlPatternCode
 
     methodString.write('''
     var _url = null;
-    var _queryParams = new ${imports.core}.Map();
+    var _queryParams = new ${imports.core.ref()}Map();
     var _uploadMedia = null;
     var _uploadOptions = null;
     var _downloadOptions = ${imports.commons}.DownloadOptions.Metadata;
@@ -471,8 +471,8 @@ class DartApiClass extends DartResourceClass {
     var str = new StringBuffer();
 
     var parameters = [
-        '${imports.core}.String rootUrl: "${escapeString(rootUrl)}"',
-        '${imports.core}.String servicePath: "${escapeString(servicePath)}"',
+        '${imports.core.ref()}String rootUrl: "${escapeString(rootUrl)}"',
+        '${imports.core.ref()}String servicePath: "${escapeString(servicePath)}"',
     ].join(', ');
 
     str.writeln('  $className(${imports.http}.Client client, {$parameters}) :');

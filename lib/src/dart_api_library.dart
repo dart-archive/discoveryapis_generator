@@ -23,11 +23,11 @@ class DartApiImports {
   Identifier http;
   Identifier commons;
 
-  DartApiImports.fromNamer(this.namer) {
-    core = namer.import('core');
+  DartApiImports.fromNamer(this.namer, {bool useCorePrefix: true}) {
+    core = useCorePrefix ? namer.import('core') : namer.noPrefix();
     collection = namer.import('collection');
     crypto = namer.import('crypto');
-    async = namer.import('async');
+    async = useCorePrefix ? namer.import('async') : namer.noPrefix();
     convert = namer.import('convert');
     http = namer.import('http');
     commons = namer.import('commons');
@@ -40,9 +40,10 @@ abstract class BaseApiLibrary {
 
   DartApiImports imports;
 
-  BaseApiLibrary(this.description, String apiClassSuffix)
-      : namer = new ApiLibraryNamer(apiClassSuffix: apiClassSuffix) {
-    imports = new DartApiImports.fromNamer(namer);
+  BaseApiLibrary(this.description, String apiClassSuffix,
+      {bool useCorePrefix: true}) :
+      namer = new ApiLibraryNamer(apiClassSuffix: apiClassSuffix) {
+    imports = new DartApiImports.fromNamer(namer, useCorePrefix: useCorePrefix);
   }
 }
 
@@ -58,8 +59,9 @@ class DartApiLibrary extends BaseApiLibrary {
   /**
    * Generates a API library for [description].
    */
-  DartApiLibrary.build(RestDescription description, String packageName)
-      : super(description, 'Api') {
+  DartApiLibrary.build(RestDescription description, String packageName,
+      {bool useCorePrefix: true}) :
+      super(description, 'Api', useCorePrefix: useCorePrefix) {
     libraryName = namer.libraryName(
         packageName, description.name, description.version);
     schemaDB = parseSchemas(imports, description);
@@ -89,25 +91,45 @@ class DartApiLibrary extends BaseApiLibrary {
           'PartialDownloadOptions,\n'
           '    ByteRange';
     }
-    return
-"""
+
+    String result = """
 // This is a generated file (see the discoveryapis_generator project).
 
 library $libraryName;
 
-import 'dart:core' as ${imports.core};
-import 'dart:collection' as ${imports.collection};
-import 'dart:async' as ${imports.async};
+""";
+
+    if (imports.core.hasPrefix) {
+      result += "import 'dart:core' as ${imports.core};\n";
+    }
+
+    if (imports.collection.wasCalled) {
+      result += "import 'dart:collection' as ${imports.collection};\n";
+    }
+
+    if (imports.async.hasPrefix) {
+      result += "import 'dart:async' as ${imports.async};\n";
+    } else {
+      result += "import 'dart:async';\n";
+    }
+
+    result += """
 import 'dart:convert' as ${imports.convert};
 
 import 'package:_discoveryapis_commons/_discoveryapis_commons.dart' as ${imports.commons};
-import 'package:crypto/crypto.dart' as ${imports.crypto};
+""";
+
+    if (imports.crypto.wasCalled) {
+      result += "import 'package:crypto/crypto.dart' as ${imports.crypto};\n";
+    }
+
+    return result + """
 import 'package:http/http.dart' as ${imports.http};
 
 export 'package:_discoveryapis_commons/_discoveryapis_commons.dart' show
     ApiRequestError, DetailedApiRequestError${exportedMediaClasses};
 
-const ${imports.core}.String USER_AGENT = 'dart-api-client ${description.name}/${description.version}';
+const ${imports.core.ref()}String USER_AGENT = 'dart-api-client ${description.name}/${description.version}';
 
 """;
   }

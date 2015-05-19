@@ -47,7 +47,11 @@ ArgParser filesCommandArgParser() {
                   help: 'Update the pubspec.yaml file with required '
                         'dependencies. This will remove comments and might '
                         'change the layout of the pubspec.yaml file.',
-                  defaultsTo: 'false');
+                  defaultsTo: 'false')
+      ..addFlag('core-prefix',
+                negatable: true,
+                defaultsTo: true,
+                help: 'Use or remove an import prefix for dart:core');
 }
 
 ArgParser globalArgParser() {
@@ -120,7 +124,8 @@ void main(List<String> arguments) {
           .trim();
       printResults(generateApiFiles(commandOptions['input-dir'],
                                     commandOptions['output-dir'],
-                                    updatePubspec: updatePubspec == 'true'));
+                                    updatePubspec: updatePubspec == 'true',
+                                    useCorePrefix: commandOptions['core-prefix']));
       break;
   }
 }

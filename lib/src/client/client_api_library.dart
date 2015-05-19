@@ -34,8 +34,9 @@ class ClientApiLibrary extends BaseApiLibrary {
   ClientApiLibrary.build(RestDescription description,
                          Map<String, String> importMap,
                          this.packageName,
-                         this.packageRoot)
-      : super(description, '') {
+                         this.packageRoot,
+                         {bool useCorePrefix: true})
+      : super(description, '', useCorePrefix: useCorePrefix) {
     libraryName = namer.clientLibraryName(packageName, description.name);
     schemaDB = client.parseSchemas(imports, description);
     apiClass = parseResources(imports, schemaDB, description);
@@ -94,23 +95,45 @@ class ClientApiLibrary extends BaseApiLibrary {
           'PartialDownloadOptions,\n'
           '    ByteRange';
     }
-    return
-"""
+
+    String result = """
+// This is a generated file (see the discoveryapis_generator project).
+
 library $libraryName;
 
-import 'dart:core' as ${imports.core};
-import 'dart:collection' as ${imports.collection};
-import 'dart:async' as ${imports.async};
+""";
+
+    if (imports.core.hasPrefix) {
+      result += "import 'dart:core' as ${imports.core};\n";
+    }
+
+    if (imports.collection.wasCalled) {
+      result += "import 'dart:collection' as ${imports.collection};\n";
+    }
+
+    if (imports.async.hasPrefix) {
+      result += "import 'dart:async' as ${imports.async};\n";
+    } else {
+      result += "import 'dart:async';\n";
+    }
+
+    result += """
 import 'dart:convert' as ${imports.convert};
 
 import 'package:_discoveryapis_commons/_discoveryapis_commons.dart' as ${imports.commons};
-import 'package:crypto/crypto.dart' as ${imports.crypto};
+""";
+
+    if (imports.crypto.wasCalled) {
+      result += "import 'package:crypto/crypto.dart' as ${imports.crypto};\n";
+    }
+
+    return result + """
 import 'package:http/http.dart' as ${imports.http};
 $schemaImports
 export 'package:_discoveryapis_commons/_discoveryapis_commons.dart' show
     ApiRequestError, DetailedApiRequestError${exportedMediaClasses};
 
-const ${imports.core}.String USER_AGENT = 'dart-api-client ${description.name}/${description.version}';
+const ${imports.core.ref()}String USER_AGENT = 'dart-api-client ${description.name}/${description.version}';
 
 """;
   }

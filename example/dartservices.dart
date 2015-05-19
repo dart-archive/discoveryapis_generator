@@ -2,25 +2,22 @@
 
 library discoveryapis_generator.dartservices.v1;
 
-import 'dart:core' as core;
-import 'dart:collection' as collection;
-import 'dart:async' as async;
+import 'dart:async';
 import 'dart:convert' as convert;
 
 import 'package:_discoveryapis_commons/_discoveryapis_commons.dart' as commons;
-import 'package:crypto/crypto.dart' as crypto;
 import 'package:http/http.dart' as http;
 
 export 'package:_discoveryapis_commons/_discoveryapis_commons.dart' show
     ApiRequestError, DetailedApiRequestError;
 
-const core.String USER_AGENT = 'dart-api-client dartservices/v1';
+const String USER_AGENT = 'dart-api-client dartservices/v1';
 
 class DartservicesApi {
 
   final commons.ApiRequester _requester;
 
-  DartservicesApi(http.Client client, {core.String rootUrl: "http://localhost/", core.String servicePath: "api/dartservices/v1/"}) :
+  DartservicesApi(http.Client client, {String rootUrl: "http://localhost/", String servicePath: "api/dartservices/v1/"}) :
       _requester = new commons.ApiRequester(client, rootUrl, servicePath, USER_AGENT);
 
   /**
@@ -36,9 +33,9 @@ class DartservicesApi {
    * If the used [http.Client] completes with an error when making a REST call,
    * this method will complete with the same error.
    */
-  async.Future<AnalysisResults> analyze(SourceRequest request) {
+  Future<AnalysisResults> analyze(SourceRequest request) {
     var _url = null;
-    var _queryParams = new core.Map();
+    var _queryParams = new Map();
     var _uploadMedia = null;
     var _uploadOptions = null;
     var _downloadOptions = commons.DownloadOptions.Metadata;
@@ -73,9 +70,9 @@ class DartservicesApi {
    * If the used [http.Client] completes with an error when making a REST call,
    * this method will complete with the same error.
    */
-  async.Future<AnalysisResults> analyzeGet({core.String source}) {
+  Future<AnalysisResults> analyzeGet({String source}) {
     var _url = null;
-    var _queryParams = new core.Map();
+    var _queryParams = new Map();
     var _uploadMedia = null;
     var _uploadOptions = null;
     var _downloadOptions = commons.DownloadOptions.Metadata;
@@ -110,9 +107,9 @@ class DartservicesApi {
    * If the used [http.Client] completes with an error when making a REST call,
    * this method will complete with the same error.
    */
-  async.Future<CompileResponse> compile(SourceRequest request) {
+  Future<CompileResponse> compile(SourceRequest request) {
     var _url = null;
-    var _queryParams = new core.Map();
+    var _queryParams = new Map();
     var _uploadMedia = null;
     var _uploadOptions = null;
     var _downloadOptions = commons.DownloadOptions.Metadata;
@@ -147,9 +144,9 @@ class DartservicesApi {
    * If the used [http.Client] completes with an error when making a REST call,
    * this method will complete with the same error.
    */
-  async.Future<CompileResponse> compileGet({core.String source}) {
+  Future<CompileResponse> compileGet({String source}) {
     var _url = null;
-    var _queryParams = new core.Map();
+    var _queryParams = new Map();
     var _uploadMedia = null;
     var _uploadOptions = null;
     var _downloadOptions = commons.DownloadOptions.Metadata;
@@ -182,9 +179,9 @@ class DartservicesApi {
    * If the used [http.Client] completes with an error when making a REST call,
    * this method will complete with the same error.
    */
-  async.Future complete(SourceRequest request) {
+  Future complete(SourceRequest request) {
     var _url = null;
-    var _queryParams = new core.Map();
+    var _queryParams = new Map();
     var _uploadMedia = null;
     var _uploadOptions = null;
     var _downloadOptions = commons.DownloadOptions.Metadata;
@@ -221,9 +218,9 @@ class DartservicesApi {
    * If the used [http.Client] completes with an error when making a REST call,
    * this method will complete with the same error.
    */
-  async.Future completeGet({core.String source, core.int offset}) {
+  Future completeGet({String source, int offset}) {
     var _url = null;
-    var _queryParams = new core.Map();
+    var _queryParams = new Map();
     var _uploadMedia = null;
     var _uploadOptions = null;
     var _downloadOptions = commons.DownloadOptions.Metadata;
@@ -263,9 +260,9 @@ class DartservicesApi {
    * If the used [http.Client] completes with an error when making a REST call,
    * this method will complete with the same error.
    */
-  async.Future<DocumentResponse> document(SourceRequest request) {
+  Future<DocumentResponse> document(SourceRequest request) {
     var _url = null;
-    var _queryParams = new core.Map();
+    var _queryParams = new Map();
     var _uploadMedia = null;
     var _uploadOptions = null;
     var _downloadOptions = commons.DownloadOptions.Metadata;
@@ -302,9 +299,9 @@ class DartservicesApi {
    * If the used [http.Client] completes with an error when making a REST call,
    * this method will complete with the same error.
    */
-  async.Future<DocumentResponse> documentGet({core.String source, core.int offset}) {
+  Future<DocumentResponse> documentGet({String source, int offset}) {
     var _url = null;
-    var _queryParams = new core.Map();
+    var _queryParams = new Map();
     var _uploadMedia = null;
     var _uploadOptions = null;
     var _downloadOptions = commons.DownloadOptions.Metadata;
@@ -334,16 +331,16 @@ class DartservicesApi {
 
 
 class AnalysisIssue {
-  core.int charLength;
-  core.int charStart;
-  core.String kind;
-  core.int line;
-  core.String location;
-  core.String message;
+  int charLength;
+  int charStart;
+  String kind;
+  int line;
+  String location;
+  String message;
 
   AnalysisIssue();
 
-  AnalysisIssue.fromJson(core.Map _json) {
+  AnalysisIssue.fromJson(Map _json) {
     if (_json.containsKey("charLength")) {
       charLength = _json["charLength"];
     }
@@ -364,8 +361,8 @@ class AnalysisIssue {
     }
   }
 
-  core.Map toJson() {
-    var _json = new core.Map();
+  Map toJson() {
+    var _json = new Map();
     if (charLength != null) {
       _json["charLength"] = charLength;
     }
@@ -389,18 +386,18 @@ class AnalysisIssue {
 }
 
 class AnalysisResults {
-  core.List<AnalysisIssue> issues;
+  List<AnalysisIssue> issues;
 
   AnalysisResults();
 
-  AnalysisResults.fromJson(core.Map _json) {
+  AnalysisResults.fromJson(Map _json) {
     if (_json.containsKey("issues")) {
       issues = _json["issues"].map((value) => new AnalysisIssue.fromJson(value)).toList();
     }
   }
 
-  core.Map toJson() {
-    var _json = new core.Map();
+  Map toJson() {
+    var _json = new Map();
     if (issues != null) {
       _json["issues"] = issues.map((value) => (value).toJson()).toList();
     }
@@ -409,18 +406,18 @@ class AnalysisResults {
 }
 
 class CompileResponse {
-  core.String result;
+  String result;
 
   CompileResponse();
 
-  CompileResponse.fromJson(core.Map _json) {
+  CompileResponse.fromJson(Map _json) {
     if (_json.containsKey("result")) {
       result = _json["result"];
     }
   }
 
-  core.Map toJson() {
-    var _json = new core.Map();
+  Map toJson() {
+    var _json = new Map();
     if (result != null) {
       _json["result"] = result;
     }
@@ -429,18 +426,18 @@ class CompileResponse {
 }
 
 class DocumentResponse {
-  core.Map<core.String, core.String> info;
+  Map<String, String> info;
 
   DocumentResponse();
 
-  DocumentResponse.fromJson(core.Map _json) {
+  DocumentResponse.fromJson(Map _json) {
     if (_json.containsKey("info")) {
       info = _json["info"];
     }
   }
 
-  core.Map toJson() {
-    var _json = new core.Map();
+  Map toJson() {
+    var _json = new Map();
     if (info != null) {
       _json["info"] = info;
     }
@@ -449,12 +446,12 @@ class DocumentResponse {
 }
 
 class SourceRequest {
-  core.int offset;
-  core.String source;
+  int offset;
+  String source;
 
   SourceRequest();
 
-  SourceRequest.fromJson(core.Map _json) {
+  SourceRequest.fromJson(Map _json) {
     if (_json.containsKey("offset")) {
       offset = _json["offset"];
     }
@@ -463,8 +460,8 @@ class SourceRequest {
     }
   }
 
-  core.Map toJson() {
-    var _json = new core.Map();
+  Map toJson() {
+    var _json = new Map();
     if (offset != null) {
       _json["offset"] = offset;
     }

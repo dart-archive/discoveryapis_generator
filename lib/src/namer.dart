@@ -12,17 +12,24 @@ import 'utils.dart';
 class Identifier {
   String _name;
   bool _sealed = false;
+  int _callCount = 0;
 
   /**
    * The prefered name for this [Identifier].
    */
   final String preferredName;
 
+  Identifier.noPrefix() : this.preferredName = null {
+    sealWithName(null);
+  }
+
   /**
    * Constructs a new [Identifier] with the given [preferredName]. The
    * identifier will be not sealed.
    */
   Identifier(this.preferredName);
+
+  bool get hasPrefix => preferredName != null;
 
   /**
    * The allocated name for this [Identifier]. This will be [:null:] until
@@ -40,6 +47,26 @@ class Identifier {
     }
     _name = name;
     _sealed = true;
+  }
+
+  /**
+   * Return the reference name with a `.` appended (e.g., `core.`). Calling this
+   * method will increment the call count; it is not idempotent.
+   */
+  String ref() {
+    _callCount++;
+    return name == null ? '' : '${name}.';
+  }
+
+  int get callCount => _callCount;
+
+  bool get wasCalled => callCount > 0;
+
+  /**
+   * Reset the [callCount].
+   */
+  void resetCallCount() {
+    _callCount = 0;
   }
 
   /**
@@ -200,7 +227,7 @@ class IdentifierNamer {
   IdentifierNamer.fromNameSet(this.allocatedNames) : parentNamer = null;
 
   /**
-   * Gives [Identifier] a unique name amongst al previously named identifiers
+   * Gives [Identifier] a unique name amongst all previously named identifiers
    * and amongst all identifiers of [parentNamer].
    */
   void nameIdentifier(Identifier identifier) {
@@ -259,6 +286,8 @@ class ApiLibraryNamer {
     api = Scope.toValidIdentifier(api, removeUnderscores: false);
     return '$package.$api.client';
   }
+
+  Identifier noPrefix() => new Identifier.noPrefix();
 
   Identifier import(String name)
       => importScope.newIdentifier(name, removeUnderscores: false);

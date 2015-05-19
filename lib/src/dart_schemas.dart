@@ -212,21 +212,21 @@ abstract class PrimitiveDartSchemaType extends DartSchemaType {
 class BooleanType extends PrimitiveDartSchemaType {
   BooleanType(DartApiImports imports) : super(imports);
 
-  String get declaration => '${imports.core}.bool';
+  String get declaration => '${imports.core.ref()}bool';
 }
 
 
 class IntegerType extends PrimitiveDartSchemaType {
   IntegerType(DartApiImports imports) : super(imports);
 
-  String get declaration => '${imports.core}.int';
+  String get declaration => '${imports.core.ref()}int';
 }
 
 
 class DoubleType extends PrimitiveDartSchemaType {
   DoubleType(DartApiImports imports) : super(imports);
 
-  String get declaration => '${imports.core}.double';
+  String get declaration => '${imports.core.ref()}double';
 }
 
 
@@ -234,7 +234,7 @@ class StringType extends PrimitiveDartSchemaType {
   StringType(DartApiImports imports) : super(imports);
 
   String primitiveEncoding(String value) => value;
-  String get declaration => '${imports.core}.String';
+  String get declaration => '${imports.core.ref()}String';
 }
 
 
@@ -264,7 +264,7 @@ class EnumType extends StringType {
 class DateType extends StringType {
   DateType(DartApiImports imports) : super(imports);
 
-  String get declaration => '${imports.core}.DateTime';
+  String get declaration => '${imports.core.ref()}DateTime';
 
   String primitiveEncoding(String value)
       => '"\${($value).year.toString().padLeft(4, \'0\')}-'
@@ -273,20 +273,20 @@ class DateType extends StringType {
 
   String jsonEncode(String value) => primitiveEncoding(value);
 
-  String jsonDecode(String json) => '${imports.core}.DateTime.parse($json)';
+  String jsonDecode(String json) => '${imports.core.ref()}DateTime.parse($json)';
 }
 
 
 class DateTimeType extends StringType {
   DateTimeType(DartApiImports imports) : super(imports);
 
-  String get declaration => '${imports.core}.DateTime';
+  String get declaration => '${imports.core.ref()}DateTime';
 
   String primitiveEncoding(String value) => '($value).toIso8601String()';
 
   String jsonEncode(String value) => '($value).toIso8601String()';
 
-  String jsonDecode(String json) => '${imports.core}.DateTime.parse($json)';
+  String jsonDecode(String json) => '${imports.core.ref()}DateTime.parse($json)';
 }
 
 
@@ -299,7 +299,7 @@ class DateTimeType extends StringType {
 class AnyType extends PrimitiveDartSchemaType {
   AnyType(DartApiImports imports) : super(imports);
 
-  String get declaration => '${imports.core}.Object';
+  String get declaration => '${imports.core.ref()}Object';
 }
 
 
@@ -342,7 +342,7 @@ class UnnamedArrayType extends ComplexDartSchemaType {
 
   String get classDefinition => null;
 
-  String get declaration => '${imports.core}.List<${innerType.declaration}>';
+  String get declaration => '${imports.core.ref()}List<${innerType.declaration}>';
 
   String jsonEncode(String value) {
     if (innerType.needsJsonEncoding) {
@@ -385,12 +385,12 @@ class NamedArrayType extends ComplexDartSchemaType {
 
   String get classDefinition {
     var decode = new StringBuffer();
-    decode.writeln('  $className.fromJson(${imports.core}.List json)');
+    decode.writeln('  $className.fromJson(${imports.core.ref()}List json)');
     decode.writeln('      : _inner = json.map((value) => '
                    '${innerType.jsonDecode('value')}).toList();');
 
     var encode = new StringBuffer();
-    encode.writeln('  ${imports.core}.List toJson() {');
+    encode.writeln('  ${imports.core.ref()}List toJson() {');
     encode.writeln('    return _inner.map((value) => '
                    '${innerType.jsonEncode('value')}).toList();');
     encode.write('  }');
@@ -399,23 +399,23 @@ class NamedArrayType extends ComplexDartSchemaType {
     return
 '''
 ${comment.asDartDoc(0)}class $className
-    extends ${imports.collection}.ListBase<$type> {
-  final ${imports.core}.List<$type> _inner;
+    extends ${imports.collection.ref()}ListBase<$type> {
+  final ${imports.core.ref()}List<$type> _inner;
 
   $className() : _inner = [];
 
 $decode
 $encode
 
-  $type operator [](${imports.core}.int key) => _inner[key];
+  $type operator [](${imports.core.ref()}int key) => _inner[key];
 
-  void operator []=(${imports.core}.int key, $type value) {
+  void operator []=(${imports.core.ref()}int key, $type value) {
     _inner[key] = value;
   }
 
-  ${imports.core}.int get length => _inner.length;
+  ${imports.core.ref()}int get length => _inner.length;
 
-  void set length(${imports.core}.int newLength) {
+  void set length(${imports.core.ref()}int newLength) {
     _inner.length = newLength;
   }
 }
@@ -467,7 +467,7 @@ class UnnamedMapType extends ComplexDartSchemaType {
   String get declaration {
     var from = fromType.declaration;
     var to = toType.declaration;
-    return '${imports.core}.Map<$from, $to>';
+    return '${imports.core.ref()}Map<$from, $to>';
   }
 
   String jsonEncode(String value) {
@@ -520,16 +520,16 @@ class NamedMapType extends ComplexDartSchemaType {
 
   String get classDefinition {
     var decode = new StringBuffer();
-    decode.writeln('  $className.fromJson(${imports.core}.Map _json) {');
-    decode.writeln('    _json.forEach((${imports.core}.String key, value) {');
+    decode.writeln('  $className.fromJson(${imports.core.ref()}Map _json) {');
+    decode.writeln('    _json.forEach((${imports.core.ref()}String key, value) {');
     decode.writeln('      this[key] = ${toType.jsonDecode('value')};');
     decode.writeln('    });');
     decode.writeln('  }');
 
     var encode = new StringBuffer();
-    encode.writeln('  ${imports.core}.Map toJson() {');
+    encode.writeln('  ${imports.core.ref()}Map toJson() {');
     encode.writeln('    var _json = {};');
-    encode.writeln('    this.forEach((${imports.core}.String key, value) {');
+    encode.writeln('    this.forEach((${imports.core.ref()}String key, value) {');
     encode.writeln('      _json[key] = ${toType.jsonEncode('value')};');
     encode.writeln('    });');
     encode.writeln('    return _json;');
@@ -541,15 +541,15 @@ class NamedMapType extends ComplexDartSchemaType {
     return
 '''
 ${comment.asDartDoc(0)}class $className
-    extends ${imports.collection}.MapBase<$fromT, $toT> {
-  final ${imports.core}.Map _innerMap = {};
+    extends ${imports.collection.ref()}MapBase<$fromT, $toT> {
+  final ${imports.core.ref()}Map _innerMap = {};
 
   $className();
 
 $decode
 $encode
 
-  ${toType.declaration} operator [](${imports.core}.Object key)
+  ${toType.declaration} operator [](${imports.core.ref()}Object key)
       => _innerMap[key];
 
   operator []=($fromT key, $toT value) {
@@ -560,9 +560,9 @@ $encode
     _innerMap.clear();
   }
 
-  ${imports.core}.Iterable<$fromT> get keys => _innerMap.keys;
+  ${imports.core.ref()}Iterable<$fromT> get keys => _innerMap.keys;
 
-  $toT remove(${imports.core}.Object key) => _innerMap.remove(key);
+  $toT remove(${imports.core.ref()}Object key) => _innerMap.remove(key);
 }
 ''';
   }
@@ -630,10 +630,10 @@ class ObjectType extends ComplexDartSchemaType {
 
       if (property.byteArrayAccessor != null) {
         propertyString.writeln(
-            '  ${imports.core}.List<${imports.core}.int> get '
+            '  ${imports.core.ref()}List<${imports.core.ref()}int> get '
             '${property.byteArrayAccessor} {');
         propertyString.writeln('    return '
-            '${imports.crypto}.CryptoUtils.base64StringToBytes'
+            '${imports.crypto.ref()}CryptoUtils.base64StringToBytes'
             '(${property.name});');
         propertyString.writeln('  }');
 
@@ -642,8 +642,8 @@ class ObjectType extends ComplexDartSchemaType {
         propertyString.write(
             '  void set ${property.byteArrayAccessor}');
         propertyString.writeln(
-            '(${imports.core}.List<${imports.core}.int> _bytes) {');
-        propertyString.writeln('    ${property.name} = ${imports.crypto}.'
+            '(${imports.core.ref()}List<${imports.core.ref()}int> _bytes) {');
+        propertyString.writeln('    ${property.name} = ${imports.crypto.ref()}'
             'CryptoUtils.bytesToBase64(_bytes, urlSafe: true);');
         propertyString.writeln('  }');
       }
@@ -651,7 +651,7 @@ class ObjectType extends ComplexDartSchemaType {
 
     var fromJsonString = new StringBuffer();
     fromJsonString.writeln(
-        '  $className.fromJson(${imports.core}.Map _json) {');
+        '  $className.fromJson(${imports.core.ref()}Map _json) {');
     properties.forEach((DartClassProperty property) {
       // The super variant fromJson() will call this subclass constructor
       // and the variant descriminator is final.
@@ -667,8 +667,8 @@ class ObjectType extends ComplexDartSchemaType {
     fromJsonString.writeln('  }');
 
     var toJsonString = new StringBuffer();
-    toJsonString.writeln('  ${imports.core}.Map toJson() {');
-    toJsonString.writeln('    var _json = new ${imports.core}.Map();');
+    toJsonString.writeln('  ${imports.core.ref()}Map toJson() {');
+    toJsonString.writeln('    var _json = new ${imports.core.ref()}Map();');
 
     properties.forEach((DartClassProperty property) {
       toJsonString.writeln('    if (${property.name} != null) {');
@@ -757,7 +757,7 @@ class AbstractVariantType extends ComplexDartSchemaType {
   String get classDefinition {
     var fromJsonString = new StringBuffer();
     fromJsonString.writeln(
-        '  factory $className.fromJson(${imports.core}.Map json) {');
+        '  factory $className.fromJson(${imports.core.ref()}Map json) {');
     fromJsonString.writeln('    var discriminant = json["$discriminant"];');
     map.forEach((String name, DartSchemaType type) {
       fromJsonString.writeln('    if (discriminant == "$name") {');
@@ -765,12 +765,12 @@ class AbstractVariantType extends ComplexDartSchemaType {
                              '.fromJson(json);');
       fromJsonString.writeln('    }');
     });
-    fromJsonString.writeln('    throw new ${imports.core}.ArgumentError'
+    fromJsonString.writeln('    throw new ${imports.core.ref()}ArgumentError'
                            '("Invalid discriminant: \$discriminant!");');
     fromJsonString.writeln('  }');
 
     var toJsonString = new StringBuffer();
-    toJsonString.writeln('  ${imports.core}.Map toJson();');
+    toJsonString.writeln('  ${imports.core.ref()}Map toJson();');
 
     return
 '''
