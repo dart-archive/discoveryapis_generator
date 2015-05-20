@@ -1,3 +1,5 @@
+// This is a generated file (see the discoveryapis_generator project).
+
 library discoveryapis_tests.toyApi.client;
 
 import 'dart:core' as core;
@@ -29,7 +31,7 @@ class ToyApi {
    * error.
    *
    * If the used [http.Client] completes with an error when making a REST call,
-   * this method  will complete with the same error.
+   * this method will complete with the same error.
    */
   async.Future failing() {
     var _url = null;
@@ -63,7 +65,7 @@ class ToyApi {
    * error.
    *
    * If the used [http.Client] completes with an error when making a REST call,
-   * this method  will complete with the same error.
+   * this method will complete with the same error.
    */
   async.Future<ToyResponse> hello() {
     var _url = null;
@@ -72,7 +74,6 @@ class ToyApi {
     var _uploadOptions = null;
     var _downloadOptions = commons.DownloadOptions.Metadata;
     var _body = null;
-
 
 
     _url = 'hello';
@@ -98,7 +99,7 @@ class ToyApi {
    * error.
    *
    * If the used [http.Client] completes with an error when making a REST call,
-   * this method  will complete with the same error.
+   * this method will complete with the same error.
    */
   async.Future<core.Map<core.String, ToyResponse>> helloListOfClass(core.List<ToyRequest> request) {
     var _url = null;
@@ -111,7 +112,6 @@ class ToyApi {
     if (request != null) {
       _body = convert.JSON.encode(request.map((value) => ToyRequestFactory.toJson(value)).toList());
     }
-
 
     _url = 'helloListOfClass';
 
@@ -136,7 +136,7 @@ class ToyApi {
    * error.
    *
    * If the used [http.Client] completes with an error when making a REST call,
-   * this method  will complete with the same error.
+   * this method will complete with the same error.
    */
   async.Future<core.Map<core.String, ToyResponse>> helloListOfListOfClass(core.List<core.List<ToyRequest>> request) {
     var _url = null;
@@ -149,7 +149,6 @@ class ToyApi {
     if (request != null) {
       _body = convert.JSON.encode(request.map((value) => value.map((value) => ToyRequestFactory.toJson(value)).toList()).toList());
     }
-
 
     _url = 'helloListOfListOfClass';
 
@@ -174,7 +173,7 @@ class ToyApi {
    * error.
    *
    * If the used [http.Client] completes with an error when making a REST call,
-   * this method  will complete with the same error.
+   * this method will complete with the same error.
    */
   async.Future<core.Map<core.String, core.int>> helloMap(core.Map<core.String, core.int> request) {
     var _url = null;
@@ -187,7 +186,6 @@ class ToyApi {
     if (request != null) {
       _body = convert.JSON.encode(request);
     }
-
 
     _url = 'helloMap';
 
@@ -214,7 +212,7 @@ class ToyApi {
    * error.
    *
    * If the used [http.Client] completes with an error when making a REST call,
-   * this method  will complete with the same error.
+   * this method will complete with the same error.
    */
   async.Future<ToyResponse> helloNameAge(core.String name, core.int age) {
     var _url = null;
@@ -230,7 +228,6 @@ class ToyApi {
     if (age == null) {
       throw new core.ArgumentError("Parameter age is required.");
     }
-
 
     _url = 'hello/' + commons.Escaper.ecapeVariable('$name') + '/age/' + commons.Escaper.ecapeVariable('$age');
 
@@ -257,7 +254,7 @@ class ToyApi {
    * error.
    *
    * If the used [http.Client] completes with an error when making a REST call,
-   * this method  will complete with the same error.
+   * this method will complete with the same error.
    */
   async.Future<ToyResponse> helloNamePostAge(ToyAgeRequest request, core.String name) {
     var _url = null;
@@ -273,7 +270,6 @@ class ToyApi {
     if (name == null) {
       throw new core.ArgumentError("Parameter name is required.");
     }
-
 
     _url = 'helloPost/' + commons.Escaper.ecapeVariable('$name');
 
@@ -302,7 +298,7 @@ class ToyApi {
    * error.
    *
    * If the used [http.Client] completes with an error when making a REST call,
-   * this method  will complete with the same error.
+   * this method will complete with the same error.
    */
   async.Future<ToyResponse> helloNameQueryAgeFoo(core.String name, {core.String foo, core.int age}) {
     var _url = null;
@@ -321,7 +317,6 @@ class ToyApi {
     if (age != null) {
       _queryParams["age"] = ["${age}"];
     }
-
 
     _url = 'helloQuery/' + commons.Escaper.ecapeVariable('$name');
 
@@ -346,7 +341,7 @@ class ToyApi {
    * error.
    *
    * If the used [http.Client] completes with an error when making a REST call,
-   * this method  will complete with the same error.
+   * this method will complete with the same error.
    */
   async.Future<core.List<core.List<core.String>>> helloNestedListList(core.List<core.List<core.int>> request) {
     var _url = null;
@@ -359,7 +354,6 @@ class ToyApi {
     if (request != null) {
       _body = convert.JSON.encode(request);
     }
-
 
     _url = 'helloNestedListList';
 
@@ -385,7 +379,7 @@ class ToyApi {
    * error.
    *
    * If the used [http.Client] completes with an error when making a REST call,
-   * this method  will complete with the same error.
+   * this method will complete with the same error.
    */
   async.Future<core.List<core.Map<core.String, core.List<core.String>>>> helloNestedListMapList(core.List<core.Map<core.String, core.List<core.int>>> request) {
     var _url = null;
@@ -398,7 +392,6 @@ class ToyApi {
     if (request != null) {
       _body = convert.JSON.encode(request);
     }
-
 
     _url = 'helloNestedListMapList';
 
@@ -421,7 +414,7 @@ class ToyApi {
    * error.
    *
    * If the used [http.Client] completes with an error when making a REST call,
-   * this method  will complete with the same error.
+   * this method will complete with the same error.
    */
   async.Future<ToyMapResponse> helloNestedMap() {
     var _url = null;
@@ -430,7 +423,6 @@ class ToyApi {
     var _uploadOptions = null;
     var _downloadOptions = commons.DownloadOptions.Metadata;
     var _body = null;
-
 
 
     _url = 'helloNestedMap';
@@ -457,7 +449,7 @@ class ToyApi {
    * error.
    *
    * If the used [http.Client] completes with an error when making a REST call,
-   * this method  will complete with the same error.
+   * this method will complete with the same error.
    */
   async.Future<core.Map<core.String, core.List<core.Map<core.String, core.bool>>>> helloNestedMapListMap(core.Map<core.String, core.List<core.Map<core.String, core.int>>> request) {
     var _url = null;
@@ -470,7 +462,6 @@ class ToyApi {
     if (request != null) {
       _body = convert.JSON.encode(request);
     }
-
 
     _url = 'helloNestedMapListMap';
 
@@ -495,7 +486,7 @@ class ToyApi {
    * error.
    *
    * If the used [http.Client] completes with an error when making a REST call,
-   * this method  will complete with the same error.
+   * this method will complete with the same error.
    */
   async.Future<core.Map<core.String, core.Map<core.String, core.bool>>> helloNestedMapMap(core.Map<core.String, core.Map<core.String, core.int>> request) {
     var _url = null;
@@ -508,7 +499,6 @@ class ToyApi {
     if (request != null) {
       _body = convert.JSON.encode(request);
     }
-
 
     _url = 'helloNestedMapMap';
 
@@ -533,7 +523,7 @@ class ToyApi {
    * error.
    *
    * If the used [http.Client] completes with an error when making a REST call,
-   * this method  will complete with the same error.
+   * this method will complete with the same error.
    */
   async.Future<ToyResponse> helloPost(ToyRequest request) {
     var _url = null;
@@ -546,7 +536,6 @@ class ToyApi {
     if (request != null) {
       _body = convert.JSON.encode(ToyRequestFactory.toJson(request));
     }
-
 
     _url = 'helloPost';
 
@@ -569,7 +558,7 @@ class ToyApi {
    * error.
    *
    * If the used [http.Client] completes with an error when making a REST call,
-   * this method  will complete with the same error.
+   * this method will complete with the same error.
    */
   async.Future<ToyResponse> helloReturnNull() {
     var _url = null;
@@ -578,7 +567,6 @@ class ToyApi {
     var _uploadOptions = null;
     var _downloadOptions = commons.DownloadOptions.Metadata;
     var _body = null;
-
 
 
     _url = 'helloReturnNull';
@@ -602,7 +590,7 @@ class ToyApi {
    * error.
    *
    * If the used [http.Client] completes with an error when making a REST call,
-   * this method  will complete with the same error.
+   * this method will complete with the same error.
    */
   async.Future<ToyResponse> helloVoid() {
     var _url = null;
@@ -611,7 +599,6 @@ class ToyApi {
     var _uploadOptions = null;
     var _downloadOptions = commons.DownloadOptions.Metadata;
     var _body = null;
-
 
 
     _url = 'helloVoid';
@@ -633,7 +620,7 @@ class ToyApi {
    * error.
    *
    * If the used [http.Client] completes with an error when making a REST call,
-   * this method  will complete with the same error.
+   * this method will complete with the same error.
    */
   async.Future noop() {
     var _url = null;
@@ -669,7 +656,7 @@ class ToyApi {
    * error.
    *
    * If the used [http.Client] completes with an error when making a REST call,
-   * this method  will complete with the same error.
+   * this method will complete with the same error.
    */
   async.Future<core.List<core.String>> reverseList(core.List<core.String> request) {
     var _url = null;
@@ -682,7 +669,6 @@ class ToyApi {
     if (request != null) {
       _body = convert.JSON.encode(request);
     }
-
 
     _url = 'reverseList';
 
@@ -718,7 +704,7 @@ class ComputeResourceApi {
    * error.
    *
    * If the used [http.Client] completes with an error when making a REST call,
-   * this method  will complete with the same error.
+   * this method will complete with the same error.
    */
   async.Future<ToyResourceResponse> get(core.String resource, core.String compute) {
     var _url = null;
@@ -734,7 +720,6 @@ class ComputeResourceApi {
     if (compute == null) {
       throw new core.ArgumentError("Parameter compute is required.");
     }
-
 
     _url = 'toyresource/' + commons.Escaper.ecapeVariable('$resource') + '/compute/' + commons.Escaper.ecapeVariable('$compute');
 
@@ -770,7 +755,7 @@ class StorageResourceApi {
    * error.
    *
    * If the used [http.Client] completes with an error when making a REST call,
-   * this method  will complete with the same error.
+   * this method will complete with the same error.
    */
   async.Future<ToyResourceResponse> get(core.String resource, core.String storage) {
     var _url = null;
@@ -786,7 +771,6 @@ class StorageResourceApi {
     if (storage == null) {
       throw new core.ArgumentError("Parameter storage is required.");
     }
-
 
     _url = 'toyresource/' + commons.Escaper.ecapeVariable('$resource') + '/storage/' + commons.Escaper.ecapeVariable('$storage');
 
@@ -822,7 +806,6 @@ class NestedResponseFactory {
   }
 }
 
-
 class ToyAgeRequestFactory {
   static ToyAgeRequest fromJson(core.Map _json) {
     var message = new ToyAgeRequest();
@@ -840,7 +823,6 @@ class ToyAgeRequestFactory {
     return _json;
   }
 }
-
 
 class ToyMapResponseFactory {
   static ToyMapResponse fromJson(core.Map _json) {
@@ -866,7 +848,6 @@ class ToyMapResponseFactory {
   }
 }
 
-
 class ToyRequestFactory {
   static ToyRequest fromJson(core.Map _json) {
     var message = new ToyRequest();
@@ -891,7 +872,6 @@ class ToyRequestFactory {
   }
 }
 
-
 class ToyResourceResponseFactory {
   static ToyResourceResponse fromJson(core.Map _json) {
     var message = new ToyResourceResponse();
@@ -910,7 +890,6 @@ class ToyResourceResponseFactory {
   }
 }
 
-
 class ToyResponseFactory {
   static ToyResponse fromJson(core.Map _json) {
     var message = new ToyResponse();
@@ -928,5 +907,3 @@ class ToyResponseFactory {
     return _json;
   }
 }
-
-

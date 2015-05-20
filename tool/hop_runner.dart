@@ -20,7 +20,7 @@ void main(List<String> args) {
       'files',
       '--input-dir=example',
       '--output-dir=example',
-      '--no-core-prefix'
+      '--no-core-prefixes'
     ])
   ]));
 

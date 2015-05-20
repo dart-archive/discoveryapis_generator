@@ -35,8 +35,8 @@ class ClientApiLibrary extends BaseApiLibrary {
                          Map<String, String> importMap,
                          this.packageName,
                          this.packageRoot,
-                         {bool useCorePrefix: true})
-      : super(description, '', useCorePrefix: useCorePrefix) {
+                         {bool useCorePrefixes: true})
+      : super(description, '', useCorePrefixes: useCorePrefixes) {
     libraryName = namer.clientLibraryName(packageName, description.name);
     schemaDB = client.parseSchemas(imports, description);
     apiClass = parseResources(imports, schemaDB, description);

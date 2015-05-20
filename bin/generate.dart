@@ -48,7 +48,7 @@ ArgParser filesCommandArgParser() {
                         'dependencies. This will remove comments and might '
                         'change the layout of the pubspec.yaml file.',
                   defaultsTo: 'false')
-      ..addFlag('core-prefix',
+      ..addFlag('core-prefixes',
                 negatable: true,
                 defaultsTo: true,
                 help: 'Use or remove an import prefix for dart:core');
@@ -122,10 +122,11 @@ void main(List<String> arguments) {
           .toLowerCase()
           .replaceAll('=', '')
           .trim();
-      printResults(generateApiFiles(commandOptions['input-dir'],
-                                    commandOptions['output-dir'],
-                                    updatePubspec: updatePubspec == 'true',
-                                    useCorePrefix: commandOptions['core-prefix']));
+      printResults(
+          generateApiFiles(commandOptions['input-dir'],
+                           commandOptions['output-dir'],
+                           updatePubspec: updatePubspec == 'true',
+                           useCorePrefixes: commandOptions['core-prefixes']));
       break;
   }
 }

@@ -50,6 +50,7 @@ main() {
           _normalizeWhiteSpace(stubFile.readAsStringSync()),
           _normalizeWhiteSpace(expectedStubFile.readAsStringSync()));
     });
+
     test('identical-messages', () {
       var outputDir = tmpDir.createTempSync();
       // Make sure there is a pubspec.yaml file in the directory.

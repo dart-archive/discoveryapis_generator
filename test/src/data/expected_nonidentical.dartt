@@ -3,6 +3,7 @@
 library discoveryapis_tests.toyApi.D0_1;
 
 import 'dart:core' as core;
+import 'dart:collection' as collection;
 import 'dart:async' as async;
 import 'dart:convert' as convert;
 
@@ -31,7 +32,7 @@ class ToyApiApi {
    * error.
    *
    * If the used [http.Client] completes with an error when making a REST call,
-   * this method  will complete with the same error.
+   * this method will complete with the same error.
    */
   async.Future failing() {
     var _url = null;
@@ -65,7 +66,7 @@ class ToyApiApi {
    * error.
    *
    * If the used [http.Client] completes with an error when making a REST call,
-   * this method  will complete with the same error.
+   * this method will complete with the same error.
    */
   async.Future<ToyResponse> hello() {
     var _url = null;
@@ -74,7 +75,6 @@ class ToyApiApi {
     var _uploadOptions = null;
     var _downloadOptions = commons.DownloadOptions.Metadata;
     var _body = null;
-
 
 
     _url = 'hello';
@@ -100,7 +100,7 @@ class ToyApiApi {
    * error.
    *
    * If the used [http.Client] completes with an error when making a REST call,
-   * this method  will complete with the same error.
+   * this method will complete with the same error.
    */
   async.Future<MapOfToyResponse> helloListOfClass(ListOfToyRequest request) {
     var _url = null;
@@ -113,7 +113,6 @@ class ToyApiApi {
     if (request != null) {
       _body = convert.JSON.encode((request).toJson());
     }
-
 
     _url = 'helloListOfClass';
 
@@ -138,7 +137,7 @@ class ToyApiApi {
    * error.
    *
    * If the used [http.Client] completes with an error when making a REST call,
-   * this method  will complete with the same error.
+   * this method will complete with the same error.
    */
   async.Future<MapOfToyResponse> helloListOfListOfClass(ListOfListOfToyRequest request) {
     var _url = null;
@@ -151,7 +150,6 @@ class ToyApiApi {
     if (request != null) {
       _body = convert.JSON.encode((request).toJson());
     }
-
 
     _url = 'helloListOfListOfClass';
 
@@ -176,7 +174,7 @@ class ToyApiApi {
    * error.
    *
    * If the used [http.Client] completes with an error when making a REST call,
-   * this method  will complete with the same error.
+   * this method will complete with the same error.
    */
   async.Future<MapOfint> helloMap(MapOfint request) {
     var _url = null;
@@ -189,7 +187,6 @@ class ToyApiApi {
     if (request != null) {
       _body = convert.JSON.encode(request);
     }
-
 
     _url = 'helloMap';
 
@@ -216,7 +213,7 @@ class ToyApiApi {
    * error.
    *
    * If the used [http.Client] completes with an error when making a REST call,
-   * this method  will complete with the same error.
+   * this method will complete with the same error.
    */
   async.Future<ToyResponse> helloNameAge(core.String name, core.int age) {
     var _url = null;
@@ -232,7 +229,6 @@ class ToyApiApi {
     if (age == null) {
       throw new core.ArgumentError("Parameter age is required.");
     }
-
 
     _url = 'hello/' + commons.Escaper.ecapeVariable('$name') + '/age/' + commons.Escaper.ecapeVariable('$age');
 
@@ -259,7 +255,7 @@ class ToyApiApi {
    * error.
    *
    * If the used [http.Client] completes with an error when making a REST call,
-   * this method  will complete with the same error.
+   * this method will complete with the same error.
    */
   async.Future<ToyResponse> helloNamePostAge(ToyAgeRequest request, core.String name) {
     var _url = null;
@@ -275,7 +271,6 @@ class ToyApiApi {
     if (name == null) {
       throw new core.ArgumentError("Parameter name is required.");
     }
-
 
     _url = 'helloPost/' + commons.Escaper.ecapeVariable('$name');
 
@@ -304,7 +299,7 @@ class ToyApiApi {
    * error.
    *
    * If the used [http.Client] completes with an error when making a REST call,
-   * this method  will complete with the same error.
+   * this method will complete with the same error.
    */
   async.Future<ToyResponse> helloNameQueryAgeFoo(core.String name, {core.String foo, core.int age}) {
     var _url = null;
@@ -323,7 +318,6 @@ class ToyApiApi {
     if (age != null) {
       _queryParams["age"] = ["${age}"];
     }
-
 
     _url = 'helloQuery/' + commons.Escaper.ecapeVariable('$name');
 
@@ -348,7 +342,7 @@ class ToyApiApi {
    * error.
    *
    * If the used [http.Client] completes with an error when making a REST call,
-   * this method  will complete with the same error.
+   * this method will complete with the same error.
    */
   async.Future<ListOfListOfString> helloNestedListList(ListOfListOfint request) {
     var _url = null;
@@ -361,7 +355,6 @@ class ToyApiApi {
     if (request != null) {
       _body = convert.JSON.encode(request);
     }
-
 
     _url = 'helloNestedListList';
 
@@ -386,7 +379,7 @@ class ToyApiApi {
    * error.
    *
    * If the used [http.Client] completes with an error when making a REST call,
-   * this method  will complete with the same error.
+   * this method will complete with the same error.
    */
   async.Future<ListOfMapOfListOfString> helloNestedListMapList(ListOfMapOfListOfint request) {
     var _url = null;
@@ -399,7 +392,6 @@ class ToyApiApi {
     if (request != null) {
       _body = convert.JSON.encode(request);
     }
-
 
     _url = 'helloNestedListMapList';
 
@@ -422,7 +414,7 @@ class ToyApiApi {
    * error.
    *
    * If the used [http.Client] completes with an error when making a REST call,
-   * this method  will complete with the same error.
+   * this method will complete with the same error.
    */
   async.Future<ToyMapResponse> helloNestedMap() {
     var _url = null;
@@ -431,7 +423,6 @@ class ToyApiApi {
     var _uploadOptions = null;
     var _downloadOptions = commons.DownloadOptions.Metadata;
     var _body = null;
-
 
 
     _url = 'helloNestedMap';
@@ -457,7 +448,7 @@ class ToyApiApi {
    * error.
    *
    * If the used [http.Client] completes with an error when making a REST call,
-   * this method  will complete with the same error.
+   * this method will complete with the same error.
    */
   async.Future<MapOfListOfMapOfbool> helloNestedMapListMap(MapOfListOfMapOfint request) {
     var _url = null;
@@ -470,7 +461,6 @@ class ToyApiApi {
     if (request != null) {
       _body = convert.JSON.encode(request);
     }
-
 
     _url = 'helloNestedMapListMap';
 
@@ -495,7 +485,7 @@ class ToyApiApi {
    * error.
    *
    * If the used [http.Client] completes with an error when making a REST call,
-   * this method  will complete with the same error.
+   * this method will complete with the same error.
    */
   async.Future<MapOfMapOfbool> helloNestedMapMap(MapOfMapOfint request) {
     var _url = null;
@@ -508,7 +498,6 @@ class ToyApiApi {
     if (request != null) {
       _body = convert.JSON.encode(request);
     }
-
 
     _url = 'helloNestedMapMap';
 
@@ -533,7 +522,7 @@ class ToyApiApi {
    * error.
    *
    * If the used [http.Client] completes with an error when making a REST call,
-   * this method  will complete with the same error.
+   * this method will complete with the same error.
    */
   async.Future<ToyResponse> helloPost(ToyRequest request) {
     var _url = null;
@@ -546,7 +535,6 @@ class ToyApiApi {
     if (request != null) {
       _body = convert.JSON.encode((request).toJson());
     }
-
 
     _url = 'helloPost';
 
@@ -569,7 +557,7 @@ class ToyApiApi {
    * error.
    *
    * If the used [http.Client] completes with an error when making a REST call,
-   * this method  will complete with the same error.
+   * this method will complete with the same error.
    */
   async.Future<ToyResponse> helloReturnNull() {
     var _url = null;
@@ -578,7 +566,6 @@ class ToyApiApi {
     var _uploadOptions = null;
     var _downloadOptions = commons.DownloadOptions.Metadata;
     var _body = null;
-
 
 
     _url = 'helloReturnNull';
@@ -602,7 +589,7 @@ class ToyApiApi {
    * error.
    *
    * If the used [http.Client] completes with an error when making a REST call,
-   * this method  will complete with the same error.
+   * this method will complete with the same error.
    */
   async.Future<ToyResponse> helloVoid() {
     var _url = null;
@@ -611,7 +598,6 @@ class ToyApiApi {
     var _uploadOptions = null;
     var _downloadOptions = commons.DownloadOptions.Metadata;
     var _body = null;
-
 
 
     _url = 'helloVoid';
@@ -633,7 +619,7 @@ class ToyApiApi {
    * error.
    *
    * If the used [http.Client] completes with an error when making a REST call,
-   * this method  will complete with the same error.
+   * this method will complete with the same error.
    */
   async.Future noop() {
     var _url = null;
@@ -669,7 +655,7 @@ class ToyApiApi {
    * error.
    *
    * If the used [http.Client] completes with an error when making a REST call,
-   * this method  will complete with the same error.
+   * this method will complete with the same error.
    */
   async.Future<ListOfString> reverseList(ListOfString request) {
     var _url = null;
@@ -682,7 +668,6 @@ class ToyApiApi {
     if (request != null) {
       _body = convert.JSON.encode(request);
     }
-
 
     _url = 'reverseList';
 
@@ -718,7 +703,7 @@ class ComputeResourceApi {
    * error.
    *
    * If the used [http.Client] completes with an error when making a REST call,
-   * this method  will complete with the same error.
+   * this method will complete with the same error.
    */
   async.Future<ToyResourceResponse> get(core.String resource, core.String compute) {
     var _url = null;
@@ -734,7 +719,6 @@ class ComputeResourceApi {
     if (compute == null) {
       throw new core.ArgumentError("Parameter compute is required.");
     }
-
 
     _url = 'toyresource/' + commons.Escaper.ecapeVariable('$resource') + '/compute/' + commons.Escaper.ecapeVariable('$compute');
 
@@ -770,7 +754,7 @@ class StorageResourceApi {
    * error.
    *
    * If the used [http.Client] completes with an error when making a REST call,
-   * this method  will complete with the same error.
+   * this method will complete with the same error.
    */
   async.Future<ToyResourceResponse> get(core.String resource, core.String storage) {
     var _url = null;
@@ -786,7 +770,6 @@ class StorageResourceApi {
     if (storage == null) {
       throw new core.ArgumentError("Parameter storage is required.");
     }
-
 
     _url = 'toyresource/' + commons.Escaper.ecapeVariable('$resource') + '/storage/' + commons.Escaper.ecapeVariable('$storage');
 
@@ -830,7 +813,6 @@ class ListOfListOfString
   }
 }
 
-
 class ListOfListOfToyRequest
     extends collection.ListBase<core.List<ToyRequest>> {
   final core.List<core.List<ToyRequest>> _inner;
@@ -856,7 +838,6 @@ class ListOfListOfToyRequest
     _inner.length = newLength;
   }
 }
-
 
 class ListOfListOfint
     extends collection.ListBase<core.List<core.int>> {
@@ -884,7 +865,6 @@ class ListOfListOfint
   }
 }
 
-
 class ListOfMapOfListOfString
     extends collection.ListBase<core.Map<core.String, core.List<core.String>>> {
   final core.List<core.Map<core.String, core.List<core.String>>> _inner;
@@ -910,7 +890,6 @@ class ListOfMapOfListOfString
     _inner.length = newLength;
   }
 }
-
 
 class ListOfMapOfListOfint
     extends collection.ListBase<core.Map<core.String, core.List<core.int>>> {
@@ -938,7 +917,6 @@ class ListOfMapOfListOfint
   }
 }
 
-
 class ListOfString
     extends collection.ListBase<core.String> {
   final core.List<core.String> _inner;
@@ -965,7 +943,6 @@ class ListOfString
   }
 }
 
-
 class ListOfToyRequest
     extends collection.ListBase<ToyRequest> {
   final core.List<ToyRequest> _inner;
@@ -991,7 +968,6 @@ class ListOfToyRequest
     _inner.length = newLength;
   }
 }
-
 
 class MapOfListOfMapOfbool
     extends collection.MapBase<core.String, core.List<core.Map<core.String, core.bool>>> {
@@ -1029,7 +1005,6 @@ class MapOfListOfMapOfbool
   core.List<core.Map<core.String, core.bool>> remove(core.Object key) => _innerMap.remove(key);
 }
 
-
 class MapOfListOfMapOfint
     extends collection.MapBase<core.String, core.List<core.Map<core.String, core.int>>> {
   final core.Map _innerMap = {};
@@ -1065,7 +1040,6 @@ class MapOfListOfMapOfint
 
   core.List<core.Map<core.String, core.int>> remove(core.Object key) => _innerMap.remove(key);
 }
-
 
 class MapOfMapOfbool
     extends collection.MapBase<core.String, core.Map<core.String, core.bool>> {
@@ -1103,7 +1077,6 @@ class MapOfMapOfbool
   core.Map<core.String, core.bool> remove(core.Object key) => _innerMap.remove(key);
 }
 
-
 class MapOfMapOfint
     extends collection.MapBase<core.String, core.Map<core.String, core.int>> {
   final core.Map _innerMap = {};
@@ -1139,7 +1112,6 @@ class MapOfMapOfint
 
   core.Map<core.String, core.int> remove(core.Object key) => _innerMap.remove(key);
 }
-
 
 class MapOfToyResponse
     extends collection.MapBase<core.String, ToyResponse> {
@@ -1177,7 +1149,6 @@ class MapOfToyResponse
   ToyResponse remove(core.Object key) => _innerMap.remove(key);
 }
 
-
 class MapOfint
     extends collection.MapBase<core.String, core.int> {
   final core.Map _innerMap = {};
@@ -1214,10 +1185,8 @@ class MapOfint
   core.int remove(core.Object key) => _innerMap.remove(key);
 }
 
-
 class NestedResponse {
   core.String nestedResult;
-
 
   NestedResponse();
 
@@ -1236,10 +1205,8 @@ class NestedResponse {
   }
 }
 
-
 class ToyAgeRequest {
   core.int age;
-
 
   ToyAgeRequest();
 
@@ -1258,12 +1225,9 @@ class ToyAgeRequest {
   }
 }
 
-
 class ToyMapResponse {
   core.Map<core.String, NestedResponse> mapResult;
-
   core.String result;
-
 
   ToyMapResponse();
 
@@ -1288,12 +1252,9 @@ class ToyMapResponse {
   }
 }
 
-
 class ToyRequest {
   core.int age;
-
   core.String name;
-
 
   ToyRequest();
 
@@ -1318,10 +1279,8 @@ class ToyRequest {
   }
 }
 
-
 class ToyResourceResponse {
   core.String result;
-
 
   ToyResourceResponse();
 
@@ -1340,10 +1299,8 @@ class ToyResourceResponse {
   }
 }
 
-
 class ToyResponse {
   core.String result;
-
 
   ToyResponse();
 

@@ -67,7 +67,7 @@ List<GenerateResult> generateAllLibraries(String inputDirectory,
 List<GenerateResult> generateApiFiles(String inputDirectory,
                                       String outputDirectory,
                                       {bool updatePubspec: false,
-                                       bool useCorePrefix: true}) {
+                                       bool useCorePrefixes: true}) {
   var descriptions = [];
   new Directory(inputDirectory).listSync()
       .where((fse) => fse is File && fse.path.endsWith('.json'))
@@ -77,6 +77,6 @@ List<GenerateResult> generateApiFiles(String inputDirectory,
   });
   var clientFileGenerator = new ApisFilesGenerator(
       descriptions, outputDirectory, updatePubspec: updatePubspec,
-      useCorePrefix: useCorePrefix);
+      useCorePrefixes: useCorePrefixes);
   return clientFileGenerator.generate();
 }
