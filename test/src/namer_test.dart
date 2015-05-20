@@ -166,6 +166,20 @@ main() {
         childNamer.nameIdentifier(b);
         expect(b.name, equals('b_1'));
       });
+
+      test('wasCalled', () {
+        Identifier id = new Identifier('foo');
+        expect(id.wasCalled, false);
+        id.ref();
+        expect(id.wasCalled, true);
+      });
+
+      test('Identifier.noPrefix()', () {
+        Identifier id = new Identifier.noPrefix();
+        expect(id.ref(), '');
+        // Test that toString() doesn't throw.
+        expect(id.toString(), null);
+      });
     });
 
     group('api-namer', () {

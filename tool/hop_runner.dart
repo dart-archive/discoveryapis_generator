@@ -19,7 +19,8 @@ void main(List<String> args) {
       'bin/generate.dart',
       'files',
       '--input-dir=example',
-      '--output-dir=example'
+      '--output-dir=example',
+      '--no-core-prefixes'
     ])
   ]));
 

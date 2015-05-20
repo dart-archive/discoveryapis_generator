@@ -27,6 +27,7 @@ class ApisFilesGenerator {
   final List<DescriptionImportPair> descriptions;
   final String clientFolderPath;
   final bool updatePubspec;
+  final bool useCorePrefixes;
   String packageRoot;
   File pubspecFile;
 
@@ -34,7 +35,7 @@ class ApisFilesGenerator {
   /// [clientFolderPath] is the output directory for the generated client stub
   /// code.
   ApisFilesGenerator(this.descriptions, this.clientFolderPath,
-                     {this.updatePubspec: false}) {
+                     {this.updatePubspec: false, this.useCorePrefixes: true}) {
     // Create the output directory.
     var clientDirectory = new Directory(clientFolderPath);
     packageRoot = findPackageRoot(path.absolute(clientDirectory.path));
@@ -71,7 +72,8 @@ class ApisFilesGenerator {
         if (diPair.importMap == null) {
           // Build a normal client stub file without using the same message
           // classes.
-          lib = new DartApiLibrary.build(description, packageName);
+          lib = new DartApiLibrary.build(description, packageName,
+              useCorePrefixes: useCorePrefixes);
         } else {
           // Build a client stub api using common message classes.
           lib = new ClientApiLibrary.build(
