@@ -45,8 +45,12 @@ The 'files' subcommand generates API files into an existing package from already
 downloaded discovery documents. One file per API. It takes the following
 options:
 
--i, --input-dir     Input directory of discovery documents.
--o, --output-dir    Output directory of the generated API files.
--u, --update-pubspec    Update the pubspec.yaml file with required dependencies. This will remove comments and might change the layout of the pubspec.yaml file.
-                        (defaults to "false")
+
+-i, --input-dir             Input directory of discovery documents.
+-o, --output-dir            Output directory of the generated API files.
+-u, --update-pubspec        Update the pubspec.yaml file with required dependencies. This will remove comments and might change the layout of the pubspec.yaml file.
+                            (defaults to "false")
+
+    --[no-]core-prefixes    Use or remove an import prefix for dart:core
+                            (defaults to on)
 ```
