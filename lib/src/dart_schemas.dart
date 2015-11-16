@@ -20,6 +20,7 @@ class DartSchemaTypeDB {
   // Builtin types
   final StringType stringType;
   final IntegerType integerType;
+  final StringIntegerType stringIntegerType;
   final DoubleType doubleType;
   final BooleanType booleanType;
   final DateType dateType;
@@ -29,6 +30,7 @@ class DartSchemaTypeDB {
   DartSchemaTypeDB(DartApiImports imports)
       : stringType = new StringType(imports),
         integerType = new IntegerType(imports),
+        stringIntegerType = new StringIntegerType(imports),
         doubleType = new DoubleType(imports),
         booleanType = new BooleanType(imports),
         dateType = new DateType(imports),
@@ -220,6 +222,15 @@ class IntegerType extends PrimitiveDartSchemaType {
   IntegerType(DartApiImports imports) : super(imports);
 
   String get declaration => '${imports.core.ref()}int';
+}
+
+
+class StringIntegerType extends PrimitiveDartSchemaType {
+  StringIntegerType(DartApiImports imports) : super(imports);
+
+  String get declaration => '${imports.core.ref()}int';
+  String jsonEncode(String value) => '"\${${value}}"';
+  String jsonDecode(String json) => 'int.parse("\${${json}}")';
 }
 
 
@@ -990,12 +1001,19 @@ DartSchemaType parsePrimitive(DartApiImports imports,
           return db.dateTimeType;
         case 'date':
           return db.dateType;
-        default:
-          if (schema.enum_ != null) {
-            return db.register(new EnumType(
-                imports, schema.enum_, schema.enumDescriptions));
+        case 'int64':
+        // 9007199254740991 == pow(2, 53) - 1; the maximum range for integers
+        // in javascript (which uses doubles to store integers)
+          if (schema.maximum != null &&
+              int.parse(schema.maximum) <= 9007199254740991 &&
+              schema.minimum != null &&
+              int.parse(schema.minimum) >= -9007199254740991) {
+            return db.stringIntegerType;
           }
-          return db.stringType;
+      }
+      if (schema.enum_ != null) {
+        return db.register(new EnumType(
+            imports, schema.enum_, schema.enumDescriptions));
       }
       return db.stringType;
     case 'number':

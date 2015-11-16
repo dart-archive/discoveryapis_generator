@@ -408,10 +408,10 @@ class MethodArgsTest extends TestHelper {
       var queryMapValue = 'queryMap["${escapeString(p.jsonName)}"]';
 
       if (!p.encodedInPath) {
-        if (type is IntegerType) {
+        if (type is IntegerType || type is StringIntegerType) {
           ln(expectEqual(intParse('${queryMapValue}.first'), name));
         } else if (p.type is UnnamedArrayType) {
-          if (type.innerType is IntegerType) {
+          if (type.innerType is IntegerType || type.innerType is StringIntegerType) {
             ln(expectEqual('${queryMapValue}.map(core.int.parse).toList()',
                            name));
           } else if (type.innerType is StringType) {
@@ -465,6 +465,8 @@ testFromSchema(apiTestLibrary, schema) {
     return new NamedMapSchemaTest(apiTestLibrary, schema);
   } else if (schema is IntegerType) {
     return new IntSchemaTest(apiTestLibrary, schema);
+  } else if (schema is StringIntegerType) {
+    return new StringIntSchemaTest(apiTestLibrary, schema);
   } else if (schema is DoubleType) {
     return new DoubleSchemaTest(apiTestLibrary, schema);
   } else if (schema is BooleanType) {
@@ -525,6 +527,13 @@ abstract class PrimitiveSchemaTest<T> extends SchemaTest<T> {
 
 class IntSchemaTest extends PrimitiveSchemaTest<IntegerType> {
   IntSchemaTest(apiTestLibrary, schema) : super(apiTestLibrary, schema);
+  String get declaration => 'core.int';
+  String get newSchemaExpr => '42';
+  String checkSchemaStatement(String o) => expectEqual(o, '42');
+}
+
+class StringIntSchemaTest extends PrimitiveSchemaTest<StringIntegerType> {
+  StringIntSchemaTest(apiTestLibrary, schema) : super(apiTestLibrary, schema);
   String get declaration => 'core.int';
   String get newSchemaExpr => '42';
   String checkSchemaStatement(String o) => expectEqual(o, '42');
