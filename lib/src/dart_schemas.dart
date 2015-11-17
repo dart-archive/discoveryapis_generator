@@ -230,7 +230,7 @@ class StringIntegerType extends PrimitiveDartSchemaType {
 
   String get declaration => '${imports.core.ref()}int';
   String jsonEncode(String value) => '"\${${value}}"';
-  String jsonDecode(String json) => 'int.parse("\${${json}}")';
+  String jsonDecode(String json) => '${imports.core.ref()}int.parse("\${${json}}")';
 }
 
 
