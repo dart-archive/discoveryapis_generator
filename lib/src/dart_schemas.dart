@@ -644,7 +644,7 @@ class ObjectType extends ComplexDartSchemaType {
             '  ${imports.core.ref()}List<${imports.core.ref()}int> get '
             '${property.byteArrayAccessor} {');
         propertyString.writeln('    return '
-            '${imports.crypto.ref()}CryptoUtils.base64StringToBytes'
+            '${imports.convert.ref()}BASE64.decode'
             '(${property.name});');
         propertyString.writeln('  }');
 
@@ -654,8 +654,8 @@ class ObjectType extends ComplexDartSchemaType {
             '  void set ${property.byteArrayAccessor}');
         propertyString.writeln(
             '(${imports.core.ref()}List<${imports.core.ref()}int> _bytes) {');
-        propertyString.writeln('    ${property.name} = ${imports.crypto.ref()}'
-            'CryptoUtils.bytesToBase64(_bytes, urlSafe: true);');
+        propertyString.writeln('    ${property.name} = ${imports.convert.ref()}'
+            'BASE64.encode(_bytes).replaceAll("/", "_").replaceAll("+", "-");');
         propertyString.writeln('  }');
       }
     });

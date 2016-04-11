@@ -17,7 +17,6 @@ class DartApiImports {
 
   Identifier core;
   Identifier collection;
-  Identifier crypto;
   Identifier async;
   Identifier convert;
   Identifier http;
@@ -26,7 +25,6 @@ class DartApiImports {
   DartApiImports.fromNamer(this.namer, {bool useCorePrefixes: true}) {
     core = useCorePrefixes ? namer.import('core') : namer.noPrefix();
     collection = namer.import('collection');
-    crypto = namer.import('crypto');
     async = useCorePrefixes ? namer.import('async') : namer.noPrefix();
     convert = namer.import('convert');
     http = namer.import('http');
@@ -124,10 +122,6 @@ import 'dart:convert' as ${imports.convert};
 
 import 'package:_discoveryapis_commons/_discoveryapis_commons.dart' as ${imports.commons};
 """;
-
-    if (imports.crypto.wasCalled) {
-      result += "import 'package:crypto/crypto.dart' as ${imports.crypto};\n";
-    }
 
     return result + """
 import 'package:http/http.dart' as ${imports.http};

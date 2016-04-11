@@ -1,5 +1,10 @@
 # Changelog - discoveryapis_generator
 
+## v0.8.0
+
+- Remove crypto dependency from generated libraries and upgrade sdk
+  dependency to dart 1.13
+
 ## v0.7.2
 
 - Update the code generator to only generate imports for libraries that are used
