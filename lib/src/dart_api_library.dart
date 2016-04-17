@@ -39,10 +39,10 @@ abstract class BaseApiLibrary {
   DartApiImports imports;
 
   BaseApiLibrary(this.description, String apiClassSuffix,
-      {bool useCorePrefixes: true}) :
-      namer = new ApiLibraryNamer(apiClassSuffix: apiClassSuffix) {
-    imports = new DartApiImports.fromNamer(namer,
-        useCorePrefixes: useCorePrefixes);
+      {bool useCorePrefixes: true})
+      : namer = new ApiLibraryNamer(apiClassSuffix: apiClassSuffix) {
+    imports =
+        new DartApiImports.fromNamer(namer, useCorePrefixes: useCorePrefixes);
   }
 }
 
@@ -59,10 +59,10 @@ class DartApiLibrary extends BaseApiLibrary {
    * Generates a API library for [description].
    */
   DartApiLibrary.build(RestDescription description, String packageName,
-      {bool useCorePrefixes: true}) :
-      super(description, 'Api', useCorePrefixes: useCorePrefixes) {
-    libraryName = namer.libraryName(
-        packageName, description.name, description.version);
+      {bool useCorePrefixes: true})
+      : super(description, 'Api', useCorePrefixes: useCorePrefixes) {
+    libraryName =
+        namer.libraryName(packageName, description.name, description.version);
     schemaDB = parseSchemas(imports, description);
     apiClass = parseResources(imports, schemaDB, description);
     exposeMedia = parseMediaUse(apiClass);
@@ -123,7 +123,8 @@ import 'dart:convert' as ${imports.convert};
 import 'package:_discoveryapis_commons/_discoveryapis_commons.dart' as ${imports.commons};
 """;
 
-    return result + """
+    return result +
+        """
 import 'package:http/http.dart' as ${imports.http};
 
 export 'package:_discoveryapis_commons/_discoveryapis_commons.dart' show

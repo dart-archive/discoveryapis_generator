@@ -18,8 +18,7 @@ export 'src/apis_files_generator.dart' show DescriptionImportPair;
 List<GenerateResult> generateClientStubs(
     List<DescriptionImportPair> descriptions, String outputDirectory,
     {bool updatePubspec: false}) {
-  var clientGenerator = new ApisFilesGenerator(descriptions,
-                                               outputDirectory,
-                                               updatePubspec: updatePubspec);
+  var clientGenerator = new ApisFilesGenerator(descriptions, outputDirectory,
+      updatePubspec: updatePubspec);
   return clientGenerator.generate();
 }

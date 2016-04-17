@@ -91,8 +91,7 @@ class DartApiTestLibrary extends TestHelper {
   }
 
   String get libraryHeader {
-    return
-"""
+    return """
 library ${apiLibrary.libraryName}.test;
 
 import "dart:core" as core;
@@ -178,15 +177,15 @@ class ResourceTest extends TestHelper {
     var rootPath = new StringPart(
         apiLibrary.imports, Uri.parse(apiLibrary.apiClass.rootUrl).path);
 
-    var basePath = new StringPart(
-        apiLibrary.imports, apiLibrary.apiClass.servicePath);
+    var basePath =
+        new StringPart(apiLibrary.imports, apiLibrary.apiClass.servicePath);
 
     withTestGroup(2, sb, 'resource-${resource.className}', () {
       for (var method in resource.methods) {
         withTest(4, sb, 'method--${method.name.name}', () {
           registerRequestHandlerMock(Map<MethodParameter, String> paramValues) {
             sb.writeln('      mock.register(unittest.expectAsync('
-                       '(http.BaseRequest req, json) {');
+                '(http.BaseRequest req, json) {');
             if (method.requestParameter != null) {
               var t = apiTestLibrary.schemaTests[method.requestParameter.type];
               var name = method.requestParameter.type.className;
@@ -202,17 +201,17 @@ class ResourceTest extends TestHelper {
             sb.writeln();
             sb.writeln('        var h = {');
             sb.writeln('          '
-                       '"content-type" : "application/json; charset=utf-8",');
+                '"content-type" : "application/json; charset=utf-8",');
             sb.writeln('        };');
             if (method.returnType == null) {
               sb.writeln('        var resp = "";');
             } else {
               var t = apiTestLibrary.schemaTests[method.returnType];
               sb.writeln('        var resp = '
-                         'convert.JSON.encode(${t.newSchemaExpr});');
+                  'convert.JSON.encode(${t.newSchemaExpr});');
             }
             sb.writeln('        return new async.Future.value('
-                       'stringResponse(200, h, resp));');
+                'stringResponse(200, h, resp));');
             sb.writeln('      }), true);');
           }
 
@@ -245,7 +244,7 @@ class ResourceTest extends TestHelper {
           sb.writeln('      var mock = new HttpServerMock();');
           // Construct resource class
           sb.writeln('      api.${resource.className} res = '
-                     '${apiConstruction('mock')};');
+              '${apiConstruction('mock')};');
           // Build method arguments
           var paramValues = buildParameterValues();
           // Build the http request handler mock implementation
@@ -261,15 +260,15 @@ class ResourceTest extends TestHelper {
             }
           }
           if (method.requestParameter != null) {
-            addArg(method.requestParameter,
-                   paramValues[method.requestParameter]);
+            addArg(
+                method.requestParameter, paramValues[method.requestParameter]);
           }
           method.parameters.forEach((p) => addArg(p, paramValues[p]));
           method.namedParameters.forEach((p) => addArg(p, paramValues[p]));
 
           // Call the method & check the result
           sb.write('      res.${method.name}(${args.join(', ')})'
-                   '.then(unittest.expectAsync(');
+              '.then(unittest.expectAsync(');
           if (method.returnType == null) {
             sb.write('(_) {}');
           } else {
@@ -287,7 +286,6 @@ class ResourceTest extends TestHelper {
   }
 }
 
-
 class MethodArgsTest extends TestHelper {
   final String uriExpr;
   // [rootUrl] ends with a '/'.
@@ -298,8 +296,7 @@ class MethodArgsTest extends TestHelper {
   final DartResourceMethod method;
   final Map<MethodParameter, String> parameterValues;
 
-  MethodArgsTest(
-      this.uriExpr, this.rootUrl, this.basePath, this.method,
+  MethodArgsTest(this.uriExpr, this.rootUrl, this.basePath, this.method,
       this.parameterValues);
 
   String uriValidationStatements(int indentationLevel) {
@@ -320,8 +317,8 @@ class MethodArgsTest extends TestHelper {
     var firstPart = method.urlPattern.parts.first;
     // First part absolute/relative is handled specially.
     if (firstPart is StringPart && firstPart.staticString.startsWith('/')) {
-      parts.add(new StringPart(firstPart.imports,
-                               firstPart.staticString.substring(1)));
+      parts.add(new StringPart(
+          firstPart.imports, firstPart.staticString.substring(1)));
       parts.addAll(method.urlPattern.parts.skip(1));
     } else if (firstPart is StringPart) {
       parts.add(basePath);
@@ -342,7 +339,7 @@ class MethodArgsTest extends TestHelper {
         }
       } else if (part is VariableExpression) {
         if (!isLast) {
-          var nextPart = parts[i+1];
+          var nextPart = parts[i + 1];
           if (nextPart is! StringPart) {
             throw "two variable expansions in a row not supported";
           }
@@ -350,7 +347,7 @@ class MethodArgsTest extends TestHelper {
               '"${escapeString(nextPart.staticString)}", pathOffset);');
           ln(expectIsTrue('index >= 0'));
           ln('subPart = core.Uri.decodeQueryComponent'
-             '(path.substring(pathOffset, index));');
+              '(path.substring(pathOffset, index));');
           ln('pathOffset = index;');
         } else {
           ln('subPart = core.Uri.decodeQueryComponent'
@@ -365,8 +362,8 @@ class MethodArgsTest extends TestHelper {
         }
         var name = parameterValues[_findMethodParameter(part.templateVar)];
         ln('var parts = path.substring(pathOffset).split("/")'
-           '.map(core.Uri.decodeQueryComponent).where((p) => p.length > 0)'
-           '.toList();');
+            '.map(core.Uri.decodeQueryComponent).where((p) => p.length > 0)'
+            '.toList();');
         ln(expectEqual('parts', '$name'));
       } else {
         // This is probably pub sub with the broken usage of the reserved
@@ -398,7 +395,7 @@ class MethodArgsTest extends TestHelper {
     ln('  for (var part in query.split("&")) {');
     ln('    var keyvalue = part.split("=");');
     ln('    addQueryParam(core.Uri.decodeQueryComponent(keyvalue[0]), '
-       'core.Uri.decodeQueryComponent(keyvalue[1]));');
+        'core.Uri.decodeQueryComponent(keyvalue[1]));');
     ln('  }');
     ln('}');
 
@@ -411,14 +408,14 @@ class MethodArgsTest extends TestHelper {
         if (type is IntegerType || type is StringIntegerType) {
           ln(expectEqual(intParse('${queryMapValue}.first'), name));
         } else if (p.type is UnnamedArrayType) {
-          if (type.innerType is IntegerType || type.innerType is StringIntegerType) {
-            ln(expectEqual('${queryMapValue}.map(core.int.parse).toList()',
-                           name));
+          if (type.innerType is IntegerType ||
+              type.innerType is StringIntegerType) {
+            ln(expectEqual(
+                '${queryMapValue}.map(core.int.parse).toList()', name));
           } else if (type.innerType is StringType) {
             ln(expectEqual('${queryMapValue}', name));
           } else if (type.innerType is BooleanType) {
-            ln(expectEqual('${queryMapValue}.map(parseBool).toList()',
-                           name));
+            ln(expectEqual('${queryMapValue}.map(parseBool).toList()', name));
           } else {
             throw 'unsupported inner type ${type.innerType}';
           }
@@ -445,18 +442,16 @@ class MethodArgsTest extends TestHelper {
   }
 
   _findMethodParameter(String varname) {
-    var parameters = parameterValues
-        .keys
+    var parameters = parameterValues.keys
         .where((parameter) => parameter.jsonName == varname)
         .toList();
     if (parameters.length != 1) {
       throw "Invalid generator. Expected exactly one parameter of name "
-            "$varname";
+          "$varname";
     }
     return parameters[0];
   }
 }
-
 
 testFromSchema(apiTestLibrary, schema) {
   if (schema is ObjectType) {
@@ -564,16 +559,16 @@ class DateSchemaTest extends PrimitiveSchemaTest<DateType> {
   DateSchemaTest(apiTestLibrary, schema) : super(apiTestLibrary, schema);
   String get declaration => 'core.DateTime';
   String get newSchemaExpr => 'core.DateTime.parse("2002-02-27T14:01:02Z")';
-  String checkSchemaStatement(String o)
-      => expectEqual(o, 'core.DateTime.parse("2002-02-27T00:00:00")');
+  String checkSchemaStatement(String o) =>
+      expectEqual(o, 'core.DateTime.parse("2002-02-27T00:00:00")');
 }
 
 class DateTimeSchemaTest extends PrimitiveSchemaTest<DateTimeType> {
   DateTimeSchemaTest(apiTestLibrary, schema) : super(apiTestLibrary, schema);
   String get declaration => 'core.DateTime';
   String get newSchemaExpr => 'core.DateTime.parse("2002-02-27T14:01:02")';
-  String checkSchemaStatement(String o)
-      => expectEqual(o, 'core.DateTime.parse("2002-02-27T14:01:02")');
+  String checkSchemaStatement(String o) =>
+      expectEqual(o, 'core.DateTime.parse("2002-02-27T14:01:02")');
 }
 
 class EnumSchemaTest extends StringSchemaTest {
@@ -673,7 +668,7 @@ abstract class NamedSchemaTest<T extends ComplexDartSchemaType>
       withTest(4, sb, 'to-json--from-json', () {
         sb.writeln('      var o = ${newSchemaExpr};');
         sb.writeln('      var od = new api.${schema.className.name}'
-                   '.fromJson(o.toJson());');
+            '.fromJson(o.toJson());');
         sb.writeln('      ${checkSchemaStatement('od')}');
       });
     });
@@ -708,7 +703,7 @@ class ObjectSchemaTest extends NamedSchemaTest<ObjectType> {
         if (!schema.isVariantDiscriminator(prop)) {
           var propertyTest = apiTestLibrary.schemaTests[prop.type];
           sb.writeln('    o.${prop.name.name} = '
-                     '${propertyTest.newSchemaExpr};');
+              '${propertyTest.newSchemaExpr};');
         }
       }
       sb.writeln('  }');
@@ -851,10 +846,10 @@ class AnySchemaTest extends SchemaTest<AnyType> {
     _counter++;
     var name = 'casted$_counter';
     return "var $name = ($o) as core.Map; "
-           "${expectHasLength(name, '3')} "
-           "${expectEqual('$name["list"]', [1, 2, 3])} "
-           "${expectEqual('$name["bool"]', true)} "
-           "${expectEqual('$name["string"]', "'foo'")} ";
+        "${expectHasLength(name, '3')} "
+        "${expectEqual('$name["list"]', [1, 2, 3])} "
+        "${expectEqual('$name["bool"]', true)} "
+        "${expectEqual('$name["string"]', "'foo'")} ";
   }
 }
 
@@ -862,8 +857,8 @@ class AnySchemaTest extends SchemaTest<AnyType> {
  * Helps generating unittests.
  */
 class TestHelper {
-  void withFunc(int indentation, StringBuffer buffer,
-                String name, String args, Function f) {
+  void withFunc(int indentation, StringBuffer buffer, String name, String args,
+      Function f) {
     var spaces = ' ' * indentation;
     buffer.write(spaces);
     buffer.writeln('$name($args) {');
@@ -872,8 +867,8 @@ class TestHelper {
     buffer.writeln('}\n');
   }
 
-  void withTestGroup(int indentation, StringBuffer buffer,
-                     String name, Function f) {
+  void withTestGroup(
+      int indentation, StringBuffer buffer, String name, Function f) {
     var spaces = ' ' * indentation;
     buffer.write(spaces);
     buffer.writeln('unittest.group("$name", () {');
@@ -882,8 +877,7 @@ class TestHelper {
     buffer.writeln('});\n\n');
   }
 
-  void withTest(int indentation, StringBuffer buffer,
-                String name, Function f) {
+  void withTest(int indentation, StringBuffer buffer, String name, Function f) {
     var spaces = ' ' * indentation;
     buffer.write(spaces);
     buffer.writeln('unittest.test("$name", () {');
@@ -891,7 +885,6 @@ class TestHelper {
     buffer.write(spaces);
     buffer.writeln('});');
   }
-
 
   expectEqual(a, b) => 'unittest.expect($a, unittest.equals($b));';
 
@@ -902,5 +895,4 @@ class TestHelper {
   intParse(arg) => 'core.int.parse($arg)';
 
   numParse(arg) => 'core.num.parse($arg)';
-
 }

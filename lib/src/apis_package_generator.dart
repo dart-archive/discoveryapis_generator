@@ -68,8 +68,10 @@ class ApisPackageGenerator {
     var results = <GenerateResult>[];
     for (RestDescription description in descriptions) {
       String name = description.name.toLowerCase();
-      String version = description.version.toLowerCase()
-          .replaceAll('.', '_').replaceAll('-', '_');
+      String version = description.version
+          .toLowerCase()
+          .replaceAll('.', '_')
+          .replaceAll('-', '_');
 
       String apiFolderPath = "$libFolderPath/$name";
       String apiTestFolderPath = "$testFolderPath/$name";
@@ -104,16 +106,15 @@ class ApisPackageGenerator {
     return results;
   }
 
-  DartApiLibrary _generateApiLibrary(String outputFile,
-                                     RestDescription description) {
+  DartApiLibrary _generateApiLibrary(
+      String outputFile, RestDescription description) {
     var lib = new DartApiLibrary.build(description, config.name);
     writeString(outputFile, lib.librarySource);
     return lib;
   }
 
-  void _generateApiTestLibrary(String outputFile,
-                               String packageImportPath,
-                               DartApiLibrary apiLibrary) {
+  void _generateApiTestLibrary(
+      String outputFile, String packageImportPath, DartApiLibrary apiLibrary) {
     var testLib = new DartApiTestLibrary.build(
         apiLibrary, packageImportPath, config.name);
     writeString(outputFile, testLib.librarySource);

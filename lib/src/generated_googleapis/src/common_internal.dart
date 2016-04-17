@@ -8,8 +8,7 @@ import "package:crypto/crypto.dart" as crypto;
 import "../common/common.dart" as common_external;
 import "package:http/http.dart" as http;
 
-const String USER_AGENT_STRING =
-    'google-api-dart-client googleapis/0.1.1';
+const String USER_AGENT_STRING = 'google-api-dart-client googleapis/0.1.1';
 
 const CONTENT_TYPE_JSON_UTF8 = 'application/json; charset=utf-8';
 
@@ -25,7 +24,6 @@ class ApiRequester {
   ApiRequester(this._httpClient, this._rootUrl, this._basePath) {
     assert(_rootUrl.endsWith('/'));
   }
-
 
   /**
    * Sends a HTTPRequest using [method] (usually GET or POST) to [requestUrl]
@@ -44,15 +42,16 @@ class ApiRequester {
    * Otherwise the result will be downloaded as a [common_external.Media]
    */
   Future request(String requestUrl, String method,
-                 {String body, Map queryParams,
-                  common_external.Media uploadMedia,
-                  common_external.UploadOptions uploadOptions,
-                  common_external.DownloadOptions downloadOptions:
-                  common_external.DownloadOptions.Metadata}) {
+      {String body,
+      Map queryParams,
+      common_external.Media uploadMedia,
+      common_external.UploadOptions uploadOptions,
+      common_external.DownloadOptions downloadOptions:
+          common_external.DownloadOptions.Metadata}) {
     if (uploadMedia != null &&
         downloadOptions != common_external.DownloadOptions.Metadata) {
       throw new ArgumentError('When uploading a [Media] you cannot download a '
-                              '[Media] at the same time!');
+          '[Media] at the same time!');
     }
     common_external.ByteRange downloadRange;
     if (downloadOptions is common_external.PartialDownloadOptions &&
@@ -60,11 +59,10 @@ class ApiRequester {
       downloadRange = downloadOptions.range;
     }
 
-    return _request(requestUrl, method, body, queryParams,
-                    uploadMedia, uploadOptions,
-                    downloadOptions,
-                    downloadRange)
-        .then(_validateResponse).then((http.StreamedResponse response) {
+    return _request(requestUrl, method, body, queryParams, uploadMedia,
+            uploadOptions, downloadOptions, downloadRange)
+        .then(_validateResponse)
+        .then((http.StreamedResponse response) {
       if (downloadOptions == null) {
         // If no download options are given, the response is of no interest
         // and we will drain the stream.
@@ -114,20 +112,22 @@ class ApiRequester {
           }
         }
 
-        return new common_external.Media(
-            response.stream, contentLength, contentType: contentType);
+        return new common_external.Media(response.stream, contentLength,
+            contentType: contentType);
       }
     });
   }
 
-  Future _request(String requestUrl, String method,
-                  String body, Map queryParams,
-                  common_external.Media uploadMedia,
-                  common_external.UploadOptions uploadOptions,
-                  common_external.DownloadOptions downloadOptions,
-                  common_external.ByteRange downloadRange) {
-    bool downloadAsMedia =
-        downloadOptions != null &&
+  Future _request(
+      String requestUrl,
+      String method,
+      String body,
+      Map queryParams,
+      common_external.Media uploadMedia,
+      common_external.UploadOptions uploadOptions,
+      common_external.DownloadOptions downloadOptions,
+      common_external.ByteRange downloadRange) {
+    bool downloadAsMedia = downloadOptions != null &&
         downloadOptions != common_external.DownloadOptions.Metadata;
 
     if (queryParams == null) queryParams = {};
@@ -150,9 +150,9 @@ class ApiRequester {
 
     var path;
     if (requestUrl.startsWith('/')) {
-      path ="$_rootUrl${requestUrl.substring(1)}";
+      path = "$_rootUrl${requestUrl.substring(1)}";
     } else {
-      path ="$_rootUrl${_basePath.substring(1)}$requestUrl";
+      path = "$_rootUrl${_basePath.substring(1)}$requestUrl";
     }
 
     bool containsQueryParameter = path.contains('?');
@@ -178,9 +178,9 @@ class ApiRequester {
       var bodyStream = uploadMedia.stream;
       var request = new RequestImpl(method, uri, bodyStream);
       request.headers.addAll({
-        'user-agent' : USER_AGENT_STRING,
-        'content-type' : uploadMedia.contentType,
-        'content-length' : '${uploadMedia.length}'
+        'user-agent': USER_AGENT_STRING,
+        'content-type': uploadMedia.contentType,
+        'content-length': '${uploadMedia.length}'
       });
       return _httpClient.send(request);
     }
@@ -198,16 +198,16 @@ class ApiRequester {
       var headers;
       if (downloadRange != null) {
         headers = {
-          'user-agent' : USER_AGENT_STRING,
-          'content-type' : CONTENT_TYPE_JSON_UTF8,
-          'content-length' : '$length',
-          'range' :  'bytes=${downloadRange.start}-${downloadRange.end}',
+          'user-agent': USER_AGENT_STRING,
+          'content-type': CONTENT_TYPE_JSON_UTF8,
+          'content-length': '$length',
+          'range': 'bytes=${downloadRange.start}-${downloadRange.end}',
         };
       } else {
         headers = {
-          'user-agent' : USER_AGENT_STRING,
-          'content-type' : CONTENT_TYPE_JSON_UTF8,
-          'content-length' : '$length',
+          'user-agent': USER_AGENT_STRING,
+          'content-type': CONTENT_TYPE_JSON_UTF8,
+          'content-length': '$length',
         };
       }
 
@@ -246,7 +246,6 @@ class ApiRequester {
   }
 }
 
-
 /**
  * Does media uploads using the multipart upload protocol.
  */
@@ -272,10 +271,9 @@ class MultipartMediaUploader {
     // NOTE: We assume that [_body] is encoded JSON without any \r or \n in it.
     // This guarantees us that [_body] cannot contain a valid multipart
     // boundary.
-    var bodyHead =
-        '--$_boundary\r\n'
-        "Content-Type: $CONTENT_TYPE_JSON_UTF8\r\n\r\n"
-        + _body +
+    var bodyHead = '--$_boundary\r\n'
+        "Content-Type: $CONTENT_TYPE_JSON_UTF8\r\n\r\n" +
+        _body +
         '\r\n--$_boundary\r\n'
         "Content-Type: ${_uploadMedia.contentType}\r\n"
         "Content-Transfer-Encoding: base64\r\n\r\n";
@@ -295,9 +293,9 @@ class MultipartMediaUploader {
     });
 
     var headers = {
-        'user-agent' : USER_AGENT_STRING,
-        'content-type' : "multipart/related; boundary=\"$_boundary\"",
-        'content-length' : '$totalLength'
+      'user-agent': USER_AGENT_STRING,
+      'content-type': "multipart/related; boundary=\"$_boundary\"",
+      'content-length': '$totalLength'
     };
     var bodyStream = bodyController.stream;
     var request = new RequestImpl(_method, _uri, bodyStream);
@@ -305,7 +303,6 @@ class MultipartMediaUploader {
     return _httpClient.send(request);
   }
 }
-
 
 /**
  * Base64 encodes a stream of bytes.
@@ -352,8 +349,8 @@ class Base64Encoder implements StreamTransformer<List<int>, String> {
         // Fast path if [bytes] are devisible by 3.
         controller.add(crypto.CryptoUtils.bytesToBase64(bytes));
       } else {
-        controller.add(
-            crypto.CryptoUtils.bytesToBase64(bytes.sublist(start, end)));
+        controller
+            .add(crypto.CryptoUtils.bytesToBase64(bytes.sublist(start, end)));
 
         // Buffer remaining bytes if necessary.
         if (end < bytes.length) {
@@ -375,24 +372,18 @@ class Base64Encoder implements StreamTransformer<List<int>, String> {
     }
 
     var subscription;
-    controller = new StreamController<String>(
-        onListen: () {
-          subscription = stream.listen(
-              onData, onError: onError, onDone: onDone);
-        },
-        onPause: () {
-          subscription.pause();
-        },
-        onResume: () {
-          subscription.resume();
-        },
-        onCancel: () {
-          subscription.cancel();
-        });
+    controller = new StreamController<String>(onListen: () {
+      subscription = stream.listen(onData, onError: onError, onDone: onDone);
+    }, onPause: () {
+      subscription.pause();
+    }, onResume: () {
+      subscription.resume();
+    }, onCancel: () {
+      subscription.cancel();
+    });
     return controller.stream;
   }
 }
-
 
 // TODO: Buffer less if we know the content length in advance.
 /**
@@ -406,9 +397,8 @@ class ResumableMediaUploader {
   final String _method;
   final common_external.ResumableUploadOptions _options;
 
-  ResumableMediaUploader(
-      this._httpClient, this._uploadMedia, this._body, this._uri, this._method,
-      this._options);
+  ResumableMediaUploader(this._httpClient, this._uploadMedia, this._body,
+      this._uri, this._method, this._options);
 
   /**
    * Returns the final [http.StreamedResponse] if the upload succeded and
@@ -435,8 +425,9 @@ class ResumableMediaUploader {
 
           // Upload all chunks except the last one.
           var fullChunks = chunkStack.removeSublist(0, chunkStack.length - 1);
-          Future.forEach(fullChunks,
-                         (c) => _uploadChunkDrained(uploadUri, c)).then((_) {
+          Future
+              .forEach(fullChunks, (c) => _uploadChunkDrained(uploadUri, c))
+              .then((_) {
             // All chunks uploaded, we can continue consuming data.
             subscription.resume();
           }).catchError((error, stack) {
@@ -509,11 +500,11 @@ class ResumableMediaUploader {
 
     var request = new RequestImpl(_method, _uri, bodyStream);
     request.headers.addAll({
-      'user-agent' : USER_AGENT_STRING,
-      'content-type' : CONTENT_TYPE_JSON_UTF8,
-      'content-length' : '$length',
-      'x-upload-content-type' : _uploadMedia.contentType,
-      'x-upload-content-length' : '${_uploadMedia.length}',
+      'user-agent': USER_AGENT_STRING,
+      'content-type': CONTENT_TYPE_JSON_UTF8,
+      'content-length': '$length',
+      'x-upload-content-type': _uploadMedia.contentType,
+      'x-upload-content-length': '${_uploadMedia.length}',
     });
 
     return _httpClient.send(request).then((http.StreamedResponse response) {
@@ -542,9 +533,8 @@ class ResumableMediaUploader {
   /**
    * Does repeated attempts to upload [chunk].
    */
-  Future _uploadChunkResumable(Uri uri,
-                               ResumableChunk chunk,
-                               {bool lastChunk: false}) {
+  Future _uploadChunkResumable(Uri uri, ResumableChunk chunk,
+      {bool lastChunk: false}) {
     tryUpload(int attemptsLeft) {
       return _uploadChunk(uri, chunk, lastChunk: lastChunk)
           .then((http.StreamedResponse response) {
@@ -567,12 +557,12 @@ class ResumableMediaUploader {
             });
           });
         } else if (!lastChunk && status != 308) {
-            return response.stream.drain().then((_) {
-              throw new common_external.DetailedApiRequestError(
-                  status,
-                  'Resumable upload: Uploading a chunk resulted in status '
-                  '$status instead of 308.');
-            });
+          return response.stream.drain().then((_) {
+            throw new common_external.DetailedApiRequestError(
+                status,
+                'Resumable upload: Uploading a chunk resulted in status '
+                '$status instead of 308.');
+          });
         } else if (lastChunk && status != 201 && status != 200) {
           return response.stream.drain().then((_) {
             throw new common_external.DetailedApiRequestError(
@@ -610,11 +600,11 @@ class ResumableMediaUploader {
     }
 
     var headers = {
-        'user-agent' : USER_AGENT_STRING,
-        'content-type' : _uploadMedia.contentType,
-        'content-length' : '${chunk.length}',
-        'content-range' :
-            'bytes ${chunk.offset}-${chunk.endOfChunk - 1}/$mediaTotalLength',
+      'user-agent': USER_AGENT_STRING,
+      'content-type': _uploadMedia.contentType,
+      'content-length': '${chunk.length}',
+      'content-range':
+          'bytes ${chunk.offset}-${chunk.endOfChunk - 1}/$mediaTotalLength',
     };
 
     var stream = _listOfBytes2Stream(chunk.byteArrays);
@@ -641,7 +631,6 @@ class ResumableMediaUploader {
     return controller.stream;
   }
 }
-
 
 /**
  * Represents a stack of [ResumableChunk]s.
@@ -720,7 +709,6 @@ class ChunkStack {
   }
 }
 
-
 /**
  * Represents a chunk of data that will be transferred in one http request.
  */
@@ -749,7 +737,6 @@ class RequestImpl extends http.BaseRequest {
     return new http.ByteStream(_stream);
   }
 }
-
 
 class Escaper {
   // Character class definitions from RFC 6570
@@ -827,7 +814,6 @@ class Escaper {
   }
 }
 
-
 Future<http.StreamedResponse> _validateResponse(
     http.StreamedResponse response) {
   var statusCode = response.statusCode;
@@ -861,7 +847,6 @@ Future<http.StreamedResponse> _validateResponse(
   return new Future.value(response);
 }
 
-
 Stream<String> _decodeStreamAsText(http.StreamedResponse response) {
   // TODO: Correctly handle the response content-types, using correct
   // decoder.
@@ -881,7 +866,7 @@ Map mapMap(Map source, [Object convert(Object source) = null]) {
   var result = new collection.LinkedHashMap();
   source.forEach((String key, value) {
     assert(key != null);
-    if(convert == null) {
+    if (convert == null) {
       result[key] = value;
     } else {
       result[key] = convert(value);
@@ -889,4 +874,3 @@ Map mapMap(Map source, [Object convert(Object source) = null]) {
   });
   return result;
 }
-

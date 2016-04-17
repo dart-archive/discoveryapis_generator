@@ -12,16 +12,17 @@ import 'dart:io';
 import 'package:hop/hop.dart';
 
 void main(List<String> args) {
-
-  addTask('generate_example', commandlineTasks([
-    commandRunner('dart', [
-      'bin/generate.dart',
-      'files',
-      '--input-dir=example',
-      '--output-dir=example',
-      '--no-core-prefixes'
-    ])
-  ]));
+  addTask(
+      'generate_example',
+      commandlineTasks([
+        commandRunner('dart', [
+          'bin/generate.dart',
+          'files',
+          '--input-dir=example',
+          '--output-dir=example',
+          '--no-core-prefixes'
+        ])
+      ]));
 
   runHop(args);
 }
@@ -48,8 +49,8 @@ Function apisAnalyzerAndRunner(String dir, String pkgRoot) {
     return commandRunner('dartanalyzer', args)(_).then((_) {
       print("RUNNING: ${testFiles.length} tests now ");
       runTest(String test) {
-        return new Future.sync(() => commandRunner('dart',
-            ['--checked', '--package-root=$pkgRoot', test])(_));
+        return new Future.sync(() => commandRunner(
+            'dart', ['--checked', '--package-root=$pkgRoot', test])(_));
       }
       return Future.forEach(testFiles, runTest);
     });
@@ -63,16 +64,17 @@ Function commandRunner(String executable, List<String> arguments, {cwd}) {
       cmd = cmd.substring(0, 90) + '...';
     }
     print("Running '$cmd'");
-    return Process.run(executable, arguments, workingDirectory: cwd)
+    return Process
+        .run(executable, arguments, workingDirectory: cwd)
         .then((ProcessResult result) {
       print("   Done '$cmd'");
 
       var code = result.exitCode;
       if (code != 0) {
         throw new Exception("Running '$executable ${arguments.join(' ')}' "
-                            "resulted in non-zero exit code (was: $code).\n"
-                            "Stdout was:\n${result.stdout}\n"
-                            "Stderr was:\n${result.stderr}\n");
+            "resulted in non-zero exit code (was: $code).\n"
+            "Stdout was:\n${result.stdout}\n"
+            "Stderr was:\n${result.stderr}\n");
       }
     });
   };

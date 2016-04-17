@@ -24,7 +24,6 @@ abstract class Part {
   String stringExpression(Identifier variable);
 }
 
-
 /**
  * Represents a URI Template literal.
  */
@@ -35,7 +34,6 @@ class StringPart extends Part {
 
   String stringExpression(Identifier _) => "'${escapeString(staticString)}'";
 }
-
 
 /**
  * Represents a URI Template variable expression of the form {var}
@@ -49,7 +47,6 @@ class VariableExpression extends Part {
   }
 }
 
-
 /**
  * Represents a URI Template variable expression of the form {/var*}
  */
@@ -59,10 +56,9 @@ class PathVariableExpression extends Part {
 
   String stringExpression(Identifier variable) {
     return "'/' + ($variable).map((item) => "
-           "${imports.commons}.Escaper.ecapePathComponent(item)).join('/')";
+        "${imports.commons}.Escaper.ecapePathComponent(item)).join('/')";
   }
 }
-
 
 /**
  * Represents a URI Template variable expression of the form {+var}
@@ -133,7 +129,7 @@ class UriTemplate {
       var close = pattern.indexOf("}", open);
       if (close < 0) {
         throw new ArgumentError("Invalid URI template pattern, "
-                                "expected closing brace: '$pattern'");
+            "expected closing brace: '$pattern'");
       }
 
       // We extract the URI template expression and generate an expression
@@ -163,18 +159,17 @@ class UriTemplate {
     var codeUnites = name.codeUnits;
     for (var i = 0; i < codeUnites.length; i++) {
       var char = codeUnites[i];
-      bool isLetter =
-          (65 <= char && char <= 90) || (97 <= char && char <= 122);
+      bool isLetter = (65 <= char && char <= 90) || (97 <= char && char <= 122);
       bool isNumber = (48 <= char && char <= 57);
       bool isUnderscore = char == 0x5F;
       if (i == 0 && !isLetter) {
         throw new ArgumentError('Variables can only begin with an upper or '
-                                'lowercase letter: "$name".');
+            'lowercase letter: "$name".');
       }
       if (!isLetter && !isNumber && !isUnderscore) {
         throw new ArgumentError('Variables can only consist of uppercase '
-                                'letters, lowercase letters, underscores and '
-                                'numbers: "$name".');
+            'letters, lowercase letters, underscores and '
+            'numbers: "$name".');
       }
     }
   }

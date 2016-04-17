@@ -35,14 +35,12 @@ main() {
 
     test('multi-line-comment', () {
       expectABCdef(Comment comment) {
-        expect(comment.asDartDoc(0), equals(
-'''
+        expect(comment.asDartDoc(0), equals('''
 /**
  * ABC
  * def
  */
 '''));
-
       }
       expectABCdef(new Comment('ABC\ndef'));
       expectABCdef(new Comment('ABC\ndef  '));
@@ -58,20 +56,18 @@ main() {
       expect(comment.asDartDoc(0), equals('/** $chars */\n'));
 
       // Adding an indentation of 2 characters should make it a block comment.
-      expect(comment.asDartDoc(2), equals(
-'''
+      expect(comment.asDartDoc(2), equals('''
   /**
    * $chars
    */
 '''));
 
-    comment = new Comment('$chars\n\n$chars');
+      comment = new Comment('$chars\n\n$chars');
 
-    // Adding an indentation of 8 characters should make it a block comment
-    // which has multiple lines.
-    // Multiple independend lines should be treated equally.
-    expect(comment.asDartDoc(8), equals(
-'''
+      // Adding an indentation of 8 characters should make it a block comment
+      // which has multiple lines.
+      // Multiple independend lines should be treated equally.
+      expect(comment.asDartDoc(8), equals('''
         /**
          * $charsShortened
          * A

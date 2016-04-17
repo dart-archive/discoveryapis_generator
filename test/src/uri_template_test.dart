@@ -32,8 +32,8 @@ main() {
       expect(template.parts.first.templateVar, equals('My_var123'));
 
       expect(() => template.stringExpression({}), throwsA(isArgumentError));
-      expect(template.stringExpression({'My_var123' : id('abc')}),
-             equals("commons.Escaper.ecapeVariable('\$abc')"));
+      expect(template.stringExpression({'My_var123': id('abc')}),
+          equals("commons.Escaper.ecapeVariable('\$abc')"));
     });
 
     test('path-variable-expr', () {
@@ -43,10 +43,11 @@ main() {
       expect(template.parts.first.templateVar, equals('myvar'));
 
       expect(() => template.stringExpression({}), throwsA(isArgumentError));
-      expect(template.stringExpression({'myvar' : id('abc')}),
-             equals("'/' + (abc).map((item) => "
-                    "commons.Escaper.ecapePathComponent(item))"
-                    ".join('/')"));
+      expect(
+          template.stringExpression({'myvar': id('abc')}),
+          equals("'/' + (abc).map((item) => "
+              "commons.Escaper.ecapePathComponent(item))"
+              ".join('/')"));
     });
 
     test('reserved-expansion-expr', () {
@@ -56,8 +57,8 @@ main() {
       expect(template.parts.first.templateVar, equals('myvar'));
 
       expect(() => template.stringExpression({}), throwsA(isArgumentError));
-      expect(template.stringExpression({'myvar' : id('abc')}),
-             equals("commons.Escaper.ecapeVariableReserved('\$abc')"));
+      expect(template.stringExpression({'myvar': id('abc')}),
+          equals("commons.Escaper.ecapeVariableReserved('\$abc')"));
     });
 
     test('reserved-expansion-expr', () {
@@ -82,13 +83,13 @@ main() {
 
     test('invalid-variablename', () {
       expect(() => UriTemplate.parse(imports, '{foobar'),
-             throwsA(isArgumentError));
+          throwsA(isArgumentError));
       expect(() => UriTemplate.parse(imports, '{1foobar}'),
-             throwsA(isArgumentError));
-      expect(() => UriTemplate.parse(imports, '{/abc}'),
-             throwsA(isArgumentError));
+          throwsA(isArgumentError));
+      expect(
+          () => UriTemplate.parse(imports, '{/abc}'), throwsA(isArgumentError));
       expect(() => UriTemplate.parse(imports, '{+abc*}'),
-             throwsA(isArgumentError));
+          throwsA(isArgumentError));
     });
   });
 }

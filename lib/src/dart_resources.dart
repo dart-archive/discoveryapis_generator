@@ -12,8 +12,12 @@ import 'namer.dart';
 import 'uri_template.dart';
 import 'utils.dart';
 
-const RESERVED_METHOD_PARAMETER_NAMES =
-    const ['uploadMedia', 'uploadOptions', 'downloadOptions', 'callOptions'];
+const RESERVED_METHOD_PARAMETER_NAMES = const [
+  'uploadMedia',
+  'uploadOptions',
+  'downloadOptions',
+  'callOptions'
+];
 
 /**
  * Represents a oauth2 authentication scope.
@@ -49,14 +53,13 @@ class MethodParameter {
   final bool encodedInPath;
 
   MethodParameter(this.name, this.comment, this.required, this.type,
-                  this.jsonName, this.encodedInPath);
+      this.jsonName, this.encodedInPath);
 
   /**
    * Returns the declaration "Type name" of this method parameter.
    */
   String get declaration => '${type.declaration} $name';
 }
-
 
 /**
  * Represents a method on a resource class.
@@ -89,12 +92,20 @@ class DartResourceMethod {
   // Keys are always 'simple' and 'resumable'
   final Map<String, UriTemplate> mediaUploadPatterns;
 
-  DartResourceMethod(this.imports, this.name, this.comment,
-                     this.requestParameter, this.parameters,
-                     this.namedParameters, this.returnType,
-                     this.jsonName, this.urlPattern, this.httpMethod,
-                     this.mediaUpload, this.mediaDownload,
-                     this.mediaUploadPatterns);
+  DartResourceMethod(
+      this.imports,
+      this.name,
+      this.comment,
+      this.requestParameter,
+      this.parameters,
+      this.namedParameters,
+      this.returnType,
+      this.jsonName,
+      this.urlPattern,
+      this.httpMethod,
+      this.mediaUpload,
+      this.mediaDownload,
+      this.mediaUploadPatterns);
 
   String get signature {
     var parameterString = new StringBuffer();
@@ -108,8 +119,7 @@ class DartResourceMethod {
     if (parameters.length > 0) {
       if (!parameterString.isEmpty) parameterString.write(', ');
       parameterString
-          .write(parameters.map((param) => '${param.declaration}')
-          .join(', '));
+          .write(parameters.map((param) => '${param.declaration}').join(', '));
     }
 
     // Optional parameters come last (including the media parameters).
@@ -117,22 +127,19 @@ class DartResourceMethod {
       if (!parameterString.isEmpty) parameterString.write(', ');
 
       var namedString = new StringBuffer()
-          ..write(namedParameters
-                  .map((param) => '${param.declaration}')
-                  .join(', '));
+        ..write(
+            namedParameters.map((param) => '${param.declaration}').join(', '));
 
       if (mediaUpload) {
         if (!namedString.isEmpty) namedString.write(', ');
-        namedString.write(
-            '${imports.commons}.UploadOptions uploadOptions : '
+        namedString.write('${imports.commons}.UploadOptions uploadOptions : '
             '${imports.commons}.UploadOptions.Default, ');
         namedString.write('${imports.commons}.Media uploadMedia');
       }
 
       if (mediaDownload) {
         if (!namedString.isEmpty) namedString.write(', ');
-        namedString.write(
-            '${imports.commons}.DownloadOptions downloadOptions: '
+        namedString.write('${imports.commons}.DownloadOptions downloadOptions: '
             '${imports.commons}.DownloadOptions.Metadata');
       }
 
@@ -158,7 +165,7 @@ class DartResourceMethod {
 
     if (requestParameter != null) {
       commentBuilder.writeln('[${requestParameter.name.name}] - '
-                             '${requestParameter.comment.rawComment}\n');
+          '${requestParameter.comment.rawComment}\n');
     }
 
     commentBuilder.writeln('Request parameters:\n');
@@ -173,36 +180,36 @@ class DartResourceMethod {
     if (mediaUpload) {
       commentBuilder.writeln('[uploadMedia] - The media to upload.\n');
       commentBuilder.writeln('[uploadOptions] - Options for the media upload. '
-                             'Streaming Media without the length being known '
-                             'ahead of time is only supported via resumable '
-                             'uploads.\n');
+          'Streaming Media without the length being known '
+          'ahead of time is only supported via resumable '
+          'uploads.\n');
     }
 
     if (mediaDownload) {
       commentBuilder.writeln('[downloadOptions] - Options for downloading. '
-                             'A download can be either a Metadata (default) '
-                             'or Media download. Partial Media downloads '
-                             'are possible as well.\n');
+          'A download can be either a Metadata (default) '
+          'or Media download. Partial Media downloads '
+          'are possible as well.\n');
     }
 
     if (returnType != null) {
       if (mediaDownload) {
         commentBuilder.writeln('Completes with a\n');
         commentBuilder.writeln('- [${returnType.declaration}] for Metadata '
-                               'downloads (see [downloadOptions]).\n');
+            'downloads (see [downloadOptions]).\n');
         commentBuilder.writeln('- [${imports.commons}.Media] for Media '
-                               'downloads (see [downloadOptions]).\n');
+            'downloads (see [downloadOptions]).\n');
       } else {
-        commentBuilder.writeln(
-            'Completes with a [${returnType.declaration}].\n');
+        commentBuilder
+            .writeln('Completes with a [${returnType.declaration}].\n');
       }
     }
     commentBuilder.writeln('Completes with a '
-                           '[${imports.commons}.ApiRequestError] '
-                           'if the API endpoint returned an error.\n');
+        '[${imports.commons}.ApiRequestError] '
+        'if the API endpoint returned an error.\n');
     commentBuilder.writeln('If the used [${imports.http}.Client] '
-                           'completes with an error when making a REST call, '
-                           'this method will complete with the same error.\n');
+        'completes with an error when making a REST call, '
+        'this method will complete with the same error.\n');
 
     var methodComment = new Comment('$commentBuilder');
 
@@ -228,7 +235,7 @@ class DartResourceMethod {
           params.writeln('    if (${param.name} == null) {');
         }
         params.writeln('      throw new ${imports.core.ref()}ArgumentError'
-                       '("Parameter ${param.name} is required.");');
+            '("Parameter ${param.name} is required.");');
         params.writeln('    }');
       } else {
         // Is this an error?
@@ -266,7 +273,7 @@ class DartResourceMethod {
           params.writeln('    if (${param.name} == null) {');
         }
         params.writeln('      throw new ${imports.core.ref()}ArgumentError'
-                       '("Parameter ${param.name} is required.");');
+            '("Parameter ${param.name} is required.");');
         params.writeln('    }');
         params.writeln('    $propertyAssignment');
       } else {
@@ -284,7 +291,7 @@ class DartResourceMethod {
       }
     });
 
-    namedParameters.forEach(( p) {
+    namedParameters.forEach((p) {
       if (p.encodedInPath) {
         validatePathParam(p);
       } else {
@@ -322,8 +329,7 @@ class DartResourceMethod {
 ''');
     }
 
-    requestCode.write(
-'''
+    requestCode.write('''
 
 $urlPatternCode
 
@@ -334,28 +340,23 @@ $urlPatternCode
                                        uploadOptions: _uploadOptions,
                                        uploadMedia: _uploadMedia,
                                        downloadOptions: _downloadOptions);
-'''
-    );
+''');
 
     var plainResponse =
         returnType != null ? returnType.jsonDecode('data') : 'null';
     if (mediaDownload) {
-      requestCode.write(
-'''
+      requestCode.write('''
     if (_downloadOptions == null ||
         _downloadOptions == ${imports.commons}.DownloadOptions.Metadata) {
       return _response.then((data) => $plainResponse);
     } else {
       return _response;
     }
-'''
-      );
+''');
     } else {
-      requestCode.write(
-'''
+      requestCode.write('''
     return _response.then((data) => $plainResponse);
-'''
-      );
+''');
     }
 
     var methodString = new StringBuffer();
@@ -378,7 +379,6 @@ $params$requestCode''');
   }
 }
 
-
 /**
  * Represents a resource of an Apiary API.
  */
@@ -392,7 +392,7 @@ class DartResourceClass {
   final List<DartResourceClass> subResources;
 
   DartResourceClass(this.imports, this.className, this.comment, this.methods,
-                    this.subResourceIdentifiers, this.subResources);
+      this.subResourceIdentifiers, this.subResources);
 
   String get preamble => '';
 
@@ -402,7 +402,7 @@ class DartResourceClass {
       var identifier = subResourceIdentifiers[i];
       var resource = subResources[i];
       str.writeln('  ${resource.className} get ${identifier.name} '
-                  '=> new ${resource.className}(_requester);');
+          '=> new ${resource.className}(_requester);');
     }
     if (!str.isEmpty) str.writeln();
     return '$str';
@@ -436,7 +436,6 @@ class DartResourceClass {
   }
 }
 
-
 /**
  * Represents the API resource of an Apiary API.
  */
@@ -445,22 +444,25 @@ class DartApiClass extends DartResourceClass {
   final String servicePath;
   final List<OAuth2Scope> scopes;
 
-  DartApiClass(DartApiImports imports,
-               Identifier name,
-               Comment comment,
-               List<DartResourceMethod> methods,
-               List<Identifier> subResourceIdentifiers,
-               List<DartResourceClass> subResources,
-               this.rootUrl, this.servicePath, this.scopes)
-      : super(imports, name, comment, methods,
-              subResourceIdentifiers, subResources);
+  DartApiClass(
+      DartApiImports imports,
+      Identifier name,
+      Comment comment,
+      List<DartResourceMethod> methods,
+      List<Identifier> subResourceIdentifiers,
+      List<DartResourceClass> subResources,
+      this.rootUrl,
+      this.servicePath,
+      this.scopes)
+      : super(imports, name, comment, methods, subResourceIdentifiers,
+            subResources);
 
   String get preamble {
     var sb = new StringBuffer();
     scopes.forEach((OAuth2Scope scope) {
       var doc = scope.comment.asDartDoc(2);
       sb.writeln('$doc  static const ${scope.identifier} = '
-                 '"${escapeString(scope.url)}";');
+          '"${escapeString(scope.url)}";');
       sb.writeln('');
     });
     sb.writeln('');
@@ -471,13 +473,13 @@ class DartApiClass extends DartResourceClass {
     var str = new StringBuffer();
 
     var parameters = [
-        '${imports.core.ref()}String rootUrl: "${escapeString(rootUrl)}"',
-        '${imports.core.ref()}String servicePath: "${escapeString(servicePath)}"',
+      '${imports.core.ref()}String rootUrl: "${escapeString(rootUrl)}"',
+      '${imports.core.ref()}String servicePath: "${escapeString(servicePath)}"',
     ].join(', ');
 
     str.writeln('  $className(${imports.http}.Client client, {$parameters}) :');
     str.write('      _requester = new ${imports.commons}.ApiRequester'
-              '(client, rootUrl, servicePath, USER_AGENT)');
+        '(client, rootUrl, servicePath, USER_AGENT)');
     str.writeln(';');
     return '$str';
   }
@@ -506,17 +508,16 @@ bool parseMediaUse(DartResourceClass resource) {
 /**
  * Parses all resources in [description] and returns the root [DartApiClass].
  */
-DartApiClass parseResources(DartApiImports imports,
-                            DartSchemaTypeDB db,
-                            RestDescription description) {
-  DartResourceClass parseResource(String resourceName,
-                                  String resourceDescription,
-                                  Map<String, RestMethod> methods,
-                                  Map<String, RestResource> subResources,
-                                  String parentName) {
-    DartResourceMethod parseMethod(Scope classScope,
-                                   String jsonName,
-                                   RestMethod method) {
+DartApiClass parseResources(
+    DartApiImports imports, DartSchemaTypeDB db, RestDescription description) {
+  DartResourceClass parseResource(
+      String resourceName,
+      String resourceDescription,
+      Map<String, RestMethod> methods,
+      Map<String, RestResource> subResources,
+      String parentName) {
+    DartResourceMethod parseMethod(
+        Scope classScope, String jsonName, RestMethod method) {
       var methodName = classScope.newIdentifier(jsonName);
       var parameterScope = classScope.newChildScope();
 
@@ -529,12 +530,12 @@ DartApiClass parseResources(DartApiImports imports,
 
       // This set will be reduced to all optional parameters.
       var pendingParameterNames = method.parameters != null
-          ? method.parameters.keys.toSet() : new Set<String>();
+          ? method.parameters.keys.toSet()
+          : new Set<String>();
 
       var positionalParameters = new List<MethodParameter>();
-      tryEnqueuePositionalParameter(String jsonName,
-                                    Comment comment,
-                                    JsonSchema schema) {
+      tryEnqueuePositionalParameter(
+          String jsonName, Comment comment, JsonSchema schema) {
         if (!pendingParameterNames.contains(jsonName)) return;
 
         var parameter = method.parameters[jsonName];
@@ -544,24 +545,21 @@ DartApiClass parseResources(DartApiImports imports,
           var type = parseResolved(imports, db, parameter);
           comment = extendEnumComment(comment, type);
           comment = extendAnyTypeComment(comment, type);
-          positionalParameters.add(new MethodParameter(
-              name, comment, true, type, jsonName,
-              parameter.location != 'query'));
+          positionalParameters.add(new MethodParameter(name, comment, true,
+              type, jsonName, parameter.location != 'query'));
         }
       }
 
       var optionalParameters = new List<MethodParameter>();
-      enqueueOptionalParameter(String jsonName,
-                               Comment comment,
-                               JsonSchema schema) {
+      enqueueOptionalParameter(
+          String jsonName, Comment comment, JsonSchema schema) {
         var name = parameterScope.newIdentifier(jsonName);
         var parameter = method.parameters[jsonName];
         var type = parseResolved(imports, db, parameter);
         comment = extendEnumComment(comment, type);
         comment = extendAnyTypeComment(comment, type);
-        optionalParameters.add(new MethodParameter(
-            name, comment, false, type, jsonName,
-            parameter.location != 'query'));
+        optionalParameters.add(new MethodParameter(name, comment, false, type,
+            jsonName, parameter.location != 'query'));
       }
 
       Comment parameterComment(JsonSchema parameter) {
@@ -588,9 +586,7 @@ DartApiClass parseResources(DartApiImports imports,
         for (var jsonName in method.parameterOrder) {
           if (method.parameters == null ||
               !method.parameters.keys.contains(jsonName)) {
-            throw new GeneratorError(
-                description.name,
-                description.version,
+            throw new GeneratorError(description.name, description.version,
                 'Parameters for method $jsonName does not have a type!');
           }
           var comment = parameterComment(method.parameters[jsonName]);
@@ -640,15 +636,15 @@ DartApiClass parseResources(DartApiImports imports,
 
       if (method.supportsMediaUpload == true) {
         mediaUploadPatterns = {
-            'simple' : UriTemplate.parse(
-                imports, method.mediaUpload.protocols.simple.path),
-            'resumable' : UriTemplate.parse(
-                imports, method.mediaUpload.protocols.resumable.path),
+          'simple': UriTemplate.parse(
+              imports, method.mediaUpload.protocols.simple.path),
+          'resumable': UriTemplate.parse(
+              imports, method.mediaUpload.protocols.resumable.path),
         };
         if (method.mediaUpload.protocols.simple.multipart != true ||
             method.mediaUpload.protocols.resumable.multipart != true) {
           throw new ArgumentError('We always require simple/resumable upload '
-                                  'protocols with multipart support.');
+              'protocols with multipart support.');
         }
       }
 
@@ -662,12 +658,20 @@ DartApiClass parseResources(DartApiImports imports,
             'Neither `Method.path` nor `Method.restPath` was given.');
       }
 
-      return new DartResourceMethod(imports, methodName, comment,
+      return new DartResourceMethod(
+          imports,
+          methodName,
+          comment,
           dartRequestParameter,
-          positionalParameters, optionalParameters, dartResponseType, jsonName,
-          UriTemplate.parse(imports, restPath), method.httpMethod,
+          positionalParameters,
+          optionalParameters,
+          dartResponseType,
+          jsonName,
+          UriTemplate.parse(imports, restPath),
+          method.httpMethod,
           makeBoolean(method.supportsMediaUpload),
-          makeBoolean(method.supportsMediaDownload), mediaUploadPatterns);
+          makeBoolean(method.supportsMediaDownload),
+          mediaUploadPatterns);
     }
 
     bool topLevel = parentName.isEmpty;
@@ -695,9 +699,8 @@ DartApiClass parseResources(DartApiImports imports,
     if (subResources != null) {
       orderedForEach(subResources, (String jsonName, RestResource resource) {
         var instanceName = classScope.newIdentifier(jsonName);
-        var dartResource = parseResource(
-            jsonName, '', resource.methods, resource.resources,
-            className.preferredName);
+        var dartResource = parseResource(jsonName, '', resource.methods,
+            resource.resources, className.preferredName);
         dartSubResourceIdentifiers.add(instanceName);
         dartSubResource.add(dartResource);
       });
@@ -709,13 +712,10 @@ DartApiClass parseResources(DartApiImports imports,
 
       if (description.auth != null && description.auth.oauth2 != null) {
         orderedForEach(description.auth.oauth2.scopes, (scope, description) {
+          var scopeId = classScope.newIdentifier(Scope.toValidScopeName(scope));
 
-        var scopeId = classScope.newIdentifier(
-            Scope.toValidScopeName(scope));
-
-          scopes.add(new OAuth2Scope(scope,
-                                     scopeId,
-                                     new Comment(description.description)));
+          scopes.add(new OAuth2Scope(
+              scope, scopeId, new Comment(description.description)));
         });
       }
 
@@ -751,9 +751,9 @@ DartApiClass parseResources(DartApiImports imports,
       assert(description.rootUrl != null);
       assert(description.rootUrl.endsWith('/'));
       assert(description.servicePath != null);
-      assert(description.servicePath == '' || (
-             !description.servicePath.startsWith('/') &&
-             description.servicePath.endsWith('/')));
+      assert(description.servicePath == '' ||
+          (!description.servicePath.startsWith('/') &&
+              description.servicePath.endsWith('/')));
       if (description.baseUrl != null) {
         var expectedBaseUrl =
             '${description.rootUrl}${description.servicePath}';
@@ -763,21 +763,23 @@ DartApiClass parseResources(DartApiImports imports,
       var rootUrl = description.rootUrl;
       var restPath = description.servicePath;
       return new DartApiClass(
-          imports, className, coment, dartMethods, dartSubResourceIdentifiers,
-          dartSubResource, rootUrl, restPath, scopes);
+          imports,
+          className,
+          coment,
+          dartMethods,
+          dartSubResourceIdentifiers,
+          dartSubResource,
+          rootUrl,
+          restPath,
+          scopes);
     } else {
-      return new DartResourceClass(
-          imports, className, coment, dartMethods, dartSubResourceIdentifiers,
-          dartSubResource);
+      return new DartResourceClass(imports, className, coment, dartMethods,
+          dartSubResourceIdentifiers, dartSubResource);
     }
   }
-  return parseResource(description.name,
-                       description.description,
-                       description.methods,
-                       description.resources,
-                       '');
+  return parseResource(description.name, description.description,
+      description.methods, description.resources, '');
 }
-
 
 /**
  * Generates a string representation of all resource classes, beginning with

@@ -40,8 +40,7 @@ main() {
       var stubFile = new File(path.join(outputDir.path, 'toyapi.dart'));
       var expectedStubFile =
           new File(path.join(dataPath, 'expected_nonidentical.dartt'));
-      expect(
-          _normalizeWhiteSpace(stubFile.readAsStringSync()),
+      expect(_normalizeWhiteSpace(stubFile.readAsStringSync()),
           _normalizeWhiteSpace(expectedStubFile.readAsStringSync()));
     });
 
@@ -52,7 +51,7 @@ main() {
       pubspecFile.copySync(path.join(outputDir.path, 'pubspec.yaml'));
       // Make sure we have a dart file with the message classes
       var libDir = new Directory(path.join(outputDir.path, 'lib'))
-          ..createSync();
+        ..createSync();
       var messageFile = new File(path.join(dataPath, 'toyapi_messages.dartt'));
       // Copy message dart file and point messageFile to the copy.
       messageFile =
@@ -67,9 +66,8 @@ main() {
         'ToyRequest': importUri.toString(),
         'ToyAgeRequest': importUri.toString()
       };
-      var description =
-          new File(
-              path.join(dataPath, 'rest', 'toyapi.json')).readAsStringSync();
+      var description = new File(path.join(dataPath, 'rest', 'toyapi.json'))
+          .readAsStringSync();
       var diPair = new DescriptionImportPair(description, importMap);
       // Generate the client stubs.
       var results = generateClientStubs([diPair], outputDir.path);
@@ -80,8 +78,7 @@ main() {
       var stubFile = new File(path.join(outputDir.path, 'toyapi.dart'));
       var expectedStubFile =
           new File(path.join(dataPath, 'expected_identical.dartt'));
-      expect(
-          _normalizeWhiteSpace(stubFile.readAsStringSync()),
+      expect(_normalizeWhiteSpace(stubFile.readAsStringSync()),
           _normalizeWhiteSpace(expectedStubFile.readAsStringSync()));
     });
   });

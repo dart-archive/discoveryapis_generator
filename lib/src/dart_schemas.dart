@@ -60,7 +60,6 @@ class DartSchemaTypeDB {
   }
 }
 
-
 /**
  * Represents a property in a dart class.
  */
@@ -75,9 +74,8 @@ class DartClassProperty {
   final Identifier byteArrayAccessor;
 
   DartClassProperty(this.name, this.comment, this.type, this.jsonName,
-                    {this.byteArrayAccessor: null});
+      {this.byteArrayAccessor: null});
 }
-
 
 /**
  * Represents an internal representation used for codegen.
@@ -151,7 +149,6 @@ abstract class DartSchemaType {
   bool get needsJsonDecoding => jsonDecode('foo') != 'foo';
 }
 
-
 /**
  * Placeholder type for forward references.
  */
@@ -176,25 +173,24 @@ class DartSchemaForwardRef extends DartSchemaType {
 
   String get declaration {
     throw new StateError('Type declarations can only be created after '
-                         'resolving references.');
+        'resolving references.');
   }
 
   String primitiveEncoding(String) {
     throw new StateError('Encoding methods can only be called after '
-                         'resolving references.');
+        'resolving references.');
   }
 
   String jsonEncode(String value) {
     throw new StateError('JSON methods can only be called after '
-                         'resolving references.');
+        'resolving references.');
   }
 
   String jsonDecode(String json) {
     throw new StateError('JSON methods can only be called after '
-                         'resolving references.');
+        'resolving references.');
   }
 }
-
 
 /**
  * Superclass for primitive types which will not be represented as custom dart
@@ -210,13 +206,11 @@ abstract class PrimitiveDartSchemaType extends DartSchemaType {
   String jsonDecode(String json) => json;
 }
 
-
 class BooleanType extends PrimitiveDartSchemaType {
   BooleanType(DartApiImports imports) : super(imports);
 
   String get declaration => '${imports.core.ref()}bool';
 }
-
 
 class IntegerType extends PrimitiveDartSchemaType {
   IntegerType(DartApiImports imports) : super(imports);
@@ -224,22 +218,20 @@ class IntegerType extends PrimitiveDartSchemaType {
   String get declaration => '${imports.core.ref()}int';
 }
 
-
 class StringIntegerType extends PrimitiveDartSchemaType {
   StringIntegerType(DartApiImports imports) : super(imports);
 
   String get declaration => '${imports.core.ref()}int';
   String jsonEncode(String value) => '"\${${value}}"';
-  String jsonDecode(String json) => '${imports.core.ref()}int.parse("\${${json}}")';
+  String jsonDecode(String json) =>
+      '${imports.core.ref()}int.parse("\${${json}}")';
 }
-
 
 class DoubleType extends PrimitiveDartSchemaType {
   DoubleType(DartApiImports imports) : super(imports);
 
   String get declaration => '${imports.core.ref()}double';
 }
-
 
 class StringType extends PrimitiveDartSchemaType {
   StringType(DartApiImports imports) : super(imports);
@@ -248,14 +240,12 @@ class StringType extends PrimitiveDartSchemaType {
   String get declaration => '${imports.core.ref()}String';
 }
 
-
 class EnumType extends StringType {
   final List<String> enumValues;
   final List<String> enumDescriptions;
 
-  factory EnumType(DartApiImports imports,
-                     List<String> enumValues,
-                     List<String> enumDescriptions) {
+  factory EnumType(DartApiImports imports, List<String> enumValues,
+      List<String> enumDescriptions) {
     if (enumDescriptions == null) {
       enumDescriptions = enumValues.map((value) => 'A $value.').toList();
     }
@@ -271,22 +261,21 @@ class EnumType extends StringType {
       : super(imports);
 }
 
-
 class DateType extends StringType {
   DateType(DartApiImports imports) : super(imports);
 
   String get declaration => '${imports.core.ref()}DateTime';
 
-  String primitiveEncoding(String value)
-      => '"\${($value).year.toString().padLeft(4, \'0\')}-'
-         '\${($value).month.toString().padLeft(2, \'0\')}-'
-         '\${($value).day.toString().padLeft(2, \'0\')}"';
+  String primitiveEncoding(String value) =>
+      '"\${($value).year.toString().padLeft(4, \'0\')}-'
+      '\${($value).month.toString().padLeft(2, \'0\')}-'
+      '\${($value).day.toString().padLeft(2, \'0\')}"';
 
   String jsonEncode(String value) => primitiveEncoding(value);
 
-  String jsonDecode(String json) => '${imports.core.ref()}DateTime.parse($json)';
+  String jsonDecode(String json) =>
+      '${imports.core.ref()}DateTime.parse($json)';
 }
-
 
 class DateTimeType extends StringType {
   DateTimeType(DartApiImports imports) : super(imports);
@@ -297,9 +286,9 @@ class DateTimeType extends StringType {
 
   String jsonEncode(String value) => '($value).toIso8601String()';
 
-  String jsonDecode(String json) => '${imports.core.ref()}DateTime.parse($json)';
+  String jsonDecode(String json) =>
+      '${imports.core.ref()}DateTime.parse($json)';
 }
-
 
 /**
  * Class representing "any" schema type.
@@ -313,16 +302,14 @@ class AnyType extends PrimitiveDartSchemaType {
   String get declaration => '${imports.core.ref()}Object';
 }
 
-
 /**
  * Class representing non-primitive types.
  *
  * Subclasses may be named dart classes or composed classes (e.g. List<X>).
  */
 abstract class ComplexDartSchemaType extends DartSchemaType {
-  ComplexDartSchemaType(DartApiImports imports,
-                        Identifier name,
-                        {Comment comment})
+  ComplexDartSchemaType(DartApiImports imports, Identifier name,
+      {Comment comment})
       : super(imports, name, comment_: comment);
 
   String get classDefinition;
@@ -335,7 +322,6 @@ abstract class ComplexDartSchemaType extends DartSchemaType {
         'query parameters.');
   }
 }
-
 
 /**
  * Represents an unnamed List<T> type with a given `T`.
@@ -353,12 +339,12 @@ class UnnamedArrayType extends ComplexDartSchemaType {
 
   String get classDefinition => null;
 
-  String get declaration => '${imports.core.ref()}List<${innerType.declaration}>';
+  String get declaration =>
+      '${imports.core.ref()}List<${innerType.declaration}>';
 
   String jsonEncode(String value) {
     if (innerType.needsJsonEncoding) {
-      return
-          '${value}.map((value) => ${innerType.jsonEncode('value')}).toList()';
+      return '${value}.map((value) => ${innerType.jsonEncode('value')}).toList()';
     } else {
       // NOTE: The List from the user is already JSON. We have a big
       // ASSUMPTION here: The user does not modify the list while we're
@@ -369,8 +355,7 @@ class UnnamedArrayType extends ComplexDartSchemaType {
 
   String jsonDecode(String json) {
     if (innerType.needsJsonDecoding) {
-      return
-          '${json}.map((value) => ${innerType.jsonDecode('value')}).toList()';
+      return '${json}.map((value) => ${innerType.jsonDecode('value')}).toList()';
     } else {
       // NOTE: The List returned from JSON.decode() transfers ownership to the
       // user (i.e. we don't need to make a copy of it).
@@ -386,7 +371,7 @@ class NamedArrayType extends ComplexDartSchemaType {
   DartSchemaType innerType;
 
   NamedArrayType(DartApiImports imports, Identifier name, this.innerType,
-                 {Comment comment})
+      {Comment comment})
       : super(imports, name, comment: comment);
 
   DartSchemaType _resolve(DartSchemaTypeDB db) {
@@ -398,17 +383,16 @@ class NamedArrayType extends ComplexDartSchemaType {
     var decode = new StringBuffer();
     decode.writeln('  $className.fromJson(${imports.core.ref()}List json)');
     decode.writeln('      : _inner = json.map((value) => '
-                   '${innerType.jsonDecode('value')}).toList();');
+        '${innerType.jsonDecode('value')}).toList();');
 
     var encode = new StringBuffer();
     encode.writeln('  ${imports.core.ref()}List toJson() {');
     encode.writeln('    return _inner.map((value) => '
-                   '${innerType.jsonEncode('value')}).toList();');
+        '${innerType.jsonEncode('value')}).toList();');
     encode.write('  }');
 
     var type = innerType.declaration;
-    return
-'''
+    return '''
 ${comment.asDartDoc(0)}class $className
     extends ${imports.collection.ref()}ListBase<$type> {
   final ${imports.core.ref()}List<$type> _inner;
@@ -451,7 +435,6 @@ $encode
   }
 }
 
-
 /**
  * Represents an unnamed Map<F, T> type with given types `F` and `T`.
  */
@@ -463,7 +446,7 @@ class UnnamedMapType extends ComplexDartSchemaType {
       : super(imports, null) {
     if (fromType is! StringType) {
       throw new StateError('Violation of assumption: Keys in map types must '
-                           'be Strings.');
+          'be Strings.');
     }
   }
 
@@ -484,7 +467,7 @@ class UnnamedMapType extends ComplexDartSchemaType {
   String jsonEncode(String value) {
     if (fromType.needsJsonEncoding || toType.needsJsonEncoding) {
       return '${imports.commons}.mapMap'
-             '(${value}, (item) => ${toType.jsonEncode('item')})';
+          '(${value}, (item) => ${toType.jsonEncode('item')})';
     } else {
       // NOTE: The Map from the user can be encoded directly. We have a big
       // ASSUMPTION here: The user does not modify the map while we're
@@ -496,7 +479,7 @@ class UnnamedMapType extends ComplexDartSchemaType {
   String jsonDecode(String json) {
     if (fromType.needsJsonDecoding || toType.needsJsonDecoding) {
       return '${imports.commons}.mapMap'
-            '(${json}, (item) => ${toType.jsonDecode('item')})';
+          '(${json}, (item) => ${toType.jsonDecode('item')})';
     } else {
       // NOTE: The Map returned from JSON.decode() transfers ownership to the
       // user (i.e. we don't need to make a copy of it).
@@ -504,7 +487,6 @@ class UnnamedMapType extends ComplexDartSchemaType {
     }
   }
 }
-
 
 /**
  * Represents a named Map<F, T> type with given types `F` and `T`.
@@ -519,7 +501,7 @@ class NamedMapType extends ComplexDartSchemaType {
       : super(imports, name, comment: comment) {
     if (fromType is! StringType) {
       throw new StateError('Violation of assumption: Keys in map types must '
-                           'be Strings.');
+          'be Strings.');
     }
   }
 
@@ -532,7 +514,8 @@ class NamedMapType extends ComplexDartSchemaType {
   String get classDefinition {
     var decode = new StringBuffer();
     decode.writeln('  $className.fromJson(${imports.core.ref()}Map _json) {');
-    decode.writeln('    _json.forEach((${imports.core.ref()}String key, value) {');
+    decode.writeln(
+        '    _json.forEach((${imports.core.ref()}String key, value) {');
     decode.writeln('      this[key] = ${toType.jsonDecode('value')};');
     decode.writeln('    });');
     decode.writeln('  }');
@@ -540,7 +523,8 @@ class NamedMapType extends ComplexDartSchemaType {
     var encode = new StringBuffer();
     encode.writeln('  ${imports.core.ref()}Map toJson() {');
     encode.writeln('    var _json = {};');
-    encode.writeln('    this.forEach((${imports.core.ref()}String key, value) {');
+    encode
+        .writeln('    this.forEach((${imports.core.ref()}String key, value) {');
     encode.writeln('      _json[key] = ${toType.jsonEncode('value')};');
     encode.writeln('    });');
     encode.writeln('    return _json;');
@@ -549,8 +533,7 @@ class NamedMapType extends ComplexDartSchemaType {
     var fromT = fromType.declaration;
     var toT = toType.declaration;
 
-    return
-'''
+    return '''
 ${comment.asDartDoc(0)}class $className
     extends ${imports.collection.ref()}MapBase<$fromT, $toT> {
   final ${imports.core.ref()}Map _innerMap = {};
@@ -596,7 +579,6 @@ $encode
   }
 }
 
-
 /**
  * Represents a named custom dart class with a number of properties.
  */
@@ -607,15 +589,15 @@ class ObjectType extends ComplexDartSchemaType {
   AbstractVariantType superVariantType;
 
   ObjectType(DartApiImports imports, Identifier name, this.properties,
-             {Comment comment})
+      {Comment comment})
       : super(imports, name, comment: comment);
 
   DartSchemaType _resolve(DartSchemaTypeDB db) {
     for (var i = 0; i < properties.length; i++) {
       var property = properties[i];
-      var resolvedProperty = new DartClassProperty(
-          property.name, property.comment, property.type.resolve(db),
-          property.jsonName, byteArrayAccessor: property.byteArrayAccessor);
+      var resolvedProperty = new DartClassProperty(property.name,
+          property.comment, property.type.resolve(db), property.jsonName,
+          byteArrayAccessor: property.byteArrayAccessor);
       properties[i] = resolvedProperty;
     }
     return this;
@@ -650,8 +632,7 @@ class ObjectType extends ComplexDartSchemaType {
 
         propertyString.writeln();
 
-        propertyString.write(
-            '  void set ${property.byteArrayAccessor}');
+        propertyString.write('  void set ${property.byteArrayAccessor}');
         propertyString.writeln(
             '(${imports.core.ref()}List<${imports.core.ref()}int> _bytes) {');
         propertyString.writeln('    ${property.name} = ${imports.convert.ref()}'
@@ -661,16 +642,16 @@ class ObjectType extends ComplexDartSchemaType {
     });
 
     var fromJsonString = new StringBuffer();
-    fromJsonString.writeln(
-        '  $className.fromJson(${imports.core.ref()}Map _json) {');
+    fromJsonString
+        .writeln('  $className.fromJson(${imports.core.ref()}Map _json) {');
     properties.forEach((DartClassProperty property) {
       // The super variant fromJson() will call this subclass constructor
       // and the variant descriminator is final.
       if (!isVariantDiscriminator(property)) {
-        var decodeString = property.type.jsonDecode(
-            '_json["${escapeString(property.jsonName)}"]');
+        var decodeString = property.type
+            .jsonDecode('_json["${escapeString(property.jsonName)}"]');
         fromJsonString.writeln('    if (_json.containsKey'
-                               '("${escapeString(property.jsonName)}")) {');
+            '("${escapeString(property.jsonName)}")) {');
         fromJsonString.writeln('      ${property.name} = ${decodeString};');
         fromJsonString.writeln('    }');
       }
@@ -683,16 +664,15 @@ class ObjectType extends ComplexDartSchemaType {
 
     properties.forEach((DartClassProperty property) {
       toJsonString.writeln('    if (${property.name} != null) {');
-      toJsonString.writeln(
-          '      _json["${escapeString(property.jsonName)}"] = '
-          '${property.type.jsonEncode('${property.name}')};');
+      toJsonString
+          .writeln('      _json["${escapeString(property.jsonName)}"] = '
+              '${property.type.jsonEncode('${property.name}')};');
       toJsonString.writeln('    }');
     });
     toJsonString.writeln('    return _json;');
     toJsonString.write('  }');
 
-    return
-'''
+    return '''
 ${comment.asDartDoc(0)}class $className $superClassString{
 $propertyString
   $className();
@@ -715,7 +695,7 @@ $toJsonString
 
   bool isVariantDiscriminator(DartClassProperty prop) {
     return superVariantType != null &&
-           prop.jsonName == superVariantType.discriminant;
+        prop.jsonName == superVariantType.discriminant;
   }
 
   String discriminatorValue() {
@@ -734,11 +714,9 @@ class AbstractVariantType extends ComplexDartSchemaType {
   final String discriminant;
   final Map<String, DartSchemaType> map;
 
-  AbstractVariantType(DartApiImports imports,
-                      Identifier name,
-                      this.discriminant,
-                      this.map,
-                      {Comment comment})
+  AbstractVariantType(
+      DartApiImports imports, Identifier name, this.discriminant, this.map,
+      {Comment comment})
       : super(imports, name, comment: comment);
 
   DartSchemaType _resolve(DartSchemaTypeDB db) {
@@ -750,16 +728,16 @@ class AbstractVariantType extends ComplexDartSchemaType {
         if (resolvedType.superVariantType == null) {
           if (resolvedType is AbstractVariantType) {
             throw new StateError('Variant types cannot have subclasses which '
-                                 'are variant types themselves.');
+                'are variant types themselves.');
           }
           resolvedType.superVariantType = this;
         } else {
           throw new StateError('Superclass already set. A object type should '
-                               'have only one superclass');
+              'have only one superclass');
         }
       } else {
         throw new StateError('A variant type can only have concrete object '
-                             'types as subclasses.');
+            'types as subclasses.');
       }
     });
     return this;
@@ -773,18 +751,17 @@ class AbstractVariantType extends ComplexDartSchemaType {
     map.forEach((String name, DartSchemaType type) {
       fromJsonString.writeln('    if (discriminant == "$name") {');
       fromJsonString.writeln('      return new ${type.declaration}'
-                             '.fromJson(json);');
+          '.fromJson(json);');
       fromJsonString.writeln('    }');
     });
     fromJsonString.writeln('    throw new ${imports.core.ref()}ArgumentError'
-                           '("Invalid discriminant: \$discriminant!");');
+        '("Invalid discriminant: \$discriminant!");');
     fromJsonString.writeln('  }');
 
     var toJsonString = new StringBuffer();
     toJsonString.writeln('  ${imports.core.ref()}Map toJson();');
 
-    return
-'''
+    return '''
 ${comment.asDartDoc(0)}abstract class $className {
   $className();
 $fromJsonString
@@ -804,13 +781,11 @@ $toJsonString
   }
 }
 
-
-
 /**
  * Parses all schemas in [description] and returns a [DartSchemaTypeDB].
  */
-DartSchemaTypeDB parseSchemas(DartApiImports imports,
-                              RestDescription description) {
+DartSchemaTypeDB parseSchemas(
+    DartApiImports imports, RestDescription description) {
   var namer = imports.namer;
   var db = new DartSchemaTypeDB(imports);
 
@@ -857,10 +832,8 @@ DartSchemaTypeDB parseSchemas(DartApiImports imports,
    * If these types appear on the top level, i.e. in the {"schemas" { XXX }},
    * they are named, otherwise they are unnamed.
    */
-  DartSchemaType parse(String className,
-                       Scope classScope,
-                       JsonSchema schema,
-                       {bool topLevel: false}) {
+  DartSchemaType parse(String className, Scope classScope, JsonSchema schema,
+      {bool topLevel: false}) {
     if (schema.repeated != null) {
       throw new ArgumentError('Only path/query parameters can be repeated.');
     }
@@ -868,26 +841,24 @@ DartSchemaTypeDB parseSchemas(DartApiImports imports,
     if (schema.type == 'object') {
       var comment = new Comment(schema.description);
       if (schema.additionalProperties != null) {
-        var anonValueClassName =
-            namer.schemaClassName('${className}Value');
+        var anonValueClassName = namer.schemaClassName('${className}Value');
         var anonClassScope = namer.newClassScope();
-        var valueType = parse(anonValueClassName,
-                              anonClassScope,
-                              schema.additionalProperties);
+        var valueType = parse(
+            anonValueClassName, anonClassScope, schema.additionalProperties);
         if (topLevel) {
           if (schema.additionalProperties.description != null) {
-            comment = new Comment(
-                '${comment.rawComment}\n\n'
+            comment = new Comment('${comment.rawComment}\n\n'
                 '${schema.additionalProperties.description}');
           }
           // This is a named map type.
           var classId = namer.schemaClass(className);
           return db.register(new NamedMapType(
-              imports, classId, db.stringType, valueType, comment: comment));
+              imports, classId, db.stringType, valueType,
+              comment: comment));
         } else {
           // This is an unnamed map type.
-          return db.register(
-              new UnnamedMapType(imports, db.stringType, valueType));
+          return db
+              .register(new UnnamedMapType(imports, db.stringType, valueType));
         }
       } else if (schema.variant != null) {
         // This is a variant type, declaring the type discriminant field and all
@@ -907,10 +878,10 @@ DartSchemaTypeDB parseSchemas(DartApiImports imports,
         var properties = new List<DartClassProperty>();
         if (schema.properties != null) {
           orderedForEach(schema.properties,
-                         (String jsonPName, JsonSchema value) {
+              (String jsonPName, JsonSchema value) {
             var propertyName = classScope.newIdentifier(jsonPName);
-            var propertyClass = namer.schemaClassName(
-                jsonPName, parent: className);
+            var propertyClass =
+                namer.schemaClassName(jsonPName, parent: className);
             var propertyClassScope = namer.newClassScope();
 
             var propertyType = parse(propertyClass, propertyClassScope, value);
@@ -937,15 +908,12 @@ DartSchemaTypeDB parseSchemas(DartApiImports imports,
       if (topLevel) {
         var elementClassName = namer.schemaClassName('${className}Element');
         var classId = namer.schemaClass(className);
-        return db.register(new NamedArrayType(imports,
-                        classId,
-                        parse(elementClassName,
-                              namer.newClassScope(),
-                              schema.items),
-                        comment: comment));
+        return db.register(new NamedArrayType(imports, classId,
+            parse(elementClassName, namer.newClassScope(), schema.items),
+            comment: comment));
       } else {
-        return db.register(new UnnamedArrayType(imports,
-                parse(className, namer.newClassScope(), schema.items)));
+        return db.register(new UnnamedArrayType(
+            imports, parse(className, namer.newClassScope(), schema.items)));
       }
     } else if (schema.type == 'any') {
       return db.anyType;
@@ -962,8 +930,8 @@ DartSchemaTypeDB parseSchemas(DartApiImports imports,
     orderedForEach(description.schemas, (String name, JsonSchema schema) {
       var className = namer.schemaClassName(name);
       var classScope = namer.newClassScope();
-      db.registerTopLevel(name,
-                          parse(className, classScope, schema, topLevel: true));
+      db.registerTopLevel(
+          name, parse(className, classScope, schema, topLevel: true));
     });
 
     // Resolve all forward references and save list in [db.dartTypes].
@@ -971,17 +939,16 @@ DartSchemaTypeDB parseSchemas(DartApiImports imports,
 
     // Build map of all top level dart schema classes which will be represented
     // as named dart classes.
-    db.dartClassTypes.addAll(
-        db.dartTypes.where((type) => type.className != null));
+    db.dartClassTypes
+        .addAll(db.dartTypes.where((type) => type.className != null));
   }
 
   return db;
 }
 
 // NOTE: This will be called for resolving parameter types in methods.
-DartSchemaType parseResolved(DartApiImports imports,
-                             DartSchemaTypeDB db,
-                             JsonSchema schema) {
+DartSchemaType parseResolved(
+    DartApiImports imports, DartSchemaTypeDB db, JsonSchema schema) {
   if (schema.repeated != null && schema.repeated) {
     var innerType = parsePrimitive(imports, db, schema);
     return new UnnamedArrayType(imports, innerType);
@@ -989,21 +956,20 @@ DartSchemaType parseResolved(DartApiImports imports,
   return parsePrimitive(imports, db, schema);
 }
 
-DartSchemaType parsePrimitive(DartApiImports imports,
-                              DartSchemaTypeDB db,
-                              JsonSchema schema) {
-  switch(schema.type) {
+DartSchemaType parsePrimitive(
+    DartApiImports imports, DartSchemaTypeDB db, JsonSchema schema) {
+  switch (schema.type) {
     case 'boolean':
       return db.booleanType;
     case 'string':
-      switch(schema.format) {
+      switch (schema.format) {
         case 'date-time':
           return db.dateTimeType;
         case 'date':
           return db.dateType;
         case 'int64':
-        // 9007199254740991 == pow(2, 53) - 1; the maximum range for integers
-        // in javascript (which uses doubles to store integers)
+          // 9007199254740991 == pow(2, 53) - 1; the maximum range for integers
+          // in javascript (which uses doubles to store integers)
           if (schema.maximum != null &&
               int.parse(schema.maximum) <= 9007199254740991 &&
               schema.minimum != null &&
@@ -1012,8 +978,8 @@ DartSchemaType parsePrimitive(DartApiImports imports,
           }
       }
       if (schema.enum_ != null) {
-        return db.register(new EnumType(
-            imports, schema.enum_, schema.enumDescriptions));
+        return db.register(
+            new EnumType(imports, schema.enum_, schema.enumDescriptions));
       }
       return db.stringType;
     case 'number':
@@ -1047,12 +1013,11 @@ String generateSchemas(DartSchemaTypeDB db) {
   return '$sb';
 }
 
-
 Comment extendEnumComment(Comment baseComment, DartSchemaType type) {
   if (type is EnumType) {
     var s = new StringBuffer()
-        ..writeln(baseComment.rawComment)
-        ..writeln('Possible string values are:');
+      ..writeln(baseComment.rawComment)
+      ..writeln('Possible string values are:');
     for (int i = 0; i < type.enumValues.length; i++) {
       var description = type.enumDescriptions[i];
       if (description != null && description.trim().length > 0) {
@@ -1066,9 +1031,8 @@ Comment extendEnumComment(Comment baseComment, DartSchemaType type) {
   return baseComment;
 }
 
-Comment extendAnyTypeComment(Comment baseComment,
-                             DartSchemaType type,
-                             {bool includeNamedTypes: false}) {
+Comment extendAnyTypeComment(Comment baseComment, DartSchemaType type,
+    {bool includeNamedTypes: false}) {
   const String AnyTypeComment =
       'The values for Object must be JSON objects. It can consist of `num`, '
       '`String`, `bool` and `null` as well as `Map` and `List` values.';

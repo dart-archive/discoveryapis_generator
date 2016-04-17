@@ -3,7 +3,7 @@
 // BSD-style license that can be found in the LICENSE file.
 
 import 'package:discoveryapis_generator/src'
-       '/generated_googleapis/discovery/v1.dart';
+    '/generated_googleapis/discovery/v1.dart';
 import 'package:discoveryapis_generator/src/dart_api_library.dart';
 import 'package:discoveryapis_generator/src/dart_resources.dart';
 import 'package:discoveryapis_generator/src/dart_schemas.dart';
@@ -37,25 +37,21 @@ withParsedApiResource(db, json, function) {
 
 main() {
   var schema = {
-    'schemas' : {
-      'Task' : {
-        'type' : 'object',
-        'properties' : {
-          'name' : { 'type': 'string' },
-          'isMale' : { 'type': 'boolean' },
-          'age' : { 'type': 'integer' },
-          'any' : { 'type': 'any' },
-          'labels' : {
+    'schemas': {
+      'Task': {
+        'type': 'object',
+        'properties': {
+          'name': {'type': 'string'},
+          'isMale': {'type': 'boolean'},
+          'age': {'type': 'integer'},
+          'any': {'type': 'any'},
+          'labels': {
             'type': 'array',
-            'items' : {
-              'type' : 'integer',
-            },
+            'items': {'type': 'integer',},
           },
-          'properties' : {
+          'properties': {
             'type': 'object',
-            'additionalProperties' : {
-              'type' : 'string',
-            },
+            'additionalProperties': {'type': 'string',},
           },
         },
       },
@@ -65,10 +61,10 @@ main() {
   withParsedDB(schema, (DartSchemaTypeDB db) {
     Map buildApi(String i, {Map methods, Map resources}) {
       var api = {
-          'name' : 'apiname$i',
-          'version' : 'apiversion$i',
-          'rootUrl' : 'https://www.googleapis.com/',
-          'servicePath' : 'mapsengine/v1/',
+        'name': 'apiname$i',
+        'version': 'apiversion$i',
+        'rootUrl': 'https://www.googleapis.com/',
+        'servicePath': 'mapsengine/v1/',
       };
       if (methods != null) {
         api['methods'] = methods;
@@ -88,35 +84,31 @@ main() {
 
     Map buildMethods(String i) {
       var map = {
-         'foo$i' : {
-           'path' : 'foo$i/{id$i}',
-           'httpMethod' : 'GET',
-           'parameters' : {
-             'id$i' : {
-               'type' : 'string',
-               'required' : true,
-               'location' : 'path',
-             },
-             'reapetedPathParam$i' : {
-               'type' : 'string',
-               'required' : true,
-               'repeated' : true,
-               'location' : 'path',
-             },
-             'reapetedQueryParam$i' : {
-              'type' : 'string',
-              'required' : true,
-              'repeated' : true,
-              'location' : 'query',
+        'foo$i': {
+          'path': 'foo$i/{id$i}',
+          'httpMethod': 'GET',
+          'parameters': {
+            'id$i': {'type': 'string', 'required': true, 'location': 'path',},
+            'reapetedPathParam$i': {
+              'type': 'string',
+              'required': true,
+              'repeated': true,
+              'location': 'path',
+            },
+            'reapetedQueryParam$i': {
+              'type': 'string',
+              'required': true,
+              'repeated': true,
+              'location': 'query',
             }
-           },
-         },
+          },
+        },
       };
       for (var reserved in RESERVED_METHOD_PARAMETER_NAMES) {
         map['foo$i']['parameters'][reserved] = {
-            'type' : 'string',
-            'required' : true,
-            'location' : 'path',
+          'type': 'string',
+          'required': true,
+          'location': 'path',
         };
       }
       return map;
@@ -133,7 +125,7 @@ main() {
       expect(foo.urlPattern.parts[1].templateVar, equals('id$i'));
       expect(foo.httpMethod, equals('GET'));
       expect(foo.parameters,
-             hasLength(3 + RESERVED_METHOD_PARAMETER_NAMES.length));
+          hasLength(3 + RESERVED_METHOD_PARAMETER_NAMES.length));
 
       var id = foo.parameters[0];
       expect(id, isNotNull);
@@ -175,15 +167,11 @@ main() {
         return null;
       } else {
         var methods = buildMethods('${i}M$level');
-        var subResources = buildResources('${i}L$level', level: level+1);
+        var subResources = buildResources('${i}L$level', level: level + 1);
 
         var resources = {
-           'resA$i' : {
-             'methods' : methods,
-           },
-           'resB$i' : {
-             'methods' : methods,
-           },
+          'resA$i': {'methods': methods,},
+          'resB$i': {'methods': methods,},
         };
         if (subResources != null) {
           resources['resA$i']['resources'] = subResources;
@@ -193,10 +181,8 @@ main() {
       }
     }
 
-    checkResources(String i,
-                   String parent,
-                   List<DartResourceClass> resources,
-                   {int level: 0}) {
+    checkResources(String i, String parent, List<DartResourceClass> resources,
+        {int level: 0}) {
       if (level > 3) {
         expect(resources, isEmpty);
       } else {
@@ -230,22 +216,18 @@ main() {
 
       test('api-scopes', () {
         withParsedApiResource(db, {
-            'name' : 'apiname',
-            'version' : 'apiversion',
-            'rootUrl' : 'https://www.googleapis.com/',
-            'servicePath' : 'mapsengine/v1/',
-            'auth' : {
-              'oauth2' : {
-                'scopes' : {
-                  'https://foo.com' : {
-                    'description' : 'com1',
-                  },
-                  'https://bar.com' : {
-                    'description' : 'com2',
-                  }
-                }
+          'name': 'apiname',
+          'version': 'apiversion',
+          'rootUrl': 'https://www.googleapis.com/',
+          'servicePath': 'mapsengine/v1/',
+          'auth': {
+            'oauth2': {
+              'scopes': {
+                'https://foo.com': {'description': 'com1',},
+                'https://bar.com': {'description': 'com2',}
               }
             }
+          }
         }, (DartApiClass apiClass) {
           expect(apiClass, isNotNull);
           expect(apiClass.methods, isEmpty);
@@ -259,9 +241,8 @@ main() {
       });
 
       test('api-methods', () {
-        withParsedApiResource(db,
-                              buildApi('2', methods: buildMethods('3')),
-                              (DartApiClass apiClass) {
+        withParsedApiResource(db, buildApi('2', methods: buildMethods('3')),
+            (DartApiClass apiClass) {
           expect(apiClass, isNotNull);
           checkApi('2', apiClass);
           checkMethods('3', apiClass.methods);
@@ -270,11 +251,11 @@ main() {
       });
 
       test('api-resources-methods', () {
-        withParsedApiResource(db,
-                              buildApi('4',
-                                       methods: buildMethods('5'),
-                                       resources: buildResources('6')),
-                              (DartApiClass apiClass) {
+        withParsedApiResource(
+            db,
+            buildApi('4',
+                methods: buildMethods('5'),
+                resources: buildResources('6')), (DartApiClass apiClass) {
           expect(apiClass, isNotNull);
           checkApi('4', apiClass);
           checkMethods('5', apiClass.methods);

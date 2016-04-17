@@ -46,7 +46,7 @@ class Identifier {
   void sealWithName(String name) {
     if (_sealed) {
       throw new StateError('This Identifier(preferredName: $preferredName) '
-                           'has already been sealed.');
+          'has already been sealed.');
     }
     _name = name;
     _sealed = true;
@@ -70,12 +70,11 @@ class Identifier {
   String toString() {
     if (!_sealed) {
       throw new StateError('This Identifier(preferredName: $preferredName) '
-                           'has not been sealed yet.');
+          'has not been sealed yet.');
     }
     return _name;
   }
 }
-
 
 /**
  * Allocate [Identifier]s for a lexical scope.
@@ -95,9 +94,9 @@ class Scope {
    * other names previously returned by this method.
    */
   Identifier newIdentifier(String preferredName,
-                           {bool removeUnderscores: true}) {
-    var identifier = new Identifier(Scope.toValidIdentifier(
-        preferredName, removeUnderscores: removeUnderscores));
+      {bool removeUnderscores: true}) {
+    var identifier = new Identifier(Scope.toValidIdentifier(preferredName,
+        removeUnderscores: removeUnderscores));
     identifiers.add(identifier);
     return identifier;
   }
@@ -115,11 +114,11 @@ class Scope {
    * Converts [preferredName] to a valid identifier.
    */
   static String toValidIdentifier(String preferredName,
-                                  {bool removeUnderscores: true}) {
+      {bool removeUnderscores: true}) {
     // Replace all abc_xyz with abcXyz.
     if (removeUnderscores) {
-      preferredName = Scope.capitalizeAtChar(
-          preferredName, '_', keepEnding: true);
+      preferredName =
+          Scope.capitalizeAtChar(preferredName, '_', keepEnding: true);
     }
 
     preferredName = preferredName.replaceAll('-', '_').replaceAll('.', '_');
@@ -144,7 +143,7 @@ class Scope {
     var name;
     if (scope.startsWith(googleAuthPrefix)) {
       name = scope.substring(googleAuthPrefix.length);
-    } else if (scope.startsWith(httpsPrefix)){
+    } else if (scope.startsWith(httpsPrefix)) {
       name = scope.substring(httpsPrefix.length);
     } else {
       throw new ArgumentError('Scope $scope is not an https scope URL.');
@@ -158,9 +157,8 @@ class Scope {
     return toValidIdentifier(capitalize('${name}Scope'));
   }
 
-  static String capitalizeAtChar(String name,
-                                 String char,
-                                 {bool keepEnding: false}) {
+  static String capitalizeAtChar(String name, String char,
+      {bool keepEnding: false}) {
     int index = -1;
     while ((index = name.indexOf(char, 1)) > 0) {
       if (index == (name.length - 1)) {
@@ -173,7 +171,7 @@ class Scope {
       } else {
         // Drop [char] and make the next character and uppercase.
         var a = name.substring(0, index);
-        var b = name.substring(index + 1 , index + 2);
+        var b = name.substring(index + 1, index + 2);
         var c = name.substring(index + 2);
         name = '$a${b.toUpperCase()}$c';
       }
@@ -188,7 +186,6 @@ class Scope {
     return "${name.substring(0, 1).toUpperCase()}${name.substring(1)}";
   }
 }
-
 
 /**
  * Names [Identifier]s and avoids name collisions by renaming.
@@ -212,8 +209,7 @@ class IdentifierNamer {
    *   - not taken by [parentNamer]
    *   - not in [allocatedNames]
    */
-  IdentifierNamer({this.parentNamer})
-      : allocatedNames = new Set<String>();
+  IdentifierNamer({this.parentNamer}) : allocatedNames = new Set<String>();
 
   /**
    * Reserves all given [allocatedNames] by default.
@@ -245,7 +241,6 @@ class IdentifierNamer {
     return false;
   }
 }
-
 
 /**
  * Helper class for allocating unique names for generating an API library.
@@ -283,11 +278,11 @@ class ApiLibraryNamer {
 
   Identifier noPrefix() => new Identifier.noPrefix();
 
-  Identifier import(String name)
-      => importScope.newIdentifier(name, removeUnderscores: false);
+  Identifier import(String name) =>
+      importScope.newIdentifier(name, removeUnderscores: false);
 
-  Identifier apiClass(String name) => _libraryScope.newIdentifier(
-      '${Scope.capitalize(name)}$apiClassSuffix');
+  Identifier apiClass(String name) =>
+      _libraryScope.newIdentifier('${Scope.capitalize(name)}$apiClassSuffix');
 
   Identifier resourceClass(String name, {String parent}) {
     name = Scope.capitalize(name);
@@ -360,8 +355,8 @@ class ApiLibraryNamer {
       scope.identifiers.forEach(resolver.nameIdentifier);
       // Order does not matter because child scopes are independent of each
       // other.
-      scope.childScopes.forEach(
-          (childScope) => nameScope(childScope, resolver));
+      scope.childScopes
+          .forEach((childScope) => nameScope(childScope, resolver));
 
       allAllocatedNames.addAll(resolver.allocatedNames);
     }
