@@ -8,19 +8,17 @@ import 'dart:convert' as convert;
 import 'package:_discoveryapis_commons/_discoveryapis_commons.dart' as commons;
 import 'package:http/http.dart' as http;
 
-export 'package:_discoveryapis_commons/_discoveryapis_commons.dart'
-    show ApiRequestError, DetailedApiRequestError;
+export 'package:_discoveryapis_commons/_discoveryapis_commons.dart' show
+    ApiRequestError, DetailedApiRequestError;
 
 const String USER_AGENT = 'dart-api-client dartservices/v1';
 
 class DartservicesApi {
+
   final commons.ApiRequester _requester;
 
-  DartservicesApi(http.Client client,
-      {String rootUrl: "http://localhost/",
-      String servicePath: "api/dartservices/v1/"})
-      : _requester =
-            new commons.ApiRequester(client, rootUrl, servicePath, USER_AGENT);
+  DartservicesApi(http.Client client, {String rootUrl: "http://localhost/", String servicePath: "api/dartservices/v1/"}) :
+      _requester = new commons.ApiRequester(client, rootUrl, servicePath, USER_AGENT);
 
   /**
    * [request] - The metadata request object.
@@ -49,12 +47,13 @@ class DartservicesApi {
 
     _url = 'analyze';
 
-    var _response = _requester.request(_url, "POST",
-        body: _body,
-        queryParams: _queryParams,
-        uploadOptions: _uploadOptions,
-        uploadMedia: _uploadMedia,
-        downloadOptions: _downloadOptions);
+    var _response = _requester.request(_url,
+                                       "POST",
+                                       body: _body,
+                                       queryParams: _queryParams,
+                                       uploadOptions: _uploadOptions,
+                                       uploadMedia: _uploadMedia,
+                                       downloadOptions: _downloadOptions);
     return _response.then((data) => new AnalysisResults.fromJson(data));
   }
 
@@ -85,12 +84,13 @@ class DartservicesApi {
 
     _url = 'analyze';
 
-    var _response = _requester.request(_url, "GET",
-        body: _body,
-        queryParams: _queryParams,
-        uploadOptions: _uploadOptions,
-        uploadMedia: _uploadMedia,
-        downloadOptions: _downloadOptions);
+    var _response = _requester.request(_url,
+                                       "GET",
+                                       body: _body,
+                                       queryParams: _queryParams,
+                                       uploadOptions: _uploadOptions,
+                                       uploadMedia: _uploadMedia,
+                                       downloadOptions: _downloadOptions);
     return _response.then((data) => new AnalysisResults.fromJson(data));
   }
 
@@ -121,12 +121,13 @@ class DartservicesApi {
 
     _url = 'compile';
 
-    var _response = _requester.request(_url, "POST",
-        body: _body,
-        queryParams: _queryParams,
-        uploadOptions: _uploadOptions,
-        uploadMedia: _uploadMedia,
-        downloadOptions: _downloadOptions);
+    var _response = _requester.request(_url,
+                                       "POST",
+                                       body: _body,
+                                       queryParams: _queryParams,
+                                       uploadOptions: _uploadOptions,
+                                       uploadMedia: _uploadMedia,
+                                       downloadOptions: _downloadOptions);
     return _response.then((data) => new CompileResponse.fromJson(data));
   }
 
@@ -157,12 +158,13 @@ class DartservicesApi {
 
     _url = 'compile';
 
-    var _response = _requester.request(_url, "GET",
-        body: _body,
-        queryParams: _queryParams,
-        uploadOptions: _uploadOptions,
-        uploadMedia: _uploadMedia,
-        downloadOptions: _downloadOptions);
+    var _response = _requester.request(_url,
+                                       "GET",
+                                       body: _body,
+                                       queryParams: _queryParams,
+                                       uploadOptions: _uploadOptions,
+                                       uploadMedia: _uploadMedia,
+                                       downloadOptions: _downloadOptions);
     return _response.then((data) => new CompileResponse.fromJson(data));
   }
 
@@ -193,12 +195,13 @@ class DartservicesApi {
 
     _url = 'complete';
 
-    var _response = _requester.request(_url, "POST",
-        body: _body,
-        queryParams: _queryParams,
-        uploadOptions: _uploadOptions,
-        uploadMedia: _uploadMedia,
-        downloadOptions: _downloadOptions);
+    var _response = _requester.request(_url,
+                                       "POST",
+                                       body: _body,
+                                       queryParams: _queryParams,
+                                       uploadOptions: _uploadOptions,
+                                       uploadMedia: _uploadMedia,
+                                       downloadOptions: _downloadOptions);
     return _response.then((data) => null);
   }
 
@@ -234,12 +237,13 @@ class DartservicesApi {
 
     _url = 'complete';
 
-    var _response = _requester.request(_url, "GET",
-        body: _body,
-        queryParams: _queryParams,
-        uploadOptions: _uploadOptions,
-        uploadMedia: _uploadMedia,
-        downloadOptions: _downloadOptions);
+    var _response = _requester.request(_url,
+                                       "GET",
+                                       body: _body,
+                                       queryParams: _queryParams,
+                                       uploadOptions: _uploadOptions,
+                                       uploadMedia: _uploadMedia,
+                                       downloadOptions: _downloadOptions);
     return _response.then((data) => null);
   }
 
@@ -270,12 +274,13 @@ class DartservicesApi {
 
     _url = 'document';
 
-    var _response = _requester.request(_url, "POST",
-        body: _body,
-        queryParams: _queryParams,
-        uploadOptions: _uploadOptions,
-        uploadMedia: _uploadMedia,
-        downloadOptions: _downloadOptions);
+    var _response = _requester.request(_url,
+                                       "POST",
+                                       body: _body,
+                                       queryParams: _queryParams,
+                                       uploadOptions: _uploadOptions,
+                                       uploadMedia: _uploadMedia,
+                                       downloadOptions: _downloadOptions);
     return _response.then((data) => new DocumentResponse.fromJson(data));
   }
 
@@ -311,15 +316,19 @@ class DartservicesApi {
 
     _url = 'document';
 
-    var _response = _requester.request(_url, "GET",
-        body: _body,
-        queryParams: _queryParams,
-        uploadOptions: _uploadOptions,
-        uploadMedia: _uploadMedia,
-        downloadOptions: _downloadOptions);
+    var _response = _requester.request(_url,
+                                       "GET",
+                                       body: _body,
+                                       queryParams: _queryParams,
+                                       uploadOptions: _uploadOptions,
+                                       uploadMedia: _uploadMedia,
+                                       downloadOptions: _downloadOptions);
     return _response.then((data) => new DocumentResponse.fromJson(data));
   }
+
 }
+
+
 
 class AnalysisIssue {
   int charLength;
@@ -383,9 +392,7 @@ class AnalysisResults {
 
   AnalysisResults.fromJson(Map _json) {
     if (_json.containsKey("issues")) {
-      issues = _json["issues"]
-          .map((value) => new AnalysisIssue.fromJson(value))
-          .toList();
+      issues = _json["issues"].map((value) => new AnalysisIssue.fromJson(value)).toList();
     }
   }
 
