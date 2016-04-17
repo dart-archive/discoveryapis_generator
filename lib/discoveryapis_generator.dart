@@ -31,11 +31,10 @@ class Pubspec {
           {this.author,
            this.homepage});
 
-  String get sdkConstraint => '>=1.0.0 <2.0.0';
+  String get sdkConstraint => '>=1.13.0 <2.0.0';
 
   static Map<String, Object> get dependencies => const {
     'http': '\'>=0.11.1 <0.12.0\'',
-    'crypto': '\'>=0.9.0 <0.10.0\'',
     '_discoveryapis_commons': '\'>=0.1.0 <0.2.0\'',
   };
 

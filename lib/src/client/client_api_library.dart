@@ -128,10 +128,6 @@ import 'dart:convert' as ${imports.convert};
 import 'package:_discoveryapis_commons/_discoveryapis_commons.dart' as ${imports.commons};
 """;
 
-    if (imports.crypto.wasCalled) {
-      result += "import 'package:crypto/crypto.dart' as ${imports.crypto};\n";
-    }
-
     return result + """
 import 'package:http/http.dart' as ${imports.http};
 $schemaImports
