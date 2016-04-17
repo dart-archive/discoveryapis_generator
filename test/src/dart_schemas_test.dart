@@ -7,7 +7,7 @@ import 'package:discoveryapis_generator/src'
 import 'package:discoveryapis_generator/src/dart_api_library.dart';
 import 'package:discoveryapis_generator/src/dart_schemas.dart';
 import 'package:discoveryapis_generator/src/namer.dart';
-import 'package:unittest/unittest.dart';
+import 'package:test/test.dart';
 
 
 withImports(function) {

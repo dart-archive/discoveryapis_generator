@@ -8,25 +8,19 @@ import 'package:discoveryapis_generator/clientstub_generator.dart';
 import 'package:discoveryapis_generator/discoveryapis_generator.dart';
 import 'package:discoveryapis_generator/src/utils.dart';
 import 'package:path/path.dart' as path;
-import 'package:unittest/unittest.dart';
-
-class GeneratorTestConfiguration extends SimpleConfiguration {
-
-  Directory tmpDir;
-
-  GeneratorTestConfiguration(this.tmpDir);
-
-  void onDone(bool success) {
-    tmpDir.deleteSync(recursive: true);
-    super.onDone(success);
-  }
-}
+import 'package:test/test.dart';
 
 main() {
-  // We create our own tmp dir to make it easy to cleanup once the tests are
-  // done, independent of whether they failed or not.
-  var tmpDir = Directory.systemTemp.createTempSync();
-  unittestConfiguration = new GeneratorTestConfiguration(tmpDir);
+  Directory tmpDir;
+
+  setUpAll(() {
+    tmpDir = Directory.systemTemp.createTempSync();
+  });
+
+  tearDownAll(() {
+    tmpDir.deleteSync(recursive: true);
+  });
+
   // Common path to the necessary test data.
   var dataPath = path.join(findPackageRoot('.'), 'test', 'src', 'data');
 

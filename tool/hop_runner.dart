@@ -12,7 +12,6 @@ import 'dart:io';
 import 'package:hop/hop.dart';
 
 void main(List<String> args) {
-  var tests = findFiles('test');
 
   addTask('generate_example', commandlineTasks([
     commandRunner('dart', [
@@ -23,18 +22,6 @@ void main(List<String> args) {
       '--no-core-prefixes'
     ])
   ]));
-
-  addTask('generator_tests', commandlineTasks(tests.map((test) {
-    return commandRunner('dart', ['--checked', test]);
-  }).toList()));
-
-  addTask('generator_tests_analyze', commandlineTasks([
-      commandRunner('dartanalyzer', tests)
-  ]));
-
-  // We are running everything on drone.io.
-  addChainedTask('test', ['generator_tests',
-                          'generator_tests_analyze']);
 
   runHop(args);
 }
@@ -89,13 +76,4 @@ Function commandRunner(String executable, List<String> arguments, {cwd}) {
       }
     });
   };
-}
-
-List<String> findFiles(String directory) {
-  return new Directory(directory)
-      .listSync(recursive: true, followLinks: false)
-      .where((fse) => fse is File)
-      .where((fse) => fse.path.endsWith('.dart'))
-      .map((fse) => fse.path)
-      .toList();
 }

@@ -5,7 +5,7 @@
 import 'package:discoveryapis_generator/src/dart_api_library.dart';
 import 'package:discoveryapis_generator/src/namer.dart';
 import 'package:discoveryapis_generator/src/uri_template.dart';
-import 'package:unittest/unittest.dart';
+import 'package:test/test.dart';
 
 main() {
   group('url-pattern', () {

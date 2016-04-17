@@ -9,7 +9,7 @@ import 'package:discoveryapis_generator/src/dart_resources.dart';
 import 'package:discoveryapis_generator/src/dart_schemas.dart';
 import 'package:discoveryapis_generator/src/namer.dart';
 import 'package:discoveryapis_generator/src/uri_template.dart';
-import 'package:unittest/unittest.dart';
+import 'package:test/test.dart';
 
 withParsedDB(json, function) {
   var namer = new ApiLibraryNamer();
