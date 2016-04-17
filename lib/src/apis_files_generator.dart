@@ -4,15 +4,16 @@
 
 library discoveryapis_generator.apis_files_generator;
 
-import 'dart:io';
 import 'dart:convert';
+import 'dart:io';
+
 import 'package:path/path.dart' as path;
 import 'package:yaml/yaml.dart';
 
 import '../discoveryapis_generator.dart' show Pubspec;
-import 'generated_googleapis/discovery/v1.dart';
-import 'dart_api_library.dart';
 import 'client/client_api_library.dart';
+import 'dart_api_library.dart';
+import 'generated_googleapis/discovery/v1.dart';
 import 'utils.dart';
 
 class DescriptionImportPair {

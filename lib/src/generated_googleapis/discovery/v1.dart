@@ -1,11 +1,12 @@
 library googleapis.discovery.v1;
 
-import "dart:core" as core;
 import "dart:async" as async;
+import "dart:core" as core;
 
 import 'package:http/http.dart' as http;
-import '../src/common_internal.dart' as common_internal;
+
 import '../common/common.dart' as common;
+import '../src/common_internal.dart' as common_internal;
 
 export '../common/common.dart' show ApiRequestError;
 export '../common/common.dart' show DetailedApiRequestError;

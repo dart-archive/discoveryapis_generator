@@ -4,9 +4,9 @@
 
 library discoveryapis_generator.dart_schemas;
 
-import 'generated_googleapis/discovery/v1.dart';
-import 'dart_comments.dart';
 import 'dart_api_library.dart';
+import 'dart_comments.dart';
+import 'generated_googleapis/discovery/v1.dart';
 import 'namer.dart';
 import 'utils.dart';
 

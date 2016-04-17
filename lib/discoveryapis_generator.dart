@@ -4,12 +4,12 @@
 
 library discoveryapis_generator;
 
-import "dart:io";
 import "dart:convert";
+import "dart:io";
 
-import 'src/generated_googleapis/discovery/v1.dart';
-import 'src/apis_package_generator.dart';
 import 'src/apis_files_generator.dart';
+import 'src/apis_package_generator.dart';
+import 'src/generated_googleapis/discovery/v1.dart';
 import 'src/utils.dart';
 
 export 'src/generated_googleapis/discovery/v1.dart';

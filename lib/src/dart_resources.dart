@@ -4,10 +4,10 @@
 
 library discoveryapis_generator.dart_resources;
 
-import 'generated_googleapis/discovery/v1.dart';
+import 'dart_api_library.dart';
 import 'dart_comments.dart';
 import 'dart_schemas.dart';
-import 'dart_api_library.dart';
+import 'generated_googleapis/discovery/v1.dart';
 import 'namer.dart';
 import 'uri_template.dart';
 import 'utils.dart';

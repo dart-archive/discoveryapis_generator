@@ -1,12 +1,13 @@
 library googleapis.common_internal;
 
 import "dart:async";
-import "dart:convert";
 import "dart:collection" as collection;
+import "dart:convert";
 
 import "package:crypto/crypto.dart" as crypto;
-import "../common/common.dart" as common_external;
 import "package:http/http.dart" as http;
+
+import "../common/common.dart" as common_external;
 
 const String USER_AGENT_STRING = 'google-api-dart-client googleapis/0.1.1';
 

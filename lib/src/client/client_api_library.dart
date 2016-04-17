@@ -6,12 +6,12 @@ library discoveryapis_generator.client_api_library;
 
 import 'package:path/path.dart' as path;
 
-import 'client_schemas.dart' as client;
 import '../dart_api_library.dart';
 import '../dart_resources.dart';
 import '../dart_schemas.dart';
-import '../utils.dart';
 import '../generated_googleapis/discovery/v1.dart';
+import '../utils.dart';
+import 'client_schemas.dart' as client;
 
 /**
  * Generates a client API library based on a [RestDescription] and an import
