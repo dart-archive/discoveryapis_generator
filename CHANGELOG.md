@@ -1,5 +1,10 @@
 # Changelog - discoveryapis_generator
 
+## v0.8.0+1
+
+- Require at least Dart `1.14` for generated libraries. Code requires
+  `dart:convert` `BASE64` which was added to that release.
+
 ## v0.8.0
 
 - Remove crypto dependency from generated libraries and upgrade sdk
