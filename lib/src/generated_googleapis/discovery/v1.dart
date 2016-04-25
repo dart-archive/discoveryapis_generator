@@ -64,9 +64,9 @@ class ApisResourceApi {
     }
 
     _url = 'apis/' +
-        common_internal.Escaper.ecapeVariable('$api') +
+        common_internal.Escaper.escapeVariable('$api') +
         '/' +
-        common_internal.Escaper.ecapeVariable('$version') +
+        common_internal.Escaper.escapeVariable('$version') +
         '/rest';
 
     var _response = _requester.request(_url, "GET",
@@ -371,7 +371,7 @@ class JsonSchemaVariantMap {
 
 /**
  * In a variant data type, the value of one property is used to determine how to
- * interpret the entire entity. Its value must exist in a map of descriminant
+ * interpret the entire entity. Its value must exist in a map of discriminant
  * values to schema names.
  */
 class JsonSchemaVariant {

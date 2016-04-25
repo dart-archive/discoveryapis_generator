@@ -15,7 +15,7 @@ class Identifier {
   int _callCount = 0;
 
   /**
-   * The prefered name for this [Identifier].
+   * The preferred name for this [Identifier].
    */
   final String preferredName;
 
@@ -330,7 +330,7 @@ class ApiLibraryNamer {
     //    => positional parameters, optional parameters
     // d) name all [Identifier]s in the import scope
     //
-    // This is implicilty done by
+    // This is implicitly done by
     // - naming all [Indentifier]s (**) in scope X
     // - naming all child scopes (**) of X
     // (**) (which are already ordered)

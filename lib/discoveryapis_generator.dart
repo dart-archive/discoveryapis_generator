@@ -16,7 +16,7 @@ export 'src/generated_googleapis/discovery/v1.dart';
 export 'src/utils.dart' show GenerateResult;
 
 /**
- * Specifaction of the pubspec.yaml for a generated package.
+ * Specification of the pubspec.yaml for a generated package.
  */
 class Pubspec {
   final String name;

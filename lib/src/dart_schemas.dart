@@ -13,7 +13,7 @@ import 'utils.dart';
 /**
  * Class for keeping all named schemas. This is used for
  *  - resolving forward references
- *  - quering types by name
+ *  - querying types by name
  *  - access to built-in types
  */
 class DartSchemaTypeDB {
