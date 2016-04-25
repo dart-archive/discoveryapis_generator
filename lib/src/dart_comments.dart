@@ -14,8 +14,7 @@ class Comment {
   final String rawComment;
 
   Comment(String raw)
-      : rawComment = (raw != null && raw.length > 0)
-        ? raw.trimRight() : '';
+      : rawComment = (raw != null && raw.length > 0) ? raw.trimRight() : '';
 
   /**
    * Returns a block string which has [indentationLevel] spaces in front of it.

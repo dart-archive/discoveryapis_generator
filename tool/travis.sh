@@ -7,8 +7,8 @@
 # Fast fail the script on failures.
 set -e
 
-# Run Hop.
-dart --checked tool/hop_runner.dart test
+# Run tests
+pub run test
 
 # Validate that we can re-generate the example discovery doc.
-dart --checked tool/hop_runner.dart generate_example
+dart --checked bin/generate.dart files --input-dir=example --output-dir=example --no-core-prefixes

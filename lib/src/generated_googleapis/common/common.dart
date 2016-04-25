@@ -2,7 +2,7 @@ library googleapis.common;
 
 import 'dart:async' as async;
 import 'dart:core' as core;
-import 'dart:collection' as collection;
+
 /**
  * Represents a media consisting of a stream of bytes, a content type and a
  * length.
@@ -20,7 +20,7 @@ class Media {
    * is used.
    */
   Media(this.stream, this.length,
-        {this.contentType: "application/octet-stream"}) {
+      {this.contentType: "application/octet-stream"}) {
     if (stream == null || contentType == null) {
       throw new core.ArgumentError(
           'Arguments stream, contentType and length must not be null.');
@@ -30,7 +30,6 @@ class Media {
     }
   }
 }
-
 
 /**
  * Represents options for uploading a [Media].
@@ -44,7 +43,6 @@ class UploadOptions {
 
   const UploadOptions();
 }
-
 
 /**
  * Specifies options for resumable uploads.
@@ -78,11 +76,12 @@ class ResumableUploadOptions extends UploadOptions {
    */
   final core.Function backoffFunction;
 
-  ResumableUploadOptions({this.numberOfAttempts: 3,
-                          this.chunkSize: 1024 * 1024,
-                          core.Function backoffFunction})
-      : backoffFunction = backoffFunction == null ?
-          ExponentialBackoff : backoffFunction {
+  ResumableUploadOptions(
+      {this.numberOfAttempts: 3,
+      this.chunkSize: 1024 * 1024,
+      core.Function backoffFunction})
+      : backoffFunction =
+            backoffFunction == null ? ExponentialBackoff : backoffFunction {
     // See e.g. here:
     // https://developers.google.com/maps-engine/documentation/resumable-upload
     //
@@ -100,7 +99,6 @@ class ResumableUploadOptions extends UploadOptions {
     }
   }
 }
-
 
 /**
  * Represents options for downloading media.
@@ -121,7 +119,6 @@ class DownloadOptions {
   core.bool get isMetadataDownload => true;
 }
 
-
 /**
  * Options for downloading a [Media].
  */
@@ -140,7 +137,6 @@ class PartialDownloadOptions extends DownloadOptions {
   core.bool get isFullDownload => range.start == 0 && range.end == -1;
 }
 
-
 /**
  * Specifies a range of media.
  */
@@ -155,12 +151,11 @@ class ByteRange {
   core.int get length => end - start + 1;
 
   ByteRange(this.start, this.end) {
-    if (!(start == 0  && end == -1 || start >= 0 && end > start)) {
+    if (!(start == 0 && end == -1 || start >= 0 && end > start)) {
       throw new core.ArgumentError('Invalid media range [$start, $end]');
     }
   }
 }
-
 
 /**
  * Represents a general error reported by the API endpoint.
@@ -181,6 +176,6 @@ class DetailedApiRequestError extends ApiRequestError {
 
   DetailedApiRequestError(this.status, core.String message) : super(message);
 
-  core.String toString()
-      => 'DetailedApiRequestError(status: $status, message: $message)';
+  core.String toString() =>
+      'DetailedApiRequestError(status: $status, message: $message)';
 }

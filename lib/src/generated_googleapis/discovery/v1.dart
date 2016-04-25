@@ -1,14 +1,12 @@
 library googleapis.discovery.v1;
 
-import "dart:core" as core;
-import "dart:collection" as collection;
 import "dart:async" as async;
-import "dart:convert" as convert;
+import "dart:core" as core;
 
-import "package:crypto/crypto.dart" as crypto;
 import 'package:http/http.dart' as http;
-import '../src/common_internal.dart' as common_internal;
+
 import '../common/common.dart' as common;
+import '../src/common_internal.dart' as common_internal;
 
 export '../common/common.dart' show ApiRequestError;
 export '../common/common.dart' show DetailedApiRequestError;
@@ -18,22 +16,20 @@ export '../common/common.dart' show DetailedApiRequestError;
  * available, the resource and method details for each API.
  */
 class DiscoveryApi {
-
   final common_internal.ApiRequester _requester;
 
   ApisResourceApi get apis => new ApisResourceApi(_requester);
 
-  DiscoveryApi(http.Client client) :
-      _requester = new common_internal.ApiRequester(client, "https://www.googleapis.com/", "/discovery/v1/");
+  DiscoveryApi(http.Client client)
+      : _requester = new common_internal.ApiRequester(
+            client, "https://www.googleapis.com/", "/discovery/v1/");
 }
-
 
 /** Not documented yet. */
 class ApisResourceApi {
   final common_internal.ApiRequester _requester;
 
-  ApisResourceApi(common_internal.ApiRequester client) :
-      _requester = client;
+  ApisResourceApi(common_internal.ApiRequester client) : _requester = client;
 
   /**
    * Retrieve the description of a particular version of an api.
@@ -67,16 +63,18 @@ class ApisResourceApi {
       throw new core.ArgumentError("Parameter version is required.");
     }
 
+    _url = 'apis/' +
+        common_internal.Escaper.ecapeVariable('$api') +
+        '/' +
+        common_internal.Escaper.ecapeVariable('$version') +
+        '/rest';
 
-    _url = 'apis/' + common_internal.Escaper.ecapeVariable('$api') + '/' + common_internal.Escaper.ecapeVariable('$version') + '/rest';
-
-    var _response = _requester.request(_url,
-                                       "GET",
-                                       body: _body,
-                                       queryParams: _queryParams,
-                                       uploadOptions: _uploadOptions,
-                                       uploadMedia: _uploadMedia,
-                                       downloadOptions: _downloadOptions);
+    var _response = _requester.request(_url, "GET",
+        body: _body,
+        queryParams: _queryParams,
+        uploadOptions: _uploadOptions,
+        uploadMedia: _uploadMedia,
+        downloadOptions: _downloadOptions);
     return _response.then((data) => new RestDescription.fromJson(data));
   }
 
@@ -112,22 +110,17 @@ class ApisResourceApi {
       _queryParams["preferred"] = ["${preferred}"];
     }
 
-
     _url = 'apis';
 
-    var _response = _requester.request(_url,
-                                       "GET",
-                                       body: _body,
-                                       queryParams: _queryParams,
-                                       uploadOptions: _uploadOptions,
-                                       uploadMedia: _uploadMedia,
-                                       downloadOptions: _downloadOptions);
+    var _response = _requester.request(_url, "GET",
+        body: _body,
+        queryParams: _queryParams,
+        uploadOptions: _uploadOptions,
+        uploadMedia: _uploadMedia,
+        downloadOptions: _downloadOptions);
     return _response.then((data) => new DirectoryList.fromJson(data));
   }
-
 }
-
-
 
 /** Links to 16x16 and 32x32 icons representing the API. */
 class DirectoryListItemsIcons {
@@ -136,7 +129,6 @@ class DirectoryListItemsIcons {
 
   /** The URL of the 32x32 icon. */
   core.String x32;
-
 
   DirectoryListItemsIcons();
 
@@ -160,7 +152,6 @@ class DirectoryListItemsIcons {
     return _json;
   }
 }
-
 
 /** Not documented yet. */
 class DirectoryListItems {
@@ -199,7 +190,6 @@ class DirectoryListItems {
 
   /** The version of the API. */
   core.String version;
-
 
   DirectoryListItems();
 
@@ -284,7 +274,6 @@ class DirectoryListItems {
   }
 }
 
-
 /** Not documented yet. */
 class DirectoryList {
   /** Indicate the version of the Discovery API used to generate this doc. */
@@ -296,7 +285,6 @@ class DirectoryList {
   /** The kind for this response. */
   core.String kind;
 
-
   DirectoryList();
 
   DirectoryList.fromJson(core.Map _json) {
@@ -304,7 +292,9 @@ class DirectoryList {
       discoveryVersion = _json["discoveryVersion"];
     }
     if (_json.containsKey("items")) {
-      items = _json["items"].map((value) => new DirectoryListItems.fromJson(value)).toList();
+      items = _json["items"]
+          .map((value) => new DirectoryListItems.fromJson(value))
+          .toList();
     }
     if (_json.containsKey("kind")) {
       kind = _json["kind"];
@@ -326,12 +316,10 @@ class DirectoryList {
   }
 }
 
-
 /** Additional information about this property. */
 class JsonSchemaAnnotations {
   /** A list of methods for which this property is required on requests. */
   core.List<core.String> required;
-
 
   JsonSchemaAnnotations();
 
@@ -350,7 +338,6 @@ class JsonSchemaAnnotations {
   }
 }
 
-
 /** Not documented yet. */
 class JsonSchemaVariantMap {
   /** Not documented yet. */
@@ -358,7 +345,6 @@ class JsonSchemaVariantMap {
 
   /** Not documented yet. */
   core.String typeValue;
-
 
   JsonSchemaVariantMap();
 
@@ -383,7 +369,6 @@ class JsonSchemaVariantMap {
   }
 }
 
-
 /**
  * In a variant data type, the value of one property is used to determine how to
  * interpret the entire entity. Its value must exist in a map of descriminant
@@ -396,7 +381,6 @@ class JsonSchemaVariant {
   /** The map of discriminant value to schema to use for parsing.. */
   core.List<JsonSchemaVariantMap> map;
 
-
   JsonSchemaVariant();
 
   JsonSchemaVariant.fromJson(core.Map _json) {
@@ -404,7 +388,9 @@ class JsonSchemaVariant {
       discriminant = _json["discriminant"];
     }
     if (_json.containsKey("map")) {
-      map = _json["map"].map((value) => new JsonSchemaVariantMap.fromJson(value)).toList();
+      map = _json["map"]
+          .map((value) => new JsonSchemaVariantMap.fromJson(value))
+          .toList();
     }
   }
 
@@ -419,7 +405,6 @@ class JsonSchemaVariant {
     return _json;
   }
 }
-
 
 /** Not documented yet. */
 class JsonSchema {
@@ -519,7 +504,6 @@ class JsonSchema {
    */
   JsonSchemaVariant variant;
 
-
   JsonSchema();
 
   JsonSchema.fromJson(core.Map _json) {
@@ -527,7 +511,8 @@ class JsonSchema {
       P_ref = _json["\$ref"];
     }
     if (_json.containsKey("additionalProperties")) {
-      additionalProperties = new JsonSchema.fromJson(_json["additionalProperties"]);
+      additionalProperties =
+          new JsonSchema.fromJson(_json["additionalProperties"]);
     }
     if (_json.containsKey("annotations")) {
       annotations = new JsonSchemaAnnotations.fromJson(_json["annotations"]);
@@ -566,7 +551,8 @@ class JsonSchema {
       pattern = _json["pattern"];
     }
     if (_json.containsKey("properties")) {
-      properties = common_internal.mapMap(_json["properties"], (item) => new JsonSchema.fromJson(item));
+      properties = common_internal.mapMap(
+          _json["properties"], (item) => new JsonSchema.fromJson(item));
     }
     if (_json.containsKey("readOnly")) {
       readOnly = _json["readOnly"];
@@ -630,7 +616,8 @@ class JsonSchema {
       _json["pattern"] = pattern;
     }
     if (properties != null) {
-      _json["properties"] = common_internal.mapMap(properties, (item) => (item).toJson());
+      _json["properties"] =
+          common_internal.mapMap(properties, (item) => (item).toJson());
     }
     if (readOnly != null) {
       _json["readOnly"] = readOnly;
@@ -651,12 +638,10 @@ class JsonSchema {
   }
 }
 
-
 /** The scope value. */
 class RestDescriptionAuthOauth2ScopesValue {
   /** Description of scope. */
   core.String description;
-
 
   RestDescriptionAuthOauth2ScopesValue();
 
@@ -675,36 +660,34 @@ class RestDescriptionAuthOauth2ScopesValue {
   }
 }
 
-
 /** OAuth 2.0 authentication information. */
 class RestDescriptionAuthOauth2 {
   /** Available OAuth 2.0 scopes. */
   core.Map<core.String, RestDescriptionAuthOauth2ScopesValue> scopes;
 
-
   RestDescriptionAuthOauth2();
 
   RestDescriptionAuthOauth2.fromJson(core.Map _json) {
     if (_json.containsKey("scopes")) {
-      scopes = common_internal.mapMap(_json["scopes"], (item) => new RestDescriptionAuthOauth2ScopesValue.fromJson(item));
+      scopes = common_internal.mapMap(_json["scopes"],
+          (item) => new RestDescriptionAuthOauth2ScopesValue.fromJson(item));
     }
   }
 
   core.Map toJson() {
     var _json = new core.Map();
     if (scopes != null) {
-      _json["scopes"] = common_internal.mapMap(scopes, (item) => (item).toJson());
+      _json["scopes"] =
+          common_internal.mapMap(scopes, (item) => (item).toJson());
     }
     return _json;
   }
 }
 
-
 /** Authentication information. */
 class RestDescriptionAuth {
   /** OAuth 2.0 authentication information. */
   RestDescriptionAuthOauth2 oauth2;
-
 
   RestDescriptionAuth();
 
@@ -723,7 +706,6 @@ class RestDescriptionAuth {
   }
 }
 
-
 /** Links to 16x16 and 32x32 icons representing the API. */
 class RestDescriptionIcons {
   /** The URL of the 16x16 icon. */
@@ -731,7 +713,6 @@ class RestDescriptionIcons {
 
   /** The URL of the 32x32 icon. */
   core.String x32;
-
 
   RestDescriptionIcons();
 
@@ -755,7 +736,6 @@ class RestDescriptionIcons {
     return _json;
   }
 }
-
 
 /** Not documented yet. */
 class RestDescription {
@@ -850,7 +830,6 @@ class RestDescription {
   /** The version of this API. */
   core.String version;
 
-
   RestDescription();
 
   RestDescription.fromJson(core.Map _json) {
@@ -897,7 +876,8 @@ class RestDescription {
       labels = _json["labels"];
     }
     if (_json.containsKey("methods")) {
-      methods = common_internal.mapMap(_json["methods"], (item) => new RestMethod.fromJson(item));
+      methods = common_internal.mapMap(
+          _json["methods"], (item) => new RestMethod.fromJson(item));
     }
     if (_json.containsKey("name")) {
       name = _json["name"];
@@ -912,13 +892,15 @@ class RestDescription {
       packagePath = _json["packagePath"];
     }
     if (_json.containsKey("parameters")) {
-      parameters = common_internal.mapMap(_json["parameters"], (item) => new JsonSchema.fromJson(item));
+      parameters = common_internal.mapMap(
+          _json["parameters"], (item) => new JsonSchema.fromJson(item));
     }
     if (_json.containsKey("protocol")) {
       protocol = _json["protocol"];
     }
     if (_json.containsKey("resources")) {
-      resources = common_internal.mapMap(_json["resources"], (item) => new RestResource.fromJson(item));
+      resources = common_internal.mapMap(
+          _json["resources"], (item) => new RestResource.fromJson(item));
     }
     if (_json.containsKey("revision")) {
       revision = _json["revision"];
@@ -927,7 +909,8 @@ class RestDescription {
       rootUrl = _json["rootUrl"];
     }
     if (_json.containsKey("schemas")) {
-      schemas = common_internal.mapMap(_json["schemas"], (item) => new JsonSchema.fromJson(item));
+      schemas = common_internal.mapMap(
+          _json["schemas"], (item) => new JsonSchema.fromJson(item));
     }
     if (_json.containsKey("servicePath")) {
       servicePath = _json["servicePath"];
@@ -985,7 +968,8 @@ class RestDescription {
       _json["labels"] = labels;
     }
     if (methods != null) {
-      _json["methods"] = common_internal.mapMap(methods, (item) => (item).toJson());
+      _json["methods"] =
+          common_internal.mapMap(methods, (item) => (item).toJson());
     }
     if (name != null) {
       _json["name"] = name;
@@ -1000,13 +984,15 @@ class RestDescription {
       _json["packagePath"] = packagePath;
     }
     if (parameters != null) {
-      _json["parameters"] = common_internal.mapMap(parameters, (item) => (item).toJson());
+      _json["parameters"] =
+          common_internal.mapMap(parameters, (item) => (item).toJson());
     }
     if (protocol != null) {
       _json["protocol"] = protocol;
     }
     if (resources != null) {
-      _json["resources"] = common_internal.mapMap(resources, (item) => (item).toJson());
+      _json["resources"] =
+          common_internal.mapMap(resources, (item) => (item).toJson());
     }
     if (revision != null) {
       _json["revision"] = revision;
@@ -1015,7 +1001,8 @@ class RestDescription {
       _json["rootUrl"] = rootUrl;
     }
     if (schemas != null) {
-      _json["schemas"] = common_internal.mapMap(schemas, (item) => (item).toJson());
+      _json["schemas"] =
+          common_internal.mapMap(schemas, (item) => (item).toJson());
     }
     if (servicePath != null) {
       _json["servicePath"] = servicePath;
@@ -1030,7 +1017,6 @@ class RestDescription {
   }
 }
 
-
 /** Supports the Resumable Media Upload protocol. */
 class RestMethodMediaUploadProtocolsResumable {
   /** True if this endpoint supports uploading multipart media. */
@@ -1041,7 +1027,6 @@ class RestMethodMediaUploadProtocolsResumable {
    * basePath property at the api-level.
    */
   core.String path;
-
 
   RestMethodMediaUploadProtocolsResumable();
 
@@ -1066,7 +1051,6 @@ class RestMethodMediaUploadProtocolsResumable {
   }
 }
 
-
 /** Supports uploading as a single HTTP request. */
 class RestMethodMediaUploadProtocolsSimple {
   /** True if this endpoint supports upload multipart media. */
@@ -1077,7 +1061,6 @@ class RestMethodMediaUploadProtocolsSimple {
    * basePath property at the api-level.
    */
   core.String path;
-
 
   RestMethodMediaUploadProtocolsSimple();
 
@@ -1102,7 +1085,6 @@ class RestMethodMediaUploadProtocolsSimple {
   }
 }
 
-
 /** Supported upload protocols. */
 class RestMethodMediaUploadProtocols {
   /** Supports the Resumable Media Upload protocol. */
@@ -1111,15 +1093,16 @@ class RestMethodMediaUploadProtocols {
   /** Supports uploading as a single HTTP request. */
   RestMethodMediaUploadProtocolsSimple simple;
 
-
   RestMethodMediaUploadProtocols();
 
   RestMethodMediaUploadProtocols.fromJson(core.Map _json) {
     if (_json.containsKey("resumable")) {
-      resumable = new RestMethodMediaUploadProtocolsResumable.fromJson(_json["resumable"]);
+      resumable = new RestMethodMediaUploadProtocolsResumable.fromJson(
+          _json["resumable"]);
     }
     if (_json.containsKey("simple")) {
-      simple = new RestMethodMediaUploadProtocolsSimple.fromJson(_json["simple"]);
+      simple =
+          new RestMethodMediaUploadProtocolsSimple.fromJson(_json["simple"]);
     }
   }
 
@@ -1135,7 +1118,6 @@ class RestMethodMediaUploadProtocols {
   }
 }
 
-
 /** Media upload parameters. */
 class RestMethodMediaUpload {
   /** MIME Media Ranges for acceptable media uploads to this method. */
@@ -1147,7 +1129,6 @@ class RestMethodMediaUpload {
   /** Supported upload protocols. */
   RestMethodMediaUploadProtocols protocols;
 
-
   RestMethodMediaUpload();
 
   RestMethodMediaUpload.fromJson(core.Map _json) {
@@ -1158,7 +1139,8 @@ class RestMethodMediaUpload {
       maxSize = _json["maxSize"];
     }
     if (_json.containsKey("protocols")) {
-      protocols = new RestMethodMediaUploadProtocols.fromJson(_json["protocols"]);
+      protocols =
+          new RestMethodMediaUploadProtocols.fromJson(_json["protocols"]);
     }
   }
 
@@ -1177,7 +1159,6 @@ class RestMethodMediaUpload {
   }
 }
 
-
 /** The schema for the request. */
 class RestMethodRequest {
   /** Schema ID for the request schema. */
@@ -1185,7 +1166,6 @@ class RestMethodRequest {
 
   /** parameter name. */
   core.String parameterName;
-
 
   RestMethodRequest();
 
@@ -1210,12 +1190,10 @@ class RestMethodRequest {
   }
 }
 
-
 /** The schema for the response. */
 class RestMethodResponse {
   /** Schema ID for the response schema. */
   core.String P_ref;
-
 
   RestMethodResponse();
 
@@ -1233,7 +1211,6 @@ class RestMethodResponse {
     return _json;
   }
 }
-
 
 /** Not documented yet. */
 class RestMethod {
@@ -1293,7 +1270,6 @@ class RestMethod {
   /** Whether this method supports subscriptions. */
   core.bool supportsSubscription;
 
-
   RestMethod();
 
   RestMethod.fromJson(core.Map _json) {
@@ -1316,7 +1292,8 @@ class RestMethod {
       parameterOrder = _json["parameterOrder"];
     }
     if (_json.containsKey("parameters")) {
-      parameters = common_internal.mapMap(_json["parameters"], (item) => new JsonSchema.fromJson(item));
+      parameters = common_internal.mapMap(
+          _json["parameters"], (item) => new JsonSchema.fromJson(item));
     }
     if (_json.containsKey("path")) {
       path = _json["path"];
@@ -1365,7 +1342,8 @@ class RestMethod {
       _json["parameterOrder"] = parameterOrder;
     }
     if (parameters != null) {
-      _json["parameters"] = common_internal.mapMap(parameters, (item) => (item).toJson());
+      _json["parameters"] =
+          common_internal.mapMap(parameters, (item) => (item).toJson());
     }
     if (path != null) {
       _json["path"] = path;
@@ -1395,7 +1373,6 @@ class RestMethod {
   }
 }
 
-
 /** Not documented yet. */
 class RestResource {
   /** Methods on this resource. */
@@ -1404,28 +1381,29 @@ class RestResource {
   /** Sub-resources on this resource. */
   core.Map<core.String, RestResource> resources;
 
-
   RestResource();
 
   RestResource.fromJson(core.Map _json) {
     if (_json.containsKey("methods")) {
-      methods = common_internal.mapMap(_json["methods"], (item) => new RestMethod.fromJson(item));
+      methods = common_internal.mapMap(
+          _json["methods"], (item) => new RestMethod.fromJson(item));
     }
     if (_json.containsKey("resources")) {
-      resources = common_internal.mapMap(_json["resources"], (item) => new RestResource.fromJson(item));
+      resources = common_internal.mapMap(
+          _json["resources"], (item) => new RestResource.fromJson(item));
     }
   }
 
   core.Map toJson() {
     var _json = new core.Map();
     if (methods != null) {
-      _json["methods"] = common_internal.mapMap(methods, (item) => (item).toJson());
+      _json["methods"] =
+          common_internal.mapMap(methods, (item) => (item).toJson());
     }
     if (resources != null) {
-      _json["resources"] = common_internal.mapMap(resources, (item) => (item).toJson());
+      _json["resources"] =
+          common_internal.mapMap(resources, (item) => (item).toJson());
     }
     return _json;
   }
 }
-
-

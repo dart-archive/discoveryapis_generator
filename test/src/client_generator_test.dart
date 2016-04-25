@@ -8,25 +8,19 @@ import 'package:discoveryapis_generator/clientstub_generator.dart';
 import 'package:discoveryapis_generator/discoveryapis_generator.dart';
 import 'package:discoveryapis_generator/src/utils.dart';
 import 'package:path/path.dart' as path;
-import 'package:unittest/unittest.dart';
-
-class GeneratorTestConfiguration extends SimpleConfiguration {
-
-  Directory tmpDir;
-
-  GeneratorTestConfiguration(this.tmpDir);
-
-  void onDone(bool success) {
-    tmpDir.deleteSync(recursive: true);
-    super.onDone(success);
-  }
-}
+import 'package:test/test.dart';
 
 main() {
-  // We create our own tmp dir to make it easy to cleanup once the tests are
-  // done, independent of whether they failed or not.
-  var tmpDir = Directory.systemTemp.createTempSync();
-  unittestConfiguration = new GeneratorTestConfiguration(tmpDir);
+  Directory tmpDir;
+
+  setUpAll(() {
+    tmpDir = Directory.systemTemp.createTempSync();
+  });
+
+  tearDownAll(() {
+    tmpDir.deleteSync(recursive: true);
+  });
+
   // Common path to the necessary test data.
   var dataPath = path.join(findPackageRoot('.'), 'test', 'src', 'data');
 
@@ -46,8 +40,7 @@ main() {
       var stubFile = new File(path.join(outputDir.path, 'toyapi.dart'));
       var expectedStubFile =
           new File(path.join(dataPath, 'expected_nonidentical.dartt'));
-      expect(
-          _normalizeWhiteSpace(stubFile.readAsStringSync()),
+      expect(_normalizeWhiteSpace(stubFile.readAsStringSync()),
           _normalizeWhiteSpace(expectedStubFile.readAsStringSync()));
     });
 
@@ -58,7 +51,7 @@ main() {
       pubspecFile.copySync(path.join(outputDir.path, 'pubspec.yaml'));
       // Make sure we have a dart file with the message classes
       var libDir = new Directory(path.join(outputDir.path, 'lib'))
-          ..createSync();
+        ..createSync();
       var messageFile = new File(path.join(dataPath, 'toyapi_messages.dartt'));
       // Copy message dart file and point messageFile to the copy.
       messageFile =
@@ -73,9 +66,8 @@ main() {
         'ToyRequest': importUri.toString(),
         'ToyAgeRequest': importUri.toString()
       };
-      var description =
-          new File(
-              path.join(dataPath, 'rest', 'toyapi.json')).readAsStringSync();
+      var description = new File(path.join(dataPath, 'rest', 'toyapi.json'))
+          .readAsStringSync();
       var diPair = new DescriptionImportPair(description, importMap);
       // Generate the client stubs.
       var results = generateClientStubs([diPair], outputDir.path);
@@ -86,8 +78,7 @@ main() {
       var stubFile = new File(path.join(outputDir.path, 'toyapi.dart'));
       var expectedStubFile =
           new File(path.join(dataPath, 'expected_identical.dartt'));
-      expect(
-          _normalizeWhiteSpace(stubFile.readAsStringSync()),
+      expect(_normalizeWhiteSpace(stubFile.readAsStringSync()),
           _normalizeWhiteSpace(expectedStubFile.readAsStringSync()));
     });
   });

@@ -4,10 +4,10 @@
 
 library discoveryapis_generator.client_schemas;
 
-import '../generated_googleapis/discovery/v1.dart';
-import '../dart_comments.dart';
 import '../dart_api_library.dart';
+import '../dart_comments.dart';
 import '../dart_schemas.dart';
+import '../generated_googleapis/discovery/v1.dart';
 import '../namer.dart';
 import '../utils.dart';
 
@@ -16,7 +16,8 @@ import '../utils.dart';
  */
 class ClientObjectType extends ObjectType {
   ClientObjectType(DartApiImports imports, Identifier name,
-                   List<DartClassProperty> properties, {Comment comment})
+      List<DartClassProperty> properties,
+      {Comment comment})
       : super(imports, name, properties, comment: comment);
 
   String get classDefinition {
@@ -26,17 +27,17 @@ class ClientObjectType extends ObjectType {
     }
 
     var fromJsonString = new StringBuffer();
-    fromJsonString.writeln(
-        '  static $className fromJson(${imports.core}.Map _json) {');
+    fromJsonString
+        .writeln('  static $className fromJson(${imports.core}.Map _json) {');
     fromJsonString.writeln('    var message = new $className();');
     properties.forEach((DartClassProperty property) {
       // The super variant fromJson() will call this subclass constructor
       // and the variant descriminator is final.
       if (!isVariantDiscriminator(property)) {
-        var decodeString = property.type.jsonDecode(
-            '_json["${escapeString(property.jsonName)}"]');
+        var decodeString = property.type
+            .jsonDecode('_json["${escapeString(property.jsonName)}"]');
         fromJsonString.writeln('    if (_json.containsKey'
-                               '("${escapeString(property.jsonName)}")) {');
+            '("${escapeString(property.jsonName)}")) {');
         fromJsonString
             .writeln('      message.${property.name} = ${decodeString};');
         fromJsonString.writeln('    }');
@@ -52,16 +53,15 @@ class ClientObjectType extends ObjectType {
 
     properties.forEach((DartClassProperty property) {
       toJsonString.writeln('    if (message.${property.name} != null) {');
-      toJsonString.writeln(
-          '      _json["${escapeString(property.jsonName)}"] = '
-          '${property.type.jsonEncode('message.${property.name}')};');
+      toJsonString
+          .writeln('      _json["${escapeString(property.jsonName)}"] = '
+              '${property.type.jsonEncode('message.${property.name}')};');
       toJsonString.writeln('    }');
     });
     toJsonString.writeln('    return _json;');
     toJsonString.write('  }');
 
-    return
-'''
+    return '''
 ${comment.asDartDoc(0)}class ${className}Factory $superClassString{
 $fromJsonString
 $toJsonString
@@ -81,8 +81,8 @@ $toJsonString
 /**
  * Parses all schemas in [description] and returns a [DartSchemaTypeDB].
  */
-DartSchemaTypeDB parseSchemas(DartApiImports imports,
-                              RestDescription description) {
+DartSchemaTypeDB parseSchemas(
+    DartApiImports imports, RestDescription description) {
   var namer = imports.namer;
   var db = new DartSchemaTypeDB(imports);
 
@@ -126,9 +126,7 @@ DartSchemaTypeDB parseSchemas(DartApiImports imports,
    *     }
    *   }
    */
-  DartSchemaType parse(String className,
-                       Scope classScope,
-                       JsonSchema schema) {
+  DartSchemaType parse(String className, Scope classScope, JsonSchema schema) {
     if (schema.repeated != null) {
       throw new ArgumentError('Only path/query parameters can be repeated.');
     }
@@ -136,14 +134,12 @@ DartSchemaTypeDB parseSchemas(DartApiImports imports,
     if (schema.type == 'object') {
       var comment = new Comment(schema.description);
       if (schema.additionalProperties != null) {
-        var anonValueClassName =
-            namer.schemaClassName('${className}Value');
+        var anonValueClassName = namer.schemaClassName('${className}Value');
         var anonClassScope = namer.newClassScope();
-        var valueType = parse(anonValueClassName,
-                              anonClassScope,
-                              schema.additionalProperties);
-        return db.register(
-            new UnnamedMapType(imports, db.stringType, valueType));
+        var valueType = parse(
+            anonValueClassName, anonClassScope, schema.additionalProperties);
+        return db
+            .register(new UnnamedMapType(imports, db.stringType, valueType));
       } else if (schema.variant != null) {
         // This is a variant type, declaring the type discriminant field and all
         // subclasses.
@@ -158,10 +154,10 @@ DartSchemaTypeDB parseSchemas(DartApiImports imports,
         var properties = new List<DartClassProperty>();
         if (schema.properties != null) {
           orderedForEach(schema.properties,
-                         (String jsonPName, JsonSchema value) {
+              (String jsonPName, JsonSchema value) {
             var propertyName = classScope.newIdentifier(jsonPName);
-            var propertyClass = namer.schemaClassName(
-                jsonPName, parent: className);
+            var propertyClass =
+                namer.schemaClassName(jsonPName, parent: className);
             var propertyClassScope = namer.newClassScope();
 
             var propertyType = parse(propertyClass, propertyClassScope, value);
@@ -180,12 +176,12 @@ DartSchemaTypeDB parseSchemas(DartApiImports imports,
             properties.add(property);
           });
         }
-        return db.register(new ClientObjectType(
-            imports, classId, properties, comment: comment));
+        return db.register(new ClientObjectType(imports, classId, properties,
+            comment: comment));
       }
     } else if (schema.type == 'array') {
-       return db.register(new UnnamedArrayType(imports,
-            parse(className, namer.newClassScope(), schema.items)));
+      return db.register(new UnnamedArrayType(
+          imports, parse(className, namer.newClassScope(), schema.items)));
     } else if (schema.type == 'any') {
       return db.anyType;
     } else if (schema.P_ref != null) {
@@ -209,8 +205,8 @@ DartSchemaTypeDB parseSchemas(DartApiImports imports,
 
     // Build map of all top level dart schema classes which will be represented
     // as named dart classes.
-    db.dartClassTypes.addAll(
-        db.dartTypes.where((type) => type.className != null));
+    db.dartClassTypes
+        .addAll(db.dartTypes.where((type) => type.className != null));
   }
 
   return db;

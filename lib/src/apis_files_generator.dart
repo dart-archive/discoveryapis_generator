@@ -4,15 +4,16 @@
 
 library discoveryapis_generator.apis_files_generator;
 
-import 'dart:io';
 import 'dart:convert';
+import 'dart:io';
+
 import 'package:path/path.dart' as path;
 import 'package:yaml/yaml.dart';
 
 import '../discoveryapis_generator.dart' show Pubspec;
-import 'generated_googleapis/discovery/v1.dart';
-import 'dart_api_library.dart';
 import 'client/client_api_library.dart';
+import 'dart_api_library.dart';
+import 'generated_googleapis/discovery/v1.dart';
 import 'utils.dart';
 
 class DescriptionImportPair {
@@ -35,7 +36,7 @@ class ApisFilesGenerator {
   /// [clientFolderPath] is the output directory for the generated client stub
   /// code.
   ApisFilesGenerator(this.descriptions, this.clientFolderPath,
-                     {this.updatePubspec: false, this.useCorePrefixes: true}) {
+      {this.updatePubspec: false, this.useCorePrefixes: true}) {
     // Create the output directory.
     var clientDirectory = new Directory(clientFolderPath);
     packageRoot = findPackageRoot(path.absolute(clientDirectory.path));
@@ -80,8 +81,7 @@ class ApisFilesGenerator {
               description, diPair.importMap, packageName, packageRoot);
         }
         writeString(apiFile, lib.librarySource);
-        var result =
-            new GenerateResult(name, version, clientFolderPath);
+        var result = new GenerateResult(name, version, clientFolderPath);
         results.add(result);
         processPubspec = true;
       } catch (error, stack) {
@@ -106,7 +106,6 @@ class ApisFilesGenerator {
   }
 
   String _processPubspec() {
-
     void writeValue(StringSink sink, String key, dynamic value, String indent) {
       if (value is String) {
         // Encapsulate constraints with ''
@@ -123,10 +122,21 @@ class ApisFilesGenerator {
       }
     }
 
-    const List<String> pubspecKeys = const
-        ['name', 'version', 'description', 'author', 'authors', 'homepage',
-         'documentation', 'environment', 'dependencies', 'dev_dependencies',
-         'dependency_overrides', 'executables', 'transformers'];
+    const List<String> pubspecKeys = const [
+      'name',
+      'version',
+      'description',
+      'author',
+      'authors',
+      'homepage',
+      'documentation',
+      'environment',
+      'dependencies',
+      'dev_dependencies',
+      'dependency_overrides',
+      'executables',
+      'transformers'
+    ];
 
     // Process pubspec and either print the dependencies that has to be added
     // or if the updatePubspec flag is set add the required dependencies to the
@@ -153,7 +163,7 @@ class ApisFilesGenerator {
       var sink = new StringBuffer();
       if (newDeps.isNotEmpty) {
         sink.writeln('Please update your pubspec.yaml file with the following '
-                     'dependencies:');
+            'dependencies:');
         newDeps.forEach((k, v) => sink.writeln('  $k: $v'));
       }
       return sink.toString();

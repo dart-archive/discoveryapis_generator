@@ -2,13 +2,12 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
-import 'package:discoveryapis_generator/src'
-       '/generated_googleapis/discovery/v1.dart';
 import 'package:discoveryapis_generator/src/dart_api_library.dart';
 import 'package:discoveryapis_generator/src/dart_schemas.dart';
+import 'package:discoveryapis_generator/src'
+    '/generated_googleapis/discovery/v1.dart';
 import 'package:discoveryapis_generator/src/namer.dart';
-import 'package:unittest/unittest.dart';
-
+import 'package:test/test.dart';
 
 withImports(function) {
   var namer = new ApiLibraryNamer();
@@ -36,9 +35,7 @@ main() {
         expect(db.dartClassTypes, hasLength(0));
       });
 
-      withParsedDB({
-        'empty-schemas' : {}
-      }, (DartSchemaTypeDB db) {
+      withParsedDB({'empty-schemas': {}}, (DartSchemaTypeDB db) {
         expect(db.dartTypes, hasLength(0));
         expect(db.namedSchemaTypes, hasLength(0));
         expect(db.dartClassTypes, hasLength(0));
@@ -46,42 +43,37 @@ main() {
     });
 
     test('invalid', () {
-      expect(() => withParsedDB({
-        'schemas' : {
-          'Task' : {
-            'type' : 'object',
-            'repeated' : true,
-          },
-        }
-      }, (_) {}), throwsArgumentError);
+      expect(
+          () => withParsedDB({
+                'schemas': {
+                  'Task': {'type': 'object', 'repeated': true,},
+                }
+              }, (_) {}),
+          throwsArgumentError);
     });
 
     test('object-schema', () {
       withParsedDB({
-        'schemas' : {
-          'Task' : {
-            'type' : 'object',
-            'properties' : {
-              'age' : { 'type': 'integer' },
-              'any' : { 'type': 'any' },
-              'icon' : { 'type': 'string', 'format' : 'byte' },
-              'isMale' : { 'type': 'boolean' },
-              'labels' : {
+        'schemas': {
+          'Task': {
+            'type': 'object',
+            'properties': {
+              'age': {'type': 'integer'},
+              'any': {'type': 'any'},
+              'icon': {'type': 'string', 'format': 'byte'},
+              'isMale': {'type': 'boolean'},
+              'labels': {
                 'type': 'array',
-                'items' : {
-                  'type' : 'integer',
-                },
+                'items': {'type': 'integer',},
               },
-              'name' : { 'type': 'string' },
-              'properties' : {
+              'name': {'type': 'string'},
+              'properties': {
                 'type': 'object',
-                'additionalProperties' : {
-                  'type' : 'string',
-                },
+                'additionalProperties': {'type': 'string',},
               },
-              'x1Date' : { 'type': 'string', 'format' : 'date'},
-              'x2DateTime' : { 'type': 'string', 'format' : 'date-time'},
-              'x3Int16' : { 'type': 'integer', 'format' : 'int16'},
+              'x1Date': {'type': 'string', 'format': 'date'},
+              'x2DateTime': {'type': 'string', 'format': 'date-time'},
+              'x3Int16': {'type': 'integer', 'format': 'int16'},
             },
           },
         }
@@ -165,38 +157,30 @@ main() {
 
     test('variant-schema-with-forward-references', () {
       withParsedDB({
-        'schemas' : {
-          'Geometry' : {
-            'type' : 'object',
-            'variant' : {
-              'discriminant' : 'my_type',
-              'map' : [
-                  {
-                    'type_value' : 'my_line_type',
-                    '\$ref' : 'LineGeometry',
-                  },
-                  {
-                    'type_value' : 'my_polygon_type',
-                    '\$ref' : 'PolygonGeometry',
-                  },
+        'schemas': {
+          'Geometry': {
+            'type': 'object',
+            'variant': {
+              'discriminant': 'my_type',
+              'map': [
+                {'type_value': 'my_line_type', '\$ref': 'LineGeometry',},
+                {'type_value': 'my_polygon_type', '\$ref': 'PolygonGeometry',},
               ],
             },
           },
-          'LineGeometry' : {
-            'type' : 'object',
-            'properties' : {
-              'label' : {'type' : 'string' },
+          'LineGeometry': {
+            'type': 'object',
+            'properties': {
+              'label': {'type': 'string'},
             },
           },
-          'PolygonGeometry' : {
-            'type' : 'object',
-            'properties' : {
-              'points' : {'type' : 'integer' },
+          'PolygonGeometry': {
+            'type': 'object',
+            'properties': {
+              'points': {'type': 'integer'},
             },
           },
-          'IndirectPolygonGeometry' : {
-            '\$ref' : 'PolygonGeometry',
-          }
+          'IndirectPolygonGeometry': {'\$ref': 'PolygonGeometry',}
         }
       }, (DartSchemaTypeDB db) {
         expect(db.dartTypes, hasLength(3));
@@ -246,38 +230,34 @@ main() {
 
     test('object-schema-name-overlap', () {
       withParsedDB({
-        'schemas' : {
+        'schemas': {
           // Task, TaskName, TaskName_1
-          'Overlap' : {
-            'type' : 'object',
-            'properties' : {
-              'array' : {
+          'Overlap': {
+            'type': 'object',
+            'properties': {
+              'array': {
                 'type': 'array',
-                'items' : {
-                  'type' : 'integer',
-                },
+                'items': {'type': 'integer',},
               },
-              'object' : {
+              'object': {
                 'type': 'object',
-                'properties' : {
-                  'prop' : {'type' : 'integer'},
+                'properties': {
+                  'prop': {'type': 'integer'},
                 },
               },
-              'integer' : {
-                'type': 'integer',
-              },
+              'integer': {'type': 'integer',},
             },
           },
-          'OverlapArray' : {
-            'type' : 'object',
-            'properties' : {
-              'oaprop' : { 'type': 'integer' },
+          'OverlapArray': {
+            'type': 'object',
+            'properties': {
+              'oaprop': {'type': 'integer'},
             },
           },
-          'OverlapObject' : {
-            'type' : 'object',
-            'properties' : {
-              'ooprop' : { 'type': 'integer' },
+          'OverlapObject': {
+            'type': 'object',
+            'properties': {
+              'ooprop': {'type': 'integer'},
             },
           },
           // INFO: Should generate the following classes:
@@ -309,23 +289,20 @@ main() {
         expect(db.dartClassTypes[2].className.name, equals('OverlapArray'));
         expect(db.dartClassTypes[3].className.name, equals('OverlapObject_1'));
 
-        expect(db.dartClassTypes[1],
-               equals(db.namedSchemaTypes['Overlap']));
-        expect(db.dartClassTypes[2],
-               equals(db.namedSchemaTypes['OverlapArray']));
-        expect(db.dartClassTypes[3],
-               equals(db.namedSchemaTypes['OverlapObject']));
+        expect(db.dartClassTypes[1], equals(db.namedSchemaTypes['Overlap']));
+        expect(
+            db.dartClassTypes[2], equals(db.namedSchemaTypes['OverlapArray']));
+        expect(
+            db.dartClassTypes[3], equals(db.namedSchemaTypes['OverlapObject']));
       });
     });
 
     test('named-map-schema', () {
       withParsedDB({
-        'schemas' : {
-          'Properties' : {
-            'type' : 'object',
-            'additionalProperties' : {
-              'type' : 'integer',
-            },
+        'schemas': {
+          'Properties': {
+            'type': 'object',
+            'additionalProperties': {'type': 'integer',},
           },
         }
       }, (DartSchemaTypeDB db) {
@@ -343,12 +320,10 @@ main() {
 
     test('named-array-schema', () {
       withParsedDB({
-        'schemas' : {
-          'NamedArray' : {
-            'type' : 'array',
-            'items' : {
-              'type' : 'string',
-            },
+        'schemas': {
+          'NamedArray': {
+            'type': 'array',
+            'items': {'type': 'string',},
           },
         }
       }, (DartSchemaTypeDB db) {
@@ -365,10 +340,10 @@ main() {
 
     test('no-enum-comments', () {
       withParsedDB({
-        'schemas' : {
-          'MyClass' : {
-            'type' : 'string',
-            'enum' : ['foo', 'bar'],
+        'schemas': {
+          'MyClass': {
+            'type': 'string',
+            'enum': ['foo', 'bar'],
           },
         }
       }, (DartSchemaTypeDB db) {
@@ -379,8 +354,7 @@ main() {
         expect(db.namedSchemaTypes, contains('MyClass'));
         EnumType enumType = db.dartTypes.first;
         expect(enumType.enumValues, equals(['foo', 'bar']));
-        expect(enumType.enumDescriptions,
-            equals(['A foo.', 'A bar.']));
+        expect(enumType.enumDescriptions, equals(['A foo.', 'A bar.']));
       });
     });
 
@@ -389,69 +363,48 @@ main() {
         namer.nameAllIdentifiers();
 
         withParsedDB({
-          'schemas' : {
-            'NamedArraySimple' : {
-              'type' : 'array',
-              'items' : {
-                'type' : 'string',
-              },
+          'schemas': {
+            'NamedArraySimple': {
+              'type': 'array',
+              'items': {'type': 'string',},
             },
-            'NamedMapSimple' : {
-              'type' : 'object',
-              'additionalProperties' : {
-                'type' : 'string',
-              },
+            'NamedMapSimple': {
+              'type': 'object',
+              'additionalProperties': {'type': 'string',},
             },
-            'NamedArrayComplex' : {
-              'type' : 'array',
-              'items' : {
-                'type' : 'object',
-              },
+            'NamedArrayComplex': {
+              'type': 'array',
+              'items': {'type': 'object',},
             },
-            'NamedMapComplex' : {
-              'type' : 'object',
-              'additionalProperties' : {
-                'type' : 'object',
-              },
+            'NamedMapComplex': {
+              'type': 'object',
+              'additionalProperties': {'type': 'object',},
             },
-            'NamedObject' : {
-              'type' : 'object',
-            },
-            'C' : {
-              'type' : 'object',
-              'properties' : {
-                'pArraySimple' : {
-                  'type' : 'array',
-                  'items' : {
-                    'type' : 'string',
-                  },
+            'NamedObject': {'type': 'object',},
+            'C': {
+              'type': 'object',
+              'properties': {
+                'pArraySimple': {
+                  'type': 'array',
+                  'items': {'type': 'string',},
                 },
-                'pMapSimple' : {
-                  'type' : 'object',
-                  'additionalProperties' : {
-                    'type' : 'string',
-                  },
+                'pMapSimple': {
+                  'type': 'object',
+                  'additionalProperties': {'type': 'string',},
                 },
-                'pArrayComplex' : {
-                  'type' : 'array',
-                  'items' : {
-                    'type' : 'object',
-                  },
+                'pArrayComplex': {
+                  'type': 'array',
+                  'items': {'type': 'object',},
                 },
-                'pMapComplex' : {
-                  'type' : 'object',
-                  'additionalProperties' : {
-                    'type' : 'object',
-                  },
+                'pMapComplex': {
+                  'type': 'object',
+                  'additionalProperties': {'type': 'object',},
                 },
-                'pObject' : {
-                  'type' : 'object',
-                },
+                'pObject': {'type': 'object',},
               }
             }
           },
         }, (DartSchemaTypeDB db) {
-
           // Primitive Types
           expect(db.stringType.needsJsonEncoding, false);
           expect(db.stringType.needsJsonDecoding, false);

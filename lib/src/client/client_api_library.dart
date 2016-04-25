@@ -6,12 +6,12 @@ library discoveryapis_generator.client_api_library;
 
 import 'package:path/path.dart' as path;
 
-import 'client_schemas.dart' as client;
 import '../dart_api_library.dart';
 import '../dart_resources.dart';
 import '../dart_schemas.dart';
-import '../utils.dart';
 import '../generated_googleapis/discovery/v1.dart';
+import '../utils.dart';
+import 'client_schemas.dart' as client;
 
 /**
  * Generates a client API library based on a [RestDescription] and an import
@@ -32,10 +32,8 @@ class ClientApiLibrary extends BaseApiLibrary {
    * Generates a API library for [description].
    */
   ClientApiLibrary.build(RestDescription description,
-                         Map<String, String> importMap,
-                         this.packageName,
-                         this.packageRoot,
-                         {bool useCorePrefixes: true})
+      Map<String, String> importMap, this.packageName, this.packageRoot,
+      {bool useCorePrefixes: true})
       : super(description, '', useCorePrefixes: useCorePrefixes) {
     libraryName = namer.clientLibraryName(packageName, description.name);
     schemaDB = client.parseSchemas(imports, description);
@@ -63,7 +61,9 @@ class ClientApiLibrary extends BaseApiLibrary {
       if (!importPath.startsWith('package:$packageName')) {
         var pathPrefix = path.toUri(packageRoot).toString() + '/lib';
         if (!importPath.startsWith(pathPrefix)) {
-          throw new GeneratorError(description.name, description.version,
+          throw new GeneratorError(
+              description.name,
+              description.version,
               'RPC message classes must reside in the package\'s lib '
               'directory.');
         }
@@ -128,7 +128,8 @@ import 'dart:convert' as ${imports.convert};
 import 'package:_discoveryapis_commons/_discoveryapis_commons.dart' as ${imports.commons};
 """;
 
-    return result + """
+    return result +
+        """
 import 'package:http/http.dart' as ${imports.http};
 $schemaImports
 export 'package:_discoveryapis_commons/_discoveryapis_commons.dart' show

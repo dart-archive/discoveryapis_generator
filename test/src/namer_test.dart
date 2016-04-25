@@ -3,20 +3,20 @@
 // BSD-style license that can be found in the LICENSE file.
 
 import 'package:discoveryapis_generator/src/namer.dart';
-import 'package:unittest/unittest.dart';
+import 'package:test/test.dart';
 
 main() {
   group('namer', () {
     test('to-valid-identifier', () {
-      identifier(x, {bool removeUnderscores: true})
-          => Scope.toValidIdentifier(x, removeUnderscores: removeUnderscores);
+      identifier(x, {bool removeUnderscores: true}) =>
+          Scope.toValidIdentifier(x, removeUnderscores: removeUnderscores);
 
       expect(identifier('abc'), equals('abc'));
       expect(identifier('ABC'), equals('ABC'));
       expect(identifier('0abc'), equals('D0abc'));
       expect(identifier('_abc'), equals('P_abc'));
       expect(identifier('_a_bc_def_', removeUnderscores: false),
-             equals('P_a_bc_def_'));
+          equals('P_a_bc_def_'));
       expect(identifier('_a_bc_def_'), equals('P_aBcDef_'));
       expect(identifier('_a__bc___def_'), equals('P_aBcDef_'));
       expect(identifier('A-bc'), equals('A_bc'));
@@ -36,19 +36,18 @@ main() {
     test('scope-name', () {
       scopename(x) => Scope.toValidScopeName(x);
       expect(scopename('https://www.googleapis.com/auth/youtube.readonly'),
-             equals('YoutubeReadonlyScope'));
+          equals('YoutubeReadonlyScope'));
       expect(scopename('https://www.googleapis.com/auth/youtube-readonly'),
-             equals('YoutubeReadonlyScope'));
+          equals('YoutubeReadonlyScope'));
       expect(scopename('https://www.googleapis.com/auth/youtube_readonly'),
-             equals('YoutubeReadonlyScope'));
+          equals('YoutubeReadonlyScope'));
       expect(scopename('https://www.googleapis.com/auth/youtube/readonly'),
-             equals('YoutubeReadonlyScope'));
+          equals('YoutubeReadonlyScope'));
 
-      expect(scopename('https://mail.google.com'),
-             equals('MailGoogleComScope'));
-      expect(scopename('https://mail.google.com/'),
-                   equals('MailGoogleComScope'));
-
+      expect(
+          scopename('https://mail.google.com'), equals('MailGoogleComScope'));
+      expect(
+          scopename('https://mail.google.com/'), equals('MailGoogleComScope'));
     });
 
     test('identifier', () {
@@ -72,11 +71,11 @@ main() {
         expect(scope.identifiers, isEmpty);
 
         var tuples = [
-            ['a', 'a'],
-            ['B', 'B'],
-            ['abc', 'abc'],
-            ['AbC', 'AbC'],
-            ['A-c', 'A_c'],
+          ['a', 'a'],
+          ['B', 'B'],
+          ['abc', 'abc'],
+          ['AbC', 'AbC'],
+          ['A-c', 'A_c'],
         ];
         for (var tuple in tuples) {
           var name = tuple[0];
@@ -107,7 +106,7 @@ main() {
         expect(scope.childScopes, hasLength(1));
         expect(scope.childScopes.first.identifiers, hasLength(1));
         expect(scope.childScopes.first.identifiers.first.preferredName,
-               equals('a_1'));
+            equals('a_1'));
       });
     });
 
@@ -187,7 +186,7 @@ main() {
         var namer = new ApiLibraryNamer();
         expect(namer.libraryName('x y', '9a', '\$a'), equals('x_y.D9a.P_a'));
         expect(namer.libraryName('googleapis', 'drive', 'v1'),
-               equals('googleapis.drive.v1'));
+            equals('googleapis.drive.v1'));
       });
 
       test('scope-tree', () {

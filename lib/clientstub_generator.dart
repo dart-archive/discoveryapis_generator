@@ -8,8 +8,8 @@ import 'discoveryapis_generator.dart';
 import 'src/apis_files_generator.dart';
 import 'src/utils.dart';
 
-export 'src/utils.dart' show GenerateResult, findPackageRoot;
 export 'src/apis_files_generator.dart' show DescriptionImportPair;
+export 'src/utils.dart' show GenerateResult, findPackageRoot;
 
 /// Generate client stubs for a set of API descriptions with a corresponding
 /// import map.
@@ -18,8 +18,7 @@ export 'src/apis_files_generator.dart' show DescriptionImportPair;
 List<GenerateResult> generateClientStubs(
     List<DescriptionImportPair> descriptions, String outputDirectory,
     {bool updatePubspec: false}) {
-  var clientGenerator = new ApisFilesGenerator(descriptions,
-                                               outputDirectory,
-                                               updatePubspec: updatePubspec);
+  var clientGenerator = new ApisFilesGenerator(descriptions, outputDirectory,
+      updatePubspec: updatePubspec);
   return clientGenerator.generate();
 }

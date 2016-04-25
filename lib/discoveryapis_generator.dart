@@ -4,12 +4,12 @@
 
 library discoveryapis_generator;
 
-import "dart:io";
 import "dart:convert";
+import "dart:io";
 
-import 'src/generated_googleapis/discovery/v1.dart';
-import 'src/apis_package_generator.dart';
 import 'src/apis_files_generator.dart';
+import 'src/apis_package_generator.dart';
+import 'src/generated_googleapis/discovery/v1.dart';
 import 'src/utils.dart';
 
 export 'src/generated_googleapis/discovery/v1.dart';
@@ -25,37 +25,32 @@ class Pubspec {
   final String author;
   final String homepage;
 
-  Pubspec(this.name,
-          this.version,
-          this.description,
-          {this.author,
-           this.homepage});
+  Pubspec(this.name, this.version, this.description,
+      {this.author, this.homepage});
 
   String get sdkConstraint => '>=1.13.0 <2.0.0';
 
   static Map<String, Object> get dependencies => const {
-    'http': '\'>=0.11.1 <0.12.0\'',
-    '_discoveryapis_commons': '\'>=0.1.0 <0.2.0\'',
-  };
+        'http': '\'>=0.11.1 <0.12.0\'',
+        '_discoveryapis_commons': '\'>=0.1.0 <0.2.0\'',
+      };
 
-  static Map<String, Object> get devDependencies => const {
-    'unittest': '\'>=0.10.0 <0.12.0\'',
-  };
+  static Map<String, Object> get devDependencies =>
+      const {'unittest': '\'>=0.10.0 <0.12.0\'',};
 }
 
 List<GenerateResult> generateApiPackage(List<RestDescription> descriptions,
-                                        String outputDirectory,
-                                        Pubspec pubspec) {
-  var apisPackageGenerator = new ApisPackageGenerator(
-      descriptions, pubspec, outputDirectory);
+    String outputDirectory, Pubspec pubspec) {
+  var apisPackageGenerator =
+      new ApisPackageGenerator(descriptions, pubspec, outputDirectory);
 
   return apisPackageGenerator.generateApiPackage();
 }
 
-List<GenerateResult> generateAllLibraries(String inputDirectory,
-                                          String outputDirectory,
-                                          Pubspec pubspec) {
-  var apiDescriptions = new Directory(inputDirectory).listSync()
+List<GenerateResult> generateAllLibraries(
+    String inputDirectory, String outputDirectory, Pubspec pubspec) {
+  var apiDescriptions = new Directory(inputDirectory)
+      .listSync()
       .where((fse) => fse is File && fse.path.endsWith('.json'))
       .map((File file) {
     return new RestDescription.fromJson(JSON.decode(file.readAsStringSync()));
@@ -63,19 +58,19 @@ List<GenerateResult> generateAllLibraries(String inputDirectory,
   return generateApiPackage(apiDescriptions, outputDirectory, pubspec);
 }
 
-List<GenerateResult> generateApiFiles(String inputDirectory,
-                                      String outputDirectory,
-                                      {bool updatePubspec: false,
-                                       bool useCorePrefixes: true}) {
+List<GenerateResult> generateApiFiles(
+    String inputDirectory, String outputDirectory,
+    {bool updatePubspec: false, bool useCorePrefixes: true}) {
   var descriptions = [];
-  new Directory(inputDirectory).listSync()
+  new Directory(inputDirectory)
+      .listSync()
       .where((fse) => fse is File && fse.path.endsWith('.json'))
       .forEach((File file) {
     var diPair = new DescriptionImportPair(file.readAsStringSync(), null);
     descriptions.add(diPair);
   });
   var clientFileGenerator = new ApisFilesGenerator(
-      descriptions, outputDirectory, updatePubspec: updatePubspec,
-      useCorePrefixes: useCorePrefixes);
+      descriptions, outputDirectory,
+      updatePubspec: updatePubspec, useCorePrefixes: useCorePrefixes);
   return clientFileGenerator.generate();
 }
