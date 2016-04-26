@@ -134,13 +134,13 @@ main() {
       expect(id.required, isTrue);
       expect(id.encodedInPath, isTrue);
 
-      var reapetedPathParam = foo.parameters[1];
-      expect(reapetedPathParam, isNotNull);
-      expect(reapetedPathParam.name.name, equals('reapetedPathParam$i'));
-      expect(reapetedPathParam.type is UnnamedArrayType, isTrue);
-      expect(reapetedPathParam.type.innerType, equals(db.stringType));
-      expect(reapetedPathParam.required, isTrue);
-      expect(reapetedPathParam.encodedInPath, isTrue);
+      var repeatedPathParam = foo.parameters[1];
+      expect(repeatedPathParam, isNotNull);
+      expect(repeatedPathParam.name.name, equals('reapetedPathParam$i'));
+      expect(repeatedPathParam.type is UnnamedArrayType, isTrue);
+      expect(repeatedPathParam.type.innerType, equals(db.stringType));
+      expect(repeatedPathParam.required, isTrue);
+      expect(repeatedPathParam.encodedInPath, isTrue);
 
       var reapetedQueryParam = foo.parameters[2];
       expect(reapetedQueryParam, isNotNull);

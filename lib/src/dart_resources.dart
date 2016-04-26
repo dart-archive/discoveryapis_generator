@@ -723,7 +723,7 @@ DartApiClass parseResources(
       // calls:
       //   - rootUrl                (ends with slash)
       //   - servicePath            (does not begin with slash)
-      //   - basePath [deprecaated] (ends with slash)
+      //   - basePath [deprecated] (ends with slash)
       //   - baseUrl [deprecated]   (ends with slash)
       //
       // Relationships:

@@ -32,7 +32,7 @@ class ClientObjectType extends ObjectType {
     fromJsonString.writeln('    var message = new $className();');
     properties.forEach((DartClassProperty property) {
       // The super variant fromJson() will call this subclass constructor
-      // and the variant descriminator is final.
+      // and the variant discriminator is final.
       if (!isVariantDiscriminator(property)) {
         var decodeString = property.type
             .jsonDecode('_json["${escapeString(property.jsonName)}"]');

@@ -765,12 +765,12 @@ class Escaper {
   // characters !#$&'()*+,-./:;=?@_~ are percent-encoded.
   // ...
 
-  static String ecapeVariableReserved(String name) {
+  static String escapeVariableReserved(String name) {
     // ... perform variable expansion, as defined in Section 3.2.1, with the
     // allowed characters being those in the set
     // (unreserved / reserved / pct-encoded)
 
-    // NOTE: The chracters [ and ] need (according to URI Template spec) not be
+    // NOTE: The characters [ and ] need (according to URI Template spec) not be
     // percent encoded. The dart implementation does percent-encode [ and ].
     // This gives us in effect a conservative encoding, since the server side
     // must interpret percent-encoded parts anyway due to arbitrary unicode.
@@ -782,7 +782,7 @@ class Escaper {
     return Uri.encodeFull(name);
   }
 
-  static String ecapePathComponent(String name) {
+  static String escapePathComponent(String name) {
     // For each defined variable in the variable-list, append "/" to the
     // result string and then perform variable expansion, as defined in
     // Section 3.2.1, with the allowed characters being those in the
@@ -790,7 +790,7 @@ class Escaper {
     return _encodeUnreserved(name);
   }
 
-  static String ecapeVariable(String name) {
+  static String escapeVariable(String name) {
     // ... perform variable expansion, as defined in Section 3.2.1, with the
     // allowed characters being those in the *unreserved set*.
     return _encodeUnreserved(name);

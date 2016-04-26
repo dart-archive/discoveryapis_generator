@@ -16,7 +16,7 @@ export 'src/generated_googleapis/discovery/v1.dart';
 export 'src/utils.dart' show GenerateResult;
 
 /**
- * Specifaction of the pubspec.yaml for a generated package.
+ * Specification of the pubspec.yaml for a generated package.
  */
 class Pubspec {
   final String name;
@@ -28,7 +28,7 @@ class Pubspec {
   Pubspec(this.name, this.version, this.description,
       {this.author, this.homepage});
 
-  String get sdkConstraint => '>=1.13.0 <2.0.0';
+  String get sdkConstraint => '>=1.14.0 <2.0.0';
 
   static Map<String, Object> get dependencies => const {
         'http': '\'>=0.11.1 <0.12.0\'',

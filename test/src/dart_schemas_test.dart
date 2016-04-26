@@ -120,9 +120,9 @@ main() {
         expect(labels, isNotNull);
         expect(labels.name.name, equals('labels'));
         expect(labels.type is UnnamedArrayType, isTrue);
-        UnnamedArrayType lablesTyped = labels.type;
-        expect(lablesTyped.className, isNull);
-        expect(lablesTyped.innerType, equals(db.integerType));
+        UnnamedArrayType labelsTyped = labels.type;
+        expect(labelsTyped.className, isNull);
+        expect(labelsTyped.innerType, equals(db.integerType));
 
         var name = task.properties[5];
         expect(name, isNotNull);
