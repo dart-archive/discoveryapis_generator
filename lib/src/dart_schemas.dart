@@ -231,6 +231,7 @@ class DoubleType extends PrimitiveDartSchemaType {
   DoubleType(DartApiImports imports) : super(imports);
 
   String get declaration => '${imports.core.ref()}double';
+  String jsonDecode(String json) => '$json.toDouble()';
 }
 
 class StringType extends PrimitiveDartSchemaType {
