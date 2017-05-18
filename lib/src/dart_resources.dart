@@ -777,6 +777,7 @@ DartApiClass parseResources(
           dartSubResourceIdentifiers, dartSubResource);
     }
   }
+
   return parseResource(description.name, description.description,
       description.methods, description.resources, '');
 }
@@ -794,6 +795,7 @@ String generateResources(DartApiClass apiClass) {
       writeResourceClass(subResource);
     });
   }
+
   writeResourceClass(apiClass);
   return '$sb';
 }

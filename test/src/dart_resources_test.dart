@@ -47,11 +47,15 @@ main() {
           'any': {'type': 'any'},
           'labels': {
             'type': 'array',
-            'items': {'type': 'integer',},
+            'items': {
+              'type': 'integer',
+            },
           },
           'properties': {
             'type': 'object',
-            'additionalProperties': {'type': 'string',},
+            'additionalProperties': {
+              'type': 'string',
+            },
           },
         },
       },
@@ -60,7 +64,7 @@ main() {
 
   withParsedDB(schema, (DartSchemaTypeDB db) {
     Map buildApi(String i, {Map methods, Map resources}) {
-      var api = {
+      var api = <String, dynamic>{
         'name': 'apiname$i',
         'version': 'apiversion$i',
         'rootUrl': 'https://www.googleapis.com/',
@@ -88,7 +92,11 @@ main() {
           'path': 'foo$i/{id$i}',
           'httpMethod': 'GET',
           'parameters': {
-            'id$i': {'type': 'string', 'required': true, 'location': 'path',},
+            'id$i': {
+              'type': 'string',
+              'required': true,
+              'location': 'path',
+            },
             'reapetedPathParam$i': {
               'type': 'string',
               'required': true,
@@ -105,7 +113,7 @@ main() {
         },
       };
       for (var reserved in RESERVED_METHOD_PARAMETER_NAMES) {
-        map['foo$i']['parameters'][reserved] = {
+        (map['foo$i']['parameters'] as Map<String, dynamic>)[reserved] = {
           'type': 'string',
           'required': true,
           'location': 'path',
@@ -120,7 +128,8 @@ main() {
       expect(foo, isNotNull);
       expect(foo.urlPattern.parts, hasLength(2));
       expect(foo.urlPattern.parts[0] is StringPart, isTrue);
-      expect(foo.urlPattern.parts[0].staticString, equals('foo$i/'));
+      expect((foo.urlPattern.parts[0] as StringPart).staticString,
+          equals('foo$i/'));
       expect(foo.urlPattern.parts[1] is VariableExpression, isTrue);
       expect(foo.urlPattern.parts[1].templateVar, equals('id$i'));
       expect(foo.httpMethod, equals('GET'));
@@ -138,17 +147,19 @@ main() {
       expect(repeatedPathParam, isNotNull);
       expect(repeatedPathParam.name.name, equals('reapetedPathParam$i'));
       expect(repeatedPathParam.type is UnnamedArrayType, isTrue);
-      expect(repeatedPathParam.type.innerType, equals(db.stringType));
+      expect((repeatedPathParam.type as UnnamedArrayType).innerType,
+          equals(db.stringType));
       expect(repeatedPathParam.required, isTrue);
       expect(repeatedPathParam.encodedInPath, isTrue);
 
-      var reapetedQueryParam = foo.parameters[2];
-      expect(reapetedQueryParam, isNotNull);
-      expect(reapetedQueryParam.name.name, equals('reapetedQueryParam$i'));
-      expect(reapetedQueryParam.type is UnnamedArrayType, isTrue);
-      expect(reapetedQueryParam.type.innerType, equals(db.stringType));
-      expect(reapetedQueryParam.required, isTrue);
-      expect(reapetedQueryParam.encodedInPath, isFalse);
+      var repeatedQueryParam = foo.parameters[2];
+      expect(repeatedQueryParam, isNotNull);
+      expect(repeatedQueryParam.name.name, equals('reapetedQueryParam$i'));
+      expect(repeatedQueryParam.type is UnnamedArrayType, isTrue);
+      expect((repeatedQueryParam.type as UnnamedArrayType).innerType,
+          equals(db.stringType));
+      expect(repeatedQueryParam.required, isTrue);
+      expect(repeatedQueryParam.encodedInPath, isFalse);
 
       var rest = foo.parameters.skip(3).toList();
       for (var reserved in RESERVED_METHOD_PARAMETER_NAMES) {
@@ -170,8 +181,12 @@ main() {
         var subResources = buildResources('${i}L$level', level: level + 1);
 
         var resources = {
-          'resA$i': {'methods': methods,},
-          'resB$i': {'methods': methods,},
+          'resA$i': {
+            'methods': methods,
+          },
+          'resB$i': {
+            'methods': methods,
+          },
         };
         if (subResources != null) {
           resources['resA$i']['resources'] = subResources;
@@ -223,8 +238,12 @@ main() {
           'auth': {
             'oauth2': {
               'scopes': {
-                'https://foo.com': {'description': 'com1',},
-                'https://bar.com': {'description': 'com2',}
+                'https://foo.com': {
+                  'description': 'com1',
+                },
+                'https://bar.com': {
+                  'description': 'com2',
+                }
               }
             }
           }

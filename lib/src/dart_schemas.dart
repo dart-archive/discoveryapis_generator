@@ -161,7 +161,8 @@ class DartSchemaForwardRef extends DartSchemaType {
   DartSchemaType resolve(DartSchemaTypeDB db) {
     var concreteType = db.namedSchemaTypes[forwardRefName];
     while (concreteType is DartSchemaForwardRef) {
-      concreteType = db.namedSchemaTypes[concreteType.forwardRefName];
+      concreteType = db.namedSchemaTypes[
+          (concreteType as DartSchemaForwardRef).forwardRefName];
     }
     if (concreteType == null) {
       throw new StateError('Invalid forward reference: $forwardRefName');

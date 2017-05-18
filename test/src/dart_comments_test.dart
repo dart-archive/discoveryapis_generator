@@ -28,6 +28,7 @@ main() {
         expect(comment.asDartDoc(0), equals('/** ABC */\n'));
         expect(comment.asDartDoc(2), equals('  /** ABC */\n'));
       }
+
       expectABC(new Comment('ABC'));
       expectABC(new Comment('ABC  '));
       expectABC(new Comment('ABC \n '));
@@ -42,6 +43,7 @@ main() {
  */
 '''));
       }
+
       expectABCdef(new Comment('ABC\ndef'));
       expectABCdef(new Comment('ABC\ndef  '));
       expectABCdef(new Comment('ABC \ndef \n  \n  '));
