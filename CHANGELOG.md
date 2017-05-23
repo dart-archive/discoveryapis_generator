@@ -1,5 +1,9 @@
 # Changelog - discoveryapis_generator
 
+## v0.8.0+2
+
+- Make `package:discoveryapis_generator` strong mode clean.
+
 ## v0.8.0+1
 
 - Require at least Dart `1.14` for generated libraries. Code requires
