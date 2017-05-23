@@ -35,8 +35,9 @@ class Pubspec {
         '_discoveryapis_commons': '\'>=0.1.0 <0.2.0\'',
       };
 
-  static Map<String, Object> get devDependencies =>
-      const {'unittest': '\'>=0.10.0 <0.12.0\'',};
+  static Map<String, Object> get devDependencies => const {
+        'unittest': '\'>=0.10.0 <0.12.0\'',
+      };
 }
 
 List<GenerateResult> generateApiPackage(List<RestDescription> descriptions,
@@ -52,8 +53,9 @@ List<GenerateResult> generateAllLibraries(
   var apiDescriptions = new Directory(inputDirectory)
       .listSync()
       .where((fse) => fse is File && fse.path.endsWith('.json'))
-      .map((File file) {
-    return new RestDescription.fromJson(JSON.decode(file.readAsStringSync()));
+      .map((FileSystemEntity entity) {
+    return new RestDescription.fromJson(
+        JSON.decode((entity as File).readAsStringSync()));
   }).toList();
   return generateApiPackage(apiDescriptions, outputDirectory, pubspec);
 }
@@ -65,8 +67,9 @@ List<GenerateResult> generateApiFiles(
   new Directory(inputDirectory)
       .listSync()
       .where((fse) => fse is File && fse.path.endsWith('.json'))
-      .forEach((File file) {
-    var diPair = new DescriptionImportPair(file.readAsStringSync(), null);
+      .forEach((FileSystemEntity entity) {
+    var diPair =
+        new DescriptionImportPair((entity as File).readAsStringSync(), null);
     descriptions.add(diPair);
   });
   var clientFileGenerator = new ApisFilesGenerator(

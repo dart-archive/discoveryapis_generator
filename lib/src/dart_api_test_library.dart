@@ -259,6 +259,7 @@ class ResourceTest extends TestHelper {
               args.add('${p.name}: $name');
             }
           }
+
           if (method.requestParameter != null) {
             addArg(
                 method.requestParameter, paramValues[method.requestParameter]);
@@ -313,7 +314,7 @@ class MethodArgsTest extends TestHelper {
     // The remaining path is either
     // a) an absolute URI pattern
     // b) the basePath plus a relative URI pattern
-    var parts = [rootUrl];
+    var parts = <Part>[rootUrl];
     var firstPart = method.urlPattern.parts.first;
     // First part absolute/relative is handled specially.
     if (firstPart is StringPart && firstPart.staticString.startsWith('/')) {
@@ -343,8 +344,9 @@ class MethodArgsTest extends TestHelper {
           if (nextPart is! StringPart) {
             throw "two variable expansions in a row not supported";
           }
+          var stringPart = nextPart as StringPart;
           ln('index = path.indexOf('
-              '"${escapeString(nextPart.staticString)}", pathOffset);');
+              '"${escapeString(stringPart.staticString)}", pathOffset);');
           ln(expectIsTrue('index >= 0'));
           ln('subPart = core.Uri.decodeQueryComponent'
               '(path.substring(pathOffset, index));');
@@ -408,16 +410,16 @@ class MethodArgsTest extends TestHelper {
         if (type is IntegerType || type is StringIntegerType) {
           ln(expectEqual(intParse('${queryMapValue}.first'), name));
         } else if (p.type is UnnamedArrayType) {
-          if (type.innerType is IntegerType ||
-              type.innerType is StringIntegerType) {
+          var innerType = (p as UnnamedArrayType).innerType;
+          if (innerType is IntegerType || innerType is StringIntegerType) {
             ln(expectEqual(
                 '${queryMapValue}.map(core.int.parse).toList()', name));
-          } else if (type.innerType is StringType) {
+          } else if (innerType is StringType) {
             ln(expectEqual('${queryMapValue}', name));
-          } else if (type.innerType is BooleanType) {
+          } else if (innerType is BooleanType) {
             ln(expectEqual('${queryMapValue}.map(parseBool).toList()', name));
           } else {
-            throw 'unsupported inner type ${type.innerType}';
+            throw 'unsupported inner type ${innerType}';
           }
         } else if (type is DateType) {
           ln(expectEqual('core.DateTime.parse(${queryMapValue}.first)', name));

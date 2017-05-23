@@ -166,6 +166,7 @@ class ApiRequester {
       }
       containsQueryParameter = true;
     }
+
     queryParams.forEach((String key, List<String> values) {
       for (var value in values) {
         addQueryParameter(key, value);
@@ -349,8 +350,7 @@ class Base64Encoder implements StreamTransformer<List<int>, String> {
         // Fast path if [bytes] are devisible by 3.
         controller.add(BASE64.encode(bytes));
       } else {
-        controller
-            .add(BASE64.encode(bytes.sublist(start, end)));
+        controller.add(BASE64.encode(bytes.sublist(start, end)));
 
         // Buffer remaining bytes if necessary.
         if (end < bytes.length) {
@@ -590,7 +590,7 @@ class ResumableMediaUploader {
    */
   Future _uploadChunk(Uri uri, ResumableChunk chunk, {bool lastChunk: false}) {
     // If [uploadMedia.length] is null, we do not know the length.
-    var mediaTotalLength = _uploadMedia.length;
+    dynamic mediaTotalLength = _uploadMedia.length;
     if (mediaTotalLength == null || lastChunk) {
       if (lastChunk) {
         mediaTotalLength = '${chunk.endOfChunk}';
@@ -861,16 +861,12 @@ Stream<String> _decodeStreamAsText(http.StreamedResponse response) {
   }
 }
 
-Map mapMap(Map source, [Object convert(Object source) = null]) {
+Map<String, B> mapMap<A, B>(Map<String, A> source, B convert(A source)) {
   assert(source != null);
-  var result = new collection.LinkedHashMap();
+  var result = new collection.LinkedHashMap<String, B>();
   source.forEach((String key, value) {
     assert(key != null);
-    if (convert == null) {
-      result[key] = value;
-    } else {
-      result[key] = convert(value);
-    }
+    result[key] = convert(value);
   });
   return result;
 }

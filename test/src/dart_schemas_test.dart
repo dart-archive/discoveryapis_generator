@@ -46,7 +46,10 @@ main() {
       expect(
           () => withParsedDB({
                 'schemas': {
-                  'Task': {'type': 'object', 'repeated': true,},
+                  'Task': {
+                    'type': 'object',
+                    'repeated': true,
+                  },
                 }
               }, (_) {}),
           throwsArgumentError);
@@ -64,12 +67,16 @@ main() {
               'isMale': {'type': 'boolean'},
               'labels': {
                 'type': 'array',
-                'items': {'type': 'integer',},
+                'items': {
+                  'type': 'integer',
+                },
               },
               'name': {'type': 'string'},
               'properties': {
                 'type': 'object',
-                'additionalProperties': {'type': 'string',},
+                'additionalProperties': {
+                  'type': 'string',
+                },
               },
               'x1Date': {'type': 'string', 'format': 'date'},
               'x2DateTime': {'type': 'string', 'format': 'date-time'},
@@ -163,8 +170,14 @@ main() {
             'variant': {
               'discriminant': 'my_type',
               'map': [
-                {'type_value': 'my_line_type', '\$ref': 'LineGeometry',},
-                {'type_value': 'my_polygon_type', '\$ref': 'PolygonGeometry',},
+                {
+                  'type_value': 'my_line_type',
+                  '\$ref': 'LineGeometry',
+                },
+                {
+                  'type_value': 'my_polygon_type',
+                  '\$ref': 'PolygonGeometry',
+                },
               ],
             },
           },
@@ -180,7 +193,9 @@ main() {
               'points': {'type': 'integer'},
             },
           },
-          'IndirectPolygonGeometry': {'\$ref': 'PolygonGeometry',}
+          'IndirectPolygonGeometry': {
+            '\$ref': 'PolygonGeometry',
+          }
         }
       }, (DartSchemaTypeDB db) {
         expect(db.dartTypes, hasLength(3));
@@ -237,7 +252,9 @@ main() {
             'properties': {
               'array': {
                 'type': 'array',
-                'items': {'type': 'integer',},
+                'items': {
+                  'type': 'integer',
+                },
               },
               'object': {
                 'type': 'object',
@@ -245,7 +262,9 @@ main() {
                   'prop': {'type': 'integer'},
                 },
               },
-              'integer': {'type': 'integer',},
+              'integer': {
+                'type': 'integer',
+              },
             },
           },
           'OverlapArray': {
@@ -302,7 +321,9 @@ main() {
         'schemas': {
           'Properties': {
             'type': 'object',
-            'additionalProperties': {'type': 'integer',},
+            'additionalProperties': {
+              'type': 'integer',
+            },
           },
         }
       }, (DartSchemaTypeDB db) {
@@ -323,7 +344,9 @@ main() {
         'schemas': {
           'NamedArray': {
             'type': 'array',
-            'items': {'type': 'string',},
+            'items': {
+              'type': 'string',
+            },
           },
         }
       }, (DartSchemaTypeDB db) {
@@ -366,41 +389,61 @@ main() {
           'schemas': {
             'NamedArraySimple': {
               'type': 'array',
-              'items': {'type': 'string',},
+              'items': {
+                'type': 'string',
+              },
             },
             'NamedMapSimple': {
               'type': 'object',
-              'additionalProperties': {'type': 'string',},
+              'additionalProperties': {
+                'type': 'string',
+              },
             },
             'NamedArrayComplex': {
               'type': 'array',
-              'items': {'type': 'object',},
+              'items': {
+                'type': 'object',
+              },
             },
             'NamedMapComplex': {
               'type': 'object',
-              'additionalProperties': {'type': 'object',},
+              'additionalProperties': {
+                'type': 'object',
+              },
             },
-            'NamedObject': {'type': 'object',},
+            'NamedObject': {
+              'type': 'object',
+            },
             'C': {
               'type': 'object',
               'properties': {
                 'pArraySimple': {
                   'type': 'array',
-                  'items': {'type': 'string',},
+                  'items': {
+                    'type': 'string',
+                  },
                 },
                 'pMapSimple': {
                   'type': 'object',
-                  'additionalProperties': {'type': 'string',},
+                  'additionalProperties': {
+                    'type': 'string',
+                  },
                 },
                 'pArrayComplex': {
                   'type': 'array',
-                  'items': {'type': 'object',},
+                  'items': {
+                    'type': 'object',
+                  },
                 },
                 'pMapComplex': {
                   'type': 'object',
-                  'additionalProperties': {'type': 'object',},
+                  'additionalProperties': {
+                    'type': 'object',
+                  },
                 },
-                'pObject': {'type': 'object',},
+                'pObject': {
+                  'type': 'object',
+                },
               }
             }
           },

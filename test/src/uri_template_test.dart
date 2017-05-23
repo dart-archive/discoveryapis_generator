@@ -20,7 +20,7 @@ main() {
       expect(template.parts, hasLength(1));
       expect(template.parts.first is StringPart, isTrue);
       expect(template.parts.first.templateVar, isNull);
-      expect(template.parts.first.staticString, 'abc');
+      expect((template.parts.first as StringPart).staticString, 'abc');
 
       expect(template.stringExpression({}), "'abc'");
     });
