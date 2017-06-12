@@ -796,7 +796,7 @@ class ListOfListOfString
   ListOfListOfString.fromJson(core.List json)
       : _inner = json.map((value) => value).toList();
 
-  core.List toJson() {
+  core.List<core.List<core.String>> toJson() {
     return _inner.map((value) => value).toList();
   }
 
@@ -822,7 +822,7 @@ class ListOfListOfToyRequest
   ListOfListOfToyRequest.fromJson(core.List json)
       : _inner = json.map((value) => value.map((value) => new ToyRequest.fromJson(value)).toList()).toList();
 
-  core.List toJson() {
+  core.List<core.List<core.Map<core.String, core.Object>>> toJson() {
     return _inner.map((value) => value.map((value) => (value).toJson()).toList()).toList();
   }
 
@@ -848,7 +848,7 @@ class ListOfListOfint
   ListOfListOfint.fromJson(core.List json)
       : _inner = json.map((value) => value).toList();
 
-  core.List toJson() {
+  core.List<core.List<core.int>> toJson() {
     return _inner.map((value) => value).toList();
   }
 
@@ -874,7 +874,7 @@ class ListOfMapOfListOfString
   ListOfMapOfListOfString.fromJson(core.List json)
       : _inner = json.map((value) => value).toList();
 
-  core.List toJson() {
+  core.List<core.Map<core.String, core.List<core.String>>> toJson() {
     return _inner.map((value) => value).toList();
   }
 
@@ -900,7 +900,7 @@ class ListOfMapOfListOfint
   ListOfMapOfListOfint.fromJson(core.List json)
       : _inner = json.map((value) => value).toList();
 
-  core.List toJson() {
+  core.List<core.Map<core.String, core.List<core.int>>> toJson() {
     return _inner.map((value) => value).toList();
   }
 
@@ -926,7 +926,7 @@ class ListOfString
   ListOfString.fromJson(core.List json)
       : _inner = json.map((value) => value).toList();
 
-  core.List toJson() {
+  core.List<core.String> toJson() {
     return _inner.map((value) => value).toList();
   }
 
@@ -952,7 +952,7 @@ class ListOfToyRequest
   ListOfToyRequest.fromJson(core.List json)
       : _inner = json.map((value) => new ToyRequest.fromJson(value)).toList();
 
-  core.List toJson() {
+  core.List<core.Map<core.String, core.Object>> toJson() {
     return _inner.map((value) => (value).toJson()).toList();
   }
 
@@ -981,8 +981,8 @@ class MapOfListOfMapOfbool
     });
   }
 
-  core.Map toJson() {
-    var _json = {};
+  core.Map<core.String, core.List<core.Map<core.String, core.bool>>> toJson() {
+    final core.Map<core.String, core.List<core.Map<core.String, core.bool>>> _json = <core.String, core.List<core.Map<core.String, core.bool>>>{};
     this.forEach((core.String key, value) {
       _json[key] = value;
     });
@@ -1017,8 +1017,8 @@ class MapOfListOfMapOfint
     });
   }
 
-  core.Map toJson() {
-    var _json = {};
+  core.Map<core.String, core.List<core.Map<core.String, core.int>>> toJson() {
+    final core.Map<core.String, core.List<core.Map<core.String, core.int>>> _json = <core.String, core.List<core.Map<core.String, core.int>>>{};
     this.forEach((core.String key, value) {
       _json[key] = value;
     });
@@ -1053,8 +1053,8 @@ class MapOfMapOfbool
     });
   }
 
-  core.Map toJson() {
-    var _json = {};
+  core.Map<core.String, core.Map<core.String, core.bool>> toJson() {
+    final core.Map<core.String, core.Map<core.String, core.bool>> _json = <core.String, core.Map<core.String, core.bool>>{};
     this.forEach((core.String key, value) {
       _json[key] = value;
     });
@@ -1089,8 +1089,8 @@ class MapOfMapOfint
     });
   }
 
-  core.Map toJson() {
-    var _json = {};
+  core.Map<core.String, core.Map<core.String, core.int>> toJson() {
+    final core.Map<core.String, core.Map<core.String, core.int>> _json = <core.String, core.Map<core.String, core.int>>{};
     this.forEach((core.String key, value) {
       _json[key] = value;
     });
@@ -1125,8 +1125,8 @@ class MapOfToyResponse
     });
   }
 
-  core.Map toJson() {
-    var _json = {};
+  core.Map<core.String, core.Map<core.String, core.Object>> toJson() {
+    final core.Map<core.String, core.Map<core.String, core.Object>> _json = <core.String, core.Map<core.String, core.Object>>{};
     this.forEach((core.String key, value) {
       _json[key] = (value).toJson();
     });
@@ -1161,8 +1161,8 @@ class MapOfint
     });
   }
 
-  core.Map toJson() {
-    var _json = {};
+  core.Map<core.String, core.int> toJson() {
+    final core.Map<core.String, core.int> _json = <core.String, core.int>{};
     this.forEach((core.String key, value) {
       _json[key] = value;
     });
@@ -1196,8 +1196,8 @@ class NestedResponse {
     }
   }
 
-  core.Map toJson() {
-    var _json = new core.Map();
+  core.Map<core.String, core.Object> toJson() {
+    final core.Map<core.String, core.Object> _json = new core.Map<core.String, core.Object>();
     if (nestedResult != null) {
       _json["nestedResult"] = nestedResult;
     }
@@ -1216,8 +1216,8 @@ class ToyAgeRequest {
     }
   }
 
-  core.Map toJson() {
-    var _json = new core.Map();
+  core.Map<core.String, core.Object> toJson() {
+    final core.Map<core.String, core.Object> _json = new core.Map<core.String, core.Object>();
     if (age != null) {
       _json["age"] = age;
     }
@@ -1233,17 +1233,17 @@ class ToyMapResponse {
 
   ToyMapResponse.fromJson(core.Map _json) {
     if (_json.containsKey("mapResult")) {
-      mapResult = commons.mapMap(_json["mapResult"], (item) => new NestedResponse.fromJson(item));
+      mapResult = commons.mapMap<core.Map<core.String, core.Object>, NestedResponse>(_json["mapResult"], (core.Map<core.String, core.Object> item) => new NestedResponse.fromJson(item));
     }
     if (_json.containsKey("result")) {
       result = _json["result"];
     }
   }
 
-  core.Map toJson() {
-    var _json = new core.Map();
+  core.Map<core.String, core.Object> toJson() {
+    final core.Map<core.String, core.Object> _json = new core.Map<core.String, core.Object>();
     if (mapResult != null) {
-      _json["mapResult"] = commons.mapMap(mapResult, (item) => (item).toJson());
+      _json["mapResult"] = commons.mapMap<NestedResponse, core.Map<core.String, core.Object>>(mapResult, (NestedResponse item) => (item).toJson());
     }
     if (result != null) {
       _json["result"] = result;
@@ -1267,8 +1267,8 @@ class ToyRequest {
     }
   }
 
-  core.Map toJson() {
-    var _json = new core.Map();
+  core.Map<core.String, core.Object> toJson() {
+    final core.Map<core.String, core.Object> _json = new core.Map<core.String, core.Object>();
     if (age != null) {
       _json["age"] = age;
     }
@@ -1290,8 +1290,8 @@ class ToyResourceResponse {
     }
   }
 
-  core.Map toJson() {
-    var _json = new core.Map();
+  core.Map<core.String, core.Object> toJson() {
+    final core.Map<core.String, core.Object> _json = new core.Map<core.String, core.Object>();
     if (result != null) {
       _json["result"] = result;
     }
@@ -1310,8 +1310,8 @@ class ToyResponse {
     }
   }
 
-  core.Map toJson() {
-    var _json = new core.Map();
+  core.Map<core.String, core.Object> toJson() {
+    final core.Map<core.String, core.Object> _json = new core.Map<core.String, core.Object>();
     if (result != null) {
       _json["result"] = result;
     }

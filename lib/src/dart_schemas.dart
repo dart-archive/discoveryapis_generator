@@ -77,6 +77,69 @@ class DartClassProperty {
       {this.byteArrayAccessor: null});
 }
 
+
+/**
+ * Represents the type declarations we use for representing json data.
+ */
+abstract class JsonType {
+  final DartApiImports imports;
+  JsonType(this.imports);
+
+  String get declaration;
+}
+
+class SimpleJsonType extends JsonType {
+  final String name;
+
+  SimpleJsonType(DartApiImports imports, this.name) : super(imports);
+
+  String get declaration => '${imports.core.ref()}$name';
+}
+
+class StringJsonType extends SimpleJsonType {
+  StringJsonType(DartApiImports imports) : super(imports, 'String');
+}
+
+class IntJsonType extends SimpleJsonType {
+  IntJsonType(DartApiImports imports) : super(imports, 'int');
+}
+
+class BoolJsonType extends SimpleJsonType {
+  BoolJsonType(DartApiImports imports) : super(imports, 'bool');
+}
+
+class DoubleJsonType extends SimpleJsonType {
+  DoubleJsonType(DartApiImports imports) : super(imports, 'double');
+}
+
+class MapJsonType extends JsonType {
+  final JsonType keyJsonType;
+  final JsonType valueJsonType;
+
+  MapJsonType(DartApiImports imports, this.keyJsonType, this.valueJsonType)
+      : super(imports);
+
+  String get declaration {
+      return '${imports.core.ref()}Map'
+        '<${keyJsonType.declaration}, ${valueJsonType.declaration}>';
+  }
+}
+
+class ArrayJsonType extends JsonType {
+  final JsonType valueJsonType;
+
+  ArrayJsonType(DartApiImports imports, this.valueJsonType) : super(imports);
+
+  String get declaration =>
+      '${imports.core.ref()}List<${valueJsonType.declaration}>';
+}
+
+class AnyJsonType extends JsonType {
+  AnyJsonType(DartApiImports imports) : super(imports);
+
+  String get declaration => '${imports.core.ref()}Object';
+}
+
 /**
  * Represents an internal representation used for codegen.
  *
@@ -112,6 +175,8 @@ abstract class DartSchemaType {
   DartSchemaType _resolve(DartSchemaTypeDB db);
 
   String get declaration;
+
+  JsonType get jsonType;
 
   /**
    * [value] is the string expression of this [DartSchemType] that needs to be
@@ -172,6 +237,11 @@ class DartSchemaForwardRef extends DartSchemaType {
 
   DartSchemaType _resolve(DartSchemaTypeDB db) => null;
 
+  JsonType get jsonType {
+    throw new StateError('Type declarations can only be created after '
+        'resolving references.');
+  }
+
   String get declaration {
     throw new StateError('Type declarations can only be created after '
         'resolving references.');
@@ -208,19 +278,28 @@ abstract class PrimitiveDartSchemaType extends DartSchemaType {
 }
 
 class BooleanType extends PrimitiveDartSchemaType {
-  BooleanType(DartApiImports imports) : super(imports);
+  final JsonType jsonType;
+
+  BooleanType(DartApiImports imports)
+      : jsonType = new BoolJsonType(imports), super(imports);
 
   String get declaration => '${imports.core.ref()}bool';
 }
 
 class IntegerType extends PrimitiveDartSchemaType {
-  IntegerType(DartApiImports imports) : super(imports);
+  final JsonType jsonType;
+
+  IntegerType(DartApiImports imports)
+      : jsonType = new IntJsonType(imports), super(imports);
 
   String get declaration => '${imports.core.ref()}int';
 }
 
 class StringIntegerType extends PrimitiveDartSchemaType {
-  StringIntegerType(DartApiImports imports) : super(imports);
+  final JsonType jsonType;
+
+  StringIntegerType(DartApiImports imports)
+      : jsonType = new StringJsonType(imports), super(imports);
 
   String get declaration => '${imports.core.ref()}int';
   String jsonEncode(String value) => '"\${${value}}"';
@@ -229,13 +308,19 @@ class StringIntegerType extends PrimitiveDartSchemaType {
 }
 
 class DoubleType extends PrimitiveDartSchemaType {
-  DoubleType(DartApiImports imports) : super(imports);
+  final JsonType jsonType;
+
+  DoubleType(DartApiImports imports)
+      : jsonType = new DoubleJsonType(imports), super(imports);
 
   String get declaration => '${imports.core.ref()}double';
 }
 
 class StringType extends PrimitiveDartSchemaType {
-  StringType(DartApiImports imports) : super(imports);
+  final JsonType jsonType;
+
+  StringType(DartApiImports imports)
+      : jsonType = new StringJsonType(imports), super(imports);
 
   String primitiveEncoding(String value) => value;
   String get declaration => '${imports.core.ref()}String';
@@ -263,7 +348,8 @@ class EnumType extends StringType {
 }
 
 class DateType extends StringType {
-  DateType(DartApiImports imports) : super(imports);
+  DateType(DartApiImports imports)
+    : super(imports);
 
   String get declaration => '${imports.core.ref()}DateTime';
 
@@ -279,7 +365,8 @@ class DateType extends StringType {
 }
 
 class DateTimeType extends StringType {
-  DateTimeType(DartApiImports imports) : super(imports);
+  DateTimeType(DartApiImports imports)
+      : super(imports);
 
   String get declaration => '${imports.core.ref()}DateTime';
 
@@ -298,7 +385,10 @@ class DateTimeType extends StringType {
  * a user supplies is expected to be JSON and transferred to the server "as is".
  */
 class AnyType extends PrimitiveDartSchemaType {
-  AnyType(DartApiImports imports) : super(imports);
+  final JsonType jsonType;
+
+  AnyType(DartApiImports imports)
+      : jsonType = new AnyJsonType(imports), super(imports);
 
   String get declaration => '${imports.core.ref()}Object';
 }
@@ -338,6 +428,8 @@ class UnnamedArrayType extends ComplexDartSchemaType {
     return this;
   }
 
+  JsonType get jsonType => new ArrayJsonType(imports, innerType.jsonType);
+
   String get classDefinition => null;
 
   String get declaration =>
@@ -345,7 +437,8 @@ class UnnamedArrayType extends ComplexDartSchemaType {
 
   String jsonEncode(String value) {
     if (innerType.needsJsonEncoding) {
-      return '${value}.map((value) => ${innerType.jsonEncode('value')}).toList()';
+      return '${value}.map((value) => ${innerType.jsonEncode('value')})'
+        '.toList()';
     } else {
       // NOTE: The List from the user is already JSON. We have a big
       // ASSUMPTION here: The user does not modify the list while we're
@@ -356,7 +449,8 @@ class UnnamedArrayType extends ComplexDartSchemaType {
 
   String jsonDecode(String json) {
     if (innerType.needsJsonDecoding) {
-      return '${json}.map((value) => ${innerType.jsonDecode('value')}).toList()';
+      return '${json}.map((value) => ${innerType.jsonDecode('value')})'
+        '.toList()';
     } else {
       // NOTE: The List returned from JSON.decode() transfers ownership to the
       // user (i.e. we don't need to make a copy of it).
@@ -380,6 +474,8 @@ class NamedArrayType extends ComplexDartSchemaType {
     return this;
   }
 
+  JsonType get jsonType => new ArrayJsonType(imports, innerType.jsonType);
+
   String get classDefinition {
     var decode = new StringBuffer();
     decode.writeln('  $className.fromJson(${imports.core.ref()}List json)');
@@ -387,7 +483,7 @@ class NamedArrayType extends ComplexDartSchemaType {
         '${innerType.jsonDecode('value')}).toList();');
 
     var encode = new StringBuffer();
-    encode.writeln('  ${imports.core.ref()}List toJson() {');
+    encode.writeln('  ${jsonType.declaration} toJson() {');
     encode.writeln('    return _inner.map((value) => '
         '${innerType.jsonEncode('value')}).toList();');
     encode.write('  }');
@@ -457,6 +553,9 @@ class UnnamedMapType extends ComplexDartSchemaType {
     return this;
   }
 
+  JsonType get jsonType => new MapJsonType(
+      imports, fromType.jsonType, toType.jsonType);
+
   String get classDefinition => null;
 
   String get declaration {
@@ -468,7 +567,9 @@ class UnnamedMapType extends ComplexDartSchemaType {
   String jsonEncode(String value) {
     if (fromType.needsJsonEncoding || toType.needsJsonEncoding) {
       return '${imports.commons}.mapMap'
-          '(${value}, (item) => ${toType.jsonEncode('item')})';
+          '<${toType.declaration}, ${toType.jsonType.declaration}>'
+          '(${value}, (${toType.declaration} item) '
+          '=> ${toType.jsonEncode('item')})';
     } else {
       // NOTE: The Map from the user can be encoded directly. We have a big
       // ASSUMPTION here: The user does not modify the map while we're
@@ -480,7 +581,9 @@ class UnnamedMapType extends ComplexDartSchemaType {
   String jsonDecode(String json) {
     if (fromType.needsJsonDecoding || toType.needsJsonDecoding) {
       return '${imports.commons}.mapMap'
-          '(${json}, (item) => ${toType.jsonDecode('item')})';
+          '<${toType.jsonType.declaration}, ${toType.declaration}>'
+          '(${json}, (${toType.jsonType.declaration} item) '
+          '=> ${toType.jsonDecode('item')})';
     } else {
       // NOTE: The Map returned from JSON.decode() transfers ownership to the
       // user (i.e. we don't need to make a copy of it).
@@ -512,6 +615,9 @@ class NamedMapType extends ComplexDartSchemaType {
     return this;
   }
 
+  JsonType get jsonType => new MapJsonType(
+      imports, fromType.jsonType, toType.jsonType);
+
   String get classDefinition {
     var decode = new StringBuffer();
     decode.writeln('  $className.fromJson(${imports.core.ref()}Map _json) {');
@@ -522,8 +628,10 @@ class NamedMapType extends ComplexDartSchemaType {
     decode.writeln('  }');
 
     var encode = new StringBuffer();
-    encode.writeln('  ${imports.core.ref()}Map toJson() {');
-    encode.writeln('    var _json = {};');
+    encode.writeln('  ${jsonType.declaration} toJson() {');
+    encode.writeln('    final ${jsonType.declaration} _json = '
+        '<${fromType.jsonType.declaration}, '
+        '${toType.jsonType.declaration}>{};');
     encode
         .writeln('    this.forEach((${imports.core.ref()}String key, value) {');
     encode.writeln('      _json[key] = ${toType.jsonEncode('value')};');
@@ -585,13 +693,17 @@ $encode
  */
 class ObjectType extends ComplexDartSchemaType {
   final List<DartClassProperty> properties;
+  final MapJsonType jsonType;
 
   // Will be set by the superVariantType when resolving forward references.
   AbstractVariantType superVariantType;
 
   ObjectType(DartApiImports imports, Identifier name, this.properties,
       {Comment comment})
-      : super(imports, name, comment: comment);
+      : jsonType = new MapJsonType(imports,
+                                   new StringJsonType(imports),
+                                   new AnyJsonType(imports)),
+        super(imports, name, comment: comment);
 
   DartSchemaType _resolve(DartSchemaTypeDB db) {
     for (var i = 0; i < properties.length; i++) {
@@ -660,9 +772,10 @@ class ObjectType extends ComplexDartSchemaType {
     fromJsonString.writeln('  }');
 
     var toJsonString = new StringBuffer();
-    toJsonString.writeln('  ${imports.core.ref()}Map toJson() {');
-    toJsonString.writeln('    var _json = new ${imports.core.ref()}Map();');
-
+    toJsonString.writeln('  ${jsonType.declaration} toJson() {');
+    toJsonString.writeln('    final ${jsonType.declaration} _json = '
+        'new ${imports.core.ref()}Map<${jsonType.keyJsonType.declaration}, '
+        '${jsonType.valueJsonType.declaration}>();');
     properties.forEach((DartClassProperty property) {
       toJsonString.writeln('    if (${property.name} != null) {');
       toJsonString
@@ -714,11 +827,15 @@ $toJsonString
 class AbstractVariantType extends ComplexDartSchemaType {
   final String discriminant;
   final Map<String, DartSchemaType> map;
+  final JsonType jsonType;
 
   AbstractVariantType(
       DartApiImports imports, Identifier name, this.discriminant, this.map,
       {Comment comment})
-      : super(imports, name, comment: comment);
+      : jsonType = new MapJsonType(imports,
+                                   new StringJsonType(imports),
+                                   new AnyJsonType(imports)),
+        super(imports, name, comment: comment);
 
   DartSchemaType _resolve(DartSchemaTypeDB db) {
     map.forEach((String name, DartSchemaType ref) {
@@ -760,7 +877,7 @@ class AbstractVariantType extends ComplexDartSchemaType {
     fromJsonString.writeln('  }');
 
     var toJsonString = new StringBuffer();
-    toJsonString.writeln('  ${imports.core.ref()}Map toJson();');
+    toJsonString.writeln('  ${jsonType.declaration} toJson();');
 
     return '''
 ${comment.asDartDoc(0)}abstract class $className {

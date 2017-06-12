@@ -122,7 +122,7 @@ class ToyApi {
                                        uploadOptions: _uploadOptions,
                                        uploadMedia: _uploadMedia,
                                        downloadOptions: _downloadOptions);
-    return _response.then((data) => commons.mapMap(data, (item) => ToyResponseFactory.fromJson(item)));
+    return _response.then((data) => commons.mapMap<core.Map<core.String, core.Object>, ToyResponse>(data, (core.Map<core.String, core.Object> item) => ToyResponseFactory.fromJson(item)));
   }
 
   /**
@@ -159,7 +159,7 @@ class ToyApi {
                                        uploadOptions: _uploadOptions,
                                        uploadMedia: _uploadMedia,
                                        downloadOptions: _downloadOptions);
-    return _response.then((data) => commons.mapMap(data, (item) => ToyResponseFactory.fromJson(item)));
+    return _response.then((data) => commons.mapMap<core.Map<core.String, core.Object>, ToyResponse>(data, (core.Map<core.String, core.Object> item) => ToyResponseFactory.fromJson(item)));
   }
 
   /**
@@ -828,7 +828,7 @@ class ToyMapResponseFactory {
   static ToyMapResponse fromJson(core.Map _json) {
     var message = new ToyMapResponse();
     if (_json.containsKey("mapResult")) {
-      message.mapResult = commons.mapMap(_json["mapResult"], (item) => NestedResponseFactory.fromJson(item));
+      message.mapResult = commons.mapMap<core.Map<core.String, core.Object>, NestedResponse>(_json["mapResult"], (core.Map<core.String, core.Object> item) => NestedResponseFactory.fromJson(item));
     }
     if (_json.containsKey("result")) {
       message.result = _json["result"];
@@ -839,7 +839,7 @@ class ToyMapResponseFactory {
   static core.Map toJson(ToyMapResponse message) {
     var _json = new core.Map();
     if (message.mapResult != null) {
-      _json["mapResult"] = commons.mapMap(message.mapResult, (item) => NestedResponseFactory.toJson(item));
+      _json["mapResult"] = commons.mapMap<NestedResponse, core.Map<core.String, core.Object>>(message.mapResult, (NestedResponse item) => NestedResponseFactory.toJson(item));
     }
     if (message.result != null) {
       _json["result"] = message.result;
@@ -907,3 +907,4 @@ class ToyResponseFactory {
     return _json;
   }
 }
+

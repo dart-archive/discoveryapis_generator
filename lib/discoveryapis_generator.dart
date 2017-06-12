@@ -28,7 +28,7 @@ class Pubspec {
   Pubspec(this.name, this.version, this.description,
       {this.author, this.homepage});
 
-  String get sdkConstraint => '>=1.14.0 <2.0.0';
+  String get sdkConstraint => '>=1.22.0 <2.0.0';
 
   static Map<String, Object> get dependencies => const {
         'http': '\'>=0.11.1 <0.12.0\'',
@@ -36,7 +36,7 @@ class Pubspec {
       };
 
   static Map<String, Object> get devDependencies => const {
-        'unittest': '\'>=0.10.0 <0.12.0\'',
+        'test': '\'>=0.12.0 <0.13.0\'',
       };
 }
 

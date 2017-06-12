@@ -101,7 +101,7 @@ import "dart:convert" as convert;
 
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart' as http_testing;
-import 'package:unittest/unittest.dart' as unittest;
+import 'package:test/test.dart' as unittest;
 
 import '$apiImportPath' as api;
 
@@ -140,7 +140,7 @@ class HttpServerMock extends http.BaseClient {
 }
 
 http.StreamedResponse stringResponse(
-    core.int status, core.Map headers, core.String body) {
+    core.int status, core.Map<core.String, core.String> headers, core.String body) {
   var stream = new async.Stream.fromIterable([convert.UTF8.encode(body)]);
   return new http.StreamedResponse(stream, status, headers: headers);
 }
@@ -184,7 +184,7 @@ class ResourceTest extends TestHelper {
       for (var method in resource.methods) {
         withTest(4, sb, 'method--${method.name.name}', () {
           registerRequestHandlerMock(Map<MethodParameter, String> paramValues) {
-            sb.writeln('      mock.register(unittest.expectAsync('
+            sb.writeln('      mock.register(unittest.expectAsync2('
                 '(http.BaseRequest req, json) {');
             if (method.requestParameter != null) {
               var t = apiTestLibrary.schemaTests[method.requestParameter.type];
@@ -269,7 +269,7 @@ class ResourceTest extends TestHelper {
 
           // Call the method & check the result
           sb.write('      res.${method.name}(${args.join(', ')})'
-              '.then(unittest.expectAsync(');
+              '.then(unittest.expectAsync1(');
           if (method.returnType == null) {
             sb.write('(_) {}');
           } else {

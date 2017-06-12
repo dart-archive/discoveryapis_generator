@@ -1,5 +1,10 @@
 # Changelog - discoveryapis_generator
 
+## v0.9.0
+
+- Make generated code strong mode clean.
+- Make generated code use `package:test` instead of `package:unittest`.
+
 ## v0.8.0+2
 
 - Make `package:discoveryapis_generator` strong mode clean.
