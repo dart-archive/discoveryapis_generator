@@ -74,7 +74,7 @@ class DartClassProperty {
   final Identifier byteArrayAccessor;
 
   DartClassProperty(this.name, this.comment, this.type, this.jsonName,
-      {this.byteArrayAccessor: null});
+      {this.byteArrayAccessor});
 }
 
 /**
@@ -1008,7 +1008,7 @@ DartSchemaTypeDB parseSchemas(
             var comment = new Comment(value.description);
             comment = extendEnumComment(comment, propertyType);
             comment = extendAnyTypeComment(comment, propertyType);
-            var byteArrayAccessor = null;
+            Identifier byteArrayAccessor;
             if (value.format == 'byte' && value.type == 'string') {
               byteArrayAccessor =
                   classScope.newIdentifier('${jsonPName}AsBytes');

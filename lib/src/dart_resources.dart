@@ -631,7 +631,7 @@ DartApiClass parseResources(
       }
 
       // Check if we have a request object, if so parse it's type.
-      var dartRequestParameter = null;
+      MethodParameter dartRequestParameter;
       if (method.request != null) {
         var type = getValidReference(method.request.P_ref);
         var requestName = parameterScope.newIdentifier('request');
@@ -640,7 +640,7 @@ DartApiClass parseResources(
             new MethodParameter(requestName, comment, true, type, null, null);
       }
 
-      var dartResponseType = null;
+      DartSchemaType dartResponseType;
       if (method.response != null) {
         dartResponseType = getValidReference(method.response.P_ref);
       }
@@ -649,7 +649,7 @@ DartApiClass parseResources(
 
       makeBoolean(bool x) => x != null ? x : false;
 
-      var mediaUploadPatterns;
+      Map mediaUploadPatterns;
 
       if (method.supportsMediaUpload == true) {
         mediaUploadPatterns = {
@@ -665,7 +665,7 @@ DartApiClass parseResources(
         }
       }
 
-      var restPath;
+      String restPath;
       if (method.path != null) {
         restPath = method.path;
       } else if (method.restPath != null) {

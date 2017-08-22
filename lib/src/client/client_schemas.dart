@@ -165,7 +165,7 @@ DartSchemaTypeDB parseSchemas(
             var comment = new Comment(value.description);
             comment = extendEnumComment(comment, propertyType);
             comment = extendAnyTypeComment(comment, propertyType);
-            var byteArrayAccessor = null;
+            Identifier byteArrayAccessor;
             if (value.format == 'byte' && value.type == 'string') {
               byteArrayAccessor =
                   classScope.newIdentifier('${jsonPName}AsBytes');
