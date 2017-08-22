@@ -11,9 +11,7 @@ import '../generated_googleapis/discovery/v1.dart';
 import '../namer.dart';
 import '../utils.dart';
 
-/**
- * Represents a named custom dart class with a number of properties.
- */
+/// Represents a named custom dart class with a number of properties.
 class ClientObjectType extends ObjectType {
   ClientObjectType(DartApiImports imports, Identifier name,
       List<DartClassProperty> properties,
@@ -78,9 +76,7 @@ $toJsonString
   }
 }
 
-/**
- * Parses all schemas in [description] and returns a [DartSchemaTypeDB].
- */
+/// Parses all schemas in [description] and returns a [DartSchemaTypeDB].
 DartSchemaTypeDB parseSchemas(
     DartApiImports imports, RestDescription description) {
   var namer = imports.namer;

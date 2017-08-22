@@ -6,43 +6,31 @@ library discoveryapis_generator.namer;
 
 import 'utils.dart';
 
-/**
- * Represents an identifier that can be given a name.
- */
+/// Represents an identifier that can be given a name.
 class Identifier {
   String _name;
   bool _sealed = false;
   int _callCount = 0;
 
-  /**
-   * The preferred name for this [Identifier].
-   */
+  /// The preferred name for this [Identifier].
   final String preferredName;
 
-  /**
-   * [noPrefix] is used for naming prefix imports which will not get a name.
-   */
+  /// [noPrefix] is used for naming prefix imports which will not get a name.
   Identifier.noPrefix() : this.preferredName = null {
     sealWithName(null);
   }
 
-  /**
-   * Constructs a new [Identifier] with the given [preferredName]. The
-   * identifier will be not sealed.
-   */
+  /// Constructs a new [Identifier] with the given [preferredName]. The
+  /// identifier will be not sealed.
   Identifier(this.preferredName);
 
   bool get hasPrefix => preferredName != null;
 
-  /**
-   * The allocated name for this [Identifier]. This will be [:null:] until
-   * [sealWithName] was called.
-   */
+  /// The allocated name for this [Identifier]. This will be [:null:] until
+  /// [sealWithName] was called.
   String get name => _name;
 
-  /**
-   * Seals this [Identifier] and gives it the name [name].
-   */
+  /// Seals this [Identifier] and gives it the name [name].
   void sealWithName(String name) {
     if (_sealed) {
       throw new StateError('This Identifier(preferredName: $preferredName) '
@@ -52,10 +40,8 @@ class Identifier {
     _sealed = true;
   }
 
-  /**
-   * Return the reference name with a `.` appended (e.g., `core.`). Calling this
-   * method will increment the call count; it is not idempotent.
-   */
+  /// Return the reference name with a `.` appended (e.g., `core.`). Calling this
+  /// method will increment the call count; it is not idempotent.
   String ref() {
     _callCount++;
     return name == null ? '' : '${name}.';
@@ -63,10 +49,8 @@ class Identifier {
 
   bool get wasCalled => _callCount > 0;
 
-  /**
-   * Gets a string representation of this [Identifier]. This can only be called
-   * after the identifier has been given a name.
-   */
+  /// Gets a string representation of this [Identifier]. This can only be called
+  /// after the identifier has been given a name.
   String toString() {
     if (!_sealed) {
       throw new StateError('This Identifier(preferredName: $preferredName) '
@@ -76,9 +60,7 @@ class Identifier {
   }
 }
 
-/**
- * Allocate [Identifier]s for a lexical scope.
- */
+/// Allocate [Identifier]s for a lexical scope.
 class Scope {
   static final RegExp _StartsWithDigit = new RegExp('^[0-9]');
   static final RegExp _NonAscii = new RegExp('[^a-zA-z0-9]');
@@ -89,10 +71,8 @@ class Scope {
 
   Scope({Scope parent}) : this.parentScope = parent;
 
-  /**
-   * Returns a valid identifier based on [preferredName] but different from all
-   * other names previously returned by this method.
-   */
+  /// Returns a valid identifier based on [preferredName] but different from all
+  /// other names previously returned by this method.
   Identifier newIdentifier(String preferredName,
       {bool removeUnderscores: true, bool global: false}) {
     var identifier = new Identifier(Scope.toValidIdentifier(preferredName,
@@ -101,18 +81,14 @@ class Scope {
     return identifier;
   }
 
-  /**
-   * Creates a new child [Scope].
-   */
+  /// Creates a new child [Scope].
   Scope newChildScope() {
     var child = new Scope(parent: this);
     childScopes.add(child);
     return child;
   }
 
-  /**
-   * Converts [preferredName] to a valid identifier.
-   */
+  /// Converts [preferredName] to a valid identifier.
   static String toValidIdentifier(String preferredName,
       {bool removeUnderscores: true, bool global: false}) {
     // Replace all abc_xyz with abcXyz.
@@ -182,47 +158,37 @@ class Scope {
     return name;
   }
 
-  /**
-   * Converts the first letter of [name] to an uppercase letter.
-   */
+  /// Converts the first letter of [name] to an uppercase letter.
   static String capitalize(String name) {
     return "${name.substring(0, 1).toUpperCase()}${name.substring(1)}";
   }
 }
 
-/**
- * Names [Identifier]s and avoids name collisions by renaming.
- *
- * For every named [Identifier], it's allocated name will be added to
- * [allocatedNames].
- *
- * When allocating a new name, a name collides if either the name collides
- * with the [parentNamer] or if the name ia already in [allocatedNames].
- *
- * When allocating a new name, the namer starts with the [Identifier]s preferred
- * name, and keeps appending _N where N is an integer until a name does not
- * collide.
- */
+/// Names [Identifier]s and avoids name collisions by renaming.
+///
+/// For every named [Identifier], it's allocated name will be added to
+/// [allocatedNames].
+///
+/// When allocating a new name, a name collides if either the name collides
+/// with the [parentNamer] or if the name ia already in [allocatedNames].
+///
+/// When allocating a new name, the namer starts with the [Identifier]s preferred
+/// name, and keeps appending _N where N is an integer until a name does not
+/// collide.
 class IdentifierNamer {
   final IdentifierNamer parentNamer;
   final Set<String> allocatedNames;
 
-  /**
-   * If [parentNamer] is given, this namer will only allocated names which are
-   *   - not taken by [parentNamer]
-   *   - not in [allocatedNames]
-   */
+  /// If [parentNamer] is given, this namer will only allocated names which are
+  ///   - not taken by [parentNamer]
+  ///   - not in [allocatedNames]
   IdentifierNamer({this.parentNamer}) : allocatedNames = new Set<String>();
 
-  /**
-   * Reserves all given [allocatedNames] by default.
-   */
+  /// Reserves all given [allocatedNames] by default.
   IdentifierNamer.fromNameSet(this.allocatedNames) : parentNamer = null;
 
-  /**
-   * Gives [Identifier] a unique name amongst all previously named identifiers
-   * and amongst all identifiers of [parentNamer].
-   */
+  /// Gives [Identifier] a unique name amongst all previously named identifiers
+  /// and amongst all identifiers of [parentNamer].
   void nameIdentifier(Identifier identifier) {
     var preferredName = identifier.preferredName;
 
@@ -245,25 +211,19 @@ class IdentifierNamer {
   }
 }
 
-/**
- * Helper class for allocating unique names for generating an API library.
- */
+/// Helper class for allocating unique names for generating an API library.
 class ApiLibraryNamer {
   String apiClassSuffix;
   Scope _libraryScope;
 
-  /**
-   * NOTE: Only exposed for testing.
-   */
+  /// NOTE: Only exposed for testing.
   final Scope importScope = new Scope();
 
   ApiLibraryNamer({this.apiClassSuffix: 'Api'}) {
     _libraryScope = importScope.newChildScope();
   }
 
-  /**
-   * NOTE: Only exposed for testing.
-   */
+  /// NOTE: Only exposed for testing.
   Scope get libraryScope => _libraryScope;
 
   String libraryName(String package, String api, String version) {

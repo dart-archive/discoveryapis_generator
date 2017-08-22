@@ -8,25 +8,19 @@ import 'dart_api_library.dart';
 import 'namer.dart';
 import 'utils.dart';
 
-/**
- * Generates code for expanding a URI template.
- */
+/// Generates code for expanding a URI template.
 abstract class Part {
   final DartApiImports imports;
   final String templateVar;
 
   Part(this.imports, this.templateVar);
 
-  /**
-   * Generates a dart expression by expanding this part using [codeVariable] as
-   * the contests of a template variable.
-   */
+  /// Generates a dart expression by expanding this part using [codeVariable] as
+  /// the contests of a template variable.
   String stringExpression(Identifier variable);
 }
 
-/**
- * Represents a URI Template literal.
- */
+/// Represents a URI Template literal.
 class StringPart extends Part {
   final String staticString;
 
@@ -35,9 +29,7 @@ class StringPart extends Part {
   String stringExpression(Identifier _) => "'${escapeString(staticString)}'";
 }
 
-/**
- * Represents a URI Template variable expression of the form {var}
- */
+/// Represents a URI Template variable expression of the form {var}
 class VariableExpression extends Part {
   VariableExpression(DartApiImports imports, String templateVar)
       : super(imports, templateVar);
@@ -47,9 +39,7 @@ class VariableExpression extends Part {
   }
 }
 
-/**
- * Represents a URI Template variable expression of the form {/var*}
- */
+/// Represents a URI Template variable expression of the form {/var*}
 class PathVariableExpression extends Part {
   PathVariableExpression(DartApiImports imports, String templateVar)
       : super(imports, templateVar);
@@ -60,9 +50,7 @@ class PathVariableExpression extends Part {
   }
 }
 
-/**
- * Represents a URI Template variable expression of the form {+var}
- */
+/// Represents a URI Template variable expression of the form {+var}
 class ReservedExpansionExpression extends Part {
   ReservedExpansionExpression(DartApiImports imports, String templateVar)
       : super(imports, templateVar);
@@ -72,26 +60,22 @@ class ReservedExpansionExpression extends Part {
   }
 }
 
-/**
- * Represents a URI Template as defined in RFC 6570.
- *
- * This class supports only a very limited subset of RFC 6570, namely
- * the following expression types: {var}, {/var*} and {+var}.
- *
- * See: http://tools.ietf.org/html/rfc6570
- */
+/// Represents a URI Template as defined in RFC 6570.
+///
+/// This class supports only a very limited subset of RFC 6570, namely
+/// the following expression types: {var}, {/var*} and {+var}.
+///
+/// See: http://tools.ietf.org/html/rfc6570
 class UriTemplate {
   final List<Part> parts;
 
   UriTemplate(this.parts);
 
-  /**
-   * Generates a dart expression by expanding this [UriTemplate] using
-   * [identifiers].
-   *
-   * The key in [identifiers] are template variable names and the values are
-   * the dart [Identifier]s which contain the dart value.
-   */
+  /// Generates a dart expression by expanding this [UriTemplate] using
+  /// [identifiers].
+  ///
+  /// The key in [identifiers] are template variable names and the values are
+  /// the dart [Identifier]s which contain the dart value.
   String stringExpression(Map<String, Identifier> identifiers) {
     return parts.map((Part part) {
       if (part.templateVar == null) {

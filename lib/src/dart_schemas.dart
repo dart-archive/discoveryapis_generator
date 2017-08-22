@@ -10,12 +10,10 @@ import 'generated_googleapis/discovery/v1.dart';
 import 'namer.dart';
 import 'utils.dart';
 
-/**
- * Class for keeping all named schemas. This is used for
- *  - resolving forward references
- *  - querying types by name
- *  - access to built-in types
- */
+/// Class for keeping all named schemas. This is used for
+///  - resolving forward references
+///  - querying types by name
+///  - access to built-in types
 class DartSchemaTypeDB {
   // Builtin types
   final StringType stringType;
@@ -60,9 +58,7 @@ class DartSchemaTypeDB {
   }
 }
 
-/**
- * Represents a property in a dart class.
- */
+/// Represents a property in a dart class.
 class DartClassProperty {
   final Identifier name;
   final Comment comment;
@@ -77,9 +73,7 @@ class DartClassProperty {
       {this.byteArrayAccessor});
 }
 
-/**
- * Represents the type declarations we use for representing json data.
- */
+/// Represents the type declarations we use for representing json data.
 abstract class JsonType {
   final DartApiImports imports;
   JsonType(this.imports);
@@ -139,17 +133,15 @@ class AnyJsonType extends JsonType {
   String get declaration => '${imports.core.ref()}Object';
 }
 
-/**
- * Represents an internal representation used for codegen.
- *
- * [DartSchemaType] and it's subclasses are a representation for codegen of:
- *   - dart class definitions
- *   - dart type declarations
- *   - dart expressions for encoding/decoding json
- *
- * Before a [DartSchemaType] can be used, it's [resolve] method must be called
- * to resolve all forward references.
- */
+/// Represents an internal representation used for codegen.
+///
+/// [DartSchemaType] and it's subclasses are a representation for codegen of:
+///   - dart class definitions
+///   - dart type declarations
+///   - dart expressions for encoding/decoding json
+///
+/// Before a [DartSchemaType] can be used, it's [resolve] method must be called
+/// to resolve all forward references.
 abstract class DartSchemaType {
   // [className] is the name of the dart class this [DartSchemaType] represents
   // or `null` if it does not represent a schema type represented by a custom
@@ -177,45 +169,31 @@ abstract class DartSchemaType {
 
   JsonType get jsonType;
 
-  /**
-   * [value] is the string expression of this [DartSchemType] that needs to be
-   * encoded.
-   *
-   * This method is used for encoding parameter types for the URI query part.
-   */
+  /// [value] is the string expression of this [DartSchemType] that needs to be
+  /// encoded.
+  ///
+  /// This method is used for encoding parameter types for the URI query part.
   String primitiveEncoding(String value);
 
-  /**
-   * Whether this value needs a primitive encoding.
-   */
+  /// Whether this value needs a primitive encoding.
   bool get needsPrimitiveEncoding => primitiveEncoding('foo') != 'foo';
 
-  /**
-   * [value] is the string expression of this [DartSchemaType] that needs to be
-   * encoded.
-   */
+  /// [value] is the string expression of this [DartSchemaType] that needs to be
+  /// encoded.
   String jsonEncode(String value);
 
-  /**
-   * [json] is the string expression of json data that needs to be decoded to
-   * a [DartSchemaType].
-   */
+  /// [json] is the string expression of json data that needs to be decoded to
+  /// a [DartSchemaType].
   String jsonDecode(String json);
 
-  /**
-   * Whether this value needs a JSON encoding or not.
-   */
+  /// Whether this value needs a JSON encoding or not.
   bool get needsJsonEncoding => jsonEncode('foo') != 'foo';
 
-  /**
-   * Whether this value needs a JSON decoding or not.
-   */
+  /// Whether this value needs a JSON decoding or not.
   bool get needsJsonDecoding => jsonDecode('foo') != 'foo';
 }
 
-/**
- * Placeholder type for forward references.
- */
+/// Placeholder type for forward references.
 class DartSchemaForwardRef extends DartSchemaType {
   final String forwardRefName;
 
@@ -262,10 +240,8 @@ class DartSchemaForwardRef extends DartSchemaType {
   }
 }
 
-/**
- * Superclass for primitive types which will not be represented as custom dart
- * classes.
- */
+/// Superclass for primitive types which will not be represented as custom dart
+/// classes.
 abstract class PrimitiveDartSchemaType extends DartSchemaType {
   PrimitiveDartSchemaType(DartApiImports imports) : super(imports, null);
 
@@ -380,12 +356,10 @@ class DateTimeType extends StringType {
       '${imports.core.ref()}DateTime.parse($json)';
 }
 
-/**
- * Class representing "any" schema type.
- *
- * A decodeded any type object is the JSON the server sent. The any type object
- * a user supplies is expected to be JSON and transferred to the server "as is".
- */
+/// Class representing "any" schema type.
+///
+/// A decodeded any type object is the JSON the server sent. The any type object
+/// a user supplies is expected to be JSON and transferred to the server "as is".
 class AnyType extends PrimitiveDartSchemaType {
   final JsonType jsonType;
 
@@ -396,11 +370,9 @@ class AnyType extends PrimitiveDartSchemaType {
   String get declaration => '${imports.core.ref()}Object';
 }
 
-/**
- * Class representing non-primitive types.
- *
- * Subclasses may be named dart classes or composed classes (e.g. List<X>).
- */
+/// Class representing non-primitive types.
+///
+/// Subclasses may be named dart classes or composed classes (e.g. List<X>).
 abstract class ComplexDartSchemaType extends DartSchemaType {
   ComplexDartSchemaType(DartApiImports imports, Identifier name,
       {Comment comment})
@@ -417,9 +389,7 @@ abstract class ComplexDartSchemaType extends DartSchemaType {
   }
 }
 
-/**
- * Represents an unnamed List<T> type with a given `T`.
- */
+/// Represents an unnamed List<T> type with a given `T`.
 class UnnamedArrayType extends ComplexDartSchemaType {
   DartSchemaType innerType;
 
@@ -462,9 +432,7 @@ class UnnamedArrayType extends ComplexDartSchemaType {
   }
 }
 
-/**
- * Represents a named List<T> type with a given `T`.
- */
+/// Represents a named List<T> type with a given `T`.
 class NamedArrayType extends ComplexDartSchemaType {
   DartSchemaType innerType;
 
@@ -535,9 +503,7 @@ $encode
   }
 }
 
-/**
- * Represents an unnamed Map<F, T> type with given types `F` and `T`.
- */
+/// Represents an unnamed Map<F, T> type with given types `F` and `T`.
 class UnnamedMapType extends ComplexDartSchemaType {
   DartSchemaType fromType;
   DartSchemaType toType;
@@ -595,9 +561,7 @@ class UnnamedMapType extends ComplexDartSchemaType {
   }
 }
 
-/**
- * Represents a named Map<F, T> type with given types `F` and `T`.
- */
+/// Represents a named Map<F, T> type with given types `F` and `T`.
 class NamedMapType extends ComplexDartSchemaType {
   DartSchemaType fromType;
   DartSchemaType toType;
@@ -691,9 +655,7 @@ $encode
   }
 }
 
-/**
- * Represents a named custom dart class with a number of properties.
- */
+/// Represents a named custom dart class with a number of properties.
 class ObjectType extends ComplexDartSchemaType {
   final List<DartClassProperty> properties;
   final MapJsonType jsonType;
@@ -823,9 +785,7 @@ $toJsonString
   }
 }
 
-/**
- * Represents a schema variant type.
- */
+/// Represents a schema variant type.
 class AbstractVariantType extends ComplexDartSchemaType {
   final String discriminant;
   final Map<String, DartSchemaType> map;
@@ -900,9 +860,7 @@ $toJsonString
   }
 }
 
-/**
- * Parses all schemas in [description] and returns a [DartSchemaTypeDB].
- */
+/// Parses all schemas in [description] and returns a [DartSchemaTypeDB].
 DartSchemaTypeDB parseSchemas(
     DartApiImports imports, RestDescription description) {
   var namer = imports.namer;
@@ -1117,9 +1075,7 @@ DartSchemaType parsePrimitive(
   throw new ArgumentError('Invalid JsonSchema.type (was: ${schema.type}).');
 }
 
-/**
- * Generates the codegen'ed dart string for all schema classes.
- */
+/// Generates the codegen'ed dart string for all schema classes.
 String generateSchemas(DartSchemaTypeDB db) {
   var sb = new StringBuffer();
   db.dartClassTypes.forEach((ComplexDartSchemaType value) {

@@ -6,9 +6,7 @@ library discoveryapis_generator.dart_comments;
 
 import 'utils.dart';
 
-/**
- * Represents a comment of a dart element (e.g. class, method, ...)
- */
+/// Represents a comment of a dart element (e.g. class, method, ...)
 class Comment {
   static final Comment Empty = new Comment('');
   final String rawComment;
@@ -16,12 +14,10 @@ class Comment {
   Comment(String raw)
       : rawComment = (raw != null && raw.length > 0) ? raw.trimRight() : '';
 
-  /**
-   * Returns a block string which has [indentationLevel] spaces in front of it.
-   *
-   * If the rawComment is empty, an empty string will be returned. Otherwise,
-   * the block will start with spaces and ends with a new line.
-   */
+  /// Returns a block string which has [indentationLevel] spaces in front of it.
+  ///
+  /// If the rawComment is empty, an empty string will be returned. Otherwise,
+  /// the block will start with spaces and ends with a new line.
   String asDartDoc(int indentationLevel) {
     if (rawComment.isEmpty) return '';
 

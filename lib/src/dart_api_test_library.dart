@@ -11,9 +11,7 @@ import 'namer.dart';
 import 'uri_template.dart';
 import 'utils.dart';
 
-/**
- * Generates a API test library based on a [DartApiLibrary].
- */
+/// Generates a API test library based on a [DartApiLibrary].
 class DartApiTestLibrary extends TestHelper {
   final DartApiLibrary apiLibrary;
   final String apiImportPath;
@@ -23,9 +21,7 @@ class DartApiTestLibrary extends TestHelper {
   final List<ResourceTest> resourceTests = [];
   final Map<ResourceTest, ResourceTest> parentResourceTests = {};
 
-  /**
-   * Generates a API test library for [apiLibrary].
-   */
+  /// Generates a API test library for [apiLibrary].
   DartApiTestLibrary.build(
       this.apiLibrary, this.apiImportPath, this.packageName) {
     handleType(DartSchemaType schema) {
@@ -146,9 +142,7 @@ http.StreamedResponse stringResponse(
   }
 }
 
-/**
- * Will generate tests for [resource] of [apiLibrary].
- */
+/// Will generate tests for [resource] of [apiLibrary].
 class ResourceTest extends TestHelper {
   final DartApiTestLibrary apiTestLibrary;
   final DartResourceClass resource;
@@ -490,9 +484,7 @@ testFromSchema(apiTestLibrary, schema) {
   }
 }
 
-/**
- * Will generate tests for [schema] of [apiLibrary].
- */
+/// Will generate tests for [schema] of [apiLibrary].
 abstract class SchemaTest<T> extends TestHelper {
   final DartApiTestLibrary apiTestLibrary;
   final T schema;
@@ -853,9 +845,7 @@ class AnySchemaTest extends SchemaTest<AnyType> {
   }
 }
 
-/**
- * Helps generating unittests.
- */
+/// Helps generating unittests.
 class TestHelper {
   void withFunc(int indentation, StringBuffer buffer, String name, String args,
       Function f) {
