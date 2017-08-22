@@ -577,7 +577,7 @@ class EnumSchemaTest extends StringSchemaTest {
 
 abstract class UnnamedSchemaTest<T> extends SchemaTest<T> {
   static int UnnamedCounter = 0;
-  int _id = UnnamedCounter++;
+  final int _id = UnnamedCounter++;
 
   UnnamedSchemaTest(apiTestLibrary, schema) : super(apiTestLibrary, schema);
 

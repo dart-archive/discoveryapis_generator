@@ -80,8 +80,8 @@ class Identifier {
  * Allocate [Identifier]s for a lexical scope.
  */
 class Scope {
-  static RegExp _StartsWithDigit = new RegExp('^[0-9]');
-  static RegExp _NonAscii = new RegExp('[^a-zA-z0-9]');
+  static final RegExp _StartsWithDigit = new RegExp('^[0-9]');
+  static final RegExp _NonAscii = new RegExp('[^a-zA-z0-9]');
 
   final Scope parentScope;
   final List<Scope> childScopes = new List<Scope>();
