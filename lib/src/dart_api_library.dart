@@ -74,7 +74,7 @@ class DartApiLibrary extends BaseApiLibrary {
     var schemas = generateSchemas(schemaDB);
     var resources = generateResources(apiClass);
     sink.write(libraryHeader());
-    if (!resources.isEmpty) {
+    if (resources.isNotEmpty) {
       sink.write('$resources\n$schemas');
     } else {
       sink.write('$schemas');

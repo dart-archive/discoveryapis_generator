@@ -80,7 +80,7 @@ class ClientApiLibrary extends BaseApiLibrary {
     var schemas = generateSchemas(schemaDB);
     var resources = generateResources(apiClass);
     sink.write(libraryHeader());
-    if (!resources.isEmpty) {
+    if (resources.isNotEmpty) {
       sink.writeln('$resources');
     }
     sink.write('$schemas');

@@ -121,28 +121,28 @@ class DartResourceMethod {
 
     // Normal positional parameters are following.
     if (parameters.length > 0) {
-      if (!parameterString.isEmpty) parameterString.write(', ');
+      if (parameterString.isNotEmpty) parameterString.write(', ');
       parameterString
           .write(parameters.map((param) => '${param.declaration}').join(', '));
     }
 
     // Optional parameters come last (including the media parameters).
     if (namedParameters.length > 0 || mediaUpload || mediaDownload) {
-      if (!parameterString.isEmpty) parameterString.write(', ');
+      if (parameterString.isNotEmpty) parameterString.write(', ');
 
       var namedString = new StringBuffer()
         ..write(
             namedParameters.map((param) => '${param.declaration}').join(', '));
 
       if (mediaUpload) {
-        if (!namedString.isEmpty) namedString.write(', ');
+        if (namedString.isNotEmpty) namedString.write(', ');
         namedString.write('${imports.commons}.UploadOptions uploadOptions : '
             '${imports.commons}.UploadOptions.Default, ');
         namedString.write('${imports.commons}.Media uploadMedia');
       }
 
       if (mediaDownload) {
-        if (!namedString.isEmpty) namedString.write(', ');
+        if (namedString.isNotEmpty) namedString.write(', ');
         namedString.write('${imports.commons}.DownloadOptions downloadOptions: '
             '${imports.commons}.DownloadOptions.Metadata');
       }
@@ -408,7 +408,7 @@ class DartResourceClass {
       str.writeln('  ${resource.className} get ${identifier.name} '
           '=> new ${resource.className}(_requester);');
     }
-    if (!str.isEmpty) str.writeln();
+    if (str.isNotEmpty) str.writeln();
     return '$str';
   }
 
@@ -424,7 +424,7 @@ class DartResourceClass {
     methods.forEach((DartResourceMethod m) {
       str.writeln(m.definition);
     });
-    return !str.isEmpty ? '\n$str' : '';
+    return str.isNotEmpty ? '\n$str' : '';
   }
 
   String getClassDefinition() {

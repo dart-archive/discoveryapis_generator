@@ -49,10 +49,10 @@ class Comment {
               sb.clear();
             }
           }
-          if (!sb.isEmpty) sb.write(' ');
+          if (sb.isNotEmpty) sb.write(' ');
           sb.write(part);
         }
-        if (!sb.isEmpty) splitted.add('$sb');
+        if (sb.isNotEmpty) splitted.add('$sb');
         return splitted;
       });
 

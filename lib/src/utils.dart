@@ -134,7 +134,7 @@ class GenerateResult {
     } else {
       assert(apiName != null && apiVersion != null && packagePath != null);
       var flag = success ? '[SUCCESS]' : '[FAIL]';
-      var msg = message != null && !message.isEmpty ? ':\n$message' : '';
+      var msg = message != null && message.isNotEmpty ? ':\n$message' : '';
       return '$flag $apiName $apiVersion @ $packagePath $msg';
     }
   }
