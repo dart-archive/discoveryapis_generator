@@ -95,12 +95,10 @@ class DartApiTestLibrary extends TestHelper {
 library ${apiLibrary.libraryName}.test;
 
 import "dart:core" as core;
-import "dart:collection" as collection;
 import "dart:async" as async;
 import "dart:convert" as convert;
 
 import 'package:http/http.dart' as http;
-import 'package:http/testing.dart' as http_testing;
 import 'package:test/test.dart' as unittest;
 
 import '$apiImportPath' as api;

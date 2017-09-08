@@ -1,5 +1,9 @@
 # Changelog - discoveryapis_generator
 
+## v0.9.1
+
+- Avoid unused imports in generated tests.
+
 ## v0.9.0
 
 - Make generated code strong mode clean.
