@@ -108,16 +108,16 @@ class ApisPackageGenerator {
 
   DartApiLibrary _generateApiLibrary(
       String outputFile, RestDescription description) {
-    var lib = new DartApiLibrary.build(description, config.name);
-    writeString(outputFile, lib.librarySource);
+    final lib = new DartApiLibrary.build(description, config.name);
+    writeDartSource(outputFile, lib.librarySource);
     return lib;
   }
 
   void _generateApiTestLibrary(
       String outputFile, String packageImportPath, DartApiLibrary apiLibrary) {
-    var testLib = new DartApiTestLibrary.build(
+    final testLib = new DartApiTestLibrary.build(
         apiLibrary, packageImportPath, config.name);
-    writeString(outputFile, testLib.librarySource);
+    writeDartSource(outputFile, testLib.librarySource);
   }
 
   void _writePubspec(StringSink sink) {

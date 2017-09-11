@@ -25,21 +25,21 @@ class Comment {
   String asDartDoc(int indentationLevel) {
     if (rawComment.isEmpty) return '';
 
-    var commentString = escapeComment(rawComment);
-    var spaces = ' ' * indentationLevel;
+    final commentString = escapeComment(rawComment);
+    final spaces = ' ' * indentationLevel;
 
     String multilineComment() {
-      var result = new StringBuffer();
+      final result = new StringBuffer();
 
-      var maxCommentLine = 80 - (indentationLevel + ' * '.length);
-      var expandedLines = commentString.split('\n').expand((String s) {
+      final int maxCommentLine = 80 - (indentationLevel + '/// '.length);
+      final expandedLines = commentString.split('\n').expand((String s) {
         if (s.length < maxCommentLine) {
           return [s];
         }
 
         // Try to break the line into several lines.
-        var splitted = [];
-        var sb = new StringBuffer();
+        final splitted = <String>[];
+        final sb = new StringBuffer();
 
         for (var part in s.split(' ')) {
           if ((sb.length + part.length + 1) > maxCommentLine) {
@@ -56,23 +56,21 @@ class Comment {
         return splitted;
       });
 
-      result.writeln('$spaces/**');
-      for (var line in expandedLines) {
+      for (String line in expandedLines) {
         line = line.trimRight();
-        result.write('$spaces *');
+        result.write('$spaces///');
         if (line.length > 0) {
           result.writeln(' $line');
         } else {
           result.writeln('');
         }
       }
-      result.writeln('$spaces */');
 
       return '$result';
     }
 
     if (!commentString.contains('\n')) {
-      var onelineComment = spaces + '/** ${escapeComment(commentString)} */\n';
+      final onelineComment = spaces + '/// ${escapeComment(commentString)}\n';
       if (onelineComment.length <= 80) {
         return onelineComment;
       }

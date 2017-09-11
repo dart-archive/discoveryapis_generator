@@ -80,8 +80,8 @@ class ApisFilesGenerator {
           lib = new ClientApiLibrary.build(
               description, diPair.importMap, packageName, packageRoot);
         }
-        writeString(apiFile, lib.librarySource);
-        var result = new GenerateResult(name, version, clientFolderPath);
+        writeDartSource(apiFile, lib.librarySource);
+        final result = new GenerateResult(name, version, clientFolderPath);
         results.add(result);
         processPubspec = true;
       } catch (error, stack) {

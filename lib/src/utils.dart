@@ -6,6 +6,7 @@ library discoveryapis_generator.utils;
 
 import 'dart:io';
 
+import 'package:dart_style/dart_style.dart';
 import 'package:path/path.dart';
 
 const List keywords = const [
@@ -27,6 +28,11 @@ String fileDate(DateTime date) =>
     "${date.year}${(date.month < 10) ? 0 : ""}${date.month}${(date.day < 10) ? 0 : ""}${date.day}_${(date.hour < 10) ? 0 : ""}${date.hour}${(date.minute < 10) ? 0 : ""}${date.minute}${(date.second < 10) ? 0 : ""}${date.second}";
 String cleanName(String name) => name.replaceAll(_cleanRegEx, "_");
 
+final DartFormatter formatter =
+      new DartFormatter(lineEnding: '\n', pageWidth: 80);
+
+String formatSource(String source) => formatter.format(source);
+
 // TODO: Is this all we have to do?
 String escapeString(String string) {
   return string
@@ -37,7 +43,7 @@ String escapeString(String string) {
 
 /// Escapes [comment] to ensure it can safely be used inside a /* ... */ block.
 String escapeComment(String comment) {
-  return comment.replaceAll('/*', ' / * ').replaceAll('*/', ' * / ');
+  return comment.replaceAll('/*', ' / * ').replaceAll('*/', ' * / ').trimRight();
 }
 
 void orderedForEach(Map map, Function fun) {
@@ -46,6 +52,10 @@ void orderedForEach(Map map, Function fun) {
   for (var key in keys) {
     fun(key, map[key]);
   }
+}
+
+void writeDartSource(String path, String content) {
+  writeString(path, formatSource(content));
 }
 
 void writeString(String path, String content) {

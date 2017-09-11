@@ -3,6 +3,9 @@
 ## v0.9.1
 
 - Avoid unused imports in generated tests.
+- Use new-style /// comments for generated code.
+- Use `package:dart_style` for formatting the generated code.
+- Use `< 2.0.0-dev.infinity` sdk constraint in generated `pubspec.yaml` files.
 
 ## v0.9.0
 
