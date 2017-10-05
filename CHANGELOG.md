@@ -1,5 +1,10 @@
 # Changelog - discoveryapis_generator
 
+## v0.9.1+1
+
+- Use `< 2.0.0` sdk constraint in generated `pubspec.yaml` files (following the
+  [new guideline](http://news.dartlang.org/2017/09/dart-20-pre-releases-what-they-mean-to.html)).
+
 ## v0.9.1
 
 - Avoid unused imports in generated tests.
