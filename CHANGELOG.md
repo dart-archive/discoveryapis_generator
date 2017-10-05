@@ -1,5 +1,9 @@
 # Changelog - discoveryapis_generator
 
+## v0.9.1+2
+
+- Widen dependency constraint on `package:args`.
+
 ## v0.9.1+1
 
 - Use `< 2.0.0` sdk constraint in generated `pubspec.yaml` files (following the
