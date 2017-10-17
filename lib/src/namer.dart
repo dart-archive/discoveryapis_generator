@@ -94,9 +94,9 @@ class Scope {
    * other names previously returned by this method.
    */
   Identifier newIdentifier(String preferredName,
-      {bool removeUnderscores: true}) {
+      {bool removeUnderscores: true, bool global: false}) {
     var identifier = new Identifier(Scope.toValidIdentifier(preferredName,
-        removeUnderscores: removeUnderscores));
+        removeUnderscores: removeUnderscores, global: global));
     identifiers.add(identifier);
     return identifier;
   }
@@ -114,7 +114,7 @@ class Scope {
    * Converts [preferredName] to a valid identifier.
    */
   static String toValidIdentifier(String preferredName,
-      {bool removeUnderscores: true}) {
+      {bool removeUnderscores: true, bool global: false}) {
     // Replace all abc_xyz with abcXyz.
     if (removeUnderscores) {
       preferredName =
@@ -132,6 +132,9 @@ class Scope {
 
     if (keywords.contains(preferredName)) {
       preferredName = '${preferredName}_';
+    }
+    if (global) {
+      preferredName = '\$$preferredName';
     }
     return preferredName;
   }
