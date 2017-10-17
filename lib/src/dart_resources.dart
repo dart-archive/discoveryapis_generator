@@ -19,6 +19,10 @@ const RESERVED_METHOD_PARAMETER_NAMES = const [
   'callOptions'
 ];
 
+const WHITELISTED_GLOBAL_PARAMETER_NAMES = const [
+  'fields',
+];
+
 /**
  * Represents a oauth2 authentication scope.
  */
@@ -552,14 +556,14 @@ DartApiClass parseResources(
 
       var optionalParameters = new List<MethodParameter>();
       enqueueOptionalParameter(
-          String jsonName, Comment comment, JsonSchema schema) {
-        var name = parameterScope.newIdentifier(jsonName);
-        var parameter = method.parameters[jsonName];
-        var type = parseResolved(imports, db, parameter);
+          String jsonName, Comment comment, JsonSchema schema,
+          {bool global: false}) {
+        var name = parameterScope.newIdentifier(jsonName, global: global);
+        var type = parseResolved(imports, db, schema);
         comment = extendEnumComment(comment, type);
         comment = extendAnyTypeComment(comment, type);
-        optionalParameters.add(new MethodParameter(name, comment, false, type,
-            jsonName, parameter.location != 'query'));
+        optionalParameters.add(new MethodParameter(
+            name, comment, false, type, jsonName, schema.location != 'query'));
       }
 
       Comment parameterComment(JsonSchema parameter) {
@@ -611,6 +615,19 @@ DartApiClass parseResources(
         var comment = parameterComment(method.parameters[jsonName]);
         enqueueOptionalParameter(
             jsonName, comment, method.parameters[jsonName]);
+      }
+
+      // Global request parameters valid for all methods.
+      if (description.parameters != null) {
+        for (var jsonName in description.parameters.keys) {
+          final jsonSchema = description.parameters[jsonName];
+          assert(jsonSchema != null);
+          final comment = parameterComment(jsonSchema);
+          if (WHITELISTED_GLOBAL_PARAMETER_NAMES.contains(jsonName)) {
+            enqueueOptionalParameter(jsonName, comment, jsonSchema,
+                global: true);
+          }
+        }
       }
 
       // Check if we have a request object, if so parse it's type.

@@ -28,18 +28,25 @@ class ToyApi {
 
   /// Request parameters:
   ///
+  /// [$fields] - Selector specifying which fields to include in a partial
+  /// response.
+  ///
   /// Completes with a [commons.ApiRequestError] if the API endpoint returned an
   /// error.
   ///
   /// If the used [http.Client] completes with an error when making a REST call,
   /// this method will complete with the same error.
-  async.Future failing() {
+  async.Future failing({core.String $fields}) {
     var _url = null;
     var _queryParams = new core.Map();
     var _uploadMedia = null;
     var _uploadOptions = null;
     var _downloadOptions = commons.DownloadOptions.Metadata;
     var _body = null;
+
+    if ($fields != null) {
+      _queryParams["fields"] = [$fields];
+    }
 
     _downloadOptions = null;
 
@@ -56,6 +63,9 @@ class ToyApi {
 
   /// Request parameters:
   ///
+  /// [$fields] - Selector specifying which fields to include in a partial
+  /// response.
+  ///
   /// Completes with a [ToyResponse].
   ///
   /// Completes with a [commons.ApiRequestError] if the API endpoint returned an
@@ -63,13 +73,17 @@ class ToyApi {
   ///
   /// If the used [http.Client] completes with an error when making a REST call,
   /// this method will complete with the same error.
-  async.Future<ToyResponse> hello() {
+  async.Future<ToyResponse> hello({core.String $fields}) {
     var _url = null;
     var _queryParams = new core.Map();
     var _uploadMedia = null;
     var _uploadOptions = null;
     var _downloadOptions = commons.DownloadOptions.Metadata;
     var _body = null;
+
+    if ($fields != null) {
+      _queryParams["fields"] = [$fields];
+    }
 
     _url = 'hello';
 
@@ -86,6 +100,9 @@ class ToyApi {
   ///
   /// Request parameters:
   ///
+  /// [$fields] - Selector specifying which fields to include in a partial
+  /// response.
+  ///
   /// Completes with a [core.Map<core.String, ToyResponse>].
   ///
   /// Completes with a [commons.ApiRequestError] if the API endpoint returned an
@@ -94,7 +111,8 @@ class ToyApi {
   /// If the used [http.Client] completes with an error when making a REST call,
   /// this method will complete with the same error.
   async.Future<core.Map<core.String, ToyResponse>> helloListOfClass(
-      core.List<ToyRequest> request) {
+      core.List<ToyRequest> request,
+      {core.String $fields}) {
     var _url = null;
     var _queryParams = new core.Map();
     var _uploadMedia = null;
@@ -105,6 +123,9 @@ class ToyApi {
     if (request != null) {
       _body = convert.JSON.encode(
           request.map((value) => ToyRequestFactory.toJson(value)).toList());
+    }
+    if ($fields != null) {
+      _queryParams["fields"] = [$fields];
     }
 
     _url = 'helloListOfClass';
@@ -126,6 +147,9 @@ class ToyApi {
   ///
   /// Request parameters:
   ///
+  /// [$fields] - Selector specifying which fields to include in a partial
+  /// response.
+  ///
   /// Completes with a [core.Map<core.String, ToyResponse>].
   ///
   /// Completes with a [commons.ApiRequestError] if the API endpoint returned an
@@ -134,7 +158,8 @@ class ToyApi {
   /// If the used [http.Client] completes with an error when making a REST call,
   /// this method will complete with the same error.
   async.Future<core.Map<core.String, ToyResponse>> helloListOfListOfClass(
-      core.List<core.List<ToyRequest>> request) {
+      core.List<core.List<ToyRequest>> request,
+      {core.String $fields}) {
     var _url = null;
     var _queryParams = new core.Map();
     var _uploadMedia = null;
@@ -147,6 +172,9 @@ class ToyApi {
           .map((value) =>
               value.map((value) => ToyRequestFactory.toJson(value)).toList())
           .toList());
+    }
+    if ($fields != null) {
+      _queryParams["fields"] = [$fields];
     }
 
     _url = 'helloListOfListOfClass';
@@ -168,6 +196,9 @@ class ToyApi {
   ///
   /// Request parameters:
   ///
+  /// [$fields] - Selector specifying which fields to include in a partial
+  /// response.
+  ///
   /// Completes with a [core.Map<core.String, core.int>].
   ///
   /// Completes with a [commons.ApiRequestError] if the API endpoint returned an
@@ -176,7 +207,8 @@ class ToyApi {
   /// If the used [http.Client] completes with an error when making a REST call,
   /// this method will complete with the same error.
   async.Future<core.Map<core.String, core.int>> helloMap(
-      core.Map<core.String, core.int> request) {
+      core.Map<core.String, core.int> request,
+      {core.String $fields}) {
     var _url = null;
     var _queryParams = new core.Map();
     var _uploadMedia = null;
@@ -186,6 +218,9 @@ class ToyApi {
 
     if (request != null) {
       _body = convert.JSON.encode(request);
+    }
+    if ($fields != null) {
+      _queryParams["fields"] = [$fields];
     }
 
     _url = 'helloMap';
@@ -205,6 +240,9 @@ class ToyApi {
   ///
   /// [age] - Path parameter: 'age'.
   ///
+  /// [$fields] - Selector specifying which fields to include in a partial
+  /// response.
+  ///
   /// Completes with a [ToyResponse].
   ///
   /// Completes with a [commons.ApiRequestError] if the API endpoint returned an
@@ -212,7 +250,8 @@ class ToyApi {
   ///
   /// If the used [http.Client] completes with an error when making a REST call,
   /// this method will complete with the same error.
-  async.Future<ToyResponse> helloNameAge(core.String name, core.int age) {
+  async.Future<ToyResponse> helloNameAge(core.String name, core.int age,
+      {core.String $fields}) {
     var _url = null;
     var _queryParams = new core.Map();
     var _uploadMedia = null;
@@ -225,6 +264,9 @@ class ToyApi {
     }
     if (age == null) {
       throw new core.ArgumentError("Parameter age is required.");
+    }
+    if ($fields != null) {
+      _queryParams["fields"] = [$fields];
     }
 
     _url = 'hello/' +
@@ -247,6 +289,9 @@ class ToyApi {
   ///
   /// [name] - Path parameter: 'name'.
   ///
+  /// [$fields] - Selector specifying which fields to include in a partial
+  /// response.
+  ///
   /// Completes with a [ToyResponse].
   ///
   /// Completes with a [commons.ApiRequestError] if the API endpoint returned an
@@ -255,7 +300,8 @@ class ToyApi {
   /// If the used [http.Client] completes with an error when making a REST call,
   /// this method will complete with the same error.
   async.Future<ToyResponse> helloNamePostAge(
-      ToyAgeRequest request, core.String name) {
+      ToyAgeRequest request, core.String name,
+      {core.String $fields}) {
     var _url = null;
     var _queryParams = new core.Map();
     var _uploadMedia = null;
@@ -268,6 +314,9 @@ class ToyApi {
     }
     if (name == null) {
       throw new core.ArgumentError("Parameter name is required.");
+    }
+    if ($fields != null) {
+      _queryParams["fields"] = [$fields];
     }
 
     _url = 'helloPost/' + commons.Escaper.ecapeVariable('$name');
@@ -289,6 +338,9 @@ class ToyApi {
   ///
   /// [age] - Query parameter: 'age'.
   ///
+  /// [$fields] - Selector specifying which fields to include in a partial
+  /// response.
+  ///
   /// Completes with a [ToyResponse].
   ///
   /// Completes with a [commons.ApiRequestError] if the API endpoint returned an
@@ -297,7 +349,7 @@ class ToyApi {
   /// If the used [http.Client] completes with an error when making a REST call,
   /// this method will complete with the same error.
   async.Future<ToyResponse> helloNameQueryAgeFoo(core.String name,
-      {core.String foo, core.int age}) {
+      {core.String foo, core.int age, core.String $fields}) {
     var _url = null;
     var _queryParams = new core.Map();
     var _uploadMedia = null;
@@ -313,6 +365,9 @@ class ToyApi {
     }
     if (age != null) {
       _queryParams["age"] = ["${age}"];
+    }
+    if ($fields != null) {
+      _queryParams["fields"] = [$fields];
     }
 
     _url = 'helloQuery/' + commons.Escaper.ecapeVariable('$name');
@@ -330,6 +385,9 @@ class ToyApi {
   ///
   /// Request parameters:
   ///
+  /// [$fields] - Selector specifying which fields to include in a partial
+  /// response.
+  ///
   /// Completes with a [core.List<core.List<core.String>>].
   ///
   /// Completes with a [commons.ApiRequestError] if the API endpoint returned an
@@ -338,7 +396,8 @@ class ToyApi {
   /// If the used [http.Client] completes with an error when making a REST call,
   /// this method will complete with the same error.
   async.Future<core.List<core.List<core.String>>> helloNestedListList(
-      core.List<core.List<core.int>> request) {
+      core.List<core.List<core.int>> request,
+      {core.String $fields}) {
     var _url = null;
     var _queryParams = new core.Map();
     var _uploadMedia = null;
@@ -348,6 +407,9 @@ class ToyApi {
 
     if (request != null) {
       _body = convert.JSON.encode(request);
+    }
+    if ($fields != null) {
+      _queryParams["fields"] = [$fields];
     }
 
     _url = 'helloNestedListList';
@@ -365,6 +427,9 @@ class ToyApi {
   ///
   /// Request parameters:
   ///
+  /// [$fields] - Selector specifying which fields to include in a partial
+  /// response.
+  ///
   /// Completes with a [core.List<core.Map<core.String,
   /// core.List<core.String>>>].
   ///
@@ -375,7 +440,8 @@ class ToyApi {
   /// this method will complete with the same error.
   async.Future<core.List<core.Map<core.String, core.List<core.String>>>>
       helloNestedListMapList(
-          core.List<core.Map<core.String, core.List<core.int>>> request) {
+          core.List<core.Map<core.String, core.List<core.int>>> request,
+          {core.String $fields}) {
     var _url = null;
     var _queryParams = new core.Map();
     var _uploadMedia = null;
@@ -385,6 +451,9 @@ class ToyApi {
 
     if (request != null) {
       _body = convert.JSON.encode(request);
+    }
+    if ($fields != null) {
+      _queryParams["fields"] = [$fields];
     }
 
     _url = 'helloNestedListMapList';
@@ -400,6 +469,9 @@ class ToyApi {
 
   /// Request parameters:
   ///
+  /// [$fields] - Selector specifying which fields to include in a partial
+  /// response.
+  ///
   /// Completes with a [ToyMapResponse].
   ///
   /// Completes with a [commons.ApiRequestError] if the API endpoint returned an
@@ -407,13 +479,17 @@ class ToyApi {
   ///
   /// If the used [http.Client] completes with an error when making a REST call,
   /// this method will complete with the same error.
-  async.Future<ToyMapResponse> helloNestedMap() {
+  async.Future<ToyMapResponse> helloNestedMap({core.String $fields}) {
     var _url = null;
     var _queryParams = new core.Map();
     var _uploadMedia = null;
     var _uploadOptions = null;
     var _downloadOptions = commons.DownloadOptions.Metadata;
     var _body = null;
+
+    if ($fields != null) {
+      _queryParams["fields"] = [$fields];
+    }
 
     _url = 'helloNestedMap';
 
@@ -430,6 +506,9 @@ class ToyApi {
   ///
   /// Request parameters:
   ///
+  /// [$fields] - Selector specifying which fields to include in a partial
+  /// response.
+  ///
   /// Completes with a [core.Map<core.String, core.List<core.Map<core.String,
   /// core.bool>>>].
   ///
@@ -439,10 +518,10 @@ class ToyApi {
   /// If the used [http.Client] completes with an error when making a REST call,
   /// this method will complete with the same error.
   async.Future<
-          core.Map<core.String, core.List<core.Map<core.String, core.bool>>>>
-      helloNestedMapListMap(
-          core.Map<core.String, core.List<core.Map<core.String, core.int>>>
-              request) {
+      core.Map<core.String,
+          core.List<core.Map<core.String, core.bool>>>> helloNestedMapListMap(
+      core.Map<core.String, core.List<core.Map<core.String, core.int>>> request,
+      {core.String $fields}) {
     var _url = null;
     var _queryParams = new core.Map();
     var _uploadMedia = null;
@@ -452,6 +531,9 @@ class ToyApi {
 
     if (request != null) {
       _body = convert.JSON.encode(request);
+    }
+    if ($fields != null) {
+      _queryParams["fields"] = [$fields];
     }
 
     _url = 'helloNestedMapListMap';
@@ -469,6 +551,9 @@ class ToyApi {
   ///
   /// Request parameters:
   ///
+  /// [$fields] - Selector specifying which fields to include in a partial
+  /// response.
+  ///
   /// Completes with a [core.Map<core.String, core.Map<core.String,
   /// core.bool>>].
   ///
@@ -479,7 +564,8 @@ class ToyApi {
   /// this method will complete with the same error.
   async.Future<core.Map<core.String, core.Map<core.String, core.bool>>>
       helloNestedMapMap(
-          core.Map<core.String, core.Map<core.String, core.int>> request) {
+          core.Map<core.String, core.Map<core.String, core.int>> request,
+          {core.String $fields}) {
     var _url = null;
     var _queryParams = new core.Map();
     var _uploadMedia = null;
@@ -489,6 +575,9 @@ class ToyApi {
 
     if (request != null) {
       _body = convert.JSON.encode(request);
+    }
+    if ($fields != null) {
+      _queryParams["fields"] = [$fields];
     }
 
     _url = 'helloNestedMapMap';
@@ -506,6 +595,9 @@ class ToyApi {
   ///
   /// Request parameters:
   ///
+  /// [$fields] - Selector specifying which fields to include in a partial
+  /// response.
+  ///
   /// Completes with a [ToyResponse].
   ///
   /// Completes with a [commons.ApiRequestError] if the API endpoint returned an
@@ -513,7 +605,8 @@ class ToyApi {
   ///
   /// If the used [http.Client] completes with an error when making a REST call,
   /// this method will complete with the same error.
-  async.Future<ToyResponse> helloPost(ToyRequest request) {
+  async.Future<ToyResponse> helloPost(ToyRequest request,
+      {core.String $fields}) {
     var _url = null;
     var _queryParams = new core.Map();
     var _uploadMedia = null;
@@ -523,6 +616,9 @@ class ToyApi {
 
     if (request != null) {
       _body = convert.JSON.encode(ToyRequestFactory.toJson(request));
+    }
+    if ($fields != null) {
+      _queryParams["fields"] = [$fields];
     }
 
     _url = 'helloPost';
@@ -538,6 +634,9 @@ class ToyApi {
 
   /// Request parameters:
   ///
+  /// [$fields] - Selector specifying which fields to include in a partial
+  /// response.
+  ///
   /// Completes with a [ToyResponse].
   ///
   /// Completes with a [commons.ApiRequestError] if the API endpoint returned an
@@ -545,13 +644,17 @@ class ToyApi {
   ///
   /// If the used [http.Client] completes with an error when making a REST call,
   /// this method will complete with the same error.
-  async.Future<ToyResponse> helloReturnNull() {
+  async.Future<ToyResponse> helloReturnNull({core.String $fields}) {
     var _url = null;
     var _queryParams = new core.Map();
     var _uploadMedia = null;
     var _uploadOptions = null;
     var _downloadOptions = commons.DownloadOptions.Metadata;
     var _body = null;
+
+    if ($fields != null) {
+      _queryParams["fields"] = [$fields];
+    }
 
     _url = 'helloReturnNull';
 
@@ -566,6 +669,9 @@ class ToyApi {
 
   /// Request parameters:
   ///
+  /// [$fields] - Selector specifying which fields to include in a partial
+  /// response.
+  ///
   /// Completes with a [ToyResponse].
   ///
   /// Completes with a [commons.ApiRequestError] if the API endpoint returned an
@@ -573,13 +679,17 @@ class ToyApi {
   ///
   /// If the used [http.Client] completes with an error when making a REST call,
   /// this method will complete with the same error.
-  async.Future<ToyResponse> helloVoid() {
+  async.Future<ToyResponse> helloVoid({core.String $fields}) {
     var _url = null;
     var _queryParams = new core.Map();
     var _uploadMedia = null;
     var _uploadOptions = null;
     var _downloadOptions = commons.DownloadOptions.Metadata;
     var _body = null;
+
+    if ($fields != null) {
+      _queryParams["fields"] = [$fields];
+    }
 
     _url = 'helloVoid';
 
@@ -594,18 +704,25 @@ class ToyApi {
 
   /// Request parameters:
   ///
+  /// [$fields] - Selector specifying which fields to include in a partial
+  /// response.
+  ///
   /// Completes with a [commons.ApiRequestError] if the API endpoint returned an
   /// error.
   ///
   /// If the used [http.Client] completes with an error when making a REST call,
   /// this method will complete with the same error.
-  async.Future noop() {
+  async.Future noop({core.String $fields}) {
     var _url = null;
     var _queryParams = new core.Map();
     var _uploadMedia = null;
     var _uploadOptions = null;
     var _downloadOptions = commons.DownloadOptions.Metadata;
     var _body = null;
+
+    if ($fields != null) {
+      _queryParams["fields"] = [$fields];
+    }
 
     _downloadOptions = null;
 
@@ -624,6 +741,9 @@ class ToyApi {
   ///
   /// Request parameters:
   ///
+  /// [$fields] - Selector specifying which fields to include in a partial
+  /// response.
+  ///
   /// Completes with a [core.List<core.String>].
   ///
   /// Completes with a [commons.ApiRequestError] if the API endpoint returned an
@@ -632,7 +752,8 @@ class ToyApi {
   /// If the used [http.Client] completes with an error when making a REST call,
   /// this method will complete with the same error.
   async.Future<core.List<core.String>> reverseList(
-      core.List<core.String> request) {
+      core.List<core.String> request,
+      {core.String $fields}) {
     var _url = null;
     var _queryParams = new core.Map();
     var _uploadMedia = null;
@@ -642,6 +763,9 @@ class ToyApi {
 
     if (request != null) {
       _body = convert.JSON.encode(request);
+    }
+    if ($fields != null) {
+      _queryParams["fields"] = [$fields];
     }
 
     _url = 'reverseList';
@@ -667,6 +791,9 @@ class ComputeResourceApi {
   ///
   /// [compute] - Path parameter: 'compute'.
   ///
+  /// [$fields] - Selector specifying which fields to include in a partial
+  /// response.
+  ///
   /// Completes with a [ToyResourceResponse].
   ///
   /// Completes with a [commons.ApiRequestError] if the API endpoint returned an
@@ -675,7 +802,8 @@ class ComputeResourceApi {
   /// If the used [http.Client] completes with an error when making a REST call,
   /// this method will complete with the same error.
   async.Future<ToyResourceResponse> get(
-      core.String resource, core.String compute) {
+      core.String resource, core.String compute,
+      {core.String $fields}) {
     var _url = null;
     var _queryParams = new core.Map();
     var _uploadMedia = null;
@@ -688,6 +816,9 @@ class ComputeResourceApi {
     }
     if (compute == null) {
       throw new core.ArgumentError("Parameter compute is required.");
+    }
+    if ($fields != null) {
+      _queryParams["fields"] = [$fields];
     }
 
     _url = 'toyresource/' +
@@ -716,6 +847,9 @@ class StorageResourceApi {
   ///
   /// [storage] - Path parameter: 'storage'.
   ///
+  /// [$fields] - Selector specifying which fields to include in a partial
+  /// response.
+  ///
   /// Completes with a [ToyResourceResponse].
   ///
   /// Completes with a [commons.ApiRequestError] if the API endpoint returned an
@@ -724,7 +858,8 @@ class StorageResourceApi {
   /// If the used [http.Client] completes with an error when making a REST call,
   /// this method will complete with the same error.
   async.Future<ToyResourceResponse> get(
-      core.String resource, core.String storage) {
+      core.String resource, core.String storage,
+      {core.String $fields}) {
     var _url = null;
     var _queryParams = new core.Map();
     var _uploadMedia = null;
@@ -737,6 +872,9 @@ class StorageResourceApi {
     }
     if (storage == null) {
       throw new core.ArgumentError("Parameter storage is required.");
+    }
+    if ($fields != null) {
+      _queryParams["fields"] = [$fields];
     }
 
     _url = 'toyresource/' +

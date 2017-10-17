@@ -408,7 +408,7 @@ class MethodArgsTest extends TestHelper {
         if (type is IntegerType || type is StringIntegerType) {
           ln(expectEqual(intParse('${queryMapValue}.first'), name));
         } else if (p.type is UnnamedArrayType) {
-          var innerType = (p as UnnamedArrayType).innerType;
+          var innerType = (p.type as UnnamedArrayType).innerType;
           if (innerType is IntegerType || innerType is StringIntegerType) {
             ln(expectEqual(
                 '${queryMapValue}.map(core.int.parse).toList()', name));

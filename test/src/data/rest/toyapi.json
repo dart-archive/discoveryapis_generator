@@ -11,7 +11,13 @@
  "basePath": "/api/toyApi/0.1/",
  "rootUrl": "http://localhost:9090/",
  "servicePath": "api/toyApi/0.1/",
- "parameters": {},
+ "parameters": {
+  "fields": {
+   "description": "Selector specifying which fields to include in a partial response.",
+   "location": "query",
+   "type": "string"
+  }
+ },
  "schemas": {
   "ToyResourceResponse": {
    "id": "ToyResourceResponse",
