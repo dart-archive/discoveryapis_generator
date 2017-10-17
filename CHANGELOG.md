@@ -1,5 +1,10 @@
 # Changelog - discoveryapis_generator
 
+## v0.9.2
+
+- Add support for global request parameters, currently whitelisted to only allow
+  `"fields"`.
+
 ## v0.9.1+2
 
 - Widen dependency constraint on `package:args`.
