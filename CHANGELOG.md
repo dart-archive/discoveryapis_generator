@@ -1,5 +1,9 @@
 # Changelog - discoveryapis_generator
 
+## v0.9.3
+
+- Minor cleanups.
+
 ## v0.9.2
 
 - Add support for global request parameters, currently whitelisted to only allow
