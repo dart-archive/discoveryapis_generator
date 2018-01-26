@@ -12,10 +12,8 @@ const String USER_AGENT_STRING = 'google-api-dart-client googleapis/0.1.1';
 
 const CONTENT_TYPE_JSON_UTF8 = 'application/json; charset=utf-8';
 
-/**
- * Base class for all API clients, offering generic methods for
- * HTTP Requests to the API
- */
+/// Base class for all API clients, offering generic methods for
+/// HTTP Requests to the API
 class ApiRequester {
   final http.Client _httpClient;
   final String _rootUrl;
@@ -25,22 +23,20 @@ class ApiRequester {
     assert(_rootUrl.endsWith('/'));
   }
 
-  /**
-   * Sends a HTTPRequest using [method] (usually GET or POST) to [requestUrl]
-   * using the specified [urlParams] and [queryParams]. Optionally include a
-   * [body] and/or [uploadMedia] in the request.
-   *
-   * If [uploadMedia] was specified [downloadOptions] must be
-   * [DownloadOptions.Metadata] or `null`.
-   *
-   * If [downloadOptions] is [DownloadOptions.Metadata] the result will be
-   * decoded as JSON.
-   *
-   * If [downloadOptions] is `null` the result will be a Future completing with
-   * `null`.
-   *
-   * Otherwise the result will be downloaded as a [common_external.Media]
-   */
+  /// Sends a HTTPRequest using [method] (usually GET or POST) to [requestUrl]
+  /// using the specified [urlParams] and [queryParams]. Optionally include a
+  /// [body] and/or [uploadMedia] in the request.
+  ///
+  /// If [uploadMedia] was specified [downloadOptions] must be
+  /// [DownloadOptions.Metadata] or `null`.
+  ///
+  /// If [downloadOptions] is [DownloadOptions.Metadata] the result will be
+  /// decoded as JSON.
+  ///
+  /// If [downloadOptions] is `null` the result will be a Future completing with
+  /// `null`.
+  ///
+  /// Otherwise the result will be downloaded as a [common_external.Media]
   Future request(String requestUrl, String method,
       {String body,
       Map queryParams,
@@ -118,11 +114,11 @@ class ApiRequester {
     });
   }
 
-  Future _request(
+  Future<http.StreamedResponse> _request(
       String requestUrl,
       String method,
       String body,
-      Map queryParams,
+      Map<String, List<String>> queryParams,
       common_external.Media uploadMedia,
       common_external.UploadOptions uploadOptions,
       common_external.DownloadOptions downloadOptions,
@@ -247,9 +243,7 @@ class ApiRequester {
   }
 }
 
-/**
- * Does media uploads using the multipart upload protocol.
- */
+/// Does media uploads using the multipart upload protocol.
 class MultipartMediaUploader {
   static final _boundary = '314159265358979323846';
   static final _base64Encoder = new Base64Encoder();
@@ -305,9 +299,7 @@ class MultipartMediaUploader {
   }
 }
 
-/**
- * Base64 encodes a stream of bytes.
- */
+/// Base64 encodes a stream of bytes.
 class Base64Encoder implements StreamTransformer<List<int>, String> {
   static int lengthOfBase64Stream(int lengthOfByteStream) {
     return ((lengthOfByteStream + 2) ~/ 3) * 4;
@@ -386,9 +378,7 @@ class Base64Encoder implements StreamTransformer<List<int>, String> {
 }
 
 // TODO: Buffer less if we know the content length in advance.
-/**
- * Does media uploads using the resumable upload protocol.
- */
+/// Does media uploads using the resumable upload protocol.
 class ResumableMediaUploader {
   final http.Client _httpClient;
   final common_external.Media _uploadMedia;
@@ -400,12 +390,10 @@ class ResumableMediaUploader {
   ResumableMediaUploader(this._httpClient, this._uploadMedia, this._body,
       this._uri, this._method, this._options);
 
-  /**
-   * Returns the final [http.StreamedResponse] if the upload succeded and
-   * completes with an error otherwise.
-   *
-   * The returned response stream has not been listened to.
-   */
+  /// Returns the final [http.StreamedResponse] if the upload succeded and
+  /// completes with an error otherwise.
+  ///
+  /// The returned response stream has not been listened to.
   Future<http.StreamedResponse> upload() {
     return _startSession().then((Uri uploadUri) {
       StreamSubscription subscription;
@@ -484,11 +472,9 @@ class ResumableMediaUploader {
     });
   }
 
-  /**
-   * Starts a resumable upload.
-   *
-   * Returns the [Uri] which should be used for uploading all content.
-   */
+  /// Starts a resumable upload.
+  ///
+  /// Returns the [Uri] which should be used for uploading all content.
   Future<Uri> _startSession() {
     var length = 0;
     var bytes;
@@ -520,19 +506,15 @@ class ResumableMediaUploader {
     });
   }
 
-  /**
-   * Uploads [chunk], retries upon server errors. The response stream will be
-   * drained.
-   */
+  /// Uploads [chunk], retries upon server errors. The response stream will be
+  /// drained.
   Future _uploadChunkDrained(Uri uri, ResumableChunk chunk) {
     return _uploadChunkResumable(uri, chunk).then((response) {
       return response.stream.drain();
     });
   }
 
-  /**
-   * Does repeated attempts to upload [chunk].
-   */
+  /// Does repeated attempts to upload [chunk].
   Future _uploadChunkResumable(Uri uri, ResumableChunk chunk,
       {bool lastChunk: false}) {
     tryUpload(int attemptsLeft) {
@@ -579,16 +561,14 @@ class ResumableMediaUploader {
     return tryUpload(_options.numberOfAttempts - 1);
   }
 
-  /**
-   * Uploads [length] bytes in [byteArrays] and ensures the upload was
-   * successful.
-   *
-   * Content-Range: [start ... (start + length)[
-   *
-   * Returns the returned [http.StreamedResponse] or completes with an error if
-   * the upload did not succeed. The response stream will not be listened to.
-   */
-  Future _uploadChunk(Uri uri, ResumableChunk chunk, {bool lastChunk: false}) {
+  /// Uploads [length] bytes in [byteArrays] and ensures the upload was
+  /// successful.
+  ///
+  /// Content-Range: [start ... (start + length)[
+  ///
+  /// Returns the returned [http.StreamedResponse] or completes with an error if
+  /// the upload did not succeed. The response stream will not be listened to.
+  Future<http.StreamedResponse> _uploadChunk(Uri uri, ResumableChunk chunk, {bool lastChunk: false}) {
     // If [uploadMedia.length] is null, we do not know the length.
     dynamic mediaTotalLength = _uploadMedia.length;
     if (mediaTotalLength == null || lastChunk) {
@@ -632,9 +612,7 @@ class ResumableMediaUploader {
   }
 }
 
-/**
- * Represents a stack of [ResumableChunk]s.
- */
+/// Represents a stack of [ResumableChunk]s.
 class ChunkStack {
   final int _chunkSize;
   final List<ResumableChunk> _chunkStack = [];
@@ -652,19 +630,15 @@ class ChunkStack {
 
   int get totalByteLength => _offset;
 
-  /**
-   * Returns the chunks [from] ... [to] and deletes it from the stack.
-   */
+  /// Returns the chunks [from] ... [to] and deletes it from the stack.
   List<ResumableChunk> removeSublist(int from, int to) {
     var sublist = _chunkStack.sublist(from, to);
     _chunkStack.removeRange(from, to);
     return sublist;
   }
 
-  /**
-   * Adds [bytes] to the buffer. If the buffer is larger than the given chunk
-   * size a new [ResumableChunk] will be created.
-   */
+  /// Adds [bytes] to the buffer. If the buffer is larger than the given chunk
+  /// size a new [ResumableChunk] will be created.
   void addBytes(List<int> bytes) {
     if (_finalized) {
       throw new StateError('ChunkStack has already been finalized.');
@@ -692,10 +666,8 @@ class ChunkStack {
     }
   }
 
-  /**
-   * Finalizes this [ChunkStack] and creates the last chunk (may have less bytes
-   * than the chunk size, but not zero).
-   */
+  /// Finalizes this [ChunkStack] and creates the last chunk (may have less bytes
+  /// than the chunk size, but not zero).
   void finalize() {
     if (_finalized) {
       throw new StateError('ChunkStack has already been finalized.');
@@ -709,17 +681,13 @@ class ChunkStack {
   }
 }
 
-/**
- * Represents a chunk of data that will be transferred in one http request.
- */
+/// Represents a chunk of data that will be transferred in one http request.
 class ResumableChunk {
   final List<List<int>> byteArrays;
   final int offset;
   final int length;
 
-  /**
-   * Index of the next byte after this chunk.
-   */
+  /// Index of the next byte after this chunk.
   int get endOfChunk => offset + length;
 
   ResumableChunk(this.byteArrays, this.offset, this.length);

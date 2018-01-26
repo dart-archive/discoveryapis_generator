@@ -9,9 +9,7 @@ import 'dart_schemas.dart';
 import 'generated_googleapis/discovery/v1.dart';
 import 'namer.dart';
 
-/**
- * Encapsulates names of prefix-imported libraries.
- */
+/// Encapsulates names of prefix-imported libraries.
 class DartApiImports {
   final ApiLibraryNamer namer;
 
@@ -46,18 +44,14 @@ abstract class BaseApiLibrary {
   }
 }
 
-/**
- * Generates a API library based on a [RestDescription].
- */
+/// Generates a API library based on a [RestDescription].
 class DartApiLibrary extends BaseApiLibrary {
   DartSchemaTypeDB schemaDB;
   DartApiClass apiClass;
   bool exposeMedia;
   String libraryName;
 
-  /**
-   * Generates a API library for [description].
-   */
+  /// Generates a API library for [description].
   DartApiLibrary.build(RestDescription description, String packageName,
       {bool useCorePrefixes: true})
       : super(description, 'Api', useCorePrefixes: useCorePrefixes) {
@@ -74,7 +68,7 @@ class DartApiLibrary extends BaseApiLibrary {
     var schemas = generateSchemas(schemaDB);
     var resources = generateResources(apiClass);
     sink.write(libraryHeader());
-    if (!resources.isEmpty) {
+    if (resources.isNotEmpty) {
       sink.write('$resources\n$schemas');
     } else {
       sink.write('$schemas');
@@ -82,11 +76,9 @@ class DartApiLibrary extends BaseApiLibrary {
     return '${sink.toString().trimRight()}\n';
   }
 
-  /**
-   * Create the library header. Note, this must be called after the library
-   * source string has been generated, since it relies on [Identifier] usage
-   * counts being calculated
-   */
+  /// Create the library header. Note, this must be called after the library
+  /// source string has been generated, since it relies on [Identifier] usage
+  /// counts being calculated
   String libraryHeader() {
     var exportedMediaClasses = '';
     if (exposeMedia) {

@@ -23,9 +23,7 @@ const WHITELISTED_GLOBAL_PARAMETER_NAMES = const [
   'fields',
 ];
 
-/**
- * Represents a oauth2 authentication scope.
- */
+/// Represents a oauth2 authentication scope.
 class OAuth2Scope {
   final String url;
   final Identifier identifier;
@@ -34,49 +32,35 @@ class OAuth2Scope {
   OAuth2Scope(this.url, this.identifier, this.comment);
 }
 
-/**
- * Represents a parameter to a resource method.
- */
+/// Represents a parameter to a resource method.
 class MethodParameter {
   final Identifier name;
   final Comment comment;
   final DartSchemaType type;
   final bool required;
 
-  /**
-   * [jsonName] may be null if this parameter is the request object parameter.
-   */
+  /// [jsonName] may be null if this parameter is the request object parameter.
   final String jsonName;
 
-  /**
-   * [encodeInPath] is
-   *   - `true` if this parameter is encoded in the path of URL.
-   *   - `false` if this parameter is encoded in the query part of the URL.
-   *   - `null` otherwise.
-   */
+  /// [encodeInPath] is
+  ///   - `true` if this parameter is encoded in the path of URL.
+  ///   - `false` if this parameter is encoded in the query part of the URL.
+  ///   - `null` otherwise.
   final bool encodedInPath;
 
   MethodParameter(this.name, this.comment, this.required, this.type,
       this.jsonName, this.encodedInPath);
 
-  /**
-   * Returns the declaration "Type name" of this method parameter.
-   */
+  /// Returns the declaration "Type name" of this method parameter.
   String get declaration => '${type.declaration} $name';
 }
 
-/**
- * Represents a method on a resource class.
- */
+/// Represents a method on a resource class.
 class DartResourceMethod {
-  /**
-   * [requestParameter] may be [:null:].
-   */
+  /// [requestParameter] may be [:null:].
   final MethodParameter requestParameter;
 
-  /**
-   * [returnType] may be [:null:].
-   */
+  /// [returnType] may be [:null:].
   final DartSchemaType returnType;
 
   final Comment comment;
@@ -121,28 +105,28 @@ class DartResourceMethod {
 
     // Normal positional parameters are following.
     if (parameters.length > 0) {
-      if (!parameterString.isEmpty) parameterString.write(', ');
+      if (parameterString.isNotEmpty) parameterString.write(', ');
       parameterString
           .write(parameters.map((param) => '${param.declaration}').join(', '));
     }
 
     // Optional parameters come last (including the media parameters).
     if (namedParameters.length > 0 || mediaUpload || mediaDownload) {
-      if (!parameterString.isEmpty) parameterString.write(', ');
+      if (parameterString.isNotEmpty) parameterString.write(', ');
 
       var namedString = new StringBuffer()
         ..write(
             namedParameters.map((param) => '${param.declaration}').join(', '));
 
       if (mediaUpload) {
-        if (!namedString.isEmpty) namedString.write(', ');
+        if (namedString.isNotEmpty) namedString.write(', ');
         namedString.write('${imports.commons}.UploadOptions uploadOptions : '
             '${imports.commons}.UploadOptions.Default, ');
         namedString.write('${imports.commons}.Media uploadMedia');
       }
 
       if (mediaDownload) {
-        if (!namedString.isEmpty) namedString.write(', ');
+        if (namedString.isNotEmpty) namedString.write(', ');
         namedString.write('${imports.commons}.DownloadOptions downloadOptions: '
             '${imports.commons}.DownloadOptions.Metadata');
       }
@@ -383,9 +367,7 @@ $params$requestCode''');
   }
 }
 
-/**
- * Represents a resource of an Apiary API.
- */
+/// Represents a resource of an Apiary API.
 class DartResourceClass {
   final DartApiImports imports;
   final Identifier className;
@@ -408,7 +390,7 @@ class DartResourceClass {
       str.writeln('  ${resource.className} get ${identifier.name} '
           '=> new ${resource.className}(_requester);');
     }
-    if (!str.isEmpty) str.writeln();
+    if (str.isNotEmpty) str.writeln();
     return '$str';
   }
 
@@ -424,7 +406,7 @@ class DartResourceClass {
     methods.forEach((DartResourceMethod m) {
       str.writeln(m.definition);
     });
-    return !str.isEmpty ? '\n$str' : '';
+    return str.isNotEmpty ? '\n$str' : '';
   }
 
   String getClassDefinition() {
@@ -440,9 +422,7 @@ class DartResourceClass {
   }
 }
 
-/**
- * Represents the API resource of an Apiary API.
- */
+/// Represents the API resource of an Apiary API.
 class DartApiClass extends DartResourceClass {
   final String rootUrl;
   final String servicePath;
@@ -489,10 +469,8 @@ class DartApiClass extends DartResourceClass {
   }
 }
 
-/**
- * Check if any methods supports media upload or download.
- * Returns true if supported, false if not.
- */
+/// Check if any methods supports media upload or download.
+/// Returns true if supported, false if not.
 bool parseMediaUse(DartResourceClass resource) {
   assert(resource.methods != null);
   for (var method in resource.methods) {
@@ -509,9 +487,7 @@ bool parseMediaUse(DartResourceClass resource) {
   return false;
 }
 
-/**
- * Parses all resources in [description] and returns the root [DartApiClass].
- */
+/// Parses all resources in [description] and returns the root [DartApiClass].
 DartApiClass parseResources(
     DartApiImports imports, DartSchemaTypeDB db, RestDescription description) {
   DartResourceClass parseResource(
@@ -631,7 +607,7 @@ DartApiClass parseResources(
       }
 
       // Check if we have a request object, if so parse it's type.
-      var dartRequestParameter = null;
+      MethodParameter dartRequestParameter;
       if (method.request != null) {
         var type = getValidReference(method.request.P_ref);
         var requestName = parameterScope.newIdentifier('request');
@@ -640,7 +616,7 @@ DartApiClass parseResources(
             new MethodParameter(requestName, comment, true, type, null, null);
       }
 
-      var dartResponseType = null;
+      DartSchemaType dartResponseType;
       if (method.response != null) {
         dartResponseType = getValidReference(method.response.P_ref);
       }
@@ -649,7 +625,7 @@ DartApiClass parseResources(
 
       makeBoolean(bool x) => x != null ? x : false;
 
-      var mediaUploadPatterns;
+      Map mediaUploadPatterns;
 
       if (method.supportsMediaUpload == true) {
         mediaUploadPatterns = {
@@ -665,7 +641,7 @@ DartApiClass parseResources(
         }
       }
 
-      var restPath;
+      String restPath;
       if (method.path != null) {
         restPath = method.path;
       } else if (method.restPath != null) {
@@ -799,10 +775,8 @@ DartApiClass parseResources(
       description.methods, description.resources, '');
 }
 
-/**
- * Generates a string representation of all resource classes, beginning with
- * [apiClass].
- */
+/// Generates a string representation of all resource classes, beginning with
+/// [apiClass].
 String generateResources(DartApiClass apiClass) {
   var sb = new StringBuffer();
   writeResourceClass(DartResourceClass resource) {

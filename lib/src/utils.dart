@@ -29,7 +29,7 @@ String fileDate(DateTime date) =>
 String cleanName(String name) => name.replaceAll(_cleanRegEx, "_");
 
 final DartFormatter formatter =
-      new DartFormatter(lineEnding: '\n', pageWidth: 80);
+    new DartFormatter(lineEnding: '\n', pageWidth: 80);
 
 String formatSource(String source) => formatter.format(source);
 
@@ -43,7 +43,10 @@ String escapeString(String string) {
 
 /// Escapes [comment] to ensure it can safely be used inside a /* ... */ block.
 String escapeComment(String comment) {
-  return comment.replaceAll('/*', ' / * ').replaceAll('*/', ' * / ').trimRight();
+  return comment
+      .replaceAll('/*', ' / * ')
+      .replaceAll('*/', ' * / ')
+      .trimRight();
 }
 
 void orderedForEach(Map map, Function fun) {
@@ -134,7 +137,7 @@ class GenerateResult {
     } else {
       assert(apiName != null && apiVersion != null && packagePath != null);
       var flag = success ? '[SUCCESS]' : '[FAIL]';
-      var msg = message != null && !message.isEmpty ? ':\n$message' : '';
+      var msg = message != null && message.isNotEmpty ? ':\n$message' : '';
       return '$flag $apiName $apiVersion @ $packagePath $msg';
     }
   }

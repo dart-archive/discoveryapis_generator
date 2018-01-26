@@ -13,12 +13,10 @@ import '../generated_googleapis/discovery/v1.dart';
 import '../utils.dart';
 import 'client_schemas.dart' as client;
 
-/**
- * Generates a client API library based on a [RestDescription] and an import
- * map. This generator is used to generate a client inside the same package
- * as the server API. It will use the existing definitions of the API message
- * classes instead of generating new client message classes.
- */
+/// Generates a client API library based on a [RestDescription] and an import
+/// map. This generator is used to generate a client inside the same package
+/// as the server API. It will use the existing definitions of the API message
+/// classes instead of generating new client message classes.
 class ClientApiLibrary extends BaseApiLibrary {
   DartSchemaTypeDB schemaDB;
   DartApiClass apiClass;
@@ -28,9 +26,7 @@ class ClientApiLibrary extends BaseApiLibrary {
   String packageName;
   String packageRoot;
 
-  /**
-   * Generates a API library for [description].
-   */
+  /// Generates a API library for [description].
   ClientApiLibrary.build(RestDescription description,
       Map<String, String> importMap, this.packageName, this.packageRoot,
       {bool useCorePrefixes: true})
@@ -80,18 +76,16 @@ class ClientApiLibrary extends BaseApiLibrary {
     var schemas = generateSchemas(schemaDB);
     var resources = generateResources(apiClass);
     sink.write(libraryHeader());
-    if (!resources.isEmpty) {
+    if (resources.isNotEmpty) {
       sink.writeln('$resources');
     }
     sink.write('$schemas');
     return '$sink';
   }
 
-  /**
-   * Create the library header. Note, this must be called after the library
-   * source string has been generated, since it relies on [Identifier] usage
-   * counts being calculated
-   */
+  /// Create the library header. Note, this must be called after the library
+  /// source string has been generated, since it relies on [Identifier] usage
+  /// counts being calculated
   String libraryHeader() {
     var exportedMediaClasses = '';
     if (exposeMedia) {
