@@ -586,10 +586,13 @@ class NamedMapType extends ComplexDartSchemaType {
       new MapJsonType(imports, fromType.jsonType, toType.jsonType);
 
   String get classDefinition {
+    var core = imports.core.ref();
     var decode = new StringBuffer();
-    decode.writeln('  $className.fromJson(${imports.core.ref()}Map _json) {');
+    decode.writeln('  $className.fromJson(');
     decode.writeln(
-        '    _json.forEach((${imports.core.ref()}String key, value) {');
+        '      ${core}Map<${core}String, dynamic> _json) {');
+    decode.writeln(
+        '    _json.forEach((${core}String key, value) {');
     decode.writeln('      this[key] = ${toType.jsonDecode('value')};');
     decode.writeln('    });');
     decode.writeln('  }');
@@ -600,7 +603,7 @@ class NamedMapType extends ComplexDartSchemaType {
         '<${fromType.jsonType.declaration}, '
         '${toType.jsonType.declaration}>{};');
     encode
-        .writeln('    this.forEach((${imports.core.ref()}String key, value) {');
+        .writeln('    this.forEach((${core}String key, value) {');
     encode.writeln('      _json[key] = ${toType.jsonEncode('value')};');
     encode.writeln('    });');
     encode.writeln('    return _json;');
@@ -612,14 +615,14 @@ class NamedMapType extends ComplexDartSchemaType {
     return '''
 ${comment.asDartDoc(0)}class $className
     extends ${imports.collection.ref()}MapBase<$fromT, $toT> {
-  final ${imports.core.ref()}Map _innerMap = {};
+  final ${core}Map _innerMap = {};
 
   $className();
 
 $decode
 $encode
 
-  ${toType.declaration} operator [](${imports.core.ref()}Object key)
+  ${toType.declaration} operator [](${core}Object key)
       => _innerMap[key];
 
   operator []=($fromT key, $toT value) {
@@ -630,9 +633,9 @@ $encode
     _innerMap.clear();
   }
 
-  ${imports.core.ref()}Iterable<$fromT> get keys => _innerMap.keys;
+  ${core}Iterable<$fromT> get keys => _innerMap.keys;
 
-  $toT remove(${imports.core.ref()}Object key) => _innerMap.remove(key);
+  $toT remove(${core}Object key) => _innerMap.remove(key);
 }
 ''';
   }
