@@ -1,5 +1,10 @@
 # Changelog - discoveryapis_generator
 
+## v0.9.4
+
+- Use type arguments for `Map`, since dynamic is no longer bottom.
+- Avoid unnecessary imports of `dart:convert`.
+
 ## v0.9.3
 
 - Minor cleanups.
