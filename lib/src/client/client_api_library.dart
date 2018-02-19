@@ -116,8 +116,11 @@ library $libraryName;
       result += "import 'dart:async';\n";
     }
 
+    if (imports.convert.wasCalled) {
+      result += "import 'dart:convert' as ${imports.convert};\n";
+    }
+
     result += """
-import 'dart:convert' as ${imports.convert};
 
 import 'package:_discoveryapis_commons/_discoveryapis_commons.dart' as ${imports.commons};
 """;
