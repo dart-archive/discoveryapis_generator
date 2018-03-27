@@ -902,7 +902,7 @@ class ListOfListOfToyRequest
   ListOfListOfToyRequest.fromJson(core.List json)
       : _inner = json
             .map((value) =>
-                value.map((value) => new ToyRequest.fromJson(value)).toList())
+                value.map((value) => new ToyRequest.fromJson(value)).toList().cast<ToyRequest>())
             .toList();
 
   core.List<core.List<core.Map<core.String, core.Object>>> toJson() {
