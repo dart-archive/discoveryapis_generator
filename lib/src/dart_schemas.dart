@@ -423,7 +423,7 @@ class UnnamedArrayType extends ComplexDartSchemaType {
   String jsonDecode(String json) {
     if (innerType.needsJsonDecoding) {
       return '${json}.map((value) => ${innerType.jsonDecode('value')})'
-          '.toList()';
+          '.toList().cast<${innerType.declaration}>()';
     } else {
       // NOTE: The List returned from JSON.decode() transfers ownership to the
       // user (i.e. we don't need to make a copy of it).

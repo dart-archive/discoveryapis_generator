@@ -369,7 +369,8 @@ class AnalysisResults {
     if (_json.containsKey("issues")) {
       issues = _json["issues"]
           .map((value) => new AnalysisIssue.fromJson(value))
-          .toList();
+          .toList()
+          .cast<AnalysisIssue>();
     }
   }
 
