@@ -46,7 +46,7 @@ class ApisResourceApi {
   /// this method  will complete with the same error.
   async.Future<RestDescription> getRest(core.String api, core.String version) {
     var _url = null;
-    var _queryParams = new core.Map();
+    var _queryParams = new core.Map<core.String, core.List<core.String>>();
     var _uploadMedia = null;
     var _uploadOptions = null;
     var _downloadOptions = common.DownloadOptions.Metadata;
@@ -287,7 +287,7 @@ class DirectoryList {
     }
     if (_json.containsKey("items")) {
       items = _json["items"]
-          .map((value) => new DirectoryListItems.fromJson(value))
+          .map<DirectoryListItems>((value) => new DirectoryListItems.fromJson(value))
           .toList();
     }
     if (_json.containsKey("kind")) {
@@ -381,7 +381,7 @@ class JsonSchemaVariant {
     }
     if (_json.containsKey("map")) {
       map = _json["map"]
-          .map((value) => new JsonSchemaVariantMap.fromJson(value))
+          .map<JsonSchemaVariant>((value) => new JsonSchemaVariantMap.fromJson(value))
           .toList();
     }
   }

@@ -39,7 +39,7 @@ class ApiRequester {
   /// Otherwise the result will be downloaded as a [common_external.Media]
   Future request(String requestUrl, String method,
       {String body,
-      Map queryParams,
+      Map<String, List<String>> queryParams,
       common_external.Media uploadMedia,
       common_external.UploadOptions uploadOptions,
       common_external.DownloadOptions downloadOptions:

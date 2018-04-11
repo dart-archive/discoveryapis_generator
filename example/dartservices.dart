@@ -35,7 +35,7 @@ class DartservicesApi {
   /// this method will complete with the same error.
   Future<AnalysisResults> analyze(SourceRequest request) {
     var _url = null;
-    var _queryParams = new Map();
+    var _queryParams = new Map<String, List<String>>();
     var _uploadMedia = null;
     var _uploadOptions = null;
     var _downloadOptions = commons.DownloadOptions.Metadata;
@@ -69,7 +69,7 @@ class DartservicesApi {
   /// this method will complete with the same error.
   Future<AnalysisResults> analyzeGet({String source}) {
     var _url = null;
-    var _queryParams = new Map();
+    var _queryParams = new Map<String, List<String>>();
     var _uploadMedia = null;
     var _uploadOptions = null;
     var _downloadOptions = commons.DownloadOptions.Metadata;
@@ -103,7 +103,7 @@ class DartservicesApi {
   /// this method will complete with the same error.
   Future<CompileResponse> compile(SourceRequest request) {
     var _url = null;
-    var _queryParams = new Map();
+    var _queryParams = new Map<String, List<String>>();
     var _uploadMedia = null;
     var _uploadOptions = null;
     var _downloadOptions = commons.DownloadOptions.Metadata;
@@ -137,7 +137,7 @@ class DartservicesApi {
   /// this method will complete with the same error.
   Future<CompileResponse> compileGet({String source}) {
     var _url = null;
-    var _queryParams = new Map();
+    var _queryParams = new Map<String, List<String>>();
     var _uploadMedia = null;
     var _uploadOptions = null;
     var _downloadOptions = commons.DownloadOptions.Metadata;
@@ -169,7 +169,7 @@ class DartservicesApi {
   /// this method will complete with the same error.
   Future complete(SourceRequest request) {
     var _url = null;
-    var _queryParams = new Map();
+    var _queryParams = new Map<String, List<String>>();
     var _uploadMedia = null;
     var _uploadOptions = null;
     var _downloadOptions = commons.DownloadOptions.Metadata;
@@ -205,7 +205,7 @@ class DartservicesApi {
   /// this method will complete with the same error.
   Future completeGet({String source, int offset}) {
     var _url = null;
-    var _queryParams = new Map();
+    var _queryParams = new Map<String, List<String>>();
     var _uploadMedia = null;
     var _uploadOptions = null;
     var _downloadOptions = commons.DownloadOptions.Metadata;
@@ -244,7 +244,7 @@ class DartservicesApi {
   /// this method will complete with the same error.
   Future<DocumentResponse> document(SourceRequest request) {
     var _url = null;
-    var _queryParams = new Map();
+    var _queryParams = new Map<String, List<String>>();
     var _uploadMedia = null;
     var _uploadOptions = null;
     var _downloadOptions = commons.DownloadOptions.Metadata;
@@ -280,7 +280,7 @@ class DartservicesApi {
   /// this method will complete with the same error.
   Future<DocumentResponse> documentGet({String source, int offset}) {
     var _url = null;
-    var _queryParams = new Map();
+    var _queryParams = new Map<String, List<String>>();
     var _uploadMedia = null;
     var _uploadOptions = null;
     var _downloadOptions = commons.DownloadOptions.Metadata;
@@ -368,7 +368,7 @@ class AnalysisResults {
   AnalysisResults.fromJson(Map _json) {
     if (_json.containsKey("issues")) {
       issues = _json["issues"]
-          .map((value) => new AnalysisIssue.fromJson(value))
+          .map<AnalysisIssue>((value) => new AnalysisIssue.fromJson(value))
           .toList();
     }
   }
