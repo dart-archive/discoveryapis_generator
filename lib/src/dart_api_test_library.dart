@@ -266,7 +266,7 @@ class ResourceTest extends TestHelper {
             sb.write('(_) {}');
           } else {
             var t = apiTestLibrary.schemaTests[method.returnType];
-            sb.writeln('((api.${method.returnType.className} response) {');
+            sb.writeln('((response) {');
             sb.writeln('        ${t.checkSchemaStatement('response')}');
             sb.write('      })');
           }
