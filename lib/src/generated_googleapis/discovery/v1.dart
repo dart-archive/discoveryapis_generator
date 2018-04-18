@@ -382,7 +382,7 @@ class JsonSchemaVariant {
     }
     if (_json.containsKey("map")) {
       map = _json["map"]
-          .map<JsonSchemaVariant>(
+          .map<JsonSchemaVariantMap>(
               (value) => new JsonSchemaVariantMap.fromJson(value))
           .toList();
     }

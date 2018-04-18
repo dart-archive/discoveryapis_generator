@@ -1061,7 +1061,7 @@ class MapOfListOfMapOfbool extends collection
 
   MapOfListOfMapOfbool();
 
-  MapOfListOfMapOfbool.fromJson(core.Map<core.String, dynamic> _json) {
+  MapOfListOfMapOfbool.fromJson(core.Map<core.String, core.dynamic> _json) {
     _json.forEach((core.String key, value) {
       this[key] = value;
     });
@@ -1100,7 +1100,7 @@ class MapOfListOfMapOfint extends collection
 
   MapOfListOfMapOfint();
 
-  MapOfListOfMapOfint.fromJson(core.Map<core.String, dynamic> _json) {
+  MapOfListOfMapOfint.fromJson(core.Map<core.String, core.dynamic> _json) {
     _json.forEach((core.String key, value) {
       this[key] = value;
     });
@@ -1139,7 +1139,7 @@ class MapOfMapOfbool
 
   MapOfMapOfbool();
 
-  MapOfMapOfbool.fromJson(core.Map<core.String, dynamic> _json) {
+  MapOfMapOfbool.fromJson(core.Map<core.String, core.dynamic> _json) {
     _json.forEach((core.String key, value) {
       this[key] = value;
     });
@@ -1177,7 +1177,7 @@ class MapOfMapOfint
 
   MapOfMapOfint();
 
-  MapOfMapOfint.fromJson(core.Map<core.String, dynamic> _json) {
+  MapOfMapOfint.fromJson(core.Map<core.String, core.dynamic> _json) {
     _json.forEach((core.String key, value) {
       this[key] = value;
     });
@@ -1214,7 +1214,7 @@ class MapOfToyResponse extends collection.MapBase<core.String, ToyResponse> {
 
   MapOfToyResponse();
 
-  MapOfToyResponse.fromJson(core.Map<core.String, dynamic> _json) {
+  MapOfToyResponse.fromJson(core.Map<core.String, core.dynamic> _json) {
     _json.forEach((core.String key, value) {
       this[key] = new ToyResponse.fromJson(value);
     });
@@ -1249,7 +1249,7 @@ class MapOfint extends collection.MapBase<core.String, core.int> {
 
   MapOfint();
 
-  MapOfint.fromJson(core.Map<core.String, dynamic> _json) {
+  MapOfint.fromJson(core.Map<core.String, core.dynamic> _json) {
     _json.forEach((core.String key, value) {
       this[key] = value;
     });

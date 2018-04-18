@@ -589,7 +589,7 @@ class NamedMapType extends ComplexDartSchemaType {
     var core = imports.core.ref();
     var decode = new StringBuffer();
     decode.writeln('  $className.fromJson(');
-    decode.writeln('      ${core}Map<${core}String, dynamic> _json) {');
+    decode.writeln('      ${core}Map<${core}String, ${core}dynamic> _json) {');
     decode.writeln('    _json.forEach((${core}String key, value) {');
     decode.writeln('      this[key] = ${toType.jsonDecode('value')};');
     decode.writeln('    });');
