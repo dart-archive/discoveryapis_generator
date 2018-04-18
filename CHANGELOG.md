@@ -1,5 +1,9 @@
 # Changelog - discoveryapis_generator
 
+## v0.9.5
+
+- More type annotations for Dart 2.
+
 ## v0.9.4
 
 - Use type arguments for `Map`, since dynamic is no longer bottom.
