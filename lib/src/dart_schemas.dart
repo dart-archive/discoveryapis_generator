@@ -422,7 +422,7 @@ class UnnamedArrayType extends ComplexDartSchemaType {
 
   String jsonDecode(String json) {
     if (innerType.needsJsonDecoding) {
-      return '${json}.map((value) => ${innerType.jsonDecode('value')})'
+      return '${json}.map<${innerType.declaration}>((value) => ${innerType.jsonDecode('value')})'
           '.toList()';
     } else {
       // NOTE: The List returned from JSON.decode() transfers ownership to the
@@ -589,10 +589,8 @@ class NamedMapType extends ComplexDartSchemaType {
     var core = imports.core.ref();
     var decode = new StringBuffer();
     decode.writeln('  $className.fromJson(');
-    decode.writeln(
-        '      ${core}Map<${core}String, ${core}dynamic> _json) {');
-    decode.writeln(
-        '    _json.forEach((${core}String key, value) {');
+    decode.writeln('      ${core}Map<${core}String, ${core}dynamic> _json) {');
+    decode.writeln('    _json.forEach((${core}String key, value) {');
     decode.writeln('      this[key] = ${toType.jsonDecode('value')};');
     decode.writeln('    });');
     decode.writeln('  }');
@@ -602,8 +600,7 @@ class NamedMapType extends ComplexDartSchemaType {
     encode.writeln('    final ${jsonType.declaration} _json = '
         '<${fromType.jsonType.declaration}, '
         '${toType.jsonType.declaration}>{};');
-    encode
-        .writeln('    this.forEach((${core}String key, value) {');
+    encode.writeln('    this.forEach((${core}String key, value) {');
     encode.writeln('      _json[key] = ${toType.jsonEncode('value')};');
     encode.writeln('    });');
     encode.writeln('    return _json;');

@@ -351,9 +351,10 @@ $urlPatternCode
     methodString.write(methodComment.asDartDoc(2));
     methodString.writeln('  $signature {');
 
+    final core = imports.core.ref();
     methodString.write('''
     var _url = null;
-    var _queryParams = new ${imports.core.ref()}Map();
+    var _queryParams = new ${core}Map<${core}String, ${core}List<${core}String>>();
     var _uploadMedia = null;
     var _uploadOptions = null;
     var _downloadOptions = ${imports.commons}.DownloadOptions.Metadata;

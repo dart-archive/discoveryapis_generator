@@ -39,7 +39,7 @@ class ApiRequester {
   /// Otherwise the result will be downloaded as a [common_external.Media]
   Future request(String requestUrl, String method,
       {String body,
-      Map queryParams,
+      Map<String, List<String>> queryParams,
       common_external.Media uploadMedia,
       common_external.UploadOptions uploadOptions,
       common_external.DownloadOptions downloadOptions:
@@ -568,7 +568,8 @@ class ResumableMediaUploader {
   ///
   /// Returns the returned [http.StreamedResponse] or completes with an error if
   /// the upload did not succeed. The response stream will not be listened to.
-  Future<http.StreamedResponse> _uploadChunk(Uri uri, ResumableChunk chunk, {bool lastChunk: false}) {
+  Future<http.StreamedResponse> _uploadChunk(Uri uri, ResumableChunk chunk,
+      {bool lastChunk: false}) {
     // If [uploadMedia.length] is null, we do not know the length.
     dynamic mediaTotalLength = _uploadMedia.length;
     if (mediaTotalLength == null || lastChunk) {
