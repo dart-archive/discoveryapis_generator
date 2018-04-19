@@ -1,5 +1,10 @@
 # Changelog - discoveryapis_generator
 
+## v0.9.6
+
+- Use core.Object instead of core.dynamic to avoid running into
+  dart-lang/sdk#29125.
+
 ## v0.9.5
 
 - More type annotations for Dart 2.
