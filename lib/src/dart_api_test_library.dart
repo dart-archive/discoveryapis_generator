@@ -111,13 +111,13 @@ class HttpServerMock extends http.BaseClient {
   async.Future<http.StreamedResponse> send(http.BaseRequest request) {
     if (_expectJson) {
       return request.finalize()
-          .transform(convert.UTF8.decoder)
+          .transform(convert.utf8.decoder)
           .join('')
           .then((core.String jsonString) {
         if (jsonString.isEmpty) {
           return _callback(request, null);
         } else {
-          return _callback(request, convert.JSON.decode(jsonString));
+          return _callback(request, convert.json.decode(jsonString));
         }
       });
     } else {
@@ -135,7 +135,7 @@ class HttpServerMock extends http.BaseClient {
 
 http.StreamedResponse stringResponse(
     core.int status, core.Map<core.String, core.String> headers, core.String body) {
-  var stream = new async.Stream.fromIterable([convert.UTF8.encode(body)]);
+  var stream = new async.Stream.fromIterable([convert.utf8.encode(body)]);
   return new http.StreamedResponse(stream, status, headers: headers);
 }
 """;
@@ -200,7 +200,7 @@ class ResourceTest extends TestHelper {
             } else {
               var t = apiTestLibrary.schemaTests[method.returnType];
               sb.writeln('        var resp = '
-                  'convert.JSON.encode(${t.newSchemaExpr});');
+                  'convert.json.encode(${t.newSchemaExpr});');
             }
             sb.writeln('        return new async.Future.value('
                 'stringResponse(200, h, resp));');
@@ -377,7 +377,7 @@ class MethodArgsTest extends TestHelper {
 
     ln('var query = ${uriExpr}.query;');
     ln('var queryOffset = 0;');
-    ln('var queryMap = {};');
+    ln('var queryMap = <core.String, core.List<core.String>>{};');
     ln('addQueryParam(n, v) => queryMap.putIfAbsent(n, () => []).add(v);');
     ln('parseBool(n) {');
     ln('  if (n == "true") return true;');
