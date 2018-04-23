@@ -505,13 +505,13 @@ main() {
 
           // Array simple/complex
           expect(unNamedArraySimple.needsJsonEncoding, false);
-          expect(unNamedArraySimple.needsJsonDecoding, false);
+          expect(unNamedArraySimple.needsJsonDecoding, true);
           expect(unNamedArrayComplex.needsJsonEncoding, true);
           expect(unNamedArrayComplex.needsJsonDecoding, true);
 
           // Map simple/complex
           expect(unNamedMapSimple.needsJsonEncoding, false);
-          expect(unNamedMapSimple.needsJsonDecoding, false);
+          expect(unNamedMapSimple.needsJsonDecoding, true);
           expect(unNamedMapComplex.needsJsonEncoding, true);
           expect(unNamedMapComplex.needsJsonDecoding, true);
 

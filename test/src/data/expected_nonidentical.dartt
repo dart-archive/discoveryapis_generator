@@ -121,7 +121,7 @@ class ToyApiApi {
     var _body = null;
 
     if (request != null) {
-      _body = convert.JSON.encode((request).toJson());
+      _body = convert.json.encode((request).toJson());
     }
     if ($fields != null) {
       _queryParams["fields"] = [$fields];
@@ -163,7 +163,7 @@ class ToyApiApi {
     var _body = null;
 
     if (request != null) {
-      _body = convert.JSON.encode((request).toJson());
+      _body = convert.json.encode((request).toJson());
     }
     if ($fields != null) {
       _queryParams["fields"] = [$fields];
@@ -203,7 +203,7 @@ class ToyApiApi {
     var _body = null;
 
     if (request != null) {
-      _body = convert.JSON.encode(request);
+      _body = convert.json.encode(request);
     }
     if ($fields != null) {
       _queryParams["fields"] = [$fields];
@@ -296,7 +296,7 @@ class ToyApiApi {
     var _body = null;
 
     if (request != null) {
-      _body = convert.JSON.encode((request).toJson());
+      _body = convert.json.encode((request).toJson());
     }
     if (name == null) {
       throw new core.ArgumentError("Parameter name is required.");
@@ -391,7 +391,7 @@ class ToyApiApi {
     var _body = null;
 
     if (request != null) {
-      _body = convert.JSON.encode(request);
+      _body = convert.json.encode(request);
     }
     if ($fields != null) {
       _queryParams["fields"] = [$fields];
@@ -433,7 +433,7 @@ class ToyApiApi {
     var _body = null;
 
     if (request != null) {
-      _body = convert.JSON.encode(request);
+      _body = convert.json.encode(request);
     }
     if ($fields != null) {
       _queryParams["fields"] = [$fields];
@@ -510,7 +510,7 @@ class ToyApiApi {
     var _body = null;
 
     if (request != null) {
-      _body = convert.JSON.encode(request);
+      _body = convert.json.encode(request);
     }
     if ($fields != null) {
       _queryParams["fields"] = [$fields];
@@ -551,7 +551,7 @@ class ToyApiApi {
     var _body = null;
 
     if (request != null) {
-      _body = convert.JSON.encode(request);
+      _body = convert.json.encode(request);
     }
     if ($fields != null) {
       _queryParams["fields"] = [$fields];
@@ -592,7 +592,7 @@ class ToyApiApi {
     var _body = null;
 
     if (request != null) {
-      _body = convert.JSON.encode((request).toJson());
+      _body = convert.json.encode((request).toJson());
     }
     if ($fields != null) {
       _queryParams["fields"] = [$fields];
@@ -738,7 +738,7 @@ class ToyApiApi {
     var _body = null;
 
     if (request != null) {
-      _body = convert.JSON.encode(request);
+      _body = convert.json.encode(request);
     }
     if ($fields != null) {
       _queryParams["fields"] = [$fields];
@@ -874,7 +874,9 @@ class ListOfListOfString extends collection.ListBase<core.List<core.String>> {
   ListOfListOfString() : _inner = [];
 
   ListOfListOfString.fromJson(core.List json)
-      : _inner = json.map((value) => value).toList();
+      : _inner = json
+            .map((value) => (value as core.List).cast<core.String>())
+            .toList();
 
   core.List<core.List<core.String>> toJson() {
     return _inner.map((value) => value).toList();
@@ -901,8 +903,9 @@ class ListOfListOfToyRequest
 
   ListOfListOfToyRequest.fromJson(core.List json)
       : _inner = json
-            .map((value) =>
-                value.map<ToyRequest>((value) => new ToyRequest.fromJson(value)).toList())
+            .map((value) => (value as core.List)
+                .map<ToyRequest>((value) => new ToyRequest.fromJson(value))
+                .toList())
             .toList();
 
   core.List<core.List<core.Map<core.String, core.Object>>> toJson() {
@@ -930,7 +933,8 @@ class ListOfListOfint extends collection.ListBase<core.List<core.int>> {
   ListOfListOfint() : _inner = [];
 
   ListOfListOfint.fromJson(core.List json)
-      : _inner = json.map((value) => value).toList();
+      : _inner =
+            json.map((value) => (value as core.List).cast<core.int>()).toList();
 
   core.List<core.List<core.int>> toJson() {
     return _inner.map((value) => value).toList();
@@ -956,7 +960,11 @@ class ListOfMapOfListOfString
   ListOfMapOfListOfString() : _inner = [];
 
   ListOfMapOfListOfString.fromJson(core.List json)
-      : _inner = json.map((value) => value).toList();
+      : _inner = json
+            .map((value) => commons.mapMap<core.List, core.List<core.String>>(
+                value.cast<core.String, core.List>(),
+                (core.List item) => (item as core.List).cast<core.String>()))
+            .toList();
 
   core.List<core.Map<core.String, core.List<core.String>>> toJson() {
     return _inner.map((value) => value).toList();
@@ -984,7 +992,11 @@ class ListOfMapOfListOfint
   ListOfMapOfListOfint() : _inner = [];
 
   ListOfMapOfListOfint.fromJson(core.List json)
-      : _inner = json.map((value) => value).toList();
+      : _inner = json
+            .map((value) => commons.mapMap<core.List, core.List<core.int>>(
+                value.cast<core.String, core.List>(),
+                (core.List item) => (item as core.List).cast<core.int>()))
+            .toList();
 
   core.List<core.Map<core.String, core.List<core.int>>> toJson() {
     return _inner.map((value) => value).toList();
@@ -1057,13 +1069,17 @@ class ListOfToyRequest extends collection.ListBase<ToyRequest> {
 
 class MapOfListOfMapOfbool extends collection
     .MapBase<core.String, core.List<core.Map<core.String, core.bool>>> {
-  final core.Map _innerMap = {};
+  final _innerMap =
+      <core.String, core.List<core.Map<core.String, core.bool>>>{};
 
   MapOfListOfMapOfbool();
 
   MapOfListOfMapOfbool.fromJson(core.Map<core.String, core.dynamic> _json) {
     _json.forEach((core.String key, value) {
-      this[key] = value;
+      this[key] = (value as core.List)
+          .map<core.Map<core.String, core.bool>>(
+              (value) => (value as core.Map).cast<core.String, core.bool>())
+          .toList();
     });
   }
 
@@ -1096,13 +1112,16 @@ class MapOfListOfMapOfbool extends collection
 
 class MapOfListOfMapOfint extends collection
     .MapBase<core.String, core.List<core.Map<core.String, core.int>>> {
-  final core.Map _innerMap = {};
+  final _innerMap = <core.String, core.List<core.Map<core.String, core.int>>>{};
 
   MapOfListOfMapOfint();
 
   MapOfListOfMapOfint.fromJson(core.Map<core.String, core.dynamic> _json) {
     _json.forEach((core.String key, value) {
-      this[key] = value;
+      this[key] = (value as core.List)
+          .map<core.Map<core.String, core.int>>(
+              (value) => (value as core.Map).cast<core.String, core.int>())
+          .toList();
     });
   }
 
@@ -1135,13 +1154,13 @@ class MapOfListOfMapOfint extends collection
 
 class MapOfMapOfbool
     extends collection.MapBase<core.String, core.Map<core.String, core.bool>> {
-  final core.Map _innerMap = {};
+  final _innerMap = <core.String, core.Map<core.String, core.bool>>{};
 
   MapOfMapOfbool();
 
   MapOfMapOfbool.fromJson(core.Map<core.String, core.dynamic> _json) {
     _json.forEach((core.String key, value) {
-      this[key] = value;
+      this[key] = (value as core.Map).cast<core.String, core.bool>();
     });
   }
 
@@ -1173,13 +1192,13 @@ class MapOfMapOfbool
 
 class MapOfMapOfint
     extends collection.MapBase<core.String, core.Map<core.String, core.int>> {
-  final core.Map _innerMap = {};
+  final _innerMap = <core.String, core.Map<core.String, core.int>>{};
 
   MapOfMapOfint();
 
   MapOfMapOfint.fromJson(core.Map<core.String, core.dynamic> _json) {
     _json.forEach((core.String key, value) {
-      this[key] = value;
+      this[key] = (value as core.Map).cast<core.String, core.int>();
     });
   }
 
@@ -1210,7 +1229,7 @@ class MapOfMapOfint
 }
 
 class MapOfToyResponse extends collection.MapBase<core.String, ToyResponse> {
-  final core.Map _innerMap = {};
+  final _innerMap = <core.String, ToyResponse>{};
 
   MapOfToyResponse();
 
@@ -1245,7 +1264,7 @@ class MapOfToyResponse extends collection.MapBase<core.String, ToyResponse> {
 }
 
 class MapOfint extends collection.MapBase<core.String, core.int> {
-  final core.Map _innerMap = {};
+  final _innerMap = <core.String, core.int>{};
 
   MapOfint();
 
@@ -1328,11 +1347,9 @@ class ToyMapResponse {
 
   ToyMapResponse.fromJson(core.Map _json) {
     if (_json.containsKey("mapResult")) {
-      mapResult =
-          commons.mapMap<core.Map<core.String, core.Object>, NestedResponse>(
-              _json["mapResult"],
-              (core.Map<core.String, core.Object> item) =>
-                  new NestedResponse.fromJson(item));
+      mapResult = commons.mapMap<core.Map, NestedResponse>(
+          _json["mapResult"].cast<core.String, core.Map>(),
+          (core.Map item) => new NestedResponse.fromJson(item));
     }
     if (_json.containsKey("result")) {
       result = _json["result"];
