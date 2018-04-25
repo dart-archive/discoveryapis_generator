@@ -367,7 +367,7 @@ class AnalysisResults {
 
   AnalysisResults.fromJson(Map _json) {
     if (_json.containsKey("issues")) {
-      issues = _json["issues"]
+      issues = (_json["issues"] as List)
           .map<AnalysisIssue>((value) => new AnalysisIssue.fromJson(value))
           .toList();
     }
@@ -409,7 +409,7 @@ class DocumentResponse {
 
   DocumentResponse.fromJson(Map _json) {
     if (_json.containsKey("info")) {
-      info = (_json["info"] as Map).cast();
+      info = (_json["info"] as Map).cast<String, String>();
     }
   }
 
