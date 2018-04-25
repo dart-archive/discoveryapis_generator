@@ -556,7 +556,7 @@ class UnnamedMapType extends ComplexDartSchemaType {
     if (fromType.needsJsonDecoding || toType.needsJsonDecoding) {
       return '${imports.commons}.mapMap'
           '<${toType.jsonType.baseDeclaration}, ${toType.declaration}>'
-          '($json.cast<${imports.core.ref()}String, ${toType.jsonType.baseDeclaration}>(), '
+          '($json.cast<${fromType.jsonType.baseDeclaration}, ${toType.jsonType.baseDeclaration}>(), '
           '(${toType.jsonType.baseDeclaration} item) '
           '=> ${toType.jsonDecode('item')})';
     } else {
