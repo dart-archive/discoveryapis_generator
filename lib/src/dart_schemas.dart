@@ -79,6 +79,7 @@ abstract class JsonType {
   JsonType(this.imports);
 
   String get declaration;
+  String get baseDeclaration => declaration;
 }
 
 class SimpleJsonType extends JsonType {
@@ -116,6 +117,8 @@ class MapJsonType extends JsonType {
     return '${imports.core.ref()}Map'
         '<${keyJsonType.declaration}, ${valueJsonType.declaration}>';
   }
+
+  String get baseDeclaration => '${imports.core.ref()}Map';
 }
 
 class ArrayJsonType extends JsonType {
@@ -125,6 +128,8 @@ class ArrayJsonType extends JsonType {
 
   String get declaration =>
       '${imports.core.ref()}List<${valueJsonType.declaration}>';
+
+  String get baseDeclaration => '${imports.core.ref()}List';
 }
 
 class AnyJsonType extends JsonType {
@@ -422,12 +427,12 @@ class UnnamedArrayType extends ComplexDartSchemaType {
 
   String jsonDecode(String json) {
     if (innerType.needsJsonDecoding) {
-      return '${json}.map<${innerType.declaration}>((value) => ${innerType.jsonDecode('value')})'
+      return '($json as ${imports.core.ref()}List).map<${innerType.declaration}>((value) => ${innerType.jsonDecode('value')})'
           '.toList()';
     } else {
       // NOTE: The List returned from JSON.decode() transfers ownership to the
       // user (i.e. we don't need to make a copy of it).
-      return json;
+      return '($json as ${imports.core.ref()}List).cast<${innerType.declaration}>()';
     }
   }
 }
@@ -550,13 +555,14 @@ class UnnamedMapType extends ComplexDartSchemaType {
   String jsonDecode(String json) {
     if (fromType.needsJsonDecoding || toType.needsJsonDecoding) {
       return '${imports.commons}.mapMap'
-          '<${toType.jsonType.declaration}, ${toType.declaration}>'
-          '(${json}, (${toType.jsonType.declaration} item) '
+          '<${toType.jsonType.baseDeclaration}, ${toType.declaration}>'
+          '($json.cast<${fromType.jsonType.baseDeclaration}, ${toType.jsonType.baseDeclaration}>(), '
+          '(${toType.jsonType.baseDeclaration} item) '
           '=> ${toType.jsonDecode('item')})';
     } else {
       // NOTE: The Map returned from JSON.decode() transfers ownership to the
       // user (i.e. we don't need to make a copy of it).
-      return json;
+      return '($json as ${imports.core.ref()}Map).cast<${fromType.declaration}, ${toType.declaration}>()';
     }
   }
 }
@@ -612,7 +618,7 @@ class NamedMapType extends ComplexDartSchemaType {
     return '''
 ${comment.asDartDoc(0)}class $className
     extends ${imports.collection.ref()}MapBase<$fromT, $toT> {
-  final ${core}Map _innerMap = {};
+  final _innerMap = <$fromT, $toT>{};
 
   $className();
 
@@ -703,7 +709,7 @@ class ObjectType extends ComplexDartSchemaType {
             '  ${imports.core.ref()}List<${imports.core.ref()}int> get '
             '${property.byteArrayAccessor} {');
         propertyString.writeln('    return '
-            '${imports.convert.ref()}BASE64.decode'
+            '${imports.convert.ref()}base64.decode'
             '(${property.name});');
         propertyString.writeln('  }');
 
@@ -713,7 +719,7 @@ class ObjectType extends ComplexDartSchemaType {
         propertyString.writeln(
             '(${imports.core.ref()}List<${imports.core.ref()}int> _bytes) {');
         propertyString.writeln('    ${property.name} = ${imports.convert.ref()}'
-            'BASE64.encode(_bytes).replaceAll("/", "_").replaceAll("+", "-");');
+            'base64.encode(_bytes).replaceAll("/", "_").replaceAll("+", "-");');
         propertyString.writeln('  }');
       }
     });

@@ -206,7 +206,7 @@ class DartResourceMethod {
           requestParameter.type.jsonEncode('${requestParameter.name}');
       params.writeln('    if (${requestParameter.name} != null) {');
       params.writeln(
-          '      _body = ${imports.convert.ref()}JSON.encode(${parameterEncode});');
+          '      _body = ${imports.convert.ref()}json.encode(${parameterEncode});');
       params.writeln('    }');
     }
 

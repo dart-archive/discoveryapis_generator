@@ -5,11 +5,11 @@ description: Create API Client libraries based on the Discovery API Service.
 homepage: https://github.com/dart-lang/discoveryapis_generator
 
 environment:
-  sdk: '>=1.21.0 <2.0.0'
+  sdk: '>=2.0.0-dev.22.0 <2.0.0'
 
 dependencies:
   args: '>=0.12.1 <2.0.0'
-  dart_style: '>=1.0.7 <=1.0.9+1'
+  dart_style: '>=1.0.7 <=2.0.0'
   http: '>=0.11.1 <0.12.0'
   path: '>=1.3.3 <2.0.0'
   yaml: '>=2.0.0 <3.0.0'

@@ -64,7 +64,7 @@ class ApisFilesGenerator {
     var results = <GenerateResult>[];
     descriptions.forEach((diPair) {
       var description =
-          new RestDescription.fromJson(JSON.decode(diPair.apiDescription));
+          new RestDescription.fromJson(json.decode(diPair.apiDescription));
       String name = description.name.toLowerCase();
       String version = description.version.toLowerCase();
       String apiFile = path.join(clientFolderPath, '${name}.dart');

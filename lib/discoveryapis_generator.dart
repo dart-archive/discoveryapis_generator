@@ -26,7 +26,7 @@ class Pubspec {
   Pubspec(this.name, this.version, this.description,
       {this.author, this.homepage});
 
-  String get sdkConstraint => '>=1.22.0 <2.0.0';
+  String get sdkConstraint => '>=2.0.0-dev.22.0 <2.0.0';
 
   static Map<String, Object> get dependencies => const {
         'http': '\'>=0.11.1 <0.12.0\'',
@@ -53,7 +53,7 @@ List<GenerateResult> generateAllLibraries(
       .where((fse) => fse is File && fse.path.endsWith('.json'))
       .map((FileSystemEntity entity) {
     return new RestDescription.fromJson(
-        JSON.decode((entity as File).readAsStringSync()));
+        json.decode((entity as File).readAsStringSync()));
   }).toList();
   return generateApiPackage(apiDescriptions, outputDirectory, pubspec);
 }

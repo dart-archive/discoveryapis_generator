@@ -42,7 +42,7 @@ class DartservicesApi {
     var _body = null;
 
     if (request != null) {
-      _body = convert.JSON.encode((request).toJson());
+      _body = convert.json.encode((request).toJson());
     }
 
     _url = 'analyze';
@@ -110,7 +110,7 @@ class DartservicesApi {
     var _body = null;
 
     if (request != null) {
-      _body = convert.JSON.encode((request).toJson());
+      _body = convert.json.encode((request).toJson());
     }
 
     _url = 'compile';
@@ -176,7 +176,7 @@ class DartservicesApi {
     var _body = null;
 
     if (request != null) {
-      _body = convert.JSON.encode((request).toJson());
+      _body = convert.json.encode((request).toJson());
     }
 
     _downloadOptions = null;
@@ -251,7 +251,7 @@ class DartservicesApi {
     var _body = null;
 
     if (request != null) {
-      _body = convert.JSON.encode((request).toJson());
+      _body = convert.json.encode((request).toJson());
     }
 
     _url = 'document';
@@ -367,7 +367,7 @@ class AnalysisResults {
 
   AnalysisResults.fromJson(Map _json) {
     if (_json.containsKey("issues")) {
-      issues = _json["issues"]
+      issues = (_json["issues"] as List)
           .map<AnalysisIssue>((value) => new AnalysisIssue.fromJson(value))
           .toList();
     }
@@ -409,7 +409,7 @@ class DocumentResponse {
 
   DocumentResponse.fromJson(Map _json) {
     if (_json.containsKey("info")) {
-      info = _json["info"];
+      info = (_json["info"] as Map).cast<String, String>();
     }
   }
 
