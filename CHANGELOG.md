@@ -1,5 +1,10 @@
 # Changelog - discoveryapis_generator
 
+## v0.9.6
+
+- More Dart 2 fixes. Add .map() and .cast() to Lists and Maps to get the types
+  right at runtime.
+
 ## v0.9.5
 
 - More type annotations for Dart 2.
