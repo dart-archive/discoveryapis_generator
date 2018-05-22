@@ -104,6 +104,8 @@ class BoolJsonType extends SimpleJsonType {
 
 class DoubleJsonType extends SimpleJsonType {
   DoubleJsonType(DartApiImports imports) : super(imports, 'double');
+
+  String get baseDeclaration => '${imports.core.ref()}num';
 }
 
 class MapJsonType extends JsonType {
@@ -298,6 +300,7 @@ class DoubleType extends PrimitiveDartSchemaType {
         super(imports);
 
   String get declaration => '${imports.core.ref()}double';
+  String jsonDecode(String json) => '$json.toDouble()';
 }
 
 class StringType extends PrimitiveDartSchemaType {

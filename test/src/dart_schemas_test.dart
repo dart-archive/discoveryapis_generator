@@ -454,7 +454,7 @@ main() {
           expect(db.integerType.needsJsonEncoding, false);
           expect(db.integerType.needsJsonDecoding, false);
           expect(db.doubleType.needsJsonEncoding, false);
-          expect(db.doubleType.needsJsonDecoding, false);
+          expect(db.doubleType.needsJsonDecoding, true);
           expect(db.booleanType.needsJsonEncoding, false);
           expect(db.booleanType.needsJsonDecoding, false);
           expect(db.dateType.needsJsonEncoding, true);
