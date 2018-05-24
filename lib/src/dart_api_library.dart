@@ -91,6 +91,8 @@ class DartApiLibrary extends BaseApiLibrary {
     String result = """
 // This is a generated file (see the discoveryapis_generator project).
 
+// ignore_for_file: unnecessary_cast
+
 library $libraryName;
 
 """;

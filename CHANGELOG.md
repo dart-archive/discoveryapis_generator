@@ -1,5 +1,10 @@
 # Changelog - discoveryapis_generator
 
+## v0.9.7
+
+- Ignore unnecessary_cast lint in generated files.
+- Add .toDouble() conversion where necessary.
+
 ## v0.9.6
 
 - More Dart 2 fixes. Add .map() and .cast() to Lists and Maps to get the types
