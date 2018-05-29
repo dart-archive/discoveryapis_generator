@@ -1,0 +1,58 @@
+{
+ "kind": "discovery#restDescription",
+ "etag": "7da790c9e246ebb6b06190e74422d829bb5f6697",
+ "discoveryVersion": "v1",
+ "id": "wrapApi:0.1",
+ "name": "wrapApi",
+ "version": "0.1",
+ "revision": "0",
+ "protocol": "rest",
+ "baseUrl": "http://localhost:9090/api/wrapApi/0.1/",
+ "basePath": "/api/wrapApi/0.1/",
+ "rootUrl": "http://localhost:9090/",
+ "servicePath": "api/wrapApi/0.1/",
+ "features": [
+   "dataWrapper"
+ ],
+ "schemas": {
+  "WrapResponse": {
+   "id": "WrapResponse",
+   "type": "object",
+   "properties": {
+    "result": {
+     "type": "string"
+    }
+   }
+  },
+  "WrapRequest": {
+   "id": "WrapRequest",
+   "type": "object",
+   "properties": {
+    "name": {
+     "type": "string",
+     "required": true
+    },
+    "age": {
+     "type": "integer",
+     "default": "1000",
+     "format": "int32"
+    }
+   }
+  }
+ },
+ "methods": {
+  "helloPost": {
+   "id": "WrapApi.helloPost",
+   "path": "helloPost",
+   "httpMethod": "POST",
+   "parameters": {},
+   "parameterOrder": [],
+   "request": {
+    "$ref": "WrapRequest"
+   },
+   "response": {
+    "$ref": "WrapResponse"
+   }
+  }
+ }
+}

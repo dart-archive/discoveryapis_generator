@@ -1,3 +1,4 @@
+import 'dart:convert';
 // Copyright (c) 2015, the Dart project authors.  Please see the AUTHORS file
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
@@ -6,6 +7,7 @@ import 'dart:io';
 
 import 'package:discoveryapis_generator/clientstub_generator.dart';
 import 'package:discoveryapis_generator/discoveryapis_generator.dart';
+import 'package:discoveryapis_generator/src/dart_api_library.dart';
 import 'package:discoveryapis_generator/src/utils.dart';
 import 'package:path/path.dart' as path;
 import 'package:test/test.dart';
@@ -80,6 +82,21 @@ main() {
           new File(path.join(dataPath, 'expected_identical.dartt'));
       expect(_normalizeWhiteSpace(stubFile.readAsStringSync()),
           _normalizeWhiteSpace(expectedStubFile.readAsStringSync()));
+    });
+  });
+
+  group('features', () {
+    test('dataWrapper', () {
+      final descriptionJson =
+          new File(path.join(dataPath, 'wrapapi.json')).readAsStringSync();
+      final description =
+          new RestDescription.fromJson(jsonDecode(descriptionJson));
+      final generatedLib = new DartApiLibrary.build(description, 'wrapapi',
+          useCorePrefixes: true);
+      final expectedSource =
+          new File(path.join(dataPath, 'wrapapi.dartt')).readAsStringSync();
+      expect(_normalizeWhiteSpace(generatedLib.librarySource),
+          _normalizeWhiteSpace(expectedSource));
     });
   });
 }
