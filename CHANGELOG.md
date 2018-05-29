@@ -1,12 +1,9 @@
 # Changelog - discoveryapis_generator
 
-## v0.9.8
+## v0.9.7
 
 - Support data-wrapping of response bodies. This is a deprecated feature, but it is being used by
   the Translate v2 API.
-
-## v0.9.7
-
 - Ignore unnecessary_cast lint in generated files.
 - Add .toDouble() conversion where necessary.
 
