@@ -80,6 +80,8 @@ class DartResourceMethod {
   // Keys are always 'simple' and 'resumable'
   final Map<String, UriTemplate> mediaUploadPatterns;
 
+  final bool enableDataWrapper;
+
   DartResourceMethod(
       this.imports,
       this.name,
@@ -93,7 +95,8 @@ class DartResourceMethod {
       this.httpMethod,
       this.mediaUpload,
       this.mediaDownload,
-      this.mediaUploadPatterns);
+      this.mediaUploadPatterns,
+      this.enableDataWrapper);
 
   String get signature {
     var parameterString = new StringBuffer();
@@ -330,8 +333,9 @@ $urlPatternCode
                                        downloadOptions: _downloadOptions);
 ''');
 
+    final data = enableDataWrapper ? "data['data']" : 'data';
     var plainResponse =
-        returnType != null ? returnType.jsonDecode('data') : 'null';
+        returnType != null ? returnType.jsonDecode(data) : 'null';
     if (mediaDownload) {
       requestCode.write('''
     if (_downloadOptions == null ||
@@ -498,7 +502,8 @@ DartApiClass parseResources(
       Map<String, RestResource> subResources,
       String parentName) {
     DartResourceMethod parseMethod(
-        Scope classScope, String jsonName, RestMethod method) {
+        Scope classScope, String jsonName, RestMethod method,
+        {bool enableDataWrapper}) {
       var methodName = classScope.newIdentifier(jsonName);
       var parameterScope = classScope.newChildScope();
 
@@ -665,7 +670,8 @@ DartApiClass parseResources(
           method.httpMethod,
           makeBoolean(method.supportsMediaUpload),
           makeBoolean(method.supportsMediaDownload),
-          mediaUploadPatterns);
+          mediaUploadPatterns,
+          enableDataWrapper ?? false);
     }
 
     bool topLevel = parentName.isEmpty;
@@ -680,10 +686,13 @@ DartApiClass parseResources(
 
     var classScope = namer.newClassScope();
 
+    final enableDataWrapper =
+        description.features?.contains('dataWrapper') ?? false;
     var dartMethods = [];
     if (methods != null) {
       orderedForEach(methods, (String jsonName, RestMethod method) {
-        var dartMethod = parseMethod(classScope, jsonName, method);
+        var dartMethod = parseMethod(classScope, jsonName, method,
+            enableDataWrapper: enableDataWrapper);
         dartMethods.add(dartMethod);
       });
     }
