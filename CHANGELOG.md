@@ -1,8 +1,8 @@
 # Changelog - discoveryapis_generator
 
-## v0.9.7+1
+## v0.9.8
 
-- Make `bin/generate.dart` strong-mode clean.
+- Make the generator Dart 2.0 clean.
 
 ## v0.9.7
 

@@ -11,8 +11,7 @@ import 'package:http/http.dart' as http;
 
 import '../common/common.dart' as commons;
 
-export '../common/common.dart'
-    show ApiRequestError, DetailedApiRequestError;
+export '../common/common.dart' show ApiRequestError, DetailedApiRequestError;
 
 const core.String USER_AGENT = 'dart-api-client discovery/v1';
 

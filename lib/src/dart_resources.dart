@@ -647,12 +647,8 @@ DartApiClass parseResources(
         }
       }
 
-      String restPath;
-      if (method.path != null) {
-        restPath = method.path;
-      } else if (method.restPath != null) {
-        restPath = method.restPath;
-      } else {
+      final String restPath = method.path;
+      if (restPath == null) {
         throw new StateError(
             'Neither `Method.path` nor `Method.restPath` was given.');
       }
@@ -688,7 +684,7 @@ DartApiClass parseResources(
 
     final enableDataWrapper =
         description.features?.contains('dataWrapper') ?? false;
-    var dartMethods = [];
+    var dartMethods = <DartResourceMethod>[];
     if (methods != null) {
       orderedForEach(methods, (String jsonName, RestMethod method) {
         var dartMethod = parseMethod(classScope, jsonName, method,
@@ -697,8 +693,8 @@ DartApiClass parseResources(
       });
     }
 
-    var dartSubResourceIdentifiers = [];
-    var dartSubResource = [];
+    var dartSubResourceIdentifiers = <Identifier>[];
+    var dartSubResource = <DartResourceClass>[];
     if (subResources != null) {
       orderedForEach(subResources, (String jsonName, RestResource resource) {
         var instanceName = classScope.newIdentifier(jsonName);
@@ -711,7 +707,7 @@ DartApiClass parseResources(
 
     var coment = new Comment(resourceDescription);
     if (topLevel) {
-      var scopes = [];
+      var scopes = <OAuth2Scope>[];
 
       if (description.auth != null && description.auth.oauth2 != null) {
         orderedForEach(description.auth.oauth2.scopes, (scope, description) {
