@@ -52,7 +52,7 @@ class ClientApiLibrary extends BaseApiLibrary {
     });
     // Make import paths relative to the package's lib directory and write them
     // out.
-    var parsedImports = [];
+    final parsedImports = <String>[];
     imports.forEach((importPath) {
       if (!importPath.startsWith('package:$packageName')) {
         var pathPrefix = path.toUri(packageRoot).toString() + '/lib';

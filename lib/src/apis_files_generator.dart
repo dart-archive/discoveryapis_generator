@@ -170,8 +170,8 @@ class ApisFilesGenerator {
     }
   }
 
-  Map<String, dynamic> _computeNewDependencies(Map<String, dynamic> current) {
-    var result = {};
+  Map<String, dynamic> _computeNewDependencies(YamlMap current) {
+    final result = <String, dynamic>{};
     Pubspec.dependencies.forEach((String k, Object v) {
       if (current == null || !current.containsKey(k)) {
         result[k] = v;

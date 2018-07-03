@@ -1025,8 +1025,9 @@ DartSchemaTypeDB parseSchemas(
 
     // Build map of all top level dart schema classes which will be represented
     // as named dart classes.
-    db.dartClassTypes
-        .addAll(db.dartTypes.where((type) => type.className != null));
+    db.dartClassTypes.addAll(db.dartTypes
+        .where((type) => type.className != null)
+        .cast<ComplexDartSchemaType>());
   }
 
   return db;
