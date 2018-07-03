@@ -61,7 +61,7 @@ List<GenerateResult> generateAllLibraries(
 List<GenerateResult> generateApiFiles(
     String inputDirectory, String outputDirectory,
     {bool updatePubspec: false, bool useCorePrefixes: true}) {
-  var descriptions = [];
+  var descriptions = <DescriptionImportPair>[];
   new Directory(inputDirectory)
       .listSync()
       .where((fse) => fse is File && fse.path.endsWith('.json'))

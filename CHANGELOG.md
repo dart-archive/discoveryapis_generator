@@ -1,5 +1,9 @@
 # Changelog - discoveryapis_generator
 
+## v0.9.7+1
+
+- Make `bin/generate.dart` strong-mode clean.
+
 ## v0.9.7
 
 - Support data-wrapping of response bodies. This is a deprecated feature, but it is being used by
