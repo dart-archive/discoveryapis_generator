@@ -631,10 +631,10 @@ DartApiClass parseResources(
 
       makeBoolean(bool x) => x != null ? x : false;
 
-      Map mediaUploadPatterns;
+      Map<String, UriTemplate> mediaUploadPatterns;
 
       if (method.supportsMediaUpload == true) {
-        mediaUploadPatterns = {
+        mediaUploadPatterns = <String, UriTemplate>{
           'simple': UriTemplate.parse(
               imports, method.mediaUpload.protocols.simple.path),
           'resumable': UriTemplate.parse(
