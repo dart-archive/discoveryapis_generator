@@ -1,6 +1,7 @@
 // This is a generated file (see the discoveryapis_generator project).
 
 // ignore_for_file: unnecessary_cast
+// ignore_for_file: prefer_single_quotes, prefer_collection_literals
 
 library googleapis.discovery.v1;
 

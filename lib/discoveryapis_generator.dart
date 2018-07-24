@@ -4,8 +4,8 @@
 
 library discoveryapis_generator;
 
-import "dart:convert";
-import "dart:io";
+import 'dart:convert';
+import 'dart:io';
 
 import 'src/apis_files_generator.dart';
 import 'src/apis_package_generator.dart';

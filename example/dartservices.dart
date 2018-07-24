@@ -19,8 +19,8 @@ class DartservicesApi {
   final commons.ApiRequester _requester;
 
   DartservicesApi(http.Client client,
-      {String rootUrl: "http://localhost/",
-      String servicePath: "api/dartservices/v1/"})
+      {String rootUrl: 'http://localhost/',
+      String servicePath: 'api/dartservices/v1/'})
       : _requester =
             new commons.ApiRequester(client, rootUrl, servicePath, USER_AGENT);
 
@@ -36,12 +36,12 @@ class DartservicesApi {
   /// If the used [http.Client] completes with an error when making a REST call,
   /// this method will complete with the same error.
   Future<AnalysisResults> analyze(SourceRequest request) {
-    var _url = null;
-    var _queryParams = new Map<String, List<String>>();
-    var _uploadMedia = null;
-    var _uploadOptions = null;
+    String _url;
+    var _queryParams = <String, List<String>>{};
+    commons.Media _uploadMedia;
+    commons.UploadOptions _uploadOptions;
     var _downloadOptions = commons.DownloadOptions.Metadata;
-    var _body = null;
+    String _body;
 
     if (request != null) {
       _body = convert.json.encode((request).toJson());
@@ -49,7 +49,7 @@ class DartservicesApi {
 
     _url = 'analyze';
 
-    var _response = _requester.request(_url, "POST",
+    var _response = _requester.request(_url, 'POST',
         body: _body,
         queryParams: _queryParams,
         uploadOptions: _uploadOptions,
@@ -70,20 +70,20 @@ class DartservicesApi {
   /// If the used [http.Client] completes with an error when making a REST call,
   /// this method will complete with the same error.
   Future<AnalysisResults> analyzeGet({String source}) {
-    var _url = null;
-    var _queryParams = new Map<String, List<String>>();
-    var _uploadMedia = null;
-    var _uploadOptions = null;
+    String _url;
+    var _queryParams = <String, List<String>>{};
+    commons.Media _uploadMedia;
+    commons.UploadOptions _uploadOptions;
     var _downloadOptions = commons.DownloadOptions.Metadata;
-    var _body = null;
+    String _body;
 
     if (source != null) {
-      _queryParams["source"] = [source];
+      _queryParams['source'] = [source];
     }
 
     _url = 'analyze';
 
-    var _response = _requester.request(_url, "GET",
+    var _response = _requester.request(_url, 'GET',
         body: _body,
         queryParams: _queryParams,
         uploadOptions: _uploadOptions,
@@ -104,12 +104,12 @@ class DartservicesApi {
   /// If the used [http.Client] completes with an error when making a REST call,
   /// this method will complete with the same error.
   Future<CompileResponse> compile(SourceRequest request) {
-    var _url = null;
-    var _queryParams = new Map<String, List<String>>();
-    var _uploadMedia = null;
-    var _uploadOptions = null;
+    String _url;
+    var _queryParams = <String, List<String>>{};
+    commons.Media _uploadMedia;
+    commons.UploadOptions _uploadOptions;
     var _downloadOptions = commons.DownloadOptions.Metadata;
-    var _body = null;
+    String _body;
 
     if (request != null) {
       _body = convert.json.encode((request).toJson());
@@ -117,7 +117,7 @@ class DartservicesApi {
 
     _url = 'compile';
 
-    var _response = _requester.request(_url, "POST",
+    var _response = _requester.request(_url, 'POST',
         body: _body,
         queryParams: _queryParams,
         uploadOptions: _uploadOptions,
@@ -138,20 +138,20 @@ class DartservicesApi {
   /// If the used [http.Client] completes with an error when making a REST call,
   /// this method will complete with the same error.
   Future<CompileResponse> compileGet({String source}) {
-    var _url = null;
-    var _queryParams = new Map<String, List<String>>();
-    var _uploadMedia = null;
-    var _uploadOptions = null;
+    String _url;
+    var _queryParams = <String, List<String>>{};
+    commons.Media _uploadMedia;
+    commons.UploadOptions _uploadOptions;
     var _downloadOptions = commons.DownloadOptions.Metadata;
-    var _body = null;
+    String _body;
 
     if (source != null) {
-      _queryParams["source"] = [source];
+      _queryParams['source'] = [source];
     }
 
     _url = 'compile';
 
-    var _response = _requester.request(_url, "GET",
+    var _response = _requester.request(_url, 'GET',
         body: _body,
         queryParams: _queryParams,
         uploadOptions: _uploadOptions,
@@ -170,12 +170,12 @@ class DartservicesApi {
   /// If the used [http.Client] completes with an error when making a REST call,
   /// this method will complete with the same error.
   Future complete(SourceRequest request) {
-    var _url = null;
-    var _queryParams = new Map<String, List<String>>();
-    var _uploadMedia = null;
-    var _uploadOptions = null;
+    String _url;
+    var _queryParams = <String, List<String>>{};
+    commons.Media _uploadMedia;
+    commons.UploadOptions _uploadOptions;
     var _downloadOptions = commons.DownloadOptions.Metadata;
-    var _body = null;
+    String _body;
 
     if (request != null) {
       _body = convert.json.encode((request).toJson());
@@ -185,7 +185,7 @@ class DartservicesApi {
 
     _url = 'complete';
 
-    var _response = _requester.request(_url, "POST",
+    var _response = _requester.request(_url, 'POST',
         body: _body,
         queryParams: _queryParams,
         uploadOptions: _uploadOptions,
@@ -206,25 +206,25 @@ class DartservicesApi {
   /// If the used [http.Client] completes with an error when making a REST call,
   /// this method will complete with the same error.
   Future completeGet({int offset, String source}) {
-    var _url = null;
-    var _queryParams = new Map<String, List<String>>();
-    var _uploadMedia = null;
-    var _uploadOptions = null;
+    String _url;
+    var _queryParams = <String, List<String>>{};
+    commons.Media _uploadMedia;
+    commons.UploadOptions _uploadOptions;
     var _downloadOptions = commons.DownloadOptions.Metadata;
-    var _body = null;
+    String _body;
 
     if (offset != null) {
-      _queryParams["offset"] = ["${offset}"];
+      _queryParams['offset'] = ['${offset}'];
     }
     if (source != null) {
-      _queryParams["source"] = [source];
+      _queryParams['source'] = [source];
     }
 
     _downloadOptions = null;
 
     _url = 'complete';
 
-    var _response = _requester.request(_url, "GET",
+    var _response = _requester.request(_url, 'GET',
         body: _body,
         queryParams: _queryParams,
         uploadOptions: _uploadOptions,
@@ -245,12 +245,12 @@ class DartservicesApi {
   /// If the used [http.Client] completes with an error when making a REST call,
   /// this method will complete with the same error.
   Future<DocumentResponse> document(SourceRequest request) {
-    var _url = null;
-    var _queryParams = new Map<String, List<String>>();
-    var _uploadMedia = null;
-    var _uploadOptions = null;
+    String _url;
+    var _queryParams = <String, List<String>>{};
+    commons.Media _uploadMedia;
+    commons.UploadOptions _uploadOptions;
     var _downloadOptions = commons.DownloadOptions.Metadata;
-    var _body = null;
+    String _body;
 
     if (request != null) {
       _body = convert.json.encode((request).toJson());
@@ -258,7 +258,7 @@ class DartservicesApi {
 
     _url = 'document';
 
-    var _response = _requester.request(_url, "POST",
+    var _response = _requester.request(_url, 'POST',
         body: _body,
         queryParams: _queryParams,
         uploadOptions: _uploadOptions,
@@ -281,23 +281,23 @@ class DartservicesApi {
   /// If the used [http.Client] completes with an error when making a REST call,
   /// this method will complete with the same error.
   Future<DocumentResponse> documentGet({int offset, String source}) {
-    var _url = null;
-    var _queryParams = new Map<String, List<String>>();
-    var _uploadMedia = null;
-    var _uploadOptions = null;
+    String _url;
+    var _queryParams = <String, List<String>>{};
+    commons.Media _uploadMedia;
+    commons.UploadOptions _uploadOptions;
     var _downloadOptions = commons.DownloadOptions.Metadata;
-    var _body = null;
+    String _body;
 
     if (offset != null) {
-      _queryParams["offset"] = ["${offset}"];
+      _queryParams['offset'] = ['${offset}'];
     }
     if (source != null) {
-      _queryParams["source"] = [source];
+      _queryParams['source'] = [source];
     }
 
     _url = 'document';
 
-    var _response = _requester.request(_url, "GET",
+    var _response = _requester.request(_url, 'GET',
         body: _body,
         queryParams: _queryParams,
         uploadOptions: _uploadOptions,
@@ -318,45 +318,45 @@ class AnalysisIssue {
   AnalysisIssue();
 
   AnalysisIssue.fromJson(Map _json) {
-    if (_json.containsKey("charLength")) {
-      charLength = _json["charLength"];
+    if (_json.containsKey('charLength')) {
+      charLength = _json['charLength'];
     }
-    if (_json.containsKey("charStart")) {
-      charStart = _json["charStart"];
+    if (_json.containsKey('charStart')) {
+      charStart = _json['charStart'];
     }
-    if (_json.containsKey("kind")) {
-      kind = _json["kind"];
+    if (_json.containsKey('kind')) {
+      kind = _json['kind'];
     }
-    if (_json.containsKey("line")) {
-      line = _json["line"];
+    if (_json.containsKey('line')) {
+      line = _json['line'];
     }
-    if (_json.containsKey("location")) {
-      location = _json["location"];
+    if (_json.containsKey('location')) {
+      location = _json['location'];
     }
-    if (_json.containsKey("message")) {
-      message = _json["message"];
+    if (_json.containsKey('message')) {
+      message = _json['message'];
     }
   }
 
   Map<String, Object> toJson() {
-    final Map<String, Object> _json = new Map<String, Object>();
+    final _json = <String, Object>{};
     if (charLength != null) {
-      _json["charLength"] = charLength;
+      _json['charLength'] = charLength;
     }
     if (charStart != null) {
-      _json["charStart"] = charStart;
+      _json['charStart'] = charStart;
     }
     if (kind != null) {
-      _json["kind"] = kind;
+      _json['kind'] = kind;
     }
     if (line != null) {
-      _json["line"] = line;
+      _json['line'] = line;
     }
     if (location != null) {
-      _json["location"] = location;
+      _json['location'] = location;
     }
     if (message != null) {
-      _json["message"] = message;
+      _json['message'] = message;
     }
     return _json;
   }
@@ -368,17 +368,17 @@ class AnalysisResults {
   AnalysisResults();
 
   AnalysisResults.fromJson(Map _json) {
-    if (_json.containsKey("issues")) {
-      issues = (_json["issues"] as List)
+    if (_json.containsKey('issues')) {
+      issues = (_json['issues'] as List)
           .map<AnalysisIssue>((value) => new AnalysisIssue.fromJson(value))
           .toList();
     }
   }
 
   Map<String, Object> toJson() {
-    final Map<String, Object> _json = new Map<String, Object>();
+    final _json = <String, Object>{};
     if (issues != null) {
-      _json["issues"] = issues.map((value) => (value).toJson()).toList();
+      _json['issues'] = issues.map((value) => (value).toJson()).toList();
     }
     return _json;
   }
@@ -390,15 +390,15 @@ class CompileResponse {
   CompileResponse();
 
   CompileResponse.fromJson(Map _json) {
-    if (_json.containsKey("result")) {
-      result = _json["result"];
+    if (_json.containsKey('result')) {
+      result = _json['result'];
     }
   }
 
   Map<String, Object> toJson() {
-    final Map<String, Object> _json = new Map<String, Object>();
+    final _json = <String, Object>{};
     if (result != null) {
-      _json["result"] = result;
+      _json['result'] = result;
     }
     return _json;
   }
@@ -410,15 +410,15 @@ class DocumentResponse {
   DocumentResponse();
 
   DocumentResponse.fromJson(Map _json) {
-    if (_json.containsKey("info")) {
-      info = (_json["info"] as Map).cast<String, String>();
+    if (_json.containsKey('info')) {
+      info = (_json['info'] as Map).cast<String, String>();
     }
   }
 
   Map<String, Object> toJson() {
-    final Map<String, Object> _json = new Map<String, Object>();
+    final _json = <String, Object>{};
     if (info != null) {
-      _json["info"] = info;
+      _json['info'] = info;
     }
     return _json;
   }
@@ -431,21 +431,21 @@ class SourceRequest {
   SourceRequest();
 
   SourceRequest.fromJson(Map _json) {
-    if (_json.containsKey("offset")) {
-      offset = _json["offset"];
+    if (_json.containsKey('offset')) {
+      offset = _json['offset'];
     }
-    if (_json.containsKey("source")) {
-      source = _json["source"];
+    if (_json.containsKey('source')) {
+      source = _json['source'];
     }
   }
 
   Map<String, Object> toJson() {
-    final Map<String, Object> _json = new Map<String, Object>();
+    final _json = <String, Object>{};
     if (offset != null) {
-      _json["offset"] = offset;
+      _json['offset'] = offset;
     }
     if (source != null) {
-      _json["source"] = source;
+      _json['source'] = source;
     }
     return _json;
   }

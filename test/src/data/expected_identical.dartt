@@ -23,8 +23,8 @@ class ToyApi {
   StorageResourceApi get storage => new StorageResourceApi(_requester);
 
   ToyApi(http.Client client,
-      {core.String rootUrl: "http://localhost:9090/",
-      core.String servicePath: "api/toyApi/0.1/"})
+      {core.String rootUrl: 'http://localhost:9090/',
+      core.String servicePath: 'api/toyApi/0.1/'})
       : _requester =
             new commons.ApiRequester(client, rootUrl, servicePath, USER_AGENT);
 
@@ -39,22 +39,22 @@ class ToyApi {
   /// If the used [http.Client] completes with an error when making a REST call,
   /// this method will complete with the same error.
   async.Future failing({core.String $fields}) {
-    var _url = null;
-    var _queryParams = new core.Map<core.String, core.List<core.String>>();
-    var _uploadMedia = null;
-    var _uploadOptions = null;
+    core.String _url;
+    var _queryParams = <core.String, core.List<core.String>>{};
+    commons.Media _uploadMedia;
+    commons.UploadOptions _uploadOptions;
     var _downloadOptions = commons.DownloadOptions.Metadata;
-    var _body = null;
+    core.String _body;
 
     if ($fields != null) {
-      _queryParams["fields"] = [$fields];
+      _queryParams['fields'] = [$fields];
     }
 
     _downloadOptions = null;
 
     _url = 'failing';
 
-    var _response = _requester.request(_url, "GET",
+    var _response = _requester.request(_url, 'GET',
         body: _body,
         queryParams: _queryParams,
         uploadOptions: _uploadOptions,
@@ -76,20 +76,20 @@ class ToyApi {
   /// If the used [http.Client] completes with an error when making a REST call,
   /// this method will complete with the same error.
   async.Future<ToyResponse> hello({core.String $fields}) {
-    var _url = null;
-    var _queryParams = new core.Map<core.String, core.List<core.String>>();
-    var _uploadMedia = null;
-    var _uploadOptions = null;
+    core.String _url;
+    var _queryParams = <core.String, core.List<core.String>>{};
+    commons.Media _uploadMedia;
+    commons.UploadOptions _uploadOptions;
     var _downloadOptions = commons.DownloadOptions.Metadata;
-    var _body = null;
+    core.String _body;
 
     if ($fields != null) {
-      _queryParams["fields"] = [$fields];
+      _queryParams['fields'] = [$fields];
     }
 
     _url = 'hello';
 
-    var _response = _requester.request(_url, "GET",
+    var _response = _requester.request(_url, 'GET',
         body: _body,
         queryParams: _queryParams,
         uploadOptions: _uploadOptions,
@@ -115,24 +115,24 @@ class ToyApi {
   async.Future<core.Map<core.String, ToyResponse>> helloListOfClass(
       core.List<ToyRequest> request,
       {core.String $fields}) {
-    var _url = null;
-    var _queryParams = new core.Map<core.String, core.List<core.String>>();
-    var _uploadMedia = null;
-    var _uploadOptions = null;
+    core.String _url;
+    var _queryParams = <core.String, core.List<core.String>>{};
+    commons.Media _uploadMedia;
+    commons.UploadOptions _uploadOptions;
     var _downloadOptions = commons.DownloadOptions.Metadata;
-    var _body = null;
+    core.String _body;
 
     if (request != null) {
       _body = convert.json.encode(
           request.map((value) => ToyRequestFactory.toJson(value)).toList());
     }
     if ($fields != null) {
-      _queryParams["fields"] = [$fields];
+      _queryParams['fields'] = [$fields];
     }
 
     _url = 'helloListOfClass';
 
-    var _response = _requester.request(_url, "POST",
+    var _response = _requester.request(_url, 'POST',
         body: _body,
         queryParams: _queryParams,
         uploadOptions: _uploadOptions,
@@ -160,12 +160,12 @@ class ToyApi {
   async.Future<core.Map<core.String, ToyResponse>> helloListOfListOfClass(
       core.List<core.List<ToyRequest>> request,
       {core.String $fields}) {
-    var _url = null;
-    var _queryParams = new core.Map<core.String, core.List<core.String>>();
-    var _uploadMedia = null;
-    var _uploadOptions = null;
+    core.String _url;
+    var _queryParams = <core.String, core.List<core.String>>{};
+    commons.Media _uploadMedia;
+    commons.UploadOptions _uploadOptions;
     var _downloadOptions = commons.DownloadOptions.Metadata;
-    var _body = null;
+    core.String _body;
 
     if (request != null) {
       _body = convert.json.encode(request
@@ -174,12 +174,12 @@ class ToyApi {
           .toList());
     }
     if ($fields != null) {
-      _queryParams["fields"] = [$fields];
+      _queryParams['fields'] = [$fields];
     }
 
     _url = 'helloListOfListOfClass';
 
-    var _response = _requester.request(_url, "POST",
+    var _response = _requester.request(_url, 'POST',
         body: _body,
         queryParams: _queryParams,
         uploadOptions: _uploadOptions,
@@ -207,23 +207,23 @@ class ToyApi {
   async.Future<core.Map<core.String, core.int>> helloMap(
       core.Map<core.String, core.int> request,
       {core.String $fields}) {
-    var _url = null;
-    var _queryParams = new core.Map<core.String, core.List<core.String>>();
-    var _uploadMedia = null;
-    var _uploadOptions = null;
+    core.String _url;
+    var _queryParams = <core.String, core.List<core.String>>{};
+    commons.Media _uploadMedia;
+    commons.UploadOptions _uploadOptions;
     var _downloadOptions = commons.DownloadOptions.Metadata;
-    var _body = null;
+    core.String _body;
 
     if (request != null) {
       _body = convert.json.encode(request);
     }
     if ($fields != null) {
-      _queryParams["fields"] = [$fields];
+      _queryParams['fields'] = [$fields];
     }
 
     _url = 'helloMap';
 
-    var _response = _requester.request(_url, "POST",
+    var _response = _requester.request(_url, 'POST',
         body: _body,
         queryParams: _queryParams,
         uploadOptions: _uploadOptions,
@@ -251,21 +251,21 @@ class ToyApi {
   /// this method will complete with the same error.
   async.Future<ToyResponse> helloNameAge(core.String name, core.int age,
       {core.String $fields}) {
-    var _url = null;
-    var _queryParams = new core.Map<core.String, core.List<core.String>>();
-    var _uploadMedia = null;
-    var _uploadOptions = null;
+    core.String _url;
+    var _queryParams = <core.String, core.List<core.String>>{};
+    commons.Media _uploadMedia;
+    commons.UploadOptions _uploadOptions;
     var _downloadOptions = commons.DownloadOptions.Metadata;
-    var _body = null;
+    core.String _body;
 
     if (name == null) {
-      throw new core.ArgumentError("Parameter name is required.");
+      throw new core.ArgumentError('Parameter name is required.');
     }
     if (age == null) {
-      throw new core.ArgumentError("Parameter age is required.");
+      throw new core.ArgumentError('Parameter age is required.');
     }
     if ($fields != null) {
-      _queryParams["fields"] = [$fields];
+      _queryParams['fields'] = [$fields];
     }
 
     _url = 'hello/' +
@@ -273,7 +273,7 @@ class ToyApi {
         '/age/' +
         commons.Escaper.ecapeVariable('$age');
 
-    var _response = _requester.request(_url, "GET",
+    var _response = _requester.request(_url, 'GET',
         body: _body,
         queryParams: _queryParams,
         uploadOptions: _uploadOptions,
@@ -301,26 +301,26 @@ class ToyApi {
   async.Future<ToyResponse> helloNamePostAge(
       ToyAgeRequest request, core.String name,
       {core.String $fields}) {
-    var _url = null;
-    var _queryParams = new core.Map<core.String, core.List<core.String>>();
-    var _uploadMedia = null;
-    var _uploadOptions = null;
+    core.String _url;
+    var _queryParams = <core.String, core.List<core.String>>{};
+    commons.Media _uploadMedia;
+    commons.UploadOptions _uploadOptions;
     var _downloadOptions = commons.DownloadOptions.Metadata;
-    var _body = null;
+    core.String _body;
 
     if (request != null) {
       _body = convert.json.encode(ToyAgeRequestFactory.toJson(request));
     }
     if (name == null) {
-      throw new core.ArgumentError("Parameter name is required.");
+      throw new core.ArgumentError('Parameter name is required.');
     }
     if ($fields != null) {
-      _queryParams["fields"] = [$fields];
+      _queryParams['fields'] = [$fields];
     }
 
     _url = 'helloPost/' + commons.Escaper.ecapeVariable('$name');
 
-    var _response = _requester.request(_url, "POST",
+    var _response = _requester.request(_url, 'POST',
         body: _body,
         queryParams: _queryParams,
         uploadOptions: _uploadOptions,
@@ -349,29 +349,29 @@ class ToyApi {
   /// this method will complete with the same error.
   async.Future<ToyResponse> helloNameQueryAgeFoo(core.String name,
       {core.int age, core.String foo, core.String $fields}) {
-    var _url = null;
-    var _queryParams = new core.Map<core.String, core.List<core.String>>();
-    var _uploadMedia = null;
-    var _uploadOptions = null;
+    core.String _url;
+    var _queryParams = <core.String, core.List<core.String>>{};
+    commons.Media _uploadMedia;
+    commons.UploadOptions _uploadOptions;
     var _downloadOptions = commons.DownloadOptions.Metadata;
-    var _body = null;
+    core.String _body;
 
     if (name == null) {
-      throw new core.ArgumentError("Parameter name is required.");
+      throw new core.ArgumentError('Parameter name is required.');
     }
     if (age != null) {
-      _queryParams["age"] = ["${age}"];
+      _queryParams['age'] = ['${age}'];
     }
     if (foo != null) {
-      _queryParams["foo"] = [foo];
+      _queryParams['foo'] = [foo];
     }
     if ($fields != null) {
-      _queryParams["fields"] = [$fields];
+      _queryParams['fields'] = [$fields];
     }
 
     _url = 'helloQuery/' + commons.Escaper.ecapeVariable('$name');
 
-    var _response = _requester.request(_url, "GET",
+    var _response = _requester.request(_url, 'GET',
         body: _body,
         queryParams: _queryParams,
         uploadOptions: _uploadOptions,
@@ -397,23 +397,23 @@ class ToyApi {
   async.Future<core.List<core.List<core.String>>> helloNestedListList(
       core.List<core.List<core.int>> request,
       {core.String $fields}) {
-    var _url = null;
-    var _queryParams = new core.Map<core.String, core.List<core.String>>();
-    var _uploadMedia = null;
-    var _uploadOptions = null;
+    core.String _url;
+    var _queryParams = <core.String, core.List<core.String>>{};
+    commons.Media _uploadMedia;
+    commons.UploadOptions _uploadOptions;
     var _downloadOptions = commons.DownloadOptions.Metadata;
-    var _body = null;
+    core.String _body;
 
     if (request != null) {
       _body = convert.json.encode(request);
     }
     if ($fields != null) {
-      _queryParams["fields"] = [$fields];
+      _queryParams['fields'] = [$fields];
     }
 
     _url = 'helloNestedListList';
 
-    var _response = _requester.request(_url, "POST",
+    var _response = _requester.request(_url, 'POST',
         body: _body,
         queryParams: _queryParams,
         uploadOptions: _uploadOptions,
@@ -444,23 +444,23 @@ class ToyApi {
       helloNestedListMapList(
           core.List<core.Map<core.String, core.List<core.int>>> request,
           {core.String $fields}) {
-    var _url = null;
-    var _queryParams = new core.Map<core.String, core.List<core.String>>();
-    var _uploadMedia = null;
-    var _uploadOptions = null;
+    core.String _url;
+    var _queryParams = <core.String, core.List<core.String>>{};
+    commons.Media _uploadMedia;
+    commons.UploadOptions _uploadOptions;
     var _downloadOptions = commons.DownloadOptions.Metadata;
-    var _body = null;
+    core.String _body;
 
     if (request != null) {
       _body = convert.json.encode(request);
     }
     if ($fields != null) {
-      _queryParams["fields"] = [$fields];
+      _queryParams['fields'] = [$fields];
     }
 
     _url = 'helloNestedListMapList';
 
-    var _response = _requester.request(_url, "POST",
+    var _response = _requester.request(_url, 'POST',
         body: _body,
         queryParams: _queryParams,
         uploadOptions: _uploadOptions,
@@ -487,20 +487,20 @@ class ToyApi {
   /// If the used [http.Client] completes with an error when making a REST call,
   /// this method will complete with the same error.
   async.Future<ToyMapResponse> helloNestedMap({core.String $fields}) {
-    var _url = null;
-    var _queryParams = new core.Map<core.String, core.List<core.String>>();
-    var _uploadMedia = null;
-    var _uploadOptions = null;
+    core.String _url;
+    var _queryParams = <core.String, core.List<core.String>>{};
+    commons.Media _uploadMedia;
+    commons.UploadOptions _uploadOptions;
     var _downloadOptions = commons.DownloadOptions.Metadata;
-    var _body = null;
+    core.String _body;
 
     if ($fields != null) {
-      _queryParams["fields"] = [$fields];
+      _queryParams['fields'] = [$fields];
     }
 
     _url = 'helloNestedMap';
 
-    var _response = _requester.request(_url, "GET",
+    var _response = _requester.request(_url, 'GET',
         body: _body,
         queryParams: _queryParams,
         uploadOptions: _uploadOptions,
@@ -529,23 +529,23 @@ class ToyApi {
           core.List<core.Map<core.String, core.bool>>>> helloNestedMapListMap(
       core.Map<core.String, core.List<core.Map<core.String, core.int>>> request,
       {core.String $fields}) {
-    var _url = null;
-    var _queryParams = new core.Map<core.String, core.List<core.String>>();
-    var _uploadMedia = null;
-    var _uploadOptions = null;
+    core.String _url;
+    var _queryParams = <core.String, core.List<core.String>>{};
+    commons.Media _uploadMedia;
+    commons.UploadOptions _uploadOptions;
     var _downloadOptions = commons.DownloadOptions.Metadata;
-    var _body = null;
+    core.String _body;
 
     if (request != null) {
       _body = convert.json.encode(request);
     }
     if ($fields != null) {
-      _queryParams["fields"] = [$fields];
+      _queryParams['fields'] = [$fields];
     }
 
     _url = 'helloNestedMapListMap';
 
-    var _response = _requester.request(_url, "POST",
+    var _response = _requester.request(_url, 'POST',
         body: _body,
         queryParams: _queryParams,
         uploadOptions: _uploadOptions,
@@ -579,23 +579,23 @@ class ToyApi {
       helloNestedMapMap(
           core.Map<core.String, core.Map<core.String, core.int>> request,
           {core.String $fields}) {
-    var _url = null;
-    var _queryParams = new core.Map<core.String, core.List<core.String>>();
-    var _uploadMedia = null;
-    var _uploadOptions = null;
+    core.String _url;
+    var _queryParams = <core.String, core.List<core.String>>{};
+    commons.Media _uploadMedia;
+    commons.UploadOptions _uploadOptions;
     var _downloadOptions = commons.DownloadOptions.Metadata;
-    var _body = null;
+    core.String _body;
 
     if (request != null) {
       _body = convert.json.encode(request);
     }
     if ($fields != null) {
-      _queryParams["fields"] = [$fields];
+      _queryParams['fields'] = [$fields];
     }
 
     _url = 'helloNestedMapMap';
 
-    var _response = _requester.request(_url, "POST",
+    var _response = _requester.request(_url, 'POST',
         body: _body,
         queryParams: _queryParams,
         uploadOptions: _uploadOptions,
@@ -624,23 +624,23 @@ class ToyApi {
   /// this method will complete with the same error.
   async.Future<ToyResponse> helloPost(ToyRequest request,
       {core.String $fields}) {
-    var _url = null;
-    var _queryParams = new core.Map<core.String, core.List<core.String>>();
-    var _uploadMedia = null;
-    var _uploadOptions = null;
+    core.String _url;
+    var _queryParams = <core.String, core.List<core.String>>{};
+    commons.Media _uploadMedia;
+    commons.UploadOptions _uploadOptions;
     var _downloadOptions = commons.DownloadOptions.Metadata;
-    var _body = null;
+    core.String _body;
 
     if (request != null) {
       _body = convert.json.encode(ToyRequestFactory.toJson(request));
     }
     if ($fields != null) {
-      _queryParams["fields"] = [$fields];
+      _queryParams['fields'] = [$fields];
     }
 
     _url = 'helloPost';
 
-    var _response = _requester.request(_url, "POST",
+    var _response = _requester.request(_url, 'POST',
         body: _body,
         queryParams: _queryParams,
         uploadOptions: _uploadOptions,
@@ -662,20 +662,20 @@ class ToyApi {
   /// If the used [http.Client] completes with an error when making a REST call,
   /// this method will complete with the same error.
   async.Future<ToyResponse> helloReturnNull({core.String $fields}) {
-    var _url = null;
-    var _queryParams = new core.Map<core.String, core.List<core.String>>();
-    var _uploadMedia = null;
-    var _uploadOptions = null;
+    core.String _url;
+    var _queryParams = <core.String, core.List<core.String>>{};
+    commons.Media _uploadMedia;
+    commons.UploadOptions _uploadOptions;
     var _downloadOptions = commons.DownloadOptions.Metadata;
-    var _body = null;
+    core.String _body;
 
     if ($fields != null) {
-      _queryParams["fields"] = [$fields];
+      _queryParams['fields'] = [$fields];
     }
 
     _url = 'helloReturnNull';
 
-    var _response = _requester.request(_url, "GET",
+    var _response = _requester.request(_url, 'GET',
         body: _body,
         queryParams: _queryParams,
         uploadOptions: _uploadOptions,
@@ -697,20 +697,20 @@ class ToyApi {
   /// If the used [http.Client] completes with an error when making a REST call,
   /// this method will complete with the same error.
   async.Future<ToyResponse> helloVoid({core.String $fields}) {
-    var _url = null;
-    var _queryParams = new core.Map<core.String, core.List<core.String>>();
-    var _uploadMedia = null;
-    var _uploadOptions = null;
+    core.String _url;
+    var _queryParams = <core.String, core.List<core.String>>{};
+    commons.Media _uploadMedia;
+    commons.UploadOptions _uploadOptions;
     var _downloadOptions = commons.DownloadOptions.Metadata;
-    var _body = null;
+    core.String _body;
 
     if ($fields != null) {
-      _queryParams["fields"] = [$fields];
+      _queryParams['fields'] = [$fields];
     }
 
     _url = 'helloVoid';
 
-    var _response = _requester.request(_url, "POST",
+    var _response = _requester.request(_url, 'POST',
         body: _body,
         queryParams: _queryParams,
         uploadOptions: _uploadOptions,
@@ -730,22 +730,22 @@ class ToyApi {
   /// If the used [http.Client] completes with an error when making a REST call,
   /// this method will complete with the same error.
   async.Future noop({core.String $fields}) {
-    var _url = null;
-    var _queryParams = new core.Map<core.String, core.List<core.String>>();
-    var _uploadMedia = null;
-    var _uploadOptions = null;
+    core.String _url;
+    var _queryParams = <core.String, core.List<core.String>>{};
+    commons.Media _uploadMedia;
+    commons.UploadOptions _uploadOptions;
     var _downloadOptions = commons.DownloadOptions.Metadata;
-    var _body = null;
+    core.String _body;
 
     if ($fields != null) {
-      _queryParams["fields"] = [$fields];
+      _queryParams['fields'] = [$fields];
     }
 
     _downloadOptions = null;
 
     _url = 'noop';
 
-    var _response = _requester.request(_url, "GET",
+    var _response = _requester.request(_url, 'GET',
         body: _body,
         queryParams: _queryParams,
         uploadOptions: _uploadOptions,
@@ -771,23 +771,23 @@ class ToyApi {
   async.Future<core.List<core.String>> reverseList(
       core.List<core.String> request,
       {core.String $fields}) {
-    var _url = null;
-    var _queryParams = new core.Map<core.String, core.List<core.String>>();
-    var _uploadMedia = null;
-    var _uploadOptions = null;
+    core.String _url;
+    var _queryParams = <core.String, core.List<core.String>>{};
+    commons.Media _uploadMedia;
+    commons.UploadOptions _uploadOptions;
     var _downloadOptions = commons.DownloadOptions.Metadata;
-    var _body = null;
+    core.String _body;
 
     if (request != null) {
       _body = convert.json.encode(request);
     }
     if ($fields != null) {
-      _queryParams["fields"] = [$fields];
+      _queryParams['fields'] = [$fields];
     }
 
     _url = 'reverseList';
 
-    var _response = _requester.request(_url, "POST",
+    var _response = _requester.request(_url, 'POST',
         body: _body,
         queryParams: _queryParams,
         uploadOptions: _uploadOptions,
@@ -821,21 +821,21 @@ class ComputeResourceApi {
   async.Future<ToyResourceResponse> get(
       core.String resource, core.String compute,
       {core.String $fields}) {
-    var _url = null;
-    var _queryParams = new core.Map<core.String, core.List<core.String>>();
-    var _uploadMedia = null;
-    var _uploadOptions = null;
+    core.String _url;
+    var _queryParams = <core.String, core.List<core.String>>{};
+    commons.Media _uploadMedia;
+    commons.UploadOptions _uploadOptions;
     var _downloadOptions = commons.DownloadOptions.Metadata;
-    var _body = null;
+    core.String _body;
 
     if (resource == null) {
-      throw new core.ArgumentError("Parameter resource is required.");
+      throw new core.ArgumentError('Parameter resource is required.');
     }
     if (compute == null) {
-      throw new core.ArgumentError("Parameter compute is required.");
+      throw new core.ArgumentError('Parameter compute is required.');
     }
     if ($fields != null) {
-      _queryParams["fields"] = [$fields];
+      _queryParams['fields'] = [$fields];
     }
 
     _url = 'toyresource/' +
@@ -843,7 +843,7 @@ class ComputeResourceApi {
         '/compute/' +
         commons.Escaper.ecapeVariable('$compute');
 
-    var _response = _requester.request(_url, "GET",
+    var _response = _requester.request(_url, 'GET',
         body: _body,
         queryParams: _queryParams,
         uploadOptions: _uploadOptions,
@@ -877,21 +877,21 @@ class StorageResourceApi {
   async.Future<ToyResourceResponse> get(
       core.String resource, core.String storage,
       {core.String $fields}) {
-    var _url = null;
-    var _queryParams = new core.Map<core.String, core.List<core.String>>();
-    var _uploadMedia = null;
-    var _uploadOptions = null;
+    core.String _url;
+    var _queryParams = <core.String, core.List<core.String>>{};
+    commons.Media _uploadMedia;
+    commons.UploadOptions _uploadOptions;
     var _downloadOptions = commons.DownloadOptions.Metadata;
-    var _body = null;
+    core.String _body;
 
     if (resource == null) {
-      throw new core.ArgumentError("Parameter resource is required.");
+      throw new core.ArgumentError('Parameter resource is required.');
     }
     if (storage == null) {
-      throw new core.ArgumentError("Parameter storage is required.");
+      throw new core.ArgumentError('Parameter storage is required.');
     }
     if ($fields != null) {
-      _queryParams["fields"] = [$fields];
+      _queryParams['fields'] = [$fields];
     }
 
     _url = 'toyresource/' +
@@ -899,7 +899,7 @@ class StorageResourceApi {
         '/storage/' +
         commons.Escaper.ecapeVariable('$storage');
 
-    var _response = _requester.request(_url, "GET",
+    var _response = _requester.request(_url, 'GET',
         body: _body,
         queryParams: _queryParams,
         uploadOptions: _uploadOptions,
@@ -921,7 +921,7 @@ class NestedResponseFactory {
   static core.Map toJson(NestedResponse message) {
     var _json = new core.Map();
     if (message.nestedResult != null) {
-      _json["nestedResult"] = message.nestedResult;
+      _json['nestedResult'] = message.nestedResult;
     }
     return _json;
   }
@@ -939,7 +939,7 @@ class ToyAgeRequestFactory {
   static core.Map toJson(ToyAgeRequest message) {
     var _json = new core.Map();
     if (message.age != null) {
-      _json["age"] = message.age;
+      _json['age'] = message.age;
     }
     return _json;
   }
@@ -962,13 +962,13 @@ class ToyMapResponseFactory {
   static core.Map toJson(ToyMapResponse message) {
     var _json = new core.Map();
     if (message.mapResult != null) {
-      _json["mapResult"] =
+      _json['mapResult'] =
           commons.mapMap<NestedResponse, core.Map<core.String, core.Object>>(
               message.mapResult,
               (NestedResponse item) => NestedResponseFactory.toJson(item));
     }
     if (message.result != null) {
-      _json["result"] = message.result;
+      _json['result'] = message.result;
     }
     return _json;
   }
@@ -989,10 +989,10 @@ class ToyRequestFactory {
   static core.Map toJson(ToyRequest message) {
     var _json = new core.Map();
     if (message.age != null) {
-      _json["age"] = message.age;
+      _json['age'] = message.age;
     }
     if (message.name != null) {
-      _json["name"] = message.name;
+      _json['name'] = message.name;
     }
     return _json;
   }
@@ -1010,7 +1010,7 @@ class ToyResourceResponseFactory {
   static core.Map toJson(ToyResourceResponse message) {
     var _json = new core.Map();
     if (message.result != null) {
-      _json["result"] = message.result;
+      _json['result'] = message.result;
     }
     return _json;
   }
@@ -1028,7 +1028,7 @@ class ToyResponseFactory {
   static core.Map toJson(ToyResponse message) {
     var _json = new core.Map();
     if (message.result != null) {
-      _json["result"] = message.result;
+      _json['result'] = message.result;
     }
     return _json;
   }

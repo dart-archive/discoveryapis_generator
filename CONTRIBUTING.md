@@ -17,6 +17,14 @@ us first through the issue tracker with your idea so that we can help out and
 possibly guide you. Coordinating up front makes it much easier to avoid
 frustration later on.
 
+### Updating example code
+
+Run:
+
+```console
+> dart bin/generate.dart files -i example/ -o example/ --no-core-prefixes
+```
+
 ### Code reviews
 All submissions, including submissions by project members, require review.
 

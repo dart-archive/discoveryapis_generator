@@ -226,7 +226,7 @@ class DartResourceMethod {
           params.writeln('    if (${param.name} == null) {');
         }
         params.writeln('      throw new ${imports.core.ref()}ArgumentError'
-            '("Parameter ${param.name} is required.");');
+            "('Parameter ${param.name} is required.');");
         params.writeln('    }');
       } else {
         // Is this an error?
@@ -235,12 +235,12 @@ class DartResourceMethod {
     }
 
     encodeQueryParam(MethodParameter param) {
-      var propertyAssignment;
+      String propertyAssignment;
       // NOTE: We need to special case array values, since they get encoded
       // as repeated query parameters.
       if (param.type is UnnamedArrayType || param.type is NamedArrayType) {
         DartSchemaType innerType = (param.type as dynamic).innerType;
-        var expr;
+        String expr;
         if (innerType.needsPrimitiveEncoding) {
           expr = '${param.name}.map('
               '(item) => ${innerType.primitiveEncoding('item')}).toList()';
@@ -249,11 +249,11 @@ class DartResourceMethod {
         }
 
         propertyAssignment =
-            '_queryParams["${escapeString(param.jsonName)}"] = $expr;';
+            "_queryParams['${escapeString(param.jsonName)}'] = $expr;";
       } else {
         var expr = param.type.primitiveEncoding(param.name.name);
         propertyAssignment =
-            '_queryParams["${escapeString(param.jsonName)}"] = [$expr];';
+            "_queryParams['${escapeString(param.jsonName)}'] = [$expr];";
       }
 
       if (param.required) {
@@ -264,7 +264,7 @@ class DartResourceMethod {
           params.writeln('    if (${param.name} == null) {');
         }
         params.writeln('      throw new ${imports.core.ref()}ArgumentError'
-            '("Parameter ${param.name} is required.");');
+            "('Parameter ${param.name} is required.');");
         params.writeln('    }');
         params.writeln('    $propertyAssignment');
       } else {
@@ -325,7 +325,7 @@ class DartResourceMethod {
 $urlPatternCode
 
     var _response = _requester.request(_url,
-                                       "$httpMethod",
+                                       '$httpMethod',
                                        body: _body,
                                        queryParams: _queryParams,
                                        uploadOptions: _uploadOptions,
@@ -357,12 +357,12 @@ $urlPatternCode
 
     final core = imports.core.ref();
     methodString.write('''
-    var _url = null;
-    var _queryParams = new ${core}Map<${core}String, ${core}List<${core}String>>();
-    var _uploadMedia = null;
-    var _uploadOptions = null;
+    ${core}String _url;
+    var _queryParams = <${core}String, ${core}List<${core}String>>{};
+    ${imports.commons}.Media _uploadMedia;
+    ${imports.commons}.UploadOptions _uploadOptions;
     var _downloadOptions = ${imports.commons}.DownloadOptions.Metadata;
-    var _body = null;
+    ${core}String _body;
 
 $params$requestCode''');
 
@@ -451,7 +451,7 @@ class DartApiClass extends DartResourceClass {
     scopes.forEach((OAuth2Scope scope) {
       var doc = scope.comment.asDartDoc(2);
       sb.writeln('$doc  static const ${scope.identifier} = '
-          '"${escapeString(scope.url)}";');
+          "'${escapeString(scope.url)}';");
       sb.writeln('');
     });
     sb.writeln('');
@@ -462,8 +462,8 @@ class DartApiClass extends DartResourceClass {
     var str = new StringBuffer();
 
     var parameters = [
-      '${imports.core.ref()}String rootUrl: "${escapeString(rootUrl)}"',
-      '${imports.core.ref()}String servicePath: "${escapeString(servicePath)}"',
+      "${imports.core.ref()}String rootUrl: '${escapeString(rootUrl)}'",
+      "${imports.core.ref()}String servicePath: '${escapeString(servicePath)}'",
     ].join(', ');
 
     str.writeln('  $className(${imports.http}.Client client, {$parameters}) :');
@@ -519,7 +519,7 @@ DartApiClass parseResources(
           ? method.parameters.keys.toSet()
           : new Set<String>();
 
-      var positionalParameters = new List<MethodParameter>();
+      var positionalParameters = <MethodParameter>[];
       tryEnqueuePositionalParameter(
           String jsonName, Comment comment, JsonSchema schema) {
         if (!pendingParameterNames.contains(jsonName)) return;
@@ -536,7 +536,7 @@ DartApiClass parseResources(
         }
       }
 
-      var optionalParameters = new List<MethodParameter>();
+      var optionalParameters = <MethodParameter>[];
       enqueueOptionalParameter(
           String jsonName, Comment comment, JsonSchema schema,
           {bool global: false}) {

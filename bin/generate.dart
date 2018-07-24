@@ -3,10 +3,10 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
-import "dart:io";
+import 'dart:io';
 
-import "package:args/args.dart";
-import "package:discoveryapis_generator/discoveryapis_generator.dart";
+import 'package:args/args.dart';
+import 'package:discoveryapis_generator/discoveryapis_generator.dart';
 
 ArgParser packageCommandArgParser() {
   return new ArgParser()
@@ -60,7 +60,7 @@ ArgResults parseArguments(ArgParser parser, List<String> arguments) {
   try {
     return parser.parse(arguments);
   } on FormatException catch (e) {
-    dieWithUsage("Error parsing arguments:\n${e.message}\n");
+    dieWithUsage('Error parsing arguments:\n${e.message}\n');
   }
 }
 
@@ -68,23 +68,23 @@ void dieWithUsage([String message]) {
   if (message != null) {
     print(message);
   }
-  print("Usage:");
-  print("The discovery generator has the following sub-commands:");
-  print("");
-  print("  package");
-  print("  files");
-  print("");
+  print('Usage:');
+  print('The discovery generator has the following sub-commands:');
+  print('');
+  print('  package');
+  print('  files');
+  print('');
   print("The 'package' subcommand generates an API package from already "
-      "downloaded discovery documents. It takes the following options:");
-  print("");
+      'downloaded discovery documents. It takes the following options:');
+  print('');
   print(packageCommandArgParser().usage);
-  print("");
+  print('');
   print("The 'files' subcommand generates API files into an existing package "
-      "from already downloaded discovery documents. One file per API. It "
-      "takes the following options:");
-  print("");
+      'from already downloaded discovery documents. One file per API. It '
+      'takes the following options:');
+  print('');
   print(filesCommandArgParser().usage);
-  print("");
+  print('');
   exit(1);
 }
 
@@ -133,5 +133,5 @@ void printResults(List<GenerateResult> results) {
     if (result.success) successful++;
     if (result.info) info++;
   }
-  print("$successful succeeded, ${results.length - successful - info} failed.");
+  print('$successful succeeded, ${results.length - successful - info} failed.');
 }

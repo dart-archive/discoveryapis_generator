@@ -69,7 +69,7 @@ class DartApiTestLibrary extends TestHelper {
 
     // Build functions for creating schema objects and for validating them.
     schemaTests.forEach((DartSchemaType schema, SchemaTest test) {
-      if (test == null) print("${schema.runtimeType}");
+      if (test == null) print('${schema.runtimeType}');
       sink.write(test.buildSchemaFunction);
       sink.write(test.checkSchemaFunction);
     });
@@ -208,7 +208,7 @@ class ResourceTest extends TestHelper {
           }
 
           Map<MethodParameter, String> buildParameterValues() {
-            var parameterValues = new Map<MethodParameter, String>();
+            var parameterValues = <MethodParameter, String>{};
 
             void newParameter(MethodParameter p) {
               var schemaTest = apiTestLibrary.schemaTests[p.type];
@@ -334,7 +334,7 @@ class MethodArgsTest extends TestHelper {
         if (!isLast) {
           var nextPart = parts[i + 1];
           if (nextPart is! StringPart) {
-            throw "two variable expansions in a row not supported";
+            throw 'two variable expansions in a row not supported';
           }
           var stringPart = nextPart as StringPart;
           ln('index = path.indexOf('
@@ -440,8 +440,8 @@ class MethodArgsTest extends TestHelper {
         .where((parameter) => parameter.jsonName == varname)
         .toList();
     if (parameters.length != 1) {
-      throw "Invalid generator. Expected exactly one parameter of name "
-          "$varname";
+      throw 'Invalid generator. Expected exactly one parameter of name '
+          '$varname';
     }
     return parameters[0];
   }
@@ -783,7 +783,8 @@ class NamedMapSchemaTest extends NamedSchemaTest<NamedMapType> {
 }
 
 class AbstractVariantSchemaTest extends NamedSchemaTest<AbstractVariantType> {
-  var subSchema, subSchemaTest;
+  DartSchemaType subSchema;
+  SchemaTest subSchemaTest;
 
   AbstractVariantSchemaTest(apiTestLibrary, schema)
       : super(apiTestLibrary, schema);
@@ -837,7 +838,7 @@ class AnySchemaTest extends SchemaTest<AnyType> {
   String checkSchemaStatement(String o) {
     _counter++;
     var name = 'casted$_counter';
-    return "var $name = ($o) as core.Map; "
+    return 'var $name = ($o) as core.Map; '
         "${expectHasLength(name, '3')} "
         "${expectEqual('$name["list"]', [1, 2, 3])} "
         "${expectEqual('$name["bool"]', true)} "

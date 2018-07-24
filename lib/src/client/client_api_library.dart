@@ -95,14 +95,14 @@ class ClientApiLibrary extends BaseApiLibrary {
           '    ByteRange';
     }
 
-    String result = """
+    String result = '''
 // This is a generated file (see the discoveryapis_generator project).
 
 // ignore_for_file: unnecessary_cast
 
 library $libraryName;
 
-""";
+''';
 
     if (imports.core.hasPrefix) {
       result += "import 'dart:core' as ${imports.core};\n";

@@ -34,6 +34,8 @@ abstract class BaseApiLibrary {
   final ApiLibraryNamer namer;
   final RestDescription description;
 
+  String get librarySource;
+
   DartApiImports imports;
 
   BaseApiLibrary(this.description, String apiClassSuffix,
@@ -88,22 +90,14 @@ class DartApiLibrary extends BaseApiLibrary {
           '    ByteRange';
     }
 
-    String result = """
+    String result = '''
 // This is a generated file (see the discoveryapis_generator project).
 
 // ignore_for_file: unnecessary_cast
 
 library $libraryName;
 
-""";
-
-    if (imports.core.hasPrefix) {
-      result += "import 'dart:core' as ${imports.core};\n";
-    }
-
-    if (imports.collection.wasCalled) {
-      result += "import 'dart:collection' as ${imports.collection};\n";
-    }
+''';
 
     if (imports.async.hasPrefix) {
       result += "import 'dart:async' as ${imports.async};\n";
@@ -111,8 +105,16 @@ library $libraryName;
       result += "import 'dart:async';\n";
     }
 
+    if (imports.collection.wasCalled) {
+      result += "import 'dart:collection' as ${imports.collection};\n";
+    }
+
     if (imports.convert.wasCalled) {
       result += "import 'dart:convert' as ${imports.convert};\n";
+    }
+
+    if (imports.core.hasPrefix) {
+      result += "import 'dart:core' as ${imports.core};\n";
     }
 
     result += """

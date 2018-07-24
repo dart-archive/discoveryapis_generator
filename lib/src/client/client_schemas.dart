@@ -52,7 +52,7 @@ class ClientObjectType extends ObjectType {
     properties.forEach((DartClassProperty property) {
       toJsonString.writeln('    if (message.${property.name} != null) {');
       toJsonString
-          .writeln('      _json["${escapeString(property.jsonName)}"] = '
+          .writeln("      _json['${escapeString(property.jsonName)}'] = "
               '${property.type.jsonEncode('message.${property.name}')};');
       toJsonString.writeln('    }');
     });
@@ -147,7 +147,7 @@ DartSchemaTypeDB parseSchemas(
         // This is a normal named schema class, we generate a normal
         // [ClientObjectType] for it with the defined properties.
         var classId = namer.schemaClass(className);
-        var properties = new List<DartClassProperty>();
+        var properties = <DartClassProperty>[];
         if (schema.properties != null) {
           orderedForEach(schema.properties,
               (String jsonPName, JsonSchema value) {

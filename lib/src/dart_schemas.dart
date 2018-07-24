@@ -254,7 +254,7 @@ abstract class PrimitiveDartSchemaType extends DartSchemaType {
 
   DartSchemaType _resolve(DartSchemaTypeDB db) => this;
 
-  String primitiveEncoding(String value) => '"\${${value}}"';
+  String primitiveEncoding(String value) => "'\${${value}}'";
   String jsonEncode(String value) => value;
   String jsonDecode(String json) => json;
 }
@@ -486,7 +486,7 @@ $encode
 
   ${imports.core.ref()}int get length => _inner.length;
 
-  void set length(${imports.core.ref()}int newLength) {
+  set length(${imports.core.ref()}int newLength) {
     _inner.length = newLength;
   }
 }
@@ -718,41 +718,46 @@ class ObjectType extends ComplexDartSchemaType {
 
         propertyString.writeln();
 
-        propertyString.write('  void set ${property.byteArrayAccessor}');
+        propertyString.write('  set ${property.byteArrayAccessor}');
         propertyString.writeln(
             '(${imports.core.ref()}List<${imports.core.ref()}int> _bytes) {');
         propertyString.writeln('    ${property.name} = ${imports.convert.ref()}'
-            'base64.encode(_bytes).replaceAll("/", "_").replaceAll("+", "-");');
+            "base64.encode(_bytes).replaceAll('/', '_').replaceAll('+', '-');");
         propertyString.writeln('  }');
       }
     });
 
     var fromJsonString = new StringBuffer();
     fromJsonString
-        .writeln('  $className.fromJson(${imports.core.ref()}Map _json) {');
-    properties.forEach((DartClassProperty property) {
-      // The super variant fromJson() will call this subclass constructor
-      // and the variant descriminator is final.
-      if (!isVariantDiscriminator(property)) {
-        var decodeString = property.type
-            .jsonDecode('_json["${escapeString(property.jsonName)}"]');
-        fromJsonString.writeln('    if (_json.containsKey'
-            '("${escapeString(property.jsonName)}")) {');
-        fromJsonString.writeln('      ${property.name} = ${decodeString};');
-        fromJsonString.writeln('    }');
-      }
-    });
-    fromJsonString.writeln('  }');
+        .write('  $className.fromJson(${imports.core.ref()}Map _json)');
+    if (properties.isEmpty) {
+      fromJsonString.writeln(';');
+    } else {
+      fromJsonString.writeln(' {');
+      properties.forEach((DartClassProperty property) {
+        // The super variant fromJson() will call this subclass constructor
+        // and the variant descriminator is final.
+        if (!isVariantDiscriminator(property)) {
+          var decodeString = property.type
+              .jsonDecode("_json['${escapeString(property.jsonName)}']");
+          fromJsonString.writeln('    if (_json.containsKey'
+              "('${escapeString(property.jsonName)}')) {");
+          fromJsonString.writeln('      ${property.name} = ${decodeString};');
+          fromJsonString.writeln('    }');
+        }
+      });
+      fromJsonString.writeln('  }');
+    }
 
     var toJsonString = new StringBuffer();
     toJsonString.writeln('  ${jsonType.declaration} toJson() {');
-    toJsonString.writeln('    final ${jsonType.declaration} _json = '
-        'new ${imports.core.ref()}Map<${jsonType.keyJsonType.declaration}, '
-        '${jsonType.valueJsonType.declaration}>();');
+    toJsonString.writeln('    final _json = '
+        '<${jsonType.keyJsonType.declaration}, '
+        '${jsonType.valueJsonType.declaration}>{};');
     properties.forEach((DartClassProperty property) {
       toJsonString.writeln('    if (${property.name} != null) {');
       toJsonString
-          .writeln('      _json["${escapeString(property.jsonName)}"] = '
+          .writeln("      _json['${escapeString(property.jsonName)}'] = "
               '${property.type.jsonEncode('${property.name}')};');
       toJsonString.writeln('    }');
     });
@@ -961,7 +966,7 @@ DartSchemaTypeDB parseSchemas(
         // This is a normal named schema class, we generate a normal
         // [ObjectType] for it with the defined properties.
         var classId = namer.schemaClass(className);
-        var properties = new List<DartClassProperty>();
+        var properties = <DartClassProperty>[];
         if (schema.properties != null) {
           orderedForEach(schema.properties,
               (String jsonPName, JsonSchema value) {

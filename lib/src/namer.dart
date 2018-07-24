@@ -66,8 +66,8 @@ class Scope {
   static final RegExp _NonAscii = new RegExp('[^a-zA-z0-9]');
 
   final Scope parentScope;
-  final List<Scope> childScopes = new List<Scope>();
-  final List<Identifier> identifiers = new List<Identifier>();
+  final List<Scope> childScopes = <Scope>[];
+  final List<Identifier> identifiers = <Identifier>[];
 
   Scope({Scope parent}) : this.parentScope = parent;
 
@@ -119,7 +119,7 @@ class Scope {
     var googleAuthPrefix = 'https://www.googleapis.com/auth/';
     var httpsPrefix = 'https://';
 
-    var name;
+    String name;
     if (scope.startsWith(googleAuthPrefix)) {
       name = scope.substring(googleAuthPrefix.length);
     } else if (scope.startsWith(httpsPrefix)) {
@@ -160,7 +160,7 @@ class Scope {
 
   /// Converts the first letter of [name] to an uppercase letter.
   static String capitalize(String name) {
-    return "${name.substring(0, 1).toUpperCase()}${name.substring(1)}";
+    return '${name.substring(0, 1).toUpperCase()}${name.substring(1)}';
   }
 }
 

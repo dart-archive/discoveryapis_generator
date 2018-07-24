@@ -2,7 +2,13 @@
 
 - All Map values from the discovery docs are sorted by key. This ensures the
   generated code is more stable due to order changes in the JSON – something
-  very common with Google's Discovery API service. 
+  very common with Google's Discovery API service.
+
+- Generated code now follows the following lints:
+  - avoid_return_types_on_setters
+  - directives_ordering
+  - prefer_single_quotes
+  - prefer_collection_literals
 
 ## v0.9.9
 

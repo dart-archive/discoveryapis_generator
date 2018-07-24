@@ -46,7 +46,7 @@ main() {
       expect(
           template.stringExpression({'myvar': id('abc')}),
           equals("'/' + (abc).map((item) => "
-              "commons.Escaper.ecapePathComponent(item))"
+              'commons.Escaper.ecapePathComponent(item))'
               ".join('/')"));
     });
 

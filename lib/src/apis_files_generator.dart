@@ -69,7 +69,7 @@ class ApisFilesGenerator {
       String version = description.version.toLowerCase();
       String apiFile = path.join(clientFolderPath, '${name}.dart');
       try {
-        var lib;
+        BaseApiLibrary lib;
         if (diPair.importMap == null) {
           // Build a normal client stub file without using the same message
           // classes.
@@ -113,9 +113,9 @@ class ApisFilesGenerator {
             !value.startsWith(new RegExp('\''))) {
           value = '\'$value\'';
         }
-        sink.writeln("$indent$key: $value");
+        sink.writeln('$indent$key: $value');
       } else if (value is Map) {
-        sink.writeln("$indent$key:");
+        sink.writeln('$indent$key:');
         value.forEach((key, value) {
           writeValue(sink, key, value, '$indent  ');
         });
@@ -145,7 +145,7 @@ class ApisFilesGenerator {
     if (updatePubspec) {
       var sink = new StringBuffer();
       pubspecKeys.forEach((key) {
-        var value;
+        Map value;
         if (key == 'dependencies') {
           // patch up dependencies.
           value = pubspec[key];

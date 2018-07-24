@@ -95,7 +95,7 @@ class UriTemplate {
 
     var offset = 0;
     while (offset < pattern.length) {
-      var open = pattern.indexOf("{", offset);
+      var open = pattern.indexOf('{', offset);
       // If we have no more URI template expressions, we append the remaining
       // string as a literal and we're done.
       if (open < 0) {
@@ -110,9 +110,9 @@ class UriTemplate {
         parts.add(new StringPart(imports, stringPrefix));
       }
 
-      var close = pattern.indexOf("}", open);
+      var close = pattern.indexOf('}', open);
       if (close < 0) {
-        throw new ArgumentError("Invalid URI template pattern, "
+        throw new ArgumentError('Invalid URI template pattern, '
             "expected closing brace: '$pattern'");
       }
 

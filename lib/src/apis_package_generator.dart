@@ -4,7 +4,7 @@
 
 library discoveryapis_generator.apis_package_generator;
 
-import "dart:io";
+import 'dart:io';
 
 import '../discoveryapis_generator.dart' show Pubspec;
 import 'dart_api_library.dart';
@@ -41,19 +41,19 @@ class ApisPackageGenerator {
   /// If the output directory already exists it will delete everything in it
   /// except ".git" folders.
   List<GenerateResult> generateApiPackage() {
-    var libFolderPath = "$packageFolderPath/lib";
-    var testFolderPath = "$packageFolderPath/test";
-    var pubspecYamlPath = "$packageFolderPath/pubspec.yaml";
-    var gitIgnorePath = "$packageFolderPath/.gitignore";
+    var libFolderPath = '$packageFolderPath/lib';
+    var testFolderPath = '$packageFolderPath/test';
+    var pubspecYamlPath = '$packageFolderPath/pubspec.yaml';
+    var gitIgnorePath = '$packageFolderPath/.gitignore';
 
     // Clean contents of directory (except for .git folder)
     var packageDirectory = new Directory(packageFolderPath);
     if (packageDirectory.existsSync()) {
-      print("Emptying folder before library generation.");
+      print('Emptying folder before library generation.');
       packageDirectory.listSync().forEach((FileSystemEntity fse) {
         if (fse is File) {
           fse.deleteSync();
-        } else if (fse is Directory && !fse.path.endsWith(".git")) {
+        } else if (fse is Directory && !fse.path.endsWith('.git')) {
           fse.deleteSync(recursive: true);
         }
       });
@@ -73,11 +73,11 @@ class ApisPackageGenerator {
           .replaceAll('.', '_')
           .replaceAll('-', '_');
 
-      String apiFolderPath = "$libFolderPath/$name";
-      String apiTestFolderPath = "$testFolderPath/$name";
+      String apiFolderPath = '$libFolderPath/$name';
+      String apiTestFolderPath = '$testFolderPath/$name';
 
-      String apiVersionFile = "$libFolderPath/$name/$version.dart";
-      String apiTestVersionFile = "$testFolderPath/$name/${version}_test.dart";
+      String apiVersionFile = '$libFolderPath/$name/$version.dart';
+      String apiTestVersionFile = '$testFolderPath/$name/${version}_test.dart';
 
       String packagePath = 'package:${config.name}/$name/$version.dart';
 
@@ -128,30 +128,30 @@ class ApisPackageGenerator {
             sink.writeln('  # This is a private package dependency used by the '
                 'generated client stubs.');
           }
-          sink.writeln("  $lib: $value");
+          sink.writeln('  $lib: $value');
         } else if (value is Map) {
-          sink.writeln("  $lib:\n");
+          sink.writeln('  $lib:\n');
           value.forEach((k, v) {
-            sink.writeln("    $k: $v\n");
+            sink.writeln('    $k: $v\n');
           });
         }
       });
     }
 
-    sink.writeln("name: ${config.name}");
-    sink.writeln("version: ${config.version}");
+    sink.writeln('name: ${config.name}');
+    sink.writeln('version: ${config.version}');
     if (config.author != null) {
-      sink.writeln("author: ${config.author}");
+      sink.writeln('author: ${config.author}');
     }
-    sink.writeln("description: ${config.description}");
+    sink.writeln('description: ${config.description}');
     if (config.homepage != null) {
-      sink.writeln("homepage: ${config.homepage}");
+      sink.writeln('homepage: ${config.homepage}');
     }
-    sink.writeln("environment:");
+    sink.writeln('environment:');
     sink.writeln("  sdk: '${config.sdkConstraint}'");
-    sink.writeln("dependencies:");
+    sink.writeln('dependencies:');
     writeDependencies(Pubspec.dependencies);
-    sink.writeln("dev_dependencies:");
+    sink.writeln('dev_dependencies:');
     writeDependencies(Pubspec.devDependencies);
   }
 }
