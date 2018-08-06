@@ -31,7 +31,7 @@ class Pubspec {
   static Map<String, Object> get dependencies => const {
         'http': '\'>=0.11.1 <0.12.0\'',
         '_discoveryapis_commons': '\'>=0.1.0 <0.2.0\'',
-      };generator/blob/master/lib/discoveryapis_generator.dart
+      };
 
   static Map<String, Object> get devDependencies => const {
         'test': '\'>=0.12.0 <2.0.0\'',
