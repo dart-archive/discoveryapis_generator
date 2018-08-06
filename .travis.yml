@@ -1,4 +1,11 @@
 language: dart
+dart:
+  - dev
+  - stable
+script: ./tool/travis.sh
+# Use container based builds.
+sudo: false
+
 # Only building master means that we don't run two builds for each pull request.
 branches:
   only: [master]
@@ -6,10 +13,3 @@ branches:
 cache:
  directories:
    - $HOME/.pub-cache
-
-dart:
-  - dev
-  - stable
-script: ./tool/travis.sh
-# Use container based builds.
-sudo: false
