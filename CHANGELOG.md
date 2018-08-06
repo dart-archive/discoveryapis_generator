@@ -1,5 +1,9 @@
 # Changelog - discoveryapis_generator
 
+## v0.9.9
+
+- Generate packages with pubspecs that accept sdk 2.0.0 and above.
+
 ## v0.9.8
 
 - Make the generator Dart 2.0 clean.
