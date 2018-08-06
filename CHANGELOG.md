@@ -2,7 +2,7 @@
 
 ## v0.9.9
 
-- Expand constraints to make the package work on Dart 2 stable.
+- Generate packages with pubspecs that accept sdk 2.0.0 and above.
 
 ## v0.9.8
 
