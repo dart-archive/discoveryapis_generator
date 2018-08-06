@@ -1,5 +1,9 @@
 # Changelog - discoveryapis_generator
 
+## v0.9.9
+
+- Expand constraints to make the package work on Dart 2 stable.
+
 ## v0.9.8
 
 - Make the generator Dart 2.0 clean.

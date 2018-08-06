@@ -1,6 +1,7 @@
 language: dart
 dart:
   - dev
+  - stable
 script: ./tool/travis.sh
 # Use container based builds.
 sudo: false
