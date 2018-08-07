@@ -5,7 +5,6 @@
 library discoveryapis_commons.clients;
 
 import "dart:async";
-import "dart:collection" as collection;
 import "dart:convert";
 
 import "package:http/http.dart" as http;
@@ -910,9 +909,7 @@ Stream<String> _decodeStreamAsText(http.StreamedResponse response) {
 Map<String, T> mapMap<F, T>(Map<String, F> source, T convert(F source)) {
   assert(source != null);
   assert(convert != null);
-  final Map<String, T> result = new collection.LinkedHashMap<String, T>();
-  source.forEach((String key, F value) {
-    result[key] = convert(value);
-  });
-  return result;
+  var entries = source.entries.toList()..sort((a, b) => a.key.compareTo(b.key));
+  return new Map.fromEntries(
+      entries.map((e) => new MapEntry(e.key, convert(e.value))));
 }

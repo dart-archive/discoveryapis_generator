@@ -196,16 +196,16 @@ class DartservicesApi {
 
   /// Request parameters:
   ///
-  /// [source] - Query parameter: 'source'.
-  ///
   /// [offset] - Query parameter: 'offset'.
+  ///
+  /// [source] - Query parameter: 'source'.
   ///
   /// Completes with a [commons.ApiRequestError] if the API endpoint returned an
   /// error.
   ///
   /// If the used [http.Client] completes with an error when making a REST call,
   /// this method will complete with the same error.
-  Future completeGet({String source, int offset}) {
+  Future completeGet({int offset, String source}) {
     var _url = null;
     var _queryParams = new Map<String, List<String>>();
     var _uploadMedia = null;
@@ -213,11 +213,11 @@ class DartservicesApi {
     var _downloadOptions = commons.DownloadOptions.Metadata;
     var _body = null;
 
-    if (source != null) {
-      _queryParams["source"] = [source];
-    }
     if (offset != null) {
       _queryParams["offset"] = ["${offset}"];
+    }
+    if (source != null) {
+      _queryParams["source"] = [source];
     }
 
     _downloadOptions = null;
@@ -269,9 +269,9 @@ class DartservicesApi {
 
   /// Request parameters:
   ///
-  /// [source] - Query parameter: 'source'.
-  ///
   /// [offset] - Query parameter: 'offset'.
+  ///
+  /// [source] - Query parameter: 'source'.
   ///
   /// Completes with a [DocumentResponse].
   ///
@@ -280,7 +280,7 @@ class DartservicesApi {
   ///
   /// If the used [http.Client] completes with an error when making a REST call,
   /// this method will complete with the same error.
-  Future<DocumentResponse> documentGet({String source, int offset}) {
+  Future<DocumentResponse> documentGet({int offset, String source}) {
     var _url = null;
     var _queryParams = new Map<String, List<String>>();
     var _uploadMedia = null;
@@ -288,11 +288,11 @@ class DartservicesApi {
     var _downloadOptions = commons.DownloadOptions.Metadata;
     var _body = null;
 
-    if (source != null) {
-      _queryParams["source"] = [source];
-    }
     if (offset != null) {
       _queryParams["offset"] = ["${offset}"];
+    }
+    if (source != null) {
+      _queryParams["source"] = [source];
     }
 
     _url = 'document';

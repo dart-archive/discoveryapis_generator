@@ -136,40 +136,30 @@ main() {
       expect(foo.parameters,
           hasLength(3 + RESERVED_METHOD_PARAMETER_NAMES.length));
 
-      var id = foo.parameters[0];
-      expect(id, isNotNull);
-      expect(id.name.name, equals('id$i'));
+      var id = foo.parameters.singleWhere((mp) => mp.name.name == 'id$i');
       expect(id.type, equals(db.stringType));
       expect(id.required, isTrue);
       expect(id.encodedInPath, isTrue);
 
-      var repeatedPathParam = foo.parameters[1];
-      expect(repeatedPathParam, isNotNull);
-      expect(repeatedPathParam.name.name, equals('reapetedPathParam$i'));
+      var repeatedPathParam = foo.parameters
+          .singleWhere((mp) => mp.name.name == 'reapetedPathParam$i');
       expect(repeatedPathParam.type is UnnamedArrayType, isTrue);
       expect((repeatedPathParam.type as UnnamedArrayType).innerType,
           equals(db.stringType));
       expect(repeatedPathParam.required, isTrue);
       expect(repeatedPathParam.encodedInPath, isTrue);
 
-      var repeatedQueryParam = foo.parameters[2];
-      expect(repeatedQueryParam, isNotNull);
-      expect(repeatedQueryParam.name.name, equals('reapetedQueryParam$i'));
+      var repeatedQueryParam = foo.parameters
+          .singleWhere((mp) => mp.name.name == 'reapetedQueryParam$i');
       expect(repeatedQueryParam.type is UnnamedArrayType, isTrue);
       expect((repeatedQueryParam.type as UnnamedArrayType).innerType,
           equals(db.stringType));
       expect(repeatedQueryParam.required, isTrue);
       expect(repeatedQueryParam.encodedInPath, isFalse);
 
-      var rest = foo.parameters.skip(3).toList();
+      var paramNames = foo.parameters.map((mp) => mp.name.name).toList();
       for (var reserved in RESERVED_METHOD_PARAMETER_NAMES) {
-        bool found = false;
-        for (var p in rest) {
-          if ('${reserved}_1' == p.name.name) {
-            found = true;
-          }
-        }
-        expect(found, isTrue);
+        expect(paramNames, contains('${reserved}_1'));
       }
     }
 

@@ -1,4 +1,8 @@
-# Changelog - discoveryapis_generator
+## v0.9.10
+
+- All Map values from the discovery docs are sorted by key. This ensures the
+  generated code is more stable due to order changes in the JSON – something
+  very common with Google's Discovery API service. 
 
 ## v0.9.9
 

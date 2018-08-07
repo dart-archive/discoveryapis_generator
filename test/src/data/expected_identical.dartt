@@ -333,9 +333,9 @@ class ToyApi {
   ///
   /// [name] - Path parameter: 'name'.
   ///
-  /// [foo] - Query parameter: 'foo'.
-  ///
   /// [age] - Query parameter: 'age'.
+  ///
+  /// [foo] - Query parameter: 'foo'.
   ///
   /// [$fields] - Selector specifying which fields to include in a partial
   /// response.
@@ -348,7 +348,7 @@ class ToyApi {
   /// If the used [http.Client] completes with an error when making a REST call,
   /// this method will complete with the same error.
   async.Future<ToyResponse> helloNameQueryAgeFoo(core.String name,
-      {core.String foo, core.int age, core.String $fields}) {
+      {core.int age, core.String foo, core.String $fields}) {
     var _url = null;
     var _queryParams = new core.Map<core.String, core.List<core.String>>();
     var _uploadMedia = null;
@@ -359,11 +359,11 @@ class ToyApi {
     if (name == null) {
       throw new core.ArgumentError("Parameter name is required.");
     }
-    if (foo != null) {
-      _queryParams["foo"] = [foo];
-    }
     if (age != null) {
       _queryParams["age"] = ["${age}"];
+    }
+    if (foo != null) {
+      _queryParams["foo"] = [foo];
     }
     if ($fields != null) {
       _queryParams["fields"] = [$fields];

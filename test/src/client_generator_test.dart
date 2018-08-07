@@ -12,6 +12,18 @@ import 'package:discoveryapis_generator/src/utils.dart';
 import 'package:path/path.dart' as path;
 import 'package:test/test.dart';
 
+const _update = false;
+
+void _matchesExisting(File expectedOutputFile, String actualOutput) {
+  if (_update) {
+    expectedOutputFile.writeAsStringSync(actualOutput);
+    fail('Set `_update` to false!');
+  } else {
+    expect(_normalizeWhiteSpace(actualOutput),
+        _normalizeWhiteSpace(expectedOutputFile.readAsStringSync()));
+  }
+}
+
 main() {
   Directory tmpDir;
 
@@ -42,8 +54,8 @@ main() {
       var stubFile = new File(path.join(outputDir.path, 'toyapi.dart'));
       var expectedStubFile =
           new File(path.join(dataPath, 'expected_nonidentical.dartt'));
-      expect(_normalizeWhiteSpace(stubFile.readAsStringSync()),
-          _normalizeWhiteSpace(expectedStubFile.readAsStringSync()));
+
+      _matchesExisting(expectedStubFile, stubFile.readAsStringSync());
     });
 
     test('identical-messages', () {
@@ -80,8 +92,8 @@ main() {
       var stubFile = new File(path.join(outputDir.path, 'toyapi.dart'));
       var expectedStubFile =
           new File(path.join(dataPath, 'expected_identical.dartt'));
-      expect(_normalizeWhiteSpace(stubFile.readAsStringSync()),
-          _normalizeWhiteSpace(expectedStubFile.readAsStringSync()));
+
+      _matchesExisting(expectedStubFile, stubFile.readAsStringSync());
     });
   });
 
@@ -93,10 +105,9 @@ main() {
           new RestDescription.fromJson(jsonDecode(descriptionJson));
       final generatedLib = new DartApiLibrary.build(description, 'wrapapi',
           useCorePrefixes: true);
-      final expectedSource =
-          new File(path.join(dataPath, 'wrapapi.dartt')).readAsStringSync();
-      expect(_normalizeWhiteSpace(generatedLib.librarySource),
-          _normalizeWhiteSpace(expectedSource));
+      final expectedSource = new File(path.join(dataPath, 'wrapapi.dartt'));
+
+      _matchesExisting(expectedSource, generatedLib.librarySource);
     });
   });
 }
