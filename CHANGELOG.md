@@ -1,5 +1,9 @@
 # Changelog - discoveryapis_generator
 
+## v0.9.10
+
+- Widen constraint on `package:http` to allow version `0.12.0`
+
 ## v0.9.9
 
 - Generate packages with pubspecs that accept sdk 2.0.0 and above.
