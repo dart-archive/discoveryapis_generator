@@ -29,7 +29,7 @@ class Pubspec {
   String get sdkConstraint => '>=2.0.0-dev.22.0 <3.0.0';
 
   static Map<String, Object> get dependencies => const {
-        'http': '\'>=0.11.1 <0.12.0\'',
+        'http': '\'>=0.11.1 <0.13.0\'',
         '_discoveryapis_commons': '\'>=0.1.0 <0.2.0\'',
       };
 
