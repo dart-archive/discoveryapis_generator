@@ -73,6 +73,7 @@ class DartResourceMethod {
   final String jsonName;
   final String httpMethod;
   final bool mediaUpload;
+  final bool mediaUploadResumable;
   final bool mediaDownload;
 
   final UriTemplate urlPattern;
@@ -94,6 +95,7 @@ class DartResourceMethod {
       this.urlPattern,
       this.httpMethod,
       this.mediaUpload,
+      this.mediaUploadResumable,
       this.mediaDownload,
       this.mediaUploadPatterns,
       this.enableDataWrapper);
@@ -123,8 +125,11 @@ class DartResourceMethod {
 
       if (mediaUpload) {
         if (namedString.isNotEmpty) namedString.write(', ');
-        namedString.write('${imports.commons}.UploadOptions uploadOptions : '
-            '${imports.commons}.UploadOptions.Default, ');
+        if (mediaUploadResumable) {
+          // only take options if resume is supported
+          namedString.write('${imports.commons}.UploadOptions uploadOptions : '
+              '${imports.commons}.UploadOptions.Default, ');
+        }
         namedString.write('${imports.commons}.Media uploadMedia');
       }
 
@@ -170,6 +175,8 @@ class DartResourceMethod {
 
     if (mediaUpload) {
       commentBuilder.writeln('[uploadMedia] - The media to upload.\n');
+    }
+    if (mediaUploadResumable) {
       commentBuilder.writeln('[uploadOptions] - Options for the media upload. '
           'Streaming Media without the length being known '
           'ahead of time is only supported via resumable '
@@ -294,7 +301,9 @@ class DartResourceMethod {
     if (mediaUpload) {
       params.writeln('');
       requestCode.writeln('    _uploadMedia =  uploadMedia;');
-      requestCode.writeln('    _uploadOptions =  uploadOptions;');
+      if (mediaUploadResumable) {
+        requestCode.writeln('    _uploadOptions =  uploadOptions;');
+      }
     }
     if (mediaDownload) {
       params.writeln('');
@@ -309,7 +318,18 @@ class DartResourceMethod {
     if (!mediaUpload) {
       urlPatternCode.write('    _url = $patternExpr;');
     } else {
-      urlPatternCode.write('''
+      if (!mediaUploadResumable) {
+        // Use default, if resumable is not supported
+        urlPatternCode.write('''
+    _uploadOptions =  ${imports.commons}.UploadOptions.Default;
+    if (_uploadMedia == null) {
+      _url = $patternExpr;
+    } else {
+      _url = ${mediaUploadPatterns['simple'].stringExpression(templateVars)};
+    }
+''');
+      } else {
+        urlPatternCode.write('''
     if (_uploadMedia == null) {
       _url = $patternExpr;
     } else if (_uploadOptions is ${imports.commons}.ResumableUploadOptions) {
@@ -318,6 +338,7 @@ class DartResourceMethod {
       _url = ${mediaUploadPatterns['simple'].stringExpression(templateVars)};
     }
 ''');
+      }
     }
 
     requestCode.write('''
@@ -627,17 +648,26 @@ DartResourceMethod _parseMethod(
 
   Map<String, UriTemplate> mediaUploadPatterns;
 
+  bool mediaUploadResumable = false;
   if (method.supportsMediaUpload == true) {
     mediaUploadPatterns = <String, UriTemplate>{
       'simple':
           UriTemplate.parse(imports, method.mediaUpload.protocols.simple.path),
-      'resumable': UriTemplate.parse(
-          imports, method.mediaUpload.protocols.resumable.path),
     };
-    if (method.mediaUpload.protocols.simple.multipart != true ||
-        method.mediaUpload.protocols.resumable.multipart != true) {
-      throw new ArgumentError('We always require simple/resumable upload '
-          'protocols with multipart support.');
+    if (method.mediaUpload.protocols.simple.multipart != true) {
+      throw new ArgumentError('We always require simple upload '
+          'protocol with multipart support.');
+    }
+    mediaUploadResumable = method?.mediaUpload?.protocols?.resumable != null;
+    if (mediaUploadResumable) {
+      mediaUploadPatterns['resumable'] = UriTemplate.parse(
+        imports,
+        method.mediaUpload.protocols.resumable.path,
+      );
+      if (method.mediaUpload.protocols.resumable.multipart != true) {
+        throw new ArgumentError('We always require resumable upload '
+            'protocol with multipart support.');
+      }
     }
   }
 
@@ -659,6 +689,7 @@ DartResourceMethod _parseMethod(
       UriTemplate.parse(imports, restPath),
       method.httpMethod,
       makeBoolean(method.supportsMediaUpload),
+      mediaUploadResumable,
       makeBoolean(method.supportsMediaDownload),
       mediaUploadPatterns,
       enableDataWrapper ?? false);
