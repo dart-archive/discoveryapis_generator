@@ -199,8 +199,13 @@ class ResourceTest extends TestHelper {
               sb.writeln('        var resp = "";');
             } else {
               var t = apiTestLibrary.schemaTests[method.returnType];
-              sb.writeln('        var resp = '
-                  'convert.json.encode(${t.newSchemaExpr});');
+              if (method.enableDataWrapper) {
+                sb.writeln('        var resp = '
+                    'convert.json.encode({\'data\': ${t.newSchemaExpr}});');
+              } else {
+                sb.writeln('        var resp = '
+                    'convert.json.encode(${t.newSchemaExpr});');
+              }
             }
             sb.writeln('        return new async.Future.value('
                 'stringResponse(200, h, resp));');
