@@ -1,5 +1,10 @@
 # Changelog - discoveryapis_generator
 
+## v0.9.11
+
+- Support methods that have uploadMedia, but are not resumable.
+- Fixed test generator adding `dataWrapper` support.
+
 ## v0.9.10
 
 - Widen constraint on `package:http` to allow version `0.12.0`
