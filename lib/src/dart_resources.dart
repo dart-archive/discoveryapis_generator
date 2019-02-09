@@ -127,7 +127,7 @@ class DartResourceMethod {
         if (namedString.isNotEmpty) namedString.write(', ');
         if (mediaUploadResumable) {
           // only take options if resume is supported
-          namedString.write('${imports.commons}.UploadOptions uploadOptions : '
+          namedString.write('${imports.commons}.UploadOptions uploadOptions = '
               '${imports.commons}.UploadOptions.Default, ');
         }
         namedString.write('${imports.commons}.Media uploadMedia');
@@ -135,8 +135,9 @@ class DartResourceMethod {
 
       if (mediaDownload) {
         if (namedString.isNotEmpty) namedString.write(', ');
-        namedString.write('${imports.commons}.DownloadOptions downloadOptions: '
-            '${imports.commons}.DownloadOptions.Metadata');
+        namedString
+            .write('${imports.commons}.DownloadOptions downloadOptions = '
+                '${imports.commons}.DownloadOptions.Metadata');
       }
 
       parameterString.write('{$namedString}');
@@ -378,12 +379,12 @@ $urlPatternCode
 
     final core = imports.core.ref();
     methodString.write('''
-    var _url = null;
+    var _url;
     var _queryParams = new ${core}Map<${core}String, ${core}List<${core}String>>();
-    var _uploadMedia = null;
-    var _uploadOptions = null;
+    var _uploadMedia;
+    var _uploadOptions;
     var _downloadOptions = ${imports.commons}.DownloadOptions.Metadata;
-    var _body = null;
+    var _body;
 
 $params$requestCode''');
 
@@ -483,8 +484,8 @@ class DartApiClass extends DartResourceClass {
     var str = new StringBuffer();
 
     var parameters = [
-      '${imports.core.ref()}String rootUrl: "${escapeString(rootUrl)}"',
-      '${imports.core.ref()}String servicePath: "${escapeString(servicePath)}"',
+      '${imports.core.ref()}String rootUrl = "${escapeString(rootUrl)}"',
+      '${imports.core.ref()}String servicePath = "${escapeString(servicePath)}"',
     ].join(', ');
 
     str.writeln('  $className(${imports.http}.Client client, {$parameters}) :');

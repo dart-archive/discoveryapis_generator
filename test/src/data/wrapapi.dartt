@@ -20,7 +20,7 @@ class WrapApiApi {
 
   final commons.ApiRequester _requester;
 
-  WrapApiApi(http.Client client, {core.String rootUrl: "http://localhost:9090/", core.String servicePath: "api/wrapApi/0.1/"}) :
+  WrapApiApi(http.Client client, {core.String rootUrl = "http://localhost:9090/", core.String servicePath = "api/wrapApi/0.1/"}) :
       _requester = new commons.ApiRequester(client, rootUrl, servicePath, USER_AGENT);
 
   /// [request] - The metadata request object.
@@ -35,12 +35,12 @@ class WrapApiApi {
   /// If the used [http.Client] completes with an error when making a REST call,
   /// this method will complete with the same error.
   async.Future<WrapResponse> helloPost(WrapRequest request) {
-    var _url = null;
+    var _url;
     var _queryParams = new core.Map<core.String, core.List<core.String>>();
-    var _uploadMedia = null;
-    var _uploadOptions = null;
+    var _uploadMedia;
+    var _uploadOptions;
     var _downloadOptions = commons.DownloadOptions.Metadata;
-    var _body = null;
+    var _body;
 
     if (request != null) {
       _body = convert.json.encode((request).toJson());

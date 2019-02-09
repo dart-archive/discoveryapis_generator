@@ -23,8 +23,8 @@ class ToyApi {
   StorageResourceApi get storage => new StorageResourceApi(_requester);
 
   ToyApi(http.Client client,
-      {core.String rootUrl: "http://localhost:9090/",
-      core.String servicePath: "api/toyApi/0.1/"})
+      {core.String rootUrl = "http://localhost:9090/",
+      core.String servicePath = "api/toyApi/0.1/"})
       : _requester =
             new commons.ApiRequester(client, rootUrl, servicePath, USER_AGENT);
 
@@ -39,12 +39,12 @@ class ToyApi {
   /// If the used [http.Client] completes with an error when making a REST call,
   /// this method will complete with the same error.
   async.Future failing({core.String $fields}) {
-    var _url = null;
+    var _url;
     var _queryParams = new core.Map<core.String, core.List<core.String>>();
-    var _uploadMedia = null;
-    var _uploadOptions = null;
+    var _uploadMedia;
+    var _uploadOptions;
     var _downloadOptions = commons.DownloadOptions.Metadata;
-    var _body = null;
+    var _body;
 
     if ($fields != null) {
       _queryParams["fields"] = [$fields];
@@ -76,12 +76,12 @@ class ToyApi {
   /// If the used [http.Client] completes with an error when making a REST call,
   /// this method will complete with the same error.
   async.Future<ToyResponse> hello({core.String $fields}) {
-    var _url = null;
+    var _url;
     var _queryParams = new core.Map<core.String, core.List<core.String>>();
-    var _uploadMedia = null;
-    var _uploadOptions = null;
+    var _uploadMedia;
+    var _uploadOptions;
     var _downloadOptions = commons.DownloadOptions.Metadata;
-    var _body = null;
+    var _body;
 
     if ($fields != null) {
       _queryParams["fields"] = [$fields];
@@ -115,12 +115,12 @@ class ToyApi {
   async.Future<core.Map<core.String, ToyResponse>> helloListOfClass(
       core.List<ToyRequest> request,
       {core.String $fields}) {
-    var _url = null;
+    var _url;
     var _queryParams = new core.Map<core.String, core.List<core.String>>();
-    var _uploadMedia = null;
-    var _uploadOptions = null;
+    var _uploadMedia;
+    var _uploadOptions;
     var _downloadOptions = commons.DownloadOptions.Metadata;
-    var _body = null;
+    var _body;
 
     if (request != null) {
       _body = convert.json.encode(
@@ -160,12 +160,12 @@ class ToyApi {
   async.Future<core.Map<core.String, ToyResponse>> helloListOfListOfClass(
       core.List<core.List<ToyRequest>> request,
       {core.String $fields}) {
-    var _url = null;
+    var _url;
     var _queryParams = new core.Map<core.String, core.List<core.String>>();
-    var _uploadMedia = null;
-    var _uploadOptions = null;
+    var _uploadMedia;
+    var _uploadOptions;
     var _downloadOptions = commons.DownloadOptions.Metadata;
-    var _body = null;
+    var _body;
 
     if (request != null) {
       _body = convert.json.encode(request
@@ -207,12 +207,12 @@ class ToyApi {
   async.Future<core.Map<core.String, core.int>> helloMap(
       core.Map<core.String, core.int> request,
       {core.String $fields}) {
-    var _url = null;
+    var _url;
     var _queryParams = new core.Map<core.String, core.List<core.String>>();
-    var _uploadMedia = null;
-    var _uploadOptions = null;
+    var _uploadMedia;
+    var _uploadOptions;
     var _downloadOptions = commons.DownloadOptions.Metadata;
-    var _body = null;
+    var _body;
 
     if (request != null) {
       _body = convert.json.encode(request);
@@ -251,12 +251,12 @@ class ToyApi {
   /// this method will complete with the same error.
   async.Future<ToyResponse> helloNameAge(core.String name, core.int age,
       {core.String $fields}) {
-    var _url = null;
+    var _url;
     var _queryParams = new core.Map<core.String, core.List<core.String>>();
-    var _uploadMedia = null;
-    var _uploadOptions = null;
+    var _uploadMedia;
+    var _uploadOptions;
     var _downloadOptions = commons.DownloadOptions.Metadata;
-    var _body = null;
+    var _body;
 
     if (name == null) {
       throw new core.ArgumentError("Parameter name is required.");
@@ -301,12 +301,12 @@ class ToyApi {
   async.Future<ToyResponse> helloNamePostAge(
       ToyAgeRequest request, core.String name,
       {core.String $fields}) {
-    var _url = null;
+    var _url;
     var _queryParams = new core.Map<core.String, core.List<core.String>>();
-    var _uploadMedia = null;
-    var _uploadOptions = null;
+    var _uploadMedia;
+    var _uploadOptions;
     var _downloadOptions = commons.DownloadOptions.Metadata;
-    var _body = null;
+    var _body;
 
     if (request != null) {
       _body = convert.json.encode(ToyAgeRequestFactory.toJson(request));
@@ -349,12 +349,12 @@ class ToyApi {
   /// this method will complete with the same error.
   async.Future<ToyResponse> helloNameQueryAgeFoo(core.String name,
       {core.String foo, core.int age, core.String $fields}) {
-    var _url = null;
+    var _url;
     var _queryParams = new core.Map<core.String, core.List<core.String>>();
-    var _uploadMedia = null;
-    var _uploadOptions = null;
+    var _uploadMedia;
+    var _uploadOptions;
     var _downloadOptions = commons.DownloadOptions.Metadata;
-    var _body = null;
+    var _body;
 
     if (name == null) {
       throw new core.ArgumentError("Parameter name is required.");
@@ -397,12 +397,12 @@ class ToyApi {
   async.Future<core.List<core.List<core.String>>> helloNestedListList(
       core.List<core.List<core.int>> request,
       {core.String $fields}) {
-    var _url = null;
+    var _url;
     var _queryParams = new core.Map<core.String, core.List<core.String>>();
-    var _uploadMedia = null;
-    var _uploadOptions = null;
+    var _uploadMedia;
+    var _uploadOptions;
     var _downloadOptions = commons.DownloadOptions.Metadata;
-    var _body = null;
+    var _body;
 
     if (request != null) {
       _body = convert.json.encode(request);
@@ -444,12 +444,12 @@ class ToyApi {
       helloNestedListMapList(
           core.List<core.Map<core.String, core.List<core.int>>> request,
           {core.String $fields}) {
-    var _url = null;
+    var _url;
     var _queryParams = new core.Map<core.String, core.List<core.String>>();
-    var _uploadMedia = null;
-    var _uploadOptions = null;
+    var _uploadMedia;
+    var _uploadOptions;
     var _downloadOptions = commons.DownloadOptions.Metadata;
-    var _body = null;
+    var _body;
 
     if (request != null) {
       _body = convert.json.encode(request);
@@ -487,12 +487,12 @@ class ToyApi {
   /// If the used [http.Client] completes with an error when making a REST call,
   /// this method will complete with the same error.
   async.Future<ToyMapResponse> helloNestedMap({core.String $fields}) {
-    var _url = null;
+    var _url;
     var _queryParams = new core.Map<core.String, core.List<core.String>>();
-    var _uploadMedia = null;
-    var _uploadOptions = null;
+    var _uploadMedia;
+    var _uploadOptions;
     var _downloadOptions = commons.DownloadOptions.Metadata;
-    var _body = null;
+    var _body;
 
     if ($fields != null) {
       _queryParams["fields"] = [$fields];
@@ -529,12 +529,12 @@ class ToyApi {
           core.List<core.Map<core.String, core.bool>>>> helloNestedMapListMap(
       core.Map<core.String, core.List<core.Map<core.String, core.int>>> request,
       {core.String $fields}) {
-    var _url = null;
+    var _url;
     var _queryParams = new core.Map<core.String, core.List<core.String>>();
-    var _uploadMedia = null;
-    var _uploadOptions = null;
+    var _uploadMedia;
+    var _uploadOptions;
     var _downloadOptions = commons.DownloadOptions.Metadata;
-    var _body = null;
+    var _body;
 
     if (request != null) {
       _body = convert.json.encode(request);
@@ -579,12 +579,12 @@ class ToyApi {
       helloNestedMapMap(
           core.Map<core.String, core.Map<core.String, core.int>> request,
           {core.String $fields}) {
-    var _url = null;
+    var _url;
     var _queryParams = new core.Map<core.String, core.List<core.String>>();
-    var _uploadMedia = null;
-    var _uploadOptions = null;
+    var _uploadMedia;
+    var _uploadOptions;
     var _downloadOptions = commons.DownloadOptions.Metadata;
-    var _body = null;
+    var _body;
 
     if (request != null) {
       _body = convert.json.encode(request);
@@ -624,12 +624,12 @@ class ToyApi {
   /// this method will complete with the same error.
   async.Future<ToyResponse> helloPost(ToyRequest request,
       {core.String $fields}) {
-    var _url = null;
+    var _url;
     var _queryParams = new core.Map<core.String, core.List<core.String>>();
-    var _uploadMedia = null;
-    var _uploadOptions = null;
+    var _uploadMedia;
+    var _uploadOptions;
     var _downloadOptions = commons.DownloadOptions.Metadata;
-    var _body = null;
+    var _body;
 
     if (request != null) {
       _body = convert.json.encode(ToyRequestFactory.toJson(request));
@@ -662,12 +662,12 @@ class ToyApi {
   /// If the used [http.Client] completes with an error when making a REST call,
   /// this method will complete with the same error.
   async.Future<ToyResponse> helloReturnNull({core.String $fields}) {
-    var _url = null;
+    var _url;
     var _queryParams = new core.Map<core.String, core.List<core.String>>();
-    var _uploadMedia = null;
-    var _uploadOptions = null;
+    var _uploadMedia;
+    var _uploadOptions;
     var _downloadOptions = commons.DownloadOptions.Metadata;
-    var _body = null;
+    var _body;
 
     if ($fields != null) {
       _queryParams["fields"] = [$fields];
@@ -697,12 +697,12 @@ class ToyApi {
   /// If the used [http.Client] completes with an error when making a REST call,
   /// this method will complete with the same error.
   async.Future<ToyResponse> helloVoid({core.String $fields}) {
-    var _url = null;
+    var _url;
     var _queryParams = new core.Map<core.String, core.List<core.String>>();
-    var _uploadMedia = null;
-    var _uploadOptions = null;
+    var _uploadMedia;
+    var _uploadOptions;
     var _downloadOptions = commons.DownloadOptions.Metadata;
-    var _body = null;
+    var _body;
 
     if ($fields != null) {
       _queryParams["fields"] = [$fields];
@@ -730,12 +730,12 @@ class ToyApi {
   /// If the used [http.Client] completes with an error when making a REST call,
   /// this method will complete with the same error.
   async.Future noop({core.String $fields}) {
-    var _url = null;
+    var _url;
     var _queryParams = new core.Map<core.String, core.List<core.String>>();
-    var _uploadMedia = null;
-    var _uploadOptions = null;
+    var _uploadMedia;
+    var _uploadOptions;
     var _downloadOptions = commons.DownloadOptions.Metadata;
-    var _body = null;
+    var _body;
 
     if ($fields != null) {
       _queryParams["fields"] = [$fields];
@@ -771,12 +771,12 @@ class ToyApi {
   async.Future<core.List<core.String>> reverseList(
       core.List<core.String> request,
       {core.String $fields}) {
-    var _url = null;
+    var _url;
     var _queryParams = new core.Map<core.String, core.List<core.String>>();
-    var _uploadMedia = null;
-    var _uploadOptions = null;
+    var _uploadMedia;
+    var _uploadOptions;
     var _downloadOptions = commons.DownloadOptions.Metadata;
-    var _body = null;
+    var _body;
 
     if (request != null) {
       _body = convert.json.encode(request);
@@ -821,12 +821,12 @@ class ComputeResourceApi {
   async.Future<ToyResourceResponse> get(
       core.String resource, core.String compute,
       {core.String $fields}) {
-    var _url = null;
+    var _url;
     var _queryParams = new core.Map<core.String, core.List<core.String>>();
-    var _uploadMedia = null;
-    var _uploadOptions = null;
+    var _uploadMedia;
+    var _uploadOptions;
     var _downloadOptions = commons.DownloadOptions.Metadata;
-    var _body = null;
+    var _body;
 
     if (resource == null) {
       throw new core.ArgumentError("Parameter resource is required.");
@@ -877,12 +877,12 @@ class StorageResourceApi {
   async.Future<ToyResourceResponse> get(
       core.String resource, core.String storage,
       {core.String $fields}) {
-    var _url = null;
+    var _url;
     var _queryParams = new core.Map<core.String, core.List<core.String>>();
-    var _uploadMedia = null;
-    var _uploadOptions = null;
+    var _uploadMedia;
+    var _uploadOptions;
     var _downloadOptions = commons.DownloadOptions.Metadata;
-    var _body = null;
+    var _body;
 
     if (resource == null) {
       throw new core.ArgumentError("Parameter resource is required.");
