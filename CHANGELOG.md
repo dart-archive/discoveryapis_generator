@@ -1,5 +1,9 @@
 # Changelog - discoveryapis_generator
 
+## v0.9.12
+
+- Fixed suggestions from pana in the generated code.
+
 ## v0.9.11
 
 - Support methods that have uploadMedia, but are not resumable.

@@ -486,7 +486,7 @@ $encode
 
   ${imports.core.ref()}int get length => _inner.length;
 
-  void set length(${imports.core.ref()}int newLength) {
+  set length(${imports.core.ref()}int newLength) {
     _inner.length = newLength;
   }
 }
@@ -718,7 +718,7 @@ class ObjectType extends ComplexDartSchemaType {
 
         propertyString.writeln();
 
-        propertyString.write('  void set ${property.byteArrayAccessor}');
+        propertyString.write('  set ${property.byteArrayAccessor}');
         propertyString.writeln(
             '(${imports.core.ref()}List<${imports.core.ref()}int> _bytes) {');
         propertyString.writeln('    ${property.name} = ${imports.convert.ref()}'
