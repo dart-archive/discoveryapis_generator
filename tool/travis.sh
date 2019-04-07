@@ -11,4 +11,4 @@ set -e
 pub run test
 
 # Validate that we can re-generate the example discovery doc.
-dart --checked bin/generate.dart files --input-dir=example --output-dir=example --no-core-prefixes
+dart --enable-asserts bin/generate.dart files --input-dir=example --output-dir=example --no-core-prefixes
