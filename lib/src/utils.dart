@@ -19,7 +19,10 @@ const List keywords = const [
   // This is not in the dart language specification 1.2 but is reserved
   // in dart2js and the dart VM.
   // See: http://dartbug.com/19515
-  "external"
+  "external",
+
+  // Can't override "runtimeType" from [Object.runtimeType]
+  "runtimeType",
 ];
 
 final _cleanRegEx = new RegExp(r"[^\w$]");
