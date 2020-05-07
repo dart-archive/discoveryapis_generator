@@ -1,5 +1,8 @@
 # Changelog - discoveryapis_generator
 
+## v0.9.14
+ - Bumped `_discoveryapis_commons` to allow `0.2.x`.
+
 ## v0.9.12
 
 - Fixed suggestions from pana in the generated code.
