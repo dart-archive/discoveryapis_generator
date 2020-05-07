@@ -1,5 +1,9 @@
 # Changelog - discoveryapis_generator
 
+## v0.9.15
+ - Add support for scopes defined in
+   [openid-connect 1.0](https://openid.net/specs/openid-connect-core-1_0.html).
+
 ## v0.9.14
  - Bumped `_discoveryapis_commons` to allow `0.2.x`.
 

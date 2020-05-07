@@ -119,13 +119,28 @@ class Scope {
     var googleAuthPrefix = 'https://www.googleapis.com/auth/';
     var httpsPrefix = 'https://';
 
+    // Defined by openid-connect-core 1.0
+    const openidScopes = [
+      // https://openid.net/specs/openid-connect-core-1_0.html#AuthRequest
+      'openid',
+      // https://openid.net/specs/openid-connect-core-1_0.html#ScopeClaims
+      'profile',
+      'email',
+      'address',
+      'phone',
+      // https://openid.net/specs/openid-connect-core-1_0.html#OfflineAccess
+      'offline_access',
+    ];
+
     var name;
     if (scope.startsWith(googleAuthPrefix)) {
       name = scope.substring(googleAuthPrefix.length);
     } else if (scope.startsWith(httpsPrefix)) {
       name = scope.substring(httpsPrefix.length);
+    } else if (openidScopes.contains(scope)) {
+      name = scope;
     } else {
-      throw new ArgumentError('Scope $scope is not an https scope URL.');
+      throw new ArgumentError('Scope $scope is not a recognized format.');
     }
 
     name = Scope.capitalizeAtChar(name, '.');
