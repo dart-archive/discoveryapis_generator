@@ -231,7 +231,7 @@ class DartSchemaForwardRef extends DartSchemaType {
         'resolving references.');
   }
 
-  String primitiveEncoding(String) {
+  String primitiveEncoding(String value) {
     throw new StateError('Encoding methods can only be called after '
         'resolving references.');
   }
@@ -919,7 +919,7 @@ DartSchemaTypeDB parseSchemas(
    * they are named, otherwise they are unnamed.
    */
   DartSchemaType parse(String className, Scope classScope, JsonSchema schema,
-      {bool topLevel: false}) {
+      {bool topLevel = false}) {
     if (schema.repeated != null) {
       throw new ArgumentError('Only path/query parameters can be repeated.');
     }
@@ -1105,7 +1105,7 @@ Comment extendEnumComment(Comment baseComment, DartSchemaType type) {
       ..writeln('Possible string values are:');
     for (int i = 0; i < type.enumValues.length; i++) {
       var description = type.enumDescriptions[i];
-      if (description != null && description.trim().length > 0) {
+      if (description != null && description.trim().isNotEmpty) {
         s.writeln('- "${type.enumValues[i]}" : $description');
       } else {
         s.writeln('- "${type.enumValues[i]}"');
@@ -1117,7 +1117,7 @@ Comment extendEnumComment(Comment baseComment, DartSchemaType type) {
 }
 
 Comment extendAnyTypeComment(Comment baseComment, DartSchemaType type,
-    {bool includeNamedTypes: false}) {
+    {bool includeNamedTypes = false}) {
   const String AnyTypeComment =
       'The values for Object must be JSON objects. It can consist of `num`, '
       '`String`, `bool` and `null` as well as `Map` and `List` values.';

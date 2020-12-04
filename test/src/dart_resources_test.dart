@@ -173,7 +173,7 @@ main() {
       }
     }
 
-    Map buildResources(String i, {int level: 0}) {
+    Map buildResources(String i, {int level = 0}) {
       if (level > 3) {
         return null;
       } else {
@@ -197,7 +197,7 @@ main() {
     }
 
     checkResources(String i, String parent, List<DartResourceClass> resources,
-        {int level: 0}) {
+        {int level = 0}) {
       if (level > 3) {
         expect(resources, isEmpty);
       } else {

@@ -38,7 +38,7 @@ class DartApiTestLibrary extends TestHelper {
 
       // Register resource tests.
       var test = new ResourceTest(this, resource, parent, nameInParent);
-      if (resource.methods.length > 0) {
+      if (resource.methods.isNotEmpty) {
         resourceTests.add(test);
       }
       for (int i = 0; i < resource.subResources.length; i++) {
@@ -329,7 +329,7 @@ class MethodArgsTest extends TestHelper {
       if (part is StringPart) {
         var str = part.staticString;
         // NOTE: Sometimes there are empty strings, we do not assert for them.
-        if (str.length > 0) {
+        if (str.isNotEmpty) {
           ln(expectEqual(
               'path.substring(pathOffset, pathOffset + ${str.length})',
               '"${escapeString(str)}"'));

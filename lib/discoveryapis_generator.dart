@@ -60,7 +60,7 @@ List<GenerateResult> generateAllLibraries(
 
 List<GenerateResult> generateApiFiles(
     String inputDirectory, String outputDirectory,
-    {bool updatePubspec: false, bool useCorePrefixes: true}) {
+    {bool updatePubspec = false, bool useCorePrefixes = true}) {
   var descriptions = <DescriptionImportPair>[];
   new Directory(inputDirectory)
       .listSync()
