@@ -1,14 +1,9 @@
-# discoveryapis_generator
-
 [![Build Status](https://travis-ci.org/dart-lang/discoveryapis_generator.svg?branch=master)](https://travis-ci.org/dart-lang/discoveryapis_generator)
 
 ### Description
 
 Dart application to generate Dart API Client Libraries based on discovery 
 documents.
-
-This package is used to generate client libraries for packages exposing a REST
-API using the [package:rpc](https://pub.dartlang.org/packages/rpc) package.
 
 ### Usage
 
