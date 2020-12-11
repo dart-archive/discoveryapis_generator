@@ -36,7 +36,7 @@ class ApisFilesGenerator {
   /// [clientFolderPath] is the output directory for the generated client stub
   /// code.
   ApisFilesGenerator(this.descriptions, this.clientFolderPath,
-      {this.updatePubspec: false, this.useCorePrefixes: true}) {
+      {this.updatePubspec = false, this.useCorePrefixes = true}) {
     // Create the output directory.
     var clientDirectory = new Directory(clientFolderPath);
     packageRoot = findPackageRoot(path.absolute(clientDirectory.path));

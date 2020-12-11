@@ -12,7 +12,7 @@ class Comment {
   final String rawComment;
 
   Comment(String raw)
-      : rawComment = (raw != null && raw.length > 0) ? raw.trimRight() : '';
+      : rawComment = (raw != null && raw.isNotEmpty) ? raw.trimRight() : '';
 
   /// Returns a block string which has [indentationLevel] spaces in front of it.
   ///
@@ -55,7 +55,7 @@ class Comment {
       for (String line in expandedLines) {
         line = line.trimRight();
         result.write('$spaces///');
-        if (line.length > 0) {
+        if (line.isNotEmpty) {
           result.writeln(' $line');
         } else {
           result.writeln('');

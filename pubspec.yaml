@@ -1,8 +1,7 @@
 name: discoveryapis_generator
-version: 0.9.15
-author: Dart Team <misc@dartlang.org>
+version: 0.9.16-dev
 description: Create API Client libraries based on the Discovery API Service.
-homepage: https://github.com/dart-lang/discoveryapis_generator
+repository: https://github.com/dart-lang/discoveryapis_generator
 
 environment:
   sdk: '>=2.0.0 <3.0.0'

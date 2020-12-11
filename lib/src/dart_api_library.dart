@@ -20,7 +20,7 @@ class DartApiImports {
   Identifier http;
   Identifier commons;
 
-  DartApiImports.fromNamer(this.namer, {bool useCorePrefixes: true}) {
+  DartApiImports.fromNamer(this.namer, {bool useCorePrefixes = true}) {
     core = useCorePrefixes ? namer.import('core') : namer.noPrefix();
     collection = namer.import('collection');
     async = useCorePrefixes ? namer.import('async') : namer.noPrefix();
@@ -37,7 +37,7 @@ abstract class BaseApiLibrary {
   DartApiImports imports;
 
   BaseApiLibrary(this.description, String apiClassSuffix,
-      {bool useCorePrefixes: true})
+      {bool useCorePrefixes = true})
       : namer = new ApiLibraryNamer(apiClassSuffix: apiClassSuffix) {
     imports =
         new DartApiImports.fromNamer(namer, useCorePrefixes: useCorePrefixes);
@@ -53,7 +53,7 @@ class DartApiLibrary extends BaseApiLibrary {
 
   /// Generates a API library for [description].
   DartApiLibrary.build(RestDescription description, String packageName,
-      {bool useCorePrefixes: true})
+      {bool useCorePrefixes = true})
       : super(description, 'Api', useCorePrefixes: useCorePrefixes) {
     libraryName =
         namer.libraryName(packageName, description.name, description.version);

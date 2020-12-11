@@ -74,7 +74,7 @@ class Scope {
   /// Returns a valid identifier based on [preferredName] but different from all
   /// other names previously returned by this method.
   Identifier newIdentifier(String preferredName,
-      {bool removeUnderscores: true, bool global: false}) {
+      {bool removeUnderscores = true, bool global = false}) {
     var identifier = new Identifier(Scope.toValidIdentifier(preferredName,
         removeUnderscores: removeUnderscores, global: global));
     identifiers.add(identifier);
@@ -90,7 +90,7 @@ class Scope {
 
   /// Converts [preferredName] to a valid identifier.
   static String toValidIdentifier(String preferredName,
-      {bool removeUnderscores: true, bool global: false}) {
+      {bool removeUnderscores = true, bool global = false}) {
     // Replace all abc_xyz with abcXyz.
     if (removeUnderscores) {
       preferredName =
@@ -152,7 +152,7 @@ class Scope {
   }
 
   static String capitalizeAtChar(String name, String char,
-      {bool keepEnding: false}) {
+      {bool keepEnding = false}) {
     int index = -1;
     while ((index = name.indexOf(char, 1)) > 0) {
       if (index == (name.length - 1)) {
@@ -234,7 +234,7 @@ class ApiLibraryNamer {
   /// NOTE: Only exposed for testing.
   final Scope importScope = new Scope();
 
-  ApiLibraryNamer({this.apiClassSuffix: 'Api'}) {
+  ApiLibraryNamer({this.apiClassSuffix = 'Api'}) {
     _libraryScope = importScope.newChildScope();
   }
 
@@ -265,7 +265,7 @@ class ApiLibraryNamer {
   Identifier resourceClass(String name, {String parent}) {
     name = Scope.capitalize(name);
 
-    if (parent != null && parent.length > 0) {
+    if (parent != null && parent.isNotEmpty) {
       // The parent of a resource is either the api class or another resource!
       if (!parent.endsWith('Api')) {
         throw new ArgumentError('The parent has to end with Api');

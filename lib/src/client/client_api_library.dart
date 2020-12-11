@@ -29,7 +29,7 @@ class ClientApiLibrary extends BaseApiLibrary {
   /// Generates a API library for [description].
   ClientApiLibrary.build(RestDescription description,
       Map<String, String> importMap, this.packageName, this.packageRoot,
-      {bool useCorePrefixes: true})
+      {bool useCorePrefixes = true})
       : super(description, '', useCorePrefixes: useCorePrefixes) {
     libraryName = namer.clientLibraryName(packageName, description.name);
     schemaDB = client.parseSchemas(imports, description);

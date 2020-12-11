@@ -109,14 +109,14 @@ class DartResourceMethod {
     }
 
     // Normal positional parameters are following.
-    if (parameters.length > 0) {
+    if (parameters.isNotEmpty) {
       if (parameterString.isNotEmpty) parameterString.write(', ');
       parameterString
           .write(parameters.map((param) => '${param.declaration}').join(', '));
     }
 
     // Optional parameters come last (including the media parameters).
-    if (namedParameters.length > 0 || mediaUpload || mediaDownload) {
+    if (namedParameters.isNotEmpty || mediaUpload || mediaDownload) {
       if (parameterString.isNotEmpty) parameterString.write(', ');
 
       var namedString = new StringBuffer()
@@ -557,7 +557,7 @@ DartResourceMethod _parseMethod(
 
   var optionalParameters = new List<MethodParameter>();
   enqueueOptionalParameter(String jsonName, Comment comment, JsonSchema schema,
-      {bool global: false}) {
+      {bool global = false}) {
     var name = parameterScope.newIdentifier(jsonName, global: global);
     var type = parseResolved(imports, db, schema);
     comment = extendEnumComment(comment, type);

@@ -8,7 +8,7 @@ import 'package:test/test.dart';
 main() {
   group('namer', () {
     test('to-valid-identifier', () {
-      identifier(x, {bool removeUnderscores: true}) =>
+      identifier(x, {bool removeUnderscores = true}) =>
           Scope.toValidIdentifier(x, removeUnderscores: removeUnderscores);
 
       expect(identifier('abc'), equals('abc'));

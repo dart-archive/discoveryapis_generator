@@ -17,7 +17,7 @@ export 'src/utils.dart' show GenerateResult, findPackageRoot;
 /// API and uses the same message classes as used on the server side.
 List<GenerateResult> generateClientStubs(
     List<DescriptionImportPair> descriptions, String outputDirectory,
-    {bool updatePubspec: false}) {
+    {bool updatePubspec = false}) {
   final clientGenerator = new ApisFilesGenerator(descriptions, outputDirectory,
       updatePubspec: updatePubspec);
   return clientGenerator.generate();
