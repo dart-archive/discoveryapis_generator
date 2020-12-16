@@ -1,6 +1,6 @@
 // This is a generated file (see the discoveryapis_generator project).
 
-// ignore_for_file: directives_ordering, omit_local_variable_types, prefer_collection_literals, prefer_single_quotes, unnecessary_cast, unnecessary_new, unused_import
+// ignore_for_file: directives_ordering, omit_local_variable_types, prefer_single_quotes, unnecessary_cast, unused_import
 
 library discoveryapis_generator.dartservices.v1;
 
@@ -23,7 +23,7 @@ class DartservicesApi {
       {core.String rootUrl = "http://localhost/",
       core.String servicePath = "api/dartservices/v1/"})
       : _requester =
-            new commons.ApiRequester(client, rootUrl, servicePath, USER_AGENT);
+            commons.ApiRequester(client, rootUrl, servicePath, USER_AGENT);
 
   /// [request] - The metadata request object.
   ///
@@ -38,7 +38,7 @@ class DartservicesApi {
   /// this method will complete with the same error.
   async.Future<AnalysisResults> analyze(SourceRequest request) {
     var _url;
-    var _queryParams = new core.Map<core.String, core.List<core.String>>();
+    var _queryParams = <core.String, core.List<core.String>>{};
     var _uploadMedia;
     var _uploadOptions;
     var _downloadOptions = commons.DownloadOptions.Metadata;
@@ -56,7 +56,7 @@ class DartservicesApi {
         uploadOptions: _uploadOptions,
         uploadMedia: _uploadMedia,
         downloadOptions: _downloadOptions);
-    return _response.then((data) => new AnalysisResults.fromJson(data));
+    return _response.then((data) => AnalysisResults.fromJson(data));
   }
 
   /// Request parameters:
@@ -72,7 +72,7 @@ class DartservicesApi {
   /// this method will complete with the same error.
   async.Future<AnalysisResults> analyzeGet({core.String source}) {
     var _url;
-    var _queryParams = new core.Map<core.String, core.List<core.String>>();
+    var _queryParams = <core.String, core.List<core.String>>{};
     var _uploadMedia;
     var _uploadOptions;
     var _downloadOptions = commons.DownloadOptions.Metadata;
@@ -90,7 +90,7 @@ class DartservicesApi {
         uploadOptions: _uploadOptions,
         uploadMedia: _uploadMedia,
         downloadOptions: _downloadOptions);
-    return _response.then((data) => new AnalysisResults.fromJson(data));
+    return _response.then((data) => AnalysisResults.fromJson(data));
   }
 
   /// [request] - The metadata request object.
@@ -106,7 +106,7 @@ class DartservicesApi {
   /// this method will complete with the same error.
   async.Future<CompileResponse> compile(SourceRequest request) {
     var _url;
-    var _queryParams = new core.Map<core.String, core.List<core.String>>();
+    var _queryParams = <core.String, core.List<core.String>>{};
     var _uploadMedia;
     var _uploadOptions;
     var _downloadOptions = commons.DownloadOptions.Metadata;
@@ -124,7 +124,7 @@ class DartservicesApi {
         uploadOptions: _uploadOptions,
         uploadMedia: _uploadMedia,
         downloadOptions: _downloadOptions);
-    return _response.then((data) => new CompileResponse.fromJson(data));
+    return _response.then((data) => CompileResponse.fromJson(data));
   }
 
   /// Request parameters:
@@ -140,7 +140,7 @@ class DartservicesApi {
   /// this method will complete with the same error.
   async.Future<CompileResponse> compileGet({core.String source}) {
     var _url;
-    var _queryParams = new core.Map<core.String, core.List<core.String>>();
+    var _queryParams = <core.String, core.List<core.String>>{};
     var _uploadMedia;
     var _uploadOptions;
     var _downloadOptions = commons.DownloadOptions.Metadata;
@@ -158,7 +158,7 @@ class DartservicesApi {
         uploadOptions: _uploadOptions,
         uploadMedia: _uploadMedia,
         downloadOptions: _downloadOptions);
-    return _response.then((data) => new CompileResponse.fromJson(data));
+    return _response.then((data) => CompileResponse.fromJson(data));
   }
 
   /// [request] - The metadata request object.
@@ -172,7 +172,7 @@ class DartservicesApi {
   /// this method will complete with the same error.
   async.Future complete(SourceRequest request) {
     var _url;
-    var _queryParams = new core.Map<core.String, core.List<core.String>>();
+    var _queryParams = <core.String, core.List<core.String>>{};
     var _uploadMedia;
     var _uploadOptions;
     var _downloadOptions = commons.DownloadOptions.Metadata;
@@ -208,7 +208,7 @@ class DartservicesApi {
   /// this method will complete with the same error.
   async.Future completeGet({core.String source, core.int offset}) {
     var _url;
-    var _queryParams = new core.Map<core.String, core.List<core.String>>();
+    var _queryParams = <core.String, core.List<core.String>>{};
     var _uploadMedia;
     var _uploadOptions;
     var _downloadOptions = commons.DownloadOptions.Metadata;
@@ -247,7 +247,7 @@ class DartservicesApi {
   /// this method will complete with the same error.
   async.Future<DocumentResponse> document(SourceRequest request) {
     var _url;
-    var _queryParams = new core.Map<core.String, core.List<core.String>>();
+    var _queryParams = <core.String, core.List<core.String>>{};
     var _uploadMedia;
     var _uploadOptions;
     var _downloadOptions = commons.DownloadOptions.Metadata;
@@ -265,7 +265,7 @@ class DartservicesApi {
         uploadOptions: _uploadOptions,
         uploadMedia: _uploadMedia,
         downloadOptions: _downloadOptions);
-    return _response.then((data) => new DocumentResponse.fromJson(data));
+    return _response.then((data) => DocumentResponse.fromJson(data));
   }
 
   /// Request parameters:
@@ -284,7 +284,7 @@ class DartservicesApi {
   async.Future<DocumentResponse> documentGet(
       {core.String source, core.int offset}) {
     var _url;
-    var _queryParams = new core.Map<core.String, core.List<core.String>>();
+    var _queryParams = <core.String, core.List<core.String>>{};
     var _uploadMedia;
     var _uploadOptions;
     var _downloadOptions = commons.DownloadOptions.Metadata;
@@ -305,7 +305,7 @@ class DartservicesApi {
         uploadOptions: _uploadOptions,
         uploadMedia: _uploadMedia,
         downloadOptions: _downloadOptions);
-    return _response.then((data) => new DocumentResponse.fromJson(data));
+    return _response.then((data) => DocumentResponse.fromJson(data));
   }
 }
 
@@ -342,7 +342,7 @@ class AnalysisIssue {
 
   core.Map<core.String, core.Object> toJson() {
     final core.Map<core.String, core.Object> _json =
-        new core.Map<core.String, core.Object>();
+        <core.String, core.Object>{};
     if (charLength != null) {
       _json["charLength"] = charLength;
     }
@@ -373,14 +373,14 @@ class AnalysisResults {
   AnalysisResults.fromJson(core.Map _json) {
     if (_json.containsKey("issues")) {
       issues = (_json["issues"] as core.List)
-          .map<AnalysisIssue>((value) => new AnalysisIssue.fromJson(value))
+          .map<AnalysisIssue>((value) => AnalysisIssue.fromJson(value))
           .toList();
     }
   }
 
   core.Map<core.String, core.Object> toJson() {
     final core.Map<core.String, core.Object> _json =
-        new core.Map<core.String, core.Object>();
+        <core.String, core.Object>{};
     if (issues != null) {
       _json["issues"] = issues.map((value) => (value).toJson()).toList();
     }
@@ -401,7 +401,7 @@ class CompileResponse {
 
   core.Map<core.String, core.Object> toJson() {
     final core.Map<core.String, core.Object> _json =
-        new core.Map<core.String, core.Object>();
+        <core.String, core.Object>{};
     if (result != null) {
       _json["result"] = result;
     }
@@ -422,7 +422,7 @@ class DocumentResponse {
 
   core.Map<core.String, core.Object> toJson() {
     final core.Map<core.String, core.Object> _json =
-        new core.Map<core.String, core.Object>();
+        <core.String, core.Object>{};
     if (info != null) {
       _json["info"] = info;
     }
@@ -447,7 +447,7 @@ class SourceRequest {
 
   core.Map<core.String, core.Object> toJson() {
     final core.Map<core.String, core.Object> _json =
-        new core.Map<core.String, core.Object>();
+        <core.String, core.Object>{};
     if (offset != null) {
       _json["offset"] = offset;
     }

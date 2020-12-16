@@ -157,7 +157,7 @@ class ResourceTest extends TestHelper {
 
   String apiConstruction(String clientName) {
     if (parent == null) {
-      return 'new api.${resource.className.name}($clientName)';
+      return 'api.${resource.className.name}($clientName)';
     } else {
       return '${parent.apiConstruction(clientName)}.${nameInParent.name}';
     }
@@ -692,7 +692,7 @@ class UnnamedArrayTest<T> extends UnnamedSchemaTest<UnnamedArrayType> {
 
     var sb = StringBuffer();
     withFunc(0, sb, 'buildUnnamed$_id', '', () {
-      sb.writeln('  var o = new $declaration();');
+      sb.writeln('  var o = <${innerTest.declaration}>[];');
       sb.writeln('  o.add(${innerTest.newSchemaExpr});');
       sb.writeln('  o.add(${innerTest.newSchemaExpr});');
       sb.writeln('  return o;');

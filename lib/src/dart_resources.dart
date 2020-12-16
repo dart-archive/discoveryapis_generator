@@ -233,7 +233,7 @@ class DartResourceMethod {
         } else {
           params.writeln('    if (${param.name} == null) {');
         }
-        params.writeln('      throw new ${imports.core.ref()}ArgumentError'
+        params.writeln('      throw ${imports.core.ref()}ArgumentError'
             '("Parameter ${param.name} is required.");');
         params.writeln('    }');
       } else {
@@ -271,7 +271,7 @@ class DartResourceMethod {
         } else {
           params.writeln('    if (${param.name} == null) {');
         }
-        params.writeln('      throw new ${imports.core.ref()}ArgumentError'
+        params.writeln('      throw ${imports.core.ref()}ArgumentError'
             '("Parameter ${param.name} is required.");');
         params.writeln('    }');
         params.writeln('    $propertyAssignment');
@@ -380,7 +380,7 @@ $urlPatternCode
     final core = imports.core.ref();
     methodString.write('''
     var _url;
-    var _queryParams = new ${core}Map<${core}String, ${core}List<${core}String>>();
+    var _queryParams = <${core}String, ${core}List<${core}String>>{};
     var _uploadMedia;
     var _uploadOptions;
     var _downloadOptions = ${imports.commons}.DownloadOptions.Metadata;
@@ -415,7 +415,7 @@ class DartResourceClass {
       var identifier = subResourceIdentifiers[i];
       var resource = subResources[i];
       str.writeln('  ${resource.className} get ${identifier.name} '
-          '=> new ${resource.className}(_requester);');
+          '=> ${resource.className}(_requester);');
     }
     if (str.isNotEmpty) str.writeln();
     return '$str';
@@ -491,7 +491,7 @@ class DartApiClass extends DartResourceClass {
     ].join(', ');
 
     str.writeln('  $className(${imports.http}.Client client, {$parameters}) :');
-    str.write('      _requester = new ${imports.commons}.ApiRequester'
+    str.write('      _requester = ${imports.commons}.ApiRequester'
         '(client, rootUrl, servicePath, USER_AGENT)');
     str.writeln(';');
     return '$str';

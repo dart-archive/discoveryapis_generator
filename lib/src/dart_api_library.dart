@@ -12,10 +12,8 @@ import 'namer.dart';
 const ignoreForFileSet = {
   'directives_ordering',
   'omit_local_variable_types',
-  'prefer_collection_literals',
   'prefer_single_quotes',
   'unnecessary_cast',
-  'unnecessary_new',
   'unused_import',
 };
 

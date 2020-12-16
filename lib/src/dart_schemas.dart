@@ -76,9 +76,11 @@ class DartClassProperty {
 /// Represents the type declarations we use for representing json data.
 abstract class JsonType {
   final DartApiImports imports;
+
   JsonType(this.imports);
 
   String get declaration;
+
   String get baseDeclaration => declaration;
 }
 
@@ -271,8 +273,10 @@ abstract class PrimitiveDartSchemaType extends DartSchemaType {
 
   @override
   String primitiveEncoding(String value) => '"\${${value}}"';
+
   @override
   String jsonEncode(String value) => value;
+
   @override
   String jsonDecode(String json) => json;
 }
@@ -311,8 +315,10 @@ class StringIntegerType extends PrimitiveDartSchemaType {
 
   @override
   String get declaration => '${imports.core.ref()}int';
+
   @override
   String jsonEncode(String value) => '"\${${value}}"';
+
   @override
   String jsonDecode(String json) =>
       '${imports.core.ref()}int.parse("\${${json}}")';
@@ -328,6 +334,7 @@ class DoubleType extends PrimitiveDartSchemaType {
 
   @override
   String get declaration => '${imports.core.ref()}double';
+
   @override
   String jsonDecode(String json) => '$json.toDouble()';
 }
@@ -342,6 +349,7 @@ class StringType extends PrimitiveDartSchemaType {
 
   @override
   String primitiveEncoding(String value) => value;
+
   @override
   String get declaration => '${imports.core.ref()}String';
 }
@@ -561,7 +569,7 @@ $encode
 
   @override
   String jsonDecode(String json) {
-    return 'new $className.fromJson($json)';
+    return '$className.fromJson($json)';
   }
 }
 
@@ -726,7 +734,7 @@ $encode
 
   @override
   String jsonDecode(String json) {
-    return 'new $className.fromJson($json)';
+    return '$className.fromJson($json)';
   }
 }
 
@@ -815,9 +823,11 @@ class ObjectType extends ComplexDartSchemaType {
 
     var toJsonString = StringBuffer();
     toJsonString.writeln('  ${jsonType.declaration} toJson() {');
-    toJsonString.writeln('    final ${jsonType.declaration} _json = '
-        'new ${imports.core.ref()}Map<${jsonType.keyJsonType.declaration}, '
-        '${jsonType.valueJsonType.declaration}>();');
+    toJsonString.writeln(
+      '    final ${jsonType.declaration} _json = '
+      '<${jsonType.keyJsonType.declaration}, '
+      '${jsonType.valueJsonType.declaration}>{};',
+    );
     properties.forEach((DartClassProperty property) {
       toJsonString.writeln('    if (${property.name} != null) {');
       toJsonString
@@ -849,7 +859,7 @@ $toJsonString
 
   @override
   String jsonDecode(String json) {
-    return 'new $className.fromJson($json)';
+    return '$className.fromJson($json)';
   }
 
   bool isVariantDiscriminator(DartClassProperty prop) {
@@ -943,7 +953,7 @@ $toJsonString
 
   @override
   String jsonDecode(String json) {
-    return 'new $className.fromJson($json)';
+    return '$className.fromJson($json)';
   }
 }
 
