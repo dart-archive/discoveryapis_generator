@@ -16,7 +16,7 @@ class Identifier {
   final String preferredName;
 
   /// [noPrefix] is used for naming prefix imports which will not get a name.
-  Identifier.noPrefix() : this.preferredName = null {
+  Identifier.noPrefix() : preferredName = null {
     sealWithName(null);
   }
 
@@ -33,7 +33,7 @@ class Identifier {
   /// Seals this [Identifier] and gives it the name [name].
   void sealWithName(String name) {
     if (_sealed) {
-      throw new StateError('This Identifier(preferredName: $preferredName) '
+      throw StateError('This Identifier(preferredName: $preferredName) '
           'has already been sealed.');
     }
     _name = name;
@@ -51,9 +51,10 @@ class Identifier {
 
   /// Gets a string representation of this [Identifier]. This can only be called
   /// after the identifier has been given a name.
+  @override
   String toString() {
     if (!_sealed) {
-      throw new StateError('This Identifier(preferredName: $preferredName) '
+      throw StateError('This Identifier(preferredName: $preferredName) '
           'has not been sealed yet.');
     }
     return _name;
@@ -62,20 +63,20 @@ class Identifier {
 
 /// Allocate [Identifier]s for a lexical scope.
 class Scope {
-  static final RegExp _StartsWithDigit = new RegExp('^[0-9]');
-  static final RegExp _NonAscii = new RegExp('[^a-zA-z0-9]');
+  static final RegExp _StartsWithDigit = RegExp('^[0-9]');
+  static final RegExp _NonAscii = RegExp('[^a-zA-z0-9]');
 
   final Scope parentScope;
-  final List<Scope> childScopes = new List<Scope>();
-  final List<Identifier> identifiers = new List<Identifier>();
+  final List<Scope> childScopes = <Scope>[];
+  final List<Identifier> identifiers = <Identifier>[];
 
-  Scope({Scope parent}) : this.parentScope = parent;
+  Scope({Scope parent}) : parentScope = parent;
 
   /// Returns a valid identifier based on [preferredName] but different from all
   /// other names previously returned by this method.
   Identifier newIdentifier(String preferredName,
       {bool removeUnderscores = true, bool global = false}) {
-    var identifier = new Identifier(Scope.toValidIdentifier(preferredName,
+    var identifier = Identifier(Scope.toValidIdentifier(preferredName,
         removeUnderscores: removeUnderscores, global: global));
     identifiers.add(identifier);
     return identifier;
@@ -83,7 +84,7 @@ class Scope {
 
   /// Creates a new child [Scope].
   Scope newChildScope() {
-    var child = new Scope(parent: this);
+    var child = Scope(parent: this);
     childScopes.add(child);
     return child;
   }
@@ -140,7 +141,7 @@ class Scope {
     } else if (openidScopes.contains(scope)) {
       name = scope;
     } else {
-      throw new ArgumentError('Scope $scope is not a recognized format.');
+      throw ArgumentError('Scope $scope is not a recognized format.');
     }
 
     name = Scope.capitalizeAtChar(name, '.');
@@ -153,7 +154,7 @@ class Scope {
 
   static String capitalizeAtChar(String name, String char,
       {bool keepEnding = false}) {
-    int index = -1;
+    var index = -1;
     while ((index = name.indexOf(char, 1)) > 0) {
       if (index == (name.length - 1)) {
         if (!keepEnding) {
@@ -175,7 +176,7 @@ class Scope {
 
   /// Converts the first letter of [name] to an uppercase letter.
   static String capitalize(String name) {
-    return "${name.substring(0, 1).toUpperCase()}${name.substring(1)}";
+    return '${name.substring(0, 1).toUpperCase()}${name.substring(1)}';
   }
 }
 
@@ -197,7 +198,7 @@ class IdentifierNamer {
   /// If [parentNamer] is given, this namer will only allocated names which are
   ///   - not taken by [parentNamer]
   ///   - not in [allocatedNames]
-  IdentifierNamer({this.parentNamer}) : allocatedNames = new Set<String>();
+  IdentifierNamer({this.parentNamer}) : allocatedNames = <String>{};
 
   /// Reserves all given [allocatedNames] by default.
   IdentifierNamer.fromNameSet(this.allocatedNames) : parentNamer = null;
@@ -207,7 +208,7 @@ class IdentifierNamer {
   void nameIdentifier(Identifier identifier) {
     var preferredName = identifier.preferredName;
 
-    int i = 0;
+    var i = 0;
     var currentName = preferredName;
     while (_contains(currentName)) {
       i++;
@@ -232,7 +233,7 @@ class ApiLibraryNamer {
   Scope _libraryScope;
 
   /// NOTE: Only exposed for testing.
-  final Scope importScope = new Scope();
+  final Scope importScope = Scope();
 
   ApiLibraryNamer({this.apiClassSuffix = 'Api'}) {
     _libraryScope = importScope.newChildScope();
@@ -254,7 +255,7 @@ class ApiLibraryNamer {
     return '$package.$api.client';
   }
 
-  Identifier noPrefix() => new Identifier.noPrefix();
+  Identifier noPrefix() => Identifier.noPrefix();
 
   Identifier import(String name) =>
       importScope.newIdentifier(name, removeUnderscores: false);
@@ -268,10 +269,10 @@ class ApiLibraryNamer {
     if (parent != null && parent.isNotEmpty) {
       // The parent of a resource is either the api class or another resource!
       if (!parent.endsWith('Api')) {
-        throw new ArgumentError('The parent has to end with Api');
+        throw ArgumentError('The parent has to end with Api');
       }
 
-      bool parentIsApiClass = !parent.endsWith('ResourceApi');
+      var parentIsApiClass = !parent.endsWith('ResourceApi');
       if (parentIsApiClass) {
         // We never prefix resource names with the api class name.
         parent = '';
@@ -326,10 +327,10 @@ class ApiLibraryNamer {
     //      [e.g. if a method parameter is named 'core' we will rename the
     //            import to: import 'dart:core' as core_1;
 
-    var allAllocatedNames = new Set<String>();
+    var allAllocatedNames = <String>{};
 
-    nameScope(Scope scope, parentResolver) {
-      var resolver = new IdentifierNamer(parentNamer: parentResolver);
+    void nameScope(Scope scope, parentResolver) {
+      var resolver = IdentifierNamer(parentNamer: parentResolver);
       scope.identifiers.forEach(resolver.nameIdentifier);
       // Order does not matter because child scopes are independent of each
       // other.
@@ -341,11 +342,11 @@ class ApiLibraryNamer {
 
     // Name library scope identifiers and down. the passed [IdentifierNamer] is
     // an empty root namer.
-    nameScope(_libraryScope, new IdentifierNamer());
+    nameScope(_libraryScope, IdentifierNamer());
 
     // Name all import identifiers. In case we have clashes with any of the
     // other names already assigned, we'll rename the prefixed imports.
-    var resolver = new IdentifierNamer.fromNameSet(allAllocatedNames);
+    var resolver = IdentifierNamer.fromNameSet(allAllocatedNames);
     importScope.identifiers.forEach(resolver.nameIdentifier);
   }
 }

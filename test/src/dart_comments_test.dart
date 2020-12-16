@@ -5,52 +5,52 @@
 import 'package:discoveryapis_generator/src/dart_comments.dart';
 import 'package:test/test.dart';
 
-main() {
+void main() {
   group('comments', () {
     test('empty-comment', () {
-      expectUndocumented(Comment comment) {
+      void expectUndocumented(Comment comment) {
         expect(comment.asDartDoc(0), equals(''));
         expect(comment.asDartDoc(2), equals(''));
       }
 
-      expectUndocumented(new Comment(null));
-      expectUndocumented(new Comment(''));
+      expectUndocumented(Comment(null));
+      expectUndocumented(Comment(''));
       expectUndocumented(Comment.Empty);
     });
 
     test('escape-comment', () {
-      var comment = new Comment('/* foobar */');
+      var comment = Comment('/* foobar */');
       expect(comment.asDartDoc(0), equals('///  / *  foobar  * /\n'));
     });
 
     test('one-line-comment', () {
-      expectABC(Comment comment) {
+      void expectABC(Comment comment) {
         expect(comment.asDartDoc(0), equals('/// ABC\n'));
         expect(comment.asDartDoc(2), equals('  /// ABC\n'));
       }
 
-      expectABC(new Comment('ABC'));
-      expectABC(new Comment('ABC  '));
-      expectABC(new Comment('ABC \n '));
+      expectABC(Comment('ABC'));
+      expectABC(Comment('ABC  '));
+      expectABC(Comment('ABC \n '));
     });
 
     test('multi-line-comment', () {
-      expectABCdef(Comment comment) {
+      void expectABCdef(Comment comment) {
         expect(comment.asDartDoc(0), equals('''
 /// ABC
 /// def
 '''));
       }
 
-      expectABCdef(new Comment('ABC\ndef'));
-      expectABCdef(new Comment('ABC\ndef  '));
-      expectABCdef(new Comment('ABC \ndef \n  \n  '));
+      expectABCdef(Comment('ABC\ndef'));
+      expectABCdef(Comment('ABC\ndef  '));
+      expectABCdef(Comment('ABC \ndef \n  \n  '));
     });
 
     test('break-lines', () {
       var chars = ('A ' * ((80 - 7) ~/ 2)).trimRight();
       var charsShortened = chars.substring(0, chars.length - 4);
-      var comment = new Comment(chars);
+      var comment = Comment(chars);
 
       // [chars] fit on one line with indentation=0.
       expect(comment.asDartDoc(0), equals('/// $chars\n'));
@@ -60,7 +60,7 @@ main() {
   /// $chars
 '''));
 
-      comment = new Comment('$chars\n\n$chars');
+      comment = Comment('$chars\n\n$chars');
 
       // Adding an indentation of 8 characters should make it a block comment
       // which has multiple lines.

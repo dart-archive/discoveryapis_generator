@@ -9,30 +9,29 @@ import 'dart:io';
 import 'package:dart_style/dart_style.dart';
 import 'package:path/path.dart';
 
-const List keywords = const [
-  "assert", "break", "case", "catch", "class", "const", "continue",
-  "default", "do", "else", "enum", "extends", "false", "final", "finally",
-  "for", "if", "in", "is", "new", "null", "rethrow", "return", "super",
-  "switch",
-  "this", "throw", "true", "try", "var", "void", "while", "with",
+const List keywords = [
+  'assert', 'break', 'case', 'catch', 'class', 'const', 'continue',
+  'default', 'do', 'else', 'enum', 'extends', 'false', 'final', 'finally',
+  'for', 'if', 'in', 'is', 'new', 'null', 'rethrow', 'return', 'super',
+  'switch',
+  'this', 'throw', 'true', 'try', 'var', 'void', 'while', 'with',
 
   // This is not in the dart language specification 1.2 but is reserved
   // in dart2js and the dart VM.
   // See: http://dartbug.com/19515
-  "external",
+  'external',
 
   // Can't override "runtimeType" from [Object.runtimeType]
-  "runtimeType",
+  'runtimeType',
 ];
 
-final _cleanRegEx = new RegExp(r"[^\w$]");
+final _cleanRegEx = RegExp(r'[^\w$]');
 
 String fileDate(DateTime date) =>
     "${date.year}${(date.month < 10) ? 0 : ""}${date.month}${(date.day < 10) ? 0 : ""}${date.day}_${(date.hour < 10) ? 0 : ""}${date.hour}${(date.minute < 10) ? 0 : ""}${date.minute}${(date.second < 10) ? 0 : ""}${date.second}";
-String cleanName(String name) => name.replaceAll(_cleanRegEx, "_");
+String cleanName(String name) => name.replaceAll(_cleanRegEx, '_');
 
-final DartFormatter formatter =
-    new DartFormatter(lineEnding: '\n', pageWidth: 80);
+final DartFormatter formatter = DartFormatter(lineEnding: '\n', pageWidth: 80);
 
 String formatSource(String source) => formatter.format(source);
 
@@ -53,7 +52,7 @@ String escapeComment(String comment) {
 }
 
 void orderedForEach(Map map, Function fun) {
-  var keys = new List.from(map.keys);
+  var keys = List.from(map.keys);
   keys.sort();
   for (var key in keys) {
     fun(key, map[key]);
@@ -65,12 +64,12 @@ void writeDartSource(String path, String content) {
 }
 
 void writeString(String path, String content) {
-  var file = new File(path);
+  var file = File(path);
   file.writeAsStringSync(content);
 }
 
-void writeFile(String path, void writer(StringSink sink)) {
-  var sink = new StringBuffer();
+void writeFile(String path, void Function(StringSink sink) writer) {
+  var sink = StringBuffer();
   writer(sink);
   writeString(path, sink.toString());
 }
@@ -86,17 +85,17 @@ String findPackageRoot(String path) {
   while (path != dirname(path)) {
     // We use the pubspec.yaml file as an indicator of being in the package
     // root directory.
-    File pubspec = new File(join(path, 'pubspec.yaml'));
+    var pubspec = File(join(path, 'pubspec.yaml'));
     if (pubspec.existsSync()) return path;
     path = dirname(path);
   }
   return null;
 }
 
-const String gitIgnore = """
+const String gitIgnore = '''
 packages
 pubspec.lock
-""";
+''';
 
 class GenerateResult {
   final String apiName;
@@ -109,9 +108,9 @@ class GenerateResult {
   GenerateResult(this.apiName, this.apiVersion, this.packagePath)
       : success = true,
         message = null {
-    assert(this.apiName != null);
-    assert(this.apiVersion != null);
-    assert(this.packagePath != null);
+    assert(apiName != null);
+    assert(apiVersion != null);
+    assert(packagePath != null);
   }
 
   GenerateResult.fromMessage(String message)
@@ -119,20 +118,21 @@ class GenerateResult {
         apiName = null,
         apiVersion = null,
         packagePath = null,
-        this.message = message;
+        message = message;
 
   GenerateResult.error(
       this.apiName, this.apiVersion, this.packagePath, this.message)
       : success = false {
-    assert(this.apiName != null);
-    assert(this.apiVersion != null);
-    assert(this.packagePath != null);
-    assert(this.message != null);
+    assert(apiName != null);
+    assert(apiVersion != null);
+    assert(packagePath != null);
+    assert(message != null);
   }
 
   String get shortName =>
-      cleanName("${apiName}_${apiVersion}_api").toLowerCase();
+      cleanName('${apiName}_${apiVersion}_api').toLowerCase();
 
+  @override
   String toString() {
     if (info) {
       assert(message != null);
@@ -153,5 +153,6 @@ class GeneratorError implements Exception {
 
   GeneratorError(this.api, this.version, this.message);
 
+  @override
   String toString() => 'Error while generating API for $api/$version: $message';
 }

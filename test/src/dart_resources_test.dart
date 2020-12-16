@@ -11,11 +11,11 @@ import 'package:discoveryapis_generator/src/namer.dart';
 import 'package:discoveryapis_generator/src/uri_template.dart';
 import 'package:test/test.dart';
 
-withParsedDB(json, function) {
-  var namer = new ApiLibraryNamer();
-  var imports = new DartApiImports.fromNamer(namer);
+void withParsedDB(json, function) {
+  var namer = ApiLibraryNamer();
+  var imports = DartApiImports.fromNamer(namer);
 
-  var description = new RestDescription.fromJson(json);
+  var description = RestDescription.fromJson(json);
   var db = parseSchemas(imports, description);
 
   namer.nameAllIdentifiers();
@@ -23,11 +23,11 @@ withParsedDB(json, function) {
   return function(db);
 }
 
-withParsedApiResource(db, json, function) {
-  var namer = new ApiLibraryNamer();
-  var imports = new DartApiImports.fromNamer(namer);
+void withParsedApiResource(db, json, function) {
+  var namer = ApiLibraryNamer();
+  var imports = DartApiImports.fromNamer(namer);
 
-  var description = new RestDescription.fromJson(json);
+  var description = RestDescription.fromJson(json);
   var apiClass = parseResources(imports, db, description);
 
   namer.nameAllIdentifiers();
@@ -35,7 +35,7 @@ withParsedApiResource(db, json, function) {
   return function(apiClass);
 }
 
-main() {
+void main() {
   var schema = {
     'schemas': {
       'Task': {
@@ -79,7 +79,7 @@ main() {
       return api;
     }
 
-    checkApi(String i, DartApiClass apiClass) {
+    void checkApi(String i, DartApiClass apiClass) {
       expect(apiClass, isNotNull);
       expect(apiClass.className.name, equals('Apiname${i}Api'));
       expect(apiClass.rootUrl, equals('https://www.googleapis.com/'));
@@ -122,7 +122,7 @@ main() {
       return map;
     }
 
-    checkMethods(String i, List<DartResourceMethod> methods) {
+    void checkMethods(String i, List<DartResourceMethod> methods) {
       expect(methods, hasLength(1));
       var foo = methods.first;
       expect(foo, isNotNull);
@@ -163,7 +163,7 @@ main() {
 
       var rest = foo.parameters.skip(3).toList();
       for (var reserved in RESERVED_METHOD_PARAMETER_NAMES) {
-        bool found = false;
+        var found = false;
         for (var p in rest) {
           if ('${reserved}_1' == p.name.name) {
             found = true;
@@ -196,8 +196,12 @@ main() {
       }
     }
 
-    checkResources(String i, String parent, List<DartResourceClass> resources,
-        {int level = 0}) {
+    void checkResources(
+      String i,
+      String parent,
+      List<DartResourceClass> resources, {
+      int level = 0,
+    }) {
       if (level > 3) {
         expect(resources, isEmpty);
       } else {

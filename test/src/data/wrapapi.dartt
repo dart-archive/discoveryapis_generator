@@ -1,6 +1,6 @@
 // This is a generated file (see the discoveryapis_generator project).
 
-// ignore_for_file: unused_import, unnecessary_cast
+// ignore_for_file: directives_ordering, omit_local_variable_types, prefer_collection_literals, prefer_single_quotes, unnecessary_cast, unnecessary_new, unused_import
 
 library wrapapi.wrapApi.D0_1;
 

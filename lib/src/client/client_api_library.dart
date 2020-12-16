@@ -41,7 +41,7 @@ class ClientApiLibrary extends BaseApiLibrary {
 
   List<String> _parseImports(Map<String, String> importsMap) {
     // Remove duplicate imports.
-    var imports = new Set<String>();
+    var imports = <String>{};
     schemaDB.dartClassTypes.forEach((schema) {
       assert(importsMap.containsKey(schema.className.preferredName));
       var path = importsMap[schema.className.preferredName];
@@ -57,7 +57,7 @@ class ClientApiLibrary extends BaseApiLibrary {
       if (!importPath.startsWith('package:$packageName')) {
         var pathPrefix = path.toUri(packageRoot).toString() + '/lib';
         if (!importPath.startsWith(pathPrefix)) {
-          throw new GeneratorError(
+          throw GeneratorError(
               description.name,
               description.version,
               'RPC message classes must reside in the package\'s lib '
@@ -72,7 +72,7 @@ class ClientApiLibrary extends BaseApiLibrary {
   }
 
   String get librarySource {
-    var sink = new StringBuffer();
+    var sink = StringBuffer();
     var schemas = generateSchemas(schemaDB);
     var resources = generateResources(apiClass);
     sink.write(libraryHeader());
@@ -95,14 +95,14 @@ class ClientApiLibrary extends BaseApiLibrary {
           '    ByteRange';
     }
 
-    String result = """
+    var result = '''
 // This is a generated file (see the discoveryapis_generator project).
 
-// ignore_for_file: unused_import, unnecessary_cast
+// ignore_for_file: ${ignoreForFileSet.join(', ')}
 
 library $libraryName;
 
-""";
+''';
 
     if (imports.core.hasPrefix) {
       result += "import 'dart:core' as ${imports.core};\n";
