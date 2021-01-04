@@ -1,5 +1,7 @@
 ## 0.9.16-dev
 
+- Require Dart `2.10` or greater.
+
 ## v0.9.15
  - Add support for scopes defined in
    [openid-connect 1.0](https://openid.net/specs/openid-connect-core-1_0.html).
