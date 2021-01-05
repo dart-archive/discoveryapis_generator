@@ -9,6 +9,14 @@ import 'dart_schemas.dart';
 import 'generated_googleapis/discovery/v1.dart';
 import 'namer.dart';
 
+const ignoreForFileSet = {
+  'directives_ordering',
+  'omit_local_variable_types',
+  'prefer_single_quotes',
+  'unnecessary_cast',
+  'unused_import',
+};
+
 /// Encapsulates names of prefix-imported libraries.
 class DartApiImports {
   final ApiLibraryNamer namer;
@@ -38,9 +46,8 @@ abstract class BaseApiLibrary {
 
   BaseApiLibrary(this.description, String apiClassSuffix,
       {bool useCorePrefixes = true})
-      : namer = new ApiLibraryNamer(apiClassSuffix: apiClassSuffix) {
-    imports =
-        new DartApiImports.fromNamer(namer, useCorePrefixes: useCorePrefixes);
+      : namer = ApiLibraryNamer(apiClassSuffix: apiClassSuffix) {
+    imports = DartApiImports.fromNamer(namer, useCorePrefixes: useCorePrefixes);
   }
 }
 
@@ -64,7 +71,7 @@ class DartApiLibrary extends BaseApiLibrary {
   }
 
   String get librarySource {
-    var sink = new StringBuffer();
+    var sink = StringBuffer();
     var schemas = generateSchemas(schemaDB);
     var resources = generateResources(apiClass);
     sink.write(libraryHeader());
@@ -88,14 +95,14 @@ class DartApiLibrary extends BaseApiLibrary {
           '    ByteRange';
     }
 
-    String result = """
+    var result = '''
 // This is a generated file (see the discoveryapis_generator project).
 
-// ignore_for_file: unused_import, unnecessary_cast
+// ignore_for_file: ${ignoreForFileSet.join(', ')}
 
 library $libraryName;
 
-""";
+''';
 
     if (imports.core.hasPrefix) {
       result += "import 'dart:core' as ${imports.core};\n";

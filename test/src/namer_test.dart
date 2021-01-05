@@ -5,10 +5,10 @@
 import 'package:discoveryapis_generator/src/namer.dart';
 import 'package:test/test.dart';
 
-main() {
+void main() {
   group('namer', () {
     test('to-valid-identifier', () {
-      identifier(x, {bool removeUnderscores = true}) =>
+      String identifier(x, {bool removeUnderscores = true}) =>
           Scope.toValidIdentifier(x, removeUnderscores: removeUnderscores);
 
       expect(identifier('abc'), equals('abc'));
@@ -25,7 +25,7 @@ main() {
     });
 
     test('capitalize-name', () {
-      capitalize(x) => Scope.capitalize(x);
+      String capitalize(x) => Scope.capitalize(x);
       expect(capitalize('a'), equals('A'));
       expect(capitalize('abc'), equals('Abc'));
       expect(capitalize('A'), equals('A'));
@@ -34,7 +34,7 @@ main() {
     });
 
     test('scope-name', () {
-      scopename(x) => Scope.toValidScopeName(x);
+      String scopename(x) => Scope.toValidScopeName(x);
       expect(scopename('https://www.googleapis.com/auth/youtube.readonly'),
           equals('YoutubeReadonlyScope'));
       expect(scopename('https://www.googleapis.com/auth/youtube-readonly'),
@@ -51,7 +51,7 @@ main() {
     });
 
     test('identifier', () {
-      var identifier = new Identifier('x');
+      var identifier = Identifier('x');
 
       expect(identifier.preferredName, equals('x'));
       expect(identifier.name, isNull);
@@ -65,7 +65,7 @@ main() {
 
     group('scope', () {
       test('new-identifier', () {
-        var scope = new Scope();
+        var scope = Scope();
         expect(scope.parentScope, isNull);
         expect(scope.childScopes, isEmpty);
         expect(scope.identifiers, isEmpty);
@@ -87,7 +87,7 @@ main() {
       });
 
       test('new-child-scope', () {
-        var scope = new Scope();
+        var scope = Scope();
 
         var child1 = scope.newChildScope();
         expect(scope.parentScope, isNull);
@@ -112,12 +112,12 @@ main() {
 
     group('identifier-namer', () {
       test('flat', () {
-        var a = new Identifier('a');
-        var a2 = new Identifier('a');
-        var a3 = new Identifier('a');
-        var b = new Identifier('b');
+        var a = Identifier('a');
+        var a2 = Identifier('a');
+        var a3 = Identifier('a');
+        var b = Identifier('b');
 
-        var namer = new IdentifierNamer();
+        var namer = IdentifierNamer();
 
         namer.nameIdentifier(a);
         expect(a.name, equals('a'));
@@ -134,11 +134,11 @@ main() {
       });
 
       test('flat-preallocated', () {
-        var a = new Identifier('a');
-        var a2 = new Identifier('a');
-        var b = new Identifier('b');
+        var a = Identifier('a');
+        var a2 = Identifier('a');
+        var b = Identifier('b');
 
-        var namer = new IdentifierNamer.fromNameSet(new Set.from(['a']));
+        var namer = IdentifierNamer.fromNameSet({'a'});
 
         namer.nameIdentifier(a);
         expect(a.name, equals('a_1'));
@@ -152,12 +152,12 @@ main() {
 
       test('tree-preallocated', () {
         // [rootNamer] will contain 'a' and 'b'
-        var rootNamer = new IdentifierNamer.fromNameSet(new Set.from(['a']));
-        rootNamer.nameIdentifier(new Identifier('b'));
+        var rootNamer = IdentifierNamer.fromNameSet({'a'});
+        rootNamer.nameIdentifier(Identifier('b'));
 
-        var childNamer = new IdentifierNamer(parentNamer: rootNamer);
-        var a = new Identifier('a');
-        var b = new Identifier('b');
+        var childNamer = IdentifierNamer(parentNamer: rootNamer);
+        var a = Identifier('a');
+        var b = Identifier('b');
 
         childNamer.nameIdentifier(a);
         expect(a.name, equals('a_1'));
@@ -167,14 +167,14 @@ main() {
       });
 
       test('wasCalled', () {
-        Identifier id = new Identifier('foo');
+        var id = Identifier('foo');
         expect(id.wasCalled, false);
         id.ref();
         expect(id.wasCalled, true);
       });
 
       test('Identifier.noPrefix()', () {
-        Identifier id = new Identifier.noPrefix();
+        var id = Identifier.noPrefix();
         expect(id.ref(), '');
         // Test that toString() doesn't throw.
         expect(id.toString(), null);
@@ -183,14 +183,14 @@ main() {
 
     group('api-namer', () {
       test('library-name', () {
-        var namer = new ApiLibraryNamer();
+        var namer = ApiLibraryNamer();
         expect(namer.libraryName('x y', '9a', '\$a'), equals('x_y.D9a.P_a'));
         expect(namer.libraryName('googleapis', 'drive', 'v1'),
             equals('googleapis.drive.v1'));
       });
 
       test('scope-tree', () {
-        var namer = new ApiLibraryNamer();
+        var namer = ApiLibraryNamer();
         var rootScope = namer.importScope;
         var libScope = namer.libraryScope;
         var classScope = namer.newClassScope();
@@ -201,7 +201,7 @@ main() {
       });
 
       test('schema-class', () {
-        var namer = new ApiLibraryNamer();
+        var namer = ApiLibraryNamer();
         var libraryScope = namer.libraryScope;
 
         // Naming classes is split into two parts:
@@ -230,7 +230,7 @@ main() {
       });
 
       test('identifier-naming', () {
-        var namer = new ApiLibraryNamer();
+        var namer = ApiLibraryNamer();
         namer.import('foo');
         namer.import('method'); // will collide with method name
         namer.import('BookApi'); // will collide with api class, schema class

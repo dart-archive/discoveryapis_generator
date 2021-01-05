@@ -20,13 +20,13 @@ const core.String USER_AGENT = 'dart-api-client discovery/v1';
 class DiscoveryApi {
   final commons.ApiRequester _requester;
 
-  ApisResourceApi get apis => new ApisResourceApi(_requester);
+  ApisResourceApi get apis => ApisResourceApi(_requester);
 
   DiscoveryApi(http.Client client,
-      {core.String rootUrl: "https://www.googleapis.com/",
-      core.String servicePath: "discovery/v1/"})
+      {core.String rootUrl = 'https://www.googleapis.com/',
+      core.String servicePath = 'discovery/v1/'})
       : _requester =
-            new commons.ApiRequester(client, rootUrl, servicePath, USER_AGENT);
+            commons.ApiRequester(client, rootUrl, servicePath, USER_AGENT);
 }
 
 class ApisResourceApi {
@@ -54,21 +54,21 @@ class ApisResourceApi {
   /// this method will complete with the same error.
   async.Future<RestDescription> getRest(core.String api, core.String version,
       {core.String $fields}) {
-    var _url = null;
-    var _queryParams = new core.Map<core.String, core.List<core.String>>();
-    var _uploadMedia = null;
-    var _uploadOptions = null;
+    var _url;
+    var _queryParams = <core.String, core.List<core.String>>{};
+    var _uploadMedia;
+    var _uploadOptions;
     var _downloadOptions = commons.DownloadOptions.Metadata;
-    var _body = null;
+    var _body;
 
     if (api == null) {
-      throw new core.ArgumentError("Parameter api is required.");
+      throw core.ArgumentError('Parameter api is required.');
     }
     if (version == null) {
-      throw new core.ArgumentError("Parameter version is required.");
+      throw core.ArgumentError('Parameter version is required.');
     }
     if ($fields != null) {
-      _queryParams["fields"] = [$fields];
+      _queryParams['fields'] = [$fields];
     }
 
     _url = 'apis/' +
@@ -77,13 +77,13 @@ class ApisResourceApi {
         commons.Escaper.ecapeVariable('$version') +
         '/rest';
 
-    var _response = _requester.request(_url, "GET",
+    var _response = _requester.request(_url, 'GET',
         body: _body,
         queryParams: _queryParams,
         uploadOptions: _uploadOptions,
         uploadMedia: _uploadMedia,
         downloadOptions: _downloadOptions);
-    return _response.then((data) => new RestDescription.fromJson(data));
+    return _response.then((data) => RestDescription.fromJson(data));
   }
 
   /// Retrieve the list of APIs supported at this endpoint.
@@ -106,32 +106,32 @@ class ApisResourceApi {
   /// this method will complete with the same error.
   async.Future<DirectoryList> list(
       {core.String name, core.bool preferred, core.String $fields}) {
-    var _url = null;
-    var _queryParams = new core.Map<core.String, core.List<core.String>>();
-    var _uploadMedia = null;
-    var _uploadOptions = null;
+    var _url;
+    var _queryParams = <core.String, core.List<core.String>>{};
+    var _uploadMedia;
+    var _uploadOptions;
     var _downloadOptions = commons.DownloadOptions.Metadata;
-    var _body = null;
+    var _body;
 
     if (name != null) {
-      _queryParams["name"] = [name];
+      _queryParams['name'] = [name];
     }
     if (preferred != null) {
-      _queryParams["preferred"] = ["${preferred}"];
+      _queryParams['preferred'] = ['${preferred}'];
     }
     if ($fields != null) {
-      _queryParams["fields"] = [$fields];
+      _queryParams['fields'] = [$fields];
     }
 
     _url = 'apis';
 
-    var _response = _requester.request(_url, "GET",
+    var _response = _requester.request(_url, 'GET',
         body: _body,
         queryParams: _queryParams,
         uploadOptions: _uploadOptions,
         uploadMedia: _uploadMedia,
         downloadOptions: _downloadOptions);
-    return _response.then((data) => new DirectoryList.fromJson(data));
+    return _response.then((data) => DirectoryList.fromJson(data));
   }
 }
 
@@ -146,22 +146,21 @@ class DirectoryListItemsIcons {
   DirectoryListItemsIcons();
 
   DirectoryListItemsIcons.fromJson(core.Map _json) {
-    if (_json.containsKey("x16")) {
-      x16 = _json["x16"];
+    if (_json.containsKey('x16')) {
+      x16 = _json['x16'];
     }
-    if (_json.containsKey("x32")) {
-      x32 = _json["x32"];
+    if (_json.containsKey('x32')) {
+      x32 = _json['x32'];
     }
   }
 
   core.Map<core.String, core.Object> toJson() {
-    final core.Map<core.String, core.Object> _json =
-        new core.Map<core.String, core.Object>();
+    final _json = <core.String, core.Object>{};
     if (x16 != null) {
-      _json["x16"] = x16;
+      _json['x16'] = x16;
     }
     if (x32 != null) {
-      _json["x32"] = x32;
+      _json['x32'] = x32;
     }
     return _json;
   }
@@ -207,82 +206,81 @@ class DirectoryListItems {
   DirectoryListItems();
 
   DirectoryListItems.fromJson(core.Map _json) {
-    if (_json.containsKey("description")) {
-      description = _json["description"];
+    if (_json.containsKey('description')) {
+      description = _json['description'];
     }
-    if (_json.containsKey("discoveryLink")) {
-      discoveryLink = _json["discoveryLink"];
+    if (_json.containsKey('discoveryLink')) {
+      discoveryLink = _json['discoveryLink'];
     }
-    if (_json.containsKey("discoveryRestUrl")) {
-      discoveryRestUrl = _json["discoveryRestUrl"];
+    if (_json.containsKey('discoveryRestUrl')) {
+      discoveryRestUrl = _json['discoveryRestUrl'];
     }
-    if (_json.containsKey("documentationLink")) {
-      documentationLink = _json["documentationLink"];
+    if (_json.containsKey('documentationLink')) {
+      documentationLink = _json['documentationLink'];
     }
-    if (_json.containsKey("icons")) {
-      icons = new DirectoryListItemsIcons.fromJson(_json["icons"]);
+    if (_json.containsKey('icons')) {
+      icons = DirectoryListItemsIcons.fromJson(_json['icons']);
     }
-    if (_json.containsKey("id")) {
-      id = _json["id"];
+    if (_json.containsKey('id')) {
+      id = _json['id'];
     }
-    if (_json.containsKey("kind")) {
-      kind = _json["kind"];
+    if (_json.containsKey('kind')) {
+      kind = _json['kind'];
     }
-    if (_json.containsKey("labels")) {
-      labels = (_json["labels"] as core.List).cast<core.String>();
+    if (_json.containsKey('labels')) {
+      labels = (_json['labels'] as core.List).cast<core.String>();
     }
-    if (_json.containsKey("name")) {
-      name = _json["name"];
+    if (_json.containsKey('name')) {
+      name = _json['name'];
     }
-    if (_json.containsKey("preferred")) {
-      preferred = _json["preferred"];
+    if (_json.containsKey('preferred')) {
+      preferred = _json['preferred'];
     }
-    if (_json.containsKey("title")) {
-      title = _json["title"];
+    if (_json.containsKey('title')) {
+      title = _json['title'];
     }
-    if (_json.containsKey("version")) {
-      version = _json["version"];
+    if (_json.containsKey('version')) {
+      version = _json['version'];
     }
   }
 
   core.Map<core.String, core.Object> toJson() {
-    final core.Map<core.String, core.Object> _json =
-        new core.Map<core.String, core.Object>();
+    final _json = <core.String, core.Object>{};
     if (description != null) {
-      _json["description"] = description;
+      _json['description'] = description;
     }
     if (discoveryLink != null) {
-      _json["discoveryLink"] = discoveryLink;
+      _json['discoveryLink'] = discoveryLink;
     }
     if (discoveryRestUrl != null) {
-      _json["discoveryRestUrl"] = discoveryRestUrl;
+      _json['discoveryRestUrl'] = discoveryRestUrl;
     }
     if (documentationLink != null) {
-      _json["documentationLink"] = documentationLink;
+      _json['documentationLink'] = documentationLink;
     }
     if (icons != null) {
-      _json["icons"] = (icons).toJson();
+      _json['icons'] = (icons).toJson();
     }
     if (id != null) {
-      _json["id"] = id;
+      _json['id'] = id;
     }
     if (kind != null) {
-      _json["kind"] = kind;
+      _json['kind'] = kind;
     }
     if (labels != null) {
-      _json["labels"] = labels;
+      _json['labels'] = labels;
     }
     if (name != null) {
-      _json["name"] = name;
+      _json['name'] = name;
     }
     if (preferred != null) {
-      _json["preferred"] = preferred;
+      _json['preferred'] = preferred;
     }
     if (title != null) {
-      _json["title"] = title;
+      _json['title'] = title;
     }
     if (version != null) {
-      _json["version"] = version;
+      _json['version'] = version;
     }
     return _json;
   }
@@ -301,31 +299,30 @@ class DirectoryList {
   DirectoryList();
 
   DirectoryList.fromJson(core.Map _json) {
-    if (_json.containsKey("discoveryVersion")) {
-      discoveryVersion = _json["discoveryVersion"];
+    if (_json.containsKey('discoveryVersion')) {
+      discoveryVersion = _json['discoveryVersion'];
     }
-    if (_json.containsKey("items")) {
-      items = (_json["items"] as core.List)
+    if (_json.containsKey('items')) {
+      items = (_json['items'] as core.List)
           .map<DirectoryListItems>(
-              (value) => new DirectoryListItems.fromJson(value))
+              (value) => DirectoryListItems.fromJson(value))
           .toList();
     }
-    if (_json.containsKey("kind")) {
-      kind = _json["kind"];
+    if (_json.containsKey('kind')) {
+      kind = _json['kind'];
     }
   }
 
   core.Map<core.String, core.Object> toJson() {
-    final core.Map<core.String, core.Object> _json =
-        new core.Map<core.String, core.Object>();
+    final _json = <core.String, core.Object>{};
     if (discoveryVersion != null) {
-      _json["discoveryVersion"] = discoveryVersion;
+      _json['discoveryVersion'] = discoveryVersion;
     }
     if (items != null) {
-      _json["items"] = items.map((value) => (value).toJson()).toList();
+      _json['items'] = items.map((value) => (value).toJson()).toList();
     }
     if (kind != null) {
-      _json["kind"] = kind;
+      _json['kind'] = kind;
     }
     return _json;
   }
@@ -339,16 +336,15 @@ class JsonSchemaAnnotations {
   JsonSchemaAnnotations();
 
   JsonSchemaAnnotations.fromJson(core.Map _json) {
-    if (_json.containsKey("required")) {
-      required = (_json["required"] as core.List).cast<core.String>();
+    if (_json.containsKey('required')) {
+      required = (_json['required'] as core.List).cast<core.String>();
     }
   }
 
   core.Map<core.String, core.Object> toJson() {
-    final core.Map<core.String, core.Object> _json =
-        new core.Map<core.String, core.Object>();
+    final _json = <core.String, core.Object>{};
     if (required != null) {
-      _json["required"] = required;
+      _json['required'] = required;
     }
     return _json;
   }
@@ -361,22 +357,21 @@ class JsonSchemaVariantMap {
   JsonSchemaVariantMap();
 
   JsonSchemaVariantMap.fromJson(core.Map _json) {
-    if (_json.containsKey("\$ref")) {
-      P_ref = _json["\$ref"];
+    if (_json.containsKey('\$ref')) {
+      P_ref = _json['\$ref'];
     }
-    if (_json.containsKey("type_value")) {
-      typeValue = _json["type_value"];
+    if (_json.containsKey('type_value')) {
+      typeValue = _json['type_value'];
     }
   }
 
   core.Map<core.String, core.Object> toJson() {
-    final core.Map<core.String, core.Object> _json =
-        new core.Map<core.String, core.Object>();
+    final _json = <core.String, core.Object>{};
     if (P_ref != null) {
-      _json["\$ref"] = P_ref;
+      _json['\$ref'] = P_ref;
     }
     if (typeValue != null) {
-      _json["type_value"] = typeValue;
+      _json['type_value'] = typeValue;
     }
     return _json;
   }
@@ -395,25 +390,24 @@ class JsonSchemaVariant {
   JsonSchemaVariant();
 
   JsonSchemaVariant.fromJson(core.Map _json) {
-    if (_json.containsKey("discriminant")) {
-      discriminant = _json["discriminant"];
+    if (_json.containsKey('discriminant')) {
+      discriminant = _json['discriminant'];
     }
-    if (_json.containsKey("map")) {
-      map = (_json["map"] as core.List)
+    if (_json.containsKey('map')) {
+      map = (_json['map'] as core.List)
           .map<JsonSchemaVariantMap>(
-              (value) => new JsonSchemaVariantMap.fromJson(value))
+              (value) => JsonSchemaVariantMap.fromJson(value))
           .toList();
     }
   }
 
   core.Map<core.String, core.Object> toJson() {
-    final core.Map<core.String, core.Object> _json =
-        new core.Map<core.String, core.Object>();
+    final _json = <core.String, core.Object>{};
     if (discriminant != null) {
-      _json["discriminant"] = discriminant;
+      _json['discriminant'] = discriminant;
     }
     if (map != null) {
-      _json["map"] = map.map((value) => (value).toJson()).toList();
+      _json['map'] = map.map((value) => (value).toJson()).toList();
     }
     return _json;
   }
@@ -497,136 +491,134 @@ class JsonSchema {
   JsonSchema();
 
   JsonSchema.fromJson(core.Map _json) {
-    if (_json.containsKey("\$ref")) {
-      P_ref = _json["\$ref"];
+    if (_json.containsKey('\$ref')) {
+      P_ref = _json['\$ref'];
     }
-    if (_json.containsKey("additionalProperties")) {
-      additionalProperties =
-          new JsonSchema.fromJson(_json["additionalProperties"]);
+    if (_json.containsKey('additionalProperties')) {
+      additionalProperties = JsonSchema.fromJson(_json['additionalProperties']);
     }
-    if (_json.containsKey("annotations")) {
-      annotations = new JsonSchemaAnnotations.fromJson(_json["annotations"]);
+    if (_json.containsKey('annotations')) {
+      annotations = JsonSchemaAnnotations.fromJson(_json['annotations']);
     }
-    if (_json.containsKey("default")) {
-      default_ = _json["default"];
+    if (_json.containsKey('default')) {
+      default_ = _json['default'];
     }
-    if (_json.containsKey("description")) {
-      description = _json["description"];
+    if (_json.containsKey('description')) {
+      description = _json['description'];
     }
-    if (_json.containsKey("enum")) {
-      enum_ = (_json["enum"] as core.List).cast<core.String>();
+    if (_json.containsKey('enum')) {
+      enum_ = (_json['enum'] as core.List).cast<core.String>();
     }
-    if (_json.containsKey("enumDescriptions")) {
+    if (_json.containsKey('enumDescriptions')) {
       enumDescriptions =
-          (_json["enumDescriptions"] as core.List).cast<core.String>();
+          (_json['enumDescriptions'] as core.List).cast<core.String>();
     }
-    if (_json.containsKey("format")) {
-      format = _json["format"];
+    if (_json.containsKey('format')) {
+      format = _json['format'];
     }
-    if (_json.containsKey("id")) {
-      id = _json["id"];
+    if (_json.containsKey('id')) {
+      id = _json['id'];
     }
-    if (_json.containsKey("items")) {
-      items = new JsonSchema.fromJson(_json["items"]);
+    if (_json.containsKey('items')) {
+      items = JsonSchema.fromJson(_json['items']);
     }
-    if (_json.containsKey("location")) {
-      location = _json["location"];
+    if (_json.containsKey('location')) {
+      location = _json['location'];
     }
-    if (_json.containsKey("maximum")) {
-      maximum = _json["maximum"];
+    if (_json.containsKey('maximum')) {
+      maximum = _json['maximum'];
     }
-    if (_json.containsKey("minimum")) {
-      minimum = _json["minimum"];
+    if (_json.containsKey('minimum')) {
+      minimum = _json['minimum'];
     }
-    if (_json.containsKey("pattern")) {
-      pattern = _json["pattern"];
+    if (_json.containsKey('pattern')) {
+      pattern = _json['pattern'];
     }
-    if (_json.containsKey("properties")) {
+    if (_json.containsKey('properties')) {
       properties = commons.mapMap<core.Map, JsonSchema>(
-          _json["properties"].cast<core.String, core.Map>(),
-          (core.Map item) => new JsonSchema.fromJson(item));
+          _json['properties'].cast<core.String, core.Map>(),
+          (core.Map item) => JsonSchema.fromJson(item));
     }
-    if (_json.containsKey("readOnly")) {
-      readOnly = _json["readOnly"];
+    if (_json.containsKey('readOnly')) {
+      readOnly = _json['readOnly'];
     }
-    if (_json.containsKey("repeated")) {
-      repeated = _json["repeated"];
+    if (_json.containsKey('repeated')) {
+      repeated = _json['repeated'];
     }
-    if (_json.containsKey("required")) {
-      required = _json["required"];
+    if (_json.containsKey('required')) {
+      required = _json['required'];
     }
-    if (_json.containsKey("type")) {
-      type = _json["type"];
+    if (_json.containsKey('type')) {
+      type = _json['type'];
     }
-    if (_json.containsKey("variant")) {
-      variant = new JsonSchemaVariant.fromJson(_json["variant"]);
+    if (_json.containsKey('variant')) {
+      variant = JsonSchemaVariant.fromJson(_json['variant']);
     }
   }
 
   core.Map<core.String, core.Object> toJson() {
-    final core.Map<core.String, core.Object> _json =
-        new core.Map<core.String, core.Object>();
+    final _json = <core.String, core.Object>{};
     if (P_ref != null) {
-      _json["\$ref"] = P_ref;
+      _json['\$ref'] = P_ref;
     }
     if (additionalProperties != null) {
-      _json["additionalProperties"] = (additionalProperties).toJson();
+      _json['additionalProperties'] = (additionalProperties).toJson();
     }
     if (annotations != null) {
-      _json["annotations"] = (annotations).toJson();
+      _json['annotations'] = (annotations).toJson();
     }
     if (default_ != null) {
-      _json["default"] = default_;
+      _json['default'] = default_;
     }
     if (description != null) {
-      _json["description"] = description;
+      _json['description'] = description;
     }
     if (enum_ != null) {
-      _json["enum"] = enum_;
+      _json['enum'] = enum_;
     }
     if (enumDescriptions != null) {
-      _json["enumDescriptions"] = enumDescriptions;
+      _json['enumDescriptions'] = enumDescriptions;
     }
     if (format != null) {
-      _json["format"] = format;
+      _json['format'] = format;
     }
     if (id != null) {
-      _json["id"] = id;
+      _json['id'] = id;
     }
     if (items != null) {
-      _json["items"] = (items).toJson();
+      _json['items'] = (items).toJson();
     }
     if (location != null) {
-      _json["location"] = location;
+      _json['location'] = location;
     }
     if (maximum != null) {
-      _json["maximum"] = maximum;
+      _json['maximum'] = maximum;
     }
     if (minimum != null) {
-      _json["minimum"] = minimum;
+      _json['minimum'] = minimum;
     }
     if (pattern != null) {
-      _json["pattern"] = pattern;
+      _json['pattern'] = pattern;
     }
     if (properties != null) {
-      _json["properties"] =
+      _json['properties'] =
           commons.mapMap<JsonSchema, core.Map<core.String, core.Object>>(
               properties, (JsonSchema item) => (item).toJson());
     }
     if (readOnly != null) {
-      _json["readOnly"] = readOnly;
+      _json['readOnly'] = readOnly;
     }
     if (repeated != null) {
-      _json["repeated"] = repeated;
+      _json['repeated'] = repeated;
     }
     if (required != null) {
-      _json["required"] = required;
+      _json['required'] = required;
     }
     if (type != null) {
-      _json["type"] = type;
+      _json['type'] = type;
     }
     if (variant != null) {
-      _json["variant"] = (variant).toJson();
+      _json['variant'] = (variant).toJson();
     }
     return _json;
   }
@@ -640,16 +632,15 @@ class RestDescriptionAuthOauth2ScopesValue {
   RestDescriptionAuthOauth2ScopesValue();
 
   RestDescriptionAuthOauth2ScopesValue.fromJson(core.Map _json) {
-    if (_json.containsKey("description")) {
-      description = _json["description"];
+    if (_json.containsKey('description')) {
+      description = _json['description'];
     }
   }
 
   core.Map<core.String, core.Object> toJson() {
-    final core.Map<core.String, core.Object> _json =
-        new core.Map<core.String, core.Object>();
+    final _json = <core.String, core.Object>{};
     if (description != null) {
-      _json["description"] = description;
+      _json['description'] = description;
     }
     return _json;
   }
@@ -663,19 +654,18 @@ class RestDescriptionAuthOauth2 {
   RestDescriptionAuthOauth2();
 
   RestDescriptionAuthOauth2.fromJson(core.Map _json) {
-    if (_json.containsKey("scopes")) {
+    if (_json.containsKey('scopes')) {
       scopes = commons.mapMap<core.Map, RestDescriptionAuthOauth2ScopesValue>(
-          _json["scopes"].cast<core.String, core.Map>(),
+          _json['scopes'].cast<core.String, core.Map>(),
           (core.Map item) =>
-              new RestDescriptionAuthOauth2ScopesValue.fromJson(item));
+              RestDescriptionAuthOauth2ScopesValue.fromJson(item));
     }
   }
 
   core.Map<core.String, core.Object> toJson() {
-    final core.Map<core.String, core.Object> _json =
-        new core.Map<core.String, core.Object>();
+    final _json = <core.String, core.Object>{};
     if (scopes != null) {
-      _json["scopes"] = commons.mapMap<RestDescriptionAuthOauth2ScopesValue,
+      _json['scopes'] = commons.mapMap<RestDescriptionAuthOauth2ScopesValue,
               core.Map<core.String, core.Object>>(scopes,
           (RestDescriptionAuthOauth2ScopesValue item) => (item).toJson());
     }
@@ -691,16 +681,15 @@ class RestDescriptionAuth {
   RestDescriptionAuth();
 
   RestDescriptionAuth.fromJson(core.Map _json) {
-    if (_json.containsKey("oauth2")) {
-      oauth2 = new RestDescriptionAuthOauth2.fromJson(_json["oauth2"]);
+    if (_json.containsKey('oauth2')) {
+      oauth2 = RestDescriptionAuthOauth2.fromJson(_json['oauth2']);
     }
   }
 
   core.Map<core.String, core.Object> toJson() {
-    final core.Map<core.String, core.Object> _json =
-        new core.Map<core.String, core.Object>();
+    final _json = <core.String, core.Object>{};
     if (oauth2 != null) {
-      _json["oauth2"] = (oauth2).toJson();
+      _json['oauth2'] = (oauth2).toJson();
     }
     return _json;
   }
@@ -717,22 +706,21 @@ class RestDescriptionIcons {
   RestDescriptionIcons();
 
   RestDescriptionIcons.fromJson(core.Map _json) {
-    if (_json.containsKey("x16")) {
-      x16 = _json["x16"];
+    if (_json.containsKey('x16')) {
+      x16 = _json['x16'];
     }
-    if (_json.containsKey("x32")) {
-      x32 = _json["x32"];
+    if (_json.containsKey('x32')) {
+      x32 = _json['x32'];
     }
   }
 
   core.Map<core.String, core.Object> toJson() {
-    final core.Map<core.String, core.Object> _json =
-        new core.Map<core.String, core.Object>();
+    final _json = <core.String, core.Object>{};
     if (x16 != null) {
-      _json["x16"] = x16;
+      _json['x16'] = x16;
     }
     if (x32 != null) {
-      _json["x32"] = x32;
+      _json['x32'] = x32;
     }
     return _json;
   }
@@ -833,206 +821,205 @@ class RestDescription {
   RestDescription();
 
   RestDescription.fromJson(core.Map _json) {
-    if (_json.containsKey("auth")) {
-      auth = new RestDescriptionAuth.fromJson(_json["auth"]);
+    if (_json.containsKey('auth')) {
+      auth = RestDescriptionAuth.fromJson(_json['auth']);
     }
-    if (_json.containsKey("basePath")) {
-      basePath = _json["basePath"];
+    if (_json.containsKey('basePath')) {
+      basePath = _json['basePath'];
     }
-    if (_json.containsKey("baseUrl")) {
-      baseUrl = _json["baseUrl"];
+    if (_json.containsKey('baseUrl')) {
+      baseUrl = _json['baseUrl'];
     }
-    if (_json.containsKey("batchPath")) {
-      batchPath = _json["batchPath"];
+    if (_json.containsKey('batchPath')) {
+      batchPath = _json['batchPath'];
     }
-    if (_json.containsKey("canonicalName")) {
-      canonicalName = _json["canonicalName"];
+    if (_json.containsKey('canonicalName')) {
+      canonicalName = _json['canonicalName'];
     }
-    if (_json.containsKey("description")) {
-      description = _json["description"];
+    if (_json.containsKey('description')) {
+      description = _json['description'];
     }
-    if (_json.containsKey("discoveryVersion")) {
-      discoveryVersion = _json["discoveryVersion"];
+    if (_json.containsKey('discoveryVersion')) {
+      discoveryVersion = _json['discoveryVersion'];
     }
-    if (_json.containsKey("documentationLink")) {
-      documentationLink = _json["documentationLink"];
+    if (_json.containsKey('documentationLink')) {
+      documentationLink = _json['documentationLink'];
     }
-    if (_json.containsKey("etag")) {
-      etag = _json["etag"];
+    if (_json.containsKey('etag')) {
+      etag = _json['etag'];
     }
-    if (_json.containsKey("exponentialBackoffDefault")) {
-      exponentialBackoffDefault = _json["exponentialBackoffDefault"];
+    if (_json.containsKey('exponentialBackoffDefault')) {
+      exponentialBackoffDefault = _json['exponentialBackoffDefault'];
     }
-    if (_json.containsKey("features")) {
-      features = (_json["features"] as core.List).cast<core.String>();
+    if (_json.containsKey('features')) {
+      features = (_json['features'] as core.List).cast<core.String>();
     }
-    if (_json.containsKey("icons")) {
-      icons = new RestDescriptionIcons.fromJson(_json["icons"]);
+    if (_json.containsKey('icons')) {
+      icons = RestDescriptionIcons.fromJson(_json['icons']);
     }
-    if (_json.containsKey("id")) {
-      id = _json["id"];
+    if (_json.containsKey('id')) {
+      id = _json['id'];
     }
-    if (_json.containsKey("kind")) {
-      kind = _json["kind"];
+    if (_json.containsKey('kind')) {
+      kind = _json['kind'];
     }
-    if (_json.containsKey("labels")) {
-      labels = (_json["labels"] as core.List).cast<core.String>();
+    if (_json.containsKey('labels')) {
+      labels = (_json['labels'] as core.List).cast<core.String>();
     }
-    if (_json.containsKey("methods")) {
+    if (_json.containsKey('methods')) {
       methods = commons.mapMap<core.Map, RestMethod>(
-          _json["methods"].cast<core.String, core.Map>(),
-          (core.Map item) => new RestMethod.fromJson(item));
+          _json['methods'].cast<core.String, core.Map>(),
+          (core.Map item) => RestMethod.fromJson(item));
     }
-    if (_json.containsKey("name")) {
-      name = _json["name"];
+    if (_json.containsKey('name')) {
+      name = _json['name'];
     }
-    if (_json.containsKey("ownerDomain")) {
-      ownerDomain = _json["ownerDomain"];
+    if (_json.containsKey('ownerDomain')) {
+      ownerDomain = _json['ownerDomain'];
     }
-    if (_json.containsKey("ownerName")) {
-      ownerName = _json["ownerName"];
+    if (_json.containsKey('ownerName')) {
+      ownerName = _json['ownerName'];
     }
-    if (_json.containsKey("packagePath")) {
-      packagePath = _json["packagePath"];
+    if (_json.containsKey('packagePath')) {
+      packagePath = _json['packagePath'];
     }
-    if (_json.containsKey("parameters")) {
+    if (_json.containsKey('parameters')) {
       parameters = commons.mapMap<core.Map, JsonSchema>(
-          _json["parameters"].cast<core.String, core.Map>(),
-          (core.Map item) => new JsonSchema.fromJson(item));
+          _json['parameters'].cast<core.String, core.Map>(),
+          (core.Map item) => JsonSchema.fromJson(item));
     }
-    if (_json.containsKey("protocol")) {
-      protocol = _json["protocol"];
+    if (_json.containsKey('protocol')) {
+      protocol = _json['protocol'];
     }
-    if (_json.containsKey("resources")) {
+    if (_json.containsKey('resources')) {
       resources = commons.mapMap<core.Map, RestResource>(
-          _json["resources"].cast<core.String, core.Map>(),
-          (core.Map item) => new RestResource.fromJson(item));
+          _json['resources'].cast<core.String, core.Map>(),
+          (core.Map item) => RestResource.fromJson(item));
     }
-    if (_json.containsKey("revision")) {
-      revision = _json["revision"];
+    if (_json.containsKey('revision')) {
+      revision = _json['revision'];
     }
-    if (_json.containsKey("rootUrl")) {
-      rootUrl = _json["rootUrl"];
+    if (_json.containsKey('rootUrl')) {
+      rootUrl = _json['rootUrl'];
     }
-    if (_json.containsKey("schemas")) {
+    if (_json.containsKey('schemas')) {
       schemas = commons.mapMap<core.Map, JsonSchema>(
-          _json["schemas"].cast<core.String, core.Map>(),
-          (core.Map item) => new JsonSchema.fromJson(item));
+          _json['schemas'].cast<core.String, core.Map>(),
+          (core.Map item) => JsonSchema.fromJson(item));
     }
-    if (_json.containsKey("servicePath")) {
-      servicePath = _json["servicePath"];
+    if (_json.containsKey('servicePath')) {
+      servicePath = _json['servicePath'];
     }
-    if (_json.containsKey("title")) {
-      title = _json["title"];
+    if (_json.containsKey('title')) {
+      title = _json['title'];
     }
-    if (_json.containsKey("version")) {
-      version = _json["version"];
+    if (_json.containsKey('version')) {
+      version = _json['version'];
     }
-    if (_json.containsKey("version_module")) {
-      versionModule = _json["version_module"];
+    if (_json.containsKey('version_module')) {
+      versionModule = _json['version_module'];
     }
   }
 
   core.Map<core.String, core.Object> toJson() {
-    final core.Map<core.String, core.Object> _json =
-        new core.Map<core.String, core.Object>();
+    final _json = <core.String, core.Object>{};
     if (auth != null) {
-      _json["auth"] = (auth).toJson();
+      _json['auth'] = (auth).toJson();
     }
     if (basePath != null) {
-      _json["basePath"] = basePath;
+      _json['basePath'] = basePath;
     }
     if (baseUrl != null) {
-      _json["baseUrl"] = baseUrl;
+      _json['baseUrl'] = baseUrl;
     }
     if (batchPath != null) {
-      _json["batchPath"] = batchPath;
+      _json['batchPath'] = batchPath;
     }
     if (canonicalName != null) {
-      _json["canonicalName"] = canonicalName;
+      _json['canonicalName'] = canonicalName;
     }
     if (description != null) {
-      _json["description"] = description;
+      _json['description'] = description;
     }
     if (discoveryVersion != null) {
-      _json["discoveryVersion"] = discoveryVersion;
+      _json['discoveryVersion'] = discoveryVersion;
     }
     if (documentationLink != null) {
-      _json["documentationLink"] = documentationLink;
+      _json['documentationLink'] = documentationLink;
     }
     if (etag != null) {
-      _json["etag"] = etag;
+      _json['etag'] = etag;
     }
     if (exponentialBackoffDefault != null) {
-      _json["exponentialBackoffDefault"] = exponentialBackoffDefault;
+      _json['exponentialBackoffDefault'] = exponentialBackoffDefault;
     }
     if (features != null) {
-      _json["features"] = features;
+      _json['features'] = features;
     }
     if (icons != null) {
-      _json["icons"] = (icons).toJson();
+      _json['icons'] = (icons).toJson();
     }
     if (id != null) {
-      _json["id"] = id;
+      _json['id'] = id;
     }
     if (kind != null) {
-      _json["kind"] = kind;
+      _json['kind'] = kind;
     }
     if (labels != null) {
-      _json["labels"] = labels;
+      _json['labels'] = labels;
     }
     if (methods != null) {
-      _json["methods"] =
+      _json['methods'] =
           commons.mapMap<RestMethod, core.Map<core.String, core.Object>>(
               methods, (RestMethod item) => (item).toJson());
     }
     if (name != null) {
-      _json["name"] = name;
+      _json['name'] = name;
     }
     if (ownerDomain != null) {
-      _json["ownerDomain"] = ownerDomain;
+      _json['ownerDomain'] = ownerDomain;
     }
     if (ownerName != null) {
-      _json["ownerName"] = ownerName;
+      _json['ownerName'] = ownerName;
     }
     if (packagePath != null) {
-      _json["packagePath"] = packagePath;
+      _json['packagePath'] = packagePath;
     }
     if (parameters != null) {
-      _json["parameters"] =
+      _json['parameters'] =
           commons.mapMap<JsonSchema, core.Map<core.String, core.Object>>(
               parameters, (JsonSchema item) => (item).toJson());
     }
     if (protocol != null) {
-      _json["protocol"] = protocol;
+      _json['protocol'] = protocol;
     }
     if (resources != null) {
-      _json["resources"] =
+      _json['resources'] =
           commons.mapMap<RestResource, core.Map<core.String, core.Object>>(
               resources, (RestResource item) => (item).toJson());
     }
     if (revision != null) {
-      _json["revision"] = revision;
+      _json['revision'] = revision;
     }
     if (rootUrl != null) {
-      _json["rootUrl"] = rootUrl;
+      _json['rootUrl'] = rootUrl;
     }
     if (schemas != null) {
-      _json["schemas"] =
+      _json['schemas'] =
           commons.mapMap<JsonSchema, core.Map<core.String, core.Object>>(
               schemas, (JsonSchema item) => (item).toJson());
     }
     if (servicePath != null) {
-      _json["servicePath"] = servicePath;
+      _json['servicePath'] = servicePath;
     }
     if (title != null) {
-      _json["title"] = title;
+      _json['title'] = title;
     }
     if (version != null) {
-      _json["version"] = version;
+      _json['version'] = version;
     }
     if (versionModule != null) {
-      _json["version_module"] = versionModule;
+      _json['version_module'] = versionModule;
     }
     return _json;
   }
@@ -1050,22 +1037,21 @@ class RestMethodMediaUploadProtocolsResumable {
   RestMethodMediaUploadProtocolsResumable();
 
   RestMethodMediaUploadProtocolsResumable.fromJson(core.Map _json) {
-    if (_json.containsKey("multipart")) {
-      multipart = _json["multipart"];
+    if (_json.containsKey('multipart')) {
+      multipart = _json['multipart'];
     }
-    if (_json.containsKey("path")) {
-      path = _json["path"];
+    if (_json.containsKey('path')) {
+      path = _json['path'];
     }
   }
 
   core.Map<core.String, core.Object> toJson() {
-    final core.Map<core.String, core.Object> _json =
-        new core.Map<core.String, core.Object>();
+    final _json = <core.String, core.Object>{};
     if (multipart != null) {
-      _json["multipart"] = multipart;
+      _json['multipart'] = multipart;
     }
     if (path != null) {
-      _json["path"] = path;
+      _json['path'] = path;
     }
     return _json;
   }
@@ -1083,22 +1069,21 @@ class RestMethodMediaUploadProtocolsSimple {
   RestMethodMediaUploadProtocolsSimple();
 
   RestMethodMediaUploadProtocolsSimple.fromJson(core.Map _json) {
-    if (_json.containsKey("multipart")) {
-      multipart = _json["multipart"];
+    if (_json.containsKey('multipart')) {
+      multipart = _json['multipart'];
     }
-    if (_json.containsKey("path")) {
-      path = _json["path"];
+    if (_json.containsKey('path')) {
+      path = _json['path'];
     }
   }
 
   core.Map<core.String, core.Object> toJson() {
-    final core.Map<core.String, core.Object> _json =
-        new core.Map<core.String, core.Object>();
+    final _json = <core.String, core.Object>{};
     if (multipart != null) {
-      _json["multipart"] = multipart;
+      _json['multipart'] = multipart;
     }
     if (path != null) {
-      _json["path"] = path;
+      _json['path'] = path;
     }
     return _json;
   }
@@ -1115,24 +1100,22 @@ class RestMethodMediaUploadProtocols {
   RestMethodMediaUploadProtocols();
 
   RestMethodMediaUploadProtocols.fromJson(core.Map _json) {
-    if (_json.containsKey("resumable")) {
-      resumable = new RestMethodMediaUploadProtocolsResumable.fromJson(
-          _json["resumable"]);
+    if (_json.containsKey('resumable')) {
+      resumable =
+          RestMethodMediaUploadProtocolsResumable.fromJson(_json['resumable']);
     }
-    if (_json.containsKey("simple")) {
-      simple =
-          new RestMethodMediaUploadProtocolsSimple.fromJson(_json["simple"]);
+    if (_json.containsKey('simple')) {
+      simple = RestMethodMediaUploadProtocolsSimple.fromJson(_json['simple']);
     }
   }
 
   core.Map<core.String, core.Object> toJson() {
-    final core.Map<core.String, core.Object> _json =
-        new core.Map<core.String, core.Object>();
+    final _json = <core.String, core.Object>{};
     if (resumable != null) {
-      _json["resumable"] = (resumable).toJson();
+      _json['resumable'] = (resumable).toJson();
     }
     if (simple != null) {
-      _json["simple"] = (simple).toJson();
+      _json['simple'] = (simple).toJson();
     }
     return _json;
   }
@@ -1152,29 +1135,27 @@ class RestMethodMediaUpload {
   RestMethodMediaUpload();
 
   RestMethodMediaUpload.fromJson(core.Map _json) {
-    if (_json.containsKey("accept")) {
-      accept = (_json["accept"] as core.List).cast<core.String>();
+    if (_json.containsKey('accept')) {
+      accept = (_json['accept'] as core.List).cast<core.String>();
     }
-    if (_json.containsKey("maxSize")) {
-      maxSize = _json["maxSize"];
+    if (_json.containsKey('maxSize')) {
+      maxSize = _json['maxSize'];
     }
-    if (_json.containsKey("protocols")) {
-      protocols =
-          new RestMethodMediaUploadProtocols.fromJson(_json["protocols"]);
+    if (_json.containsKey('protocols')) {
+      protocols = RestMethodMediaUploadProtocols.fromJson(_json['protocols']);
     }
   }
 
   core.Map<core.String, core.Object> toJson() {
-    final core.Map<core.String, core.Object> _json =
-        new core.Map<core.String, core.Object>();
+    final _json = <core.String, core.Object>{};
     if (accept != null) {
-      _json["accept"] = accept;
+      _json['accept'] = accept;
     }
     if (maxSize != null) {
-      _json["maxSize"] = maxSize;
+      _json['maxSize'] = maxSize;
     }
     if (protocols != null) {
-      _json["protocols"] = (protocols).toJson();
+      _json['protocols'] = (protocols).toJson();
     }
     return _json;
   }
@@ -1191,22 +1172,21 @@ class RestMethodRequest {
   RestMethodRequest();
 
   RestMethodRequest.fromJson(core.Map _json) {
-    if (_json.containsKey("\$ref")) {
-      P_ref = _json["\$ref"];
+    if (_json.containsKey('\$ref')) {
+      P_ref = _json['\$ref'];
     }
-    if (_json.containsKey("parameterName")) {
-      parameterName = _json["parameterName"];
+    if (_json.containsKey('parameterName')) {
+      parameterName = _json['parameterName'];
     }
   }
 
   core.Map<core.String, core.Object> toJson() {
-    final core.Map<core.String, core.Object> _json =
-        new core.Map<core.String, core.Object>();
+    final _json = <core.String, core.Object>{};
     if (P_ref != null) {
-      _json["\$ref"] = P_ref;
+      _json['\$ref'] = P_ref;
     }
     if (parameterName != null) {
-      _json["parameterName"] = parameterName;
+      _json['parameterName'] = parameterName;
     }
     return _json;
   }
@@ -1220,16 +1200,15 @@ class RestMethodResponse {
   RestMethodResponse();
 
   RestMethodResponse.fromJson(core.Map _json) {
-    if (_json.containsKey("\$ref")) {
-      P_ref = _json["\$ref"];
+    if (_json.containsKey('\$ref')) {
+      P_ref = _json['\$ref'];
     }
   }
 
   core.Map<core.String, core.Object> toJson() {
-    final core.Map<core.String, core.Object> _json =
-        new core.Map<core.String, core.Object>();
+    final _json = <core.String, core.Object>{};
     if (P_ref != null) {
-      _json["\$ref"] = P_ref;
+      _json['\$ref'] = P_ref;
     }
     return _json;
   }
@@ -1291,105 +1270,104 @@ class RestMethod {
   RestMethod();
 
   RestMethod.fromJson(core.Map _json) {
-    if (_json.containsKey("description")) {
-      description = _json["description"];
+    if (_json.containsKey('description')) {
+      description = _json['description'];
     }
-    if (_json.containsKey("etagRequired")) {
-      etagRequired = _json["etagRequired"];
+    if (_json.containsKey('etagRequired')) {
+      etagRequired = _json['etagRequired'];
     }
-    if (_json.containsKey("httpMethod")) {
-      httpMethod = _json["httpMethod"];
+    if (_json.containsKey('httpMethod')) {
+      httpMethod = _json['httpMethod'];
     }
-    if (_json.containsKey("id")) {
-      id = _json["id"];
+    if (_json.containsKey('id')) {
+      id = _json['id'];
     }
-    if (_json.containsKey("mediaUpload")) {
-      mediaUpload = new RestMethodMediaUpload.fromJson(_json["mediaUpload"]);
+    if (_json.containsKey('mediaUpload')) {
+      mediaUpload = RestMethodMediaUpload.fromJson(_json['mediaUpload']);
     }
-    if (_json.containsKey("parameterOrder")) {
+    if (_json.containsKey('parameterOrder')) {
       parameterOrder =
-          (_json["parameterOrder"] as core.List).cast<core.String>();
+          (_json['parameterOrder'] as core.List).cast<core.String>();
     }
-    if (_json.containsKey("parameters")) {
+    if (_json.containsKey('parameters')) {
       parameters = commons.mapMap<core.Map, JsonSchema>(
-          _json["parameters"].cast<core.String, core.Map>(),
-          (core.Map item) => new JsonSchema.fromJson(item));
+          _json['parameters'].cast<core.String, core.Map>(),
+          (core.Map item) => JsonSchema.fromJson(item));
     }
-    if (_json.containsKey("path")) {
-      path = _json["path"];
+    if (_json.containsKey('path')) {
+      path = _json['path'];
     }
-    if (_json.containsKey("request")) {
-      request = new RestMethodRequest.fromJson(_json["request"]);
+    if (_json.containsKey('request')) {
+      request = RestMethodRequest.fromJson(_json['request']);
     }
-    if (_json.containsKey("response")) {
-      response = new RestMethodResponse.fromJson(_json["response"]);
+    if (_json.containsKey('response')) {
+      response = RestMethodResponse.fromJson(_json['response']);
     }
-    if (_json.containsKey("scopes")) {
-      scopes = (_json["scopes"] as core.List).cast<core.String>();
+    if (_json.containsKey('scopes')) {
+      scopes = (_json['scopes'] as core.List).cast<core.String>();
     }
-    if (_json.containsKey("supportsMediaDownload")) {
-      supportsMediaDownload = _json["supportsMediaDownload"];
+    if (_json.containsKey('supportsMediaDownload')) {
+      supportsMediaDownload = _json['supportsMediaDownload'];
     }
-    if (_json.containsKey("supportsMediaUpload")) {
-      supportsMediaUpload = _json["supportsMediaUpload"];
+    if (_json.containsKey('supportsMediaUpload')) {
+      supportsMediaUpload = _json['supportsMediaUpload'];
     }
-    if (_json.containsKey("supportsSubscription")) {
-      supportsSubscription = _json["supportsSubscription"];
+    if (_json.containsKey('supportsSubscription')) {
+      supportsSubscription = _json['supportsSubscription'];
     }
-    if (_json.containsKey("useMediaDownloadService")) {
-      useMediaDownloadService = _json["useMediaDownloadService"];
+    if (_json.containsKey('useMediaDownloadService')) {
+      useMediaDownloadService = _json['useMediaDownloadService'];
     }
   }
 
   core.Map<core.String, core.Object> toJson() {
-    final core.Map<core.String, core.Object> _json =
-        new core.Map<core.String, core.Object>();
+    final _json = <core.String, core.Object>{};
     if (description != null) {
-      _json["description"] = description;
+      _json['description'] = description;
     }
     if (etagRequired != null) {
-      _json["etagRequired"] = etagRequired;
+      _json['etagRequired'] = etagRequired;
     }
     if (httpMethod != null) {
-      _json["httpMethod"] = httpMethod;
+      _json['httpMethod'] = httpMethod;
     }
     if (id != null) {
-      _json["id"] = id;
+      _json['id'] = id;
     }
     if (mediaUpload != null) {
-      _json["mediaUpload"] = (mediaUpload).toJson();
+      _json['mediaUpload'] = (mediaUpload).toJson();
     }
     if (parameterOrder != null) {
-      _json["parameterOrder"] = parameterOrder;
+      _json['parameterOrder'] = parameterOrder;
     }
     if (parameters != null) {
-      _json["parameters"] =
+      _json['parameters'] =
           commons.mapMap<JsonSchema, core.Map<core.String, core.Object>>(
               parameters, (JsonSchema item) => (item).toJson());
     }
     if (path != null) {
-      _json["path"] = path;
+      _json['path'] = path;
     }
     if (request != null) {
-      _json["request"] = (request).toJson();
+      _json['request'] = (request).toJson();
     }
     if (response != null) {
-      _json["response"] = (response).toJson();
+      _json['response'] = (response).toJson();
     }
     if (scopes != null) {
-      _json["scopes"] = scopes;
+      _json['scopes'] = scopes;
     }
     if (supportsMediaDownload != null) {
-      _json["supportsMediaDownload"] = supportsMediaDownload;
+      _json['supportsMediaDownload'] = supportsMediaDownload;
     }
     if (supportsMediaUpload != null) {
-      _json["supportsMediaUpload"] = supportsMediaUpload;
+      _json['supportsMediaUpload'] = supportsMediaUpload;
     }
     if (supportsSubscription != null) {
-      _json["supportsSubscription"] = supportsSubscription;
+      _json['supportsSubscription'] = supportsSubscription;
     }
     if (useMediaDownloadService != null) {
-      _json["useMediaDownloadService"] = useMediaDownloadService;
+      _json['useMediaDownloadService'] = useMediaDownloadService;
     }
     return _json;
   }
@@ -1405,28 +1383,27 @@ class RestResource {
   RestResource();
 
   RestResource.fromJson(core.Map _json) {
-    if (_json.containsKey("methods")) {
+    if (_json.containsKey('methods')) {
       methods = commons.mapMap<core.Map, RestMethod>(
-          _json["methods"].cast<core.String, core.Map>(),
-          (core.Map item) => new RestMethod.fromJson(item));
+          _json['methods'].cast<core.String, core.Map>(),
+          (core.Map item) => RestMethod.fromJson(item));
     }
-    if (_json.containsKey("resources")) {
+    if (_json.containsKey('resources')) {
       resources = commons.mapMap<core.Map, RestResource>(
-          _json["resources"].cast<core.String, core.Map>(),
-          (core.Map item) => new RestResource.fromJson(item));
+          _json['resources'].cast<core.String, core.Map>(),
+          (core.Map item) => RestResource.fromJson(item));
     }
   }
 
   core.Map<core.String, core.Object> toJson() {
-    final core.Map<core.String, core.Object> _json =
-        new core.Map<core.String, core.Object>();
+    final _json = <core.String, core.Object>{};
     if (methods != null) {
-      _json["methods"] =
+      _json['methods'] =
           commons.mapMap<RestMethod, core.Map<core.String, core.Object>>(
               methods, (RestMethod item) => (item).toJson());
     }
     if (resources != null) {
-      _json["resources"] =
+      _json['resources'] =
           commons.mapMap<RestResource, core.Map<core.String, core.Object>>(
               resources, (RestResource item) => (item).toJson());
     }

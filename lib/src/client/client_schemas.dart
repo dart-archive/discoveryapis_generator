@@ -18,13 +18,14 @@ class ClientObjectType extends ObjectType {
       {Comment comment})
       : super(imports, name, properties, comment: comment);
 
+  @override
   String get classDefinition {
     var superClassString = '';
     if (superVariantType != null) {
       superClassString = ' extends ${superVariantType.declaration} ';
     }
 
-    var fromJsonString = new StringBuffer();
+    var fromJsonString = StringBuffer();
     fromJsonString
         .writeln('  static $className fromJson(${imports.core}.Map _json) {');
     fromJsonString.writeln('    var message = new $className();');
@@ -44,7 +45,7 @@ class ClientObjectType extends ObjectType {
     fromJsonString.writeln('    return message;');
     fromJsonString.writeln('  }');
 
-    var toJsonString = new StringBuffer();
+    var toJsonString = StringBuffer();
     toJsonString
         .writeln('  static ${imports.core}.Map toJson($className message) {');
     toJsonString.writeln('    var _json = new ${imports.core}.Map();');
@@ -67,10 +68,12 @@ $toJsonString
 ''';
   }
 
+  @override
   String jsonEncode(String value) {
     return '${className}Factory.toJson(${value})';
   }
 
+  @override
   String jsonDecode(String json) {
     return '${className}Factory.fromJson($json)';
   }
@@ -80,7 +83,7 @@ $toJsonString
 DartSchemaTypeDB parseSchemas(
     DartApiImports imports, RestDescription description) {
   var namer = imports.namer;
-  var db = new DartSchemaTypeDB(imports);
+  var db = DartSchemaTypeDB(imports);
 
   /*
    * Primitive types "integer"/"boolean"/"double"/"number"/"string":
@@ -124,30 +127,29 @@ DartSchemaTypeDB parseSchemas(
    */
   DartSchemaType parse(String className, Scope classScope, JsonSchema schema) {
     if (schema.repeated != null) {
-      throw new ArgumentError('Only path/query parameters can be repeated.');
+      throw ArgumentError('Only path/query parameters can be repeated.');
     }
 
     if (schema.type == 'object') {
-      var comment = new Comment(schema.description);
+      var comment = Comment(schema.description);
       if (schema.additionalProperties != null) {
         var anonValueClassName = namer.schemaClassName('${className}Value');
         var anonClassScope = namer.newClassScope();
         var valueType = parse(
             anonValueClassName, anonClassScope, schema.additionalProperties);
-        return db
-            .register(new UnnamedMapType(imports, db.stringType, valueType));
+        return db.register(UnnamedMapType(imports, db.stringType, valueType));
       } else if (schema.variant != null) {
         // This is a variant type, declaring the type discriminant field and all
         // subclasses.
         // This is currently unsupported for client stub generations.
-        throw new UnimplementedError(
+        throw UnimplementedError(
             'The \'variant\' schema type is not supported for client stub '
             'generation.');
       } else {
         // This is a normal named schema class, we generate a normal
         // [ClientObjectType] for it with the defined properties.
         var classId = namer.schemaClass(className);
-        var properties = new List<DartClassProperty>();
+        var properties = <DartClassProperty>[];
         if (schema.properties != null) {
           orderedForEach(schema.properties,
               (String jsonPName, JsonSchema value) {
@@ -158,7 +160,7 @@ DartSchemaTypeDB parseSchemas(
 
             var propertyType = parse(propertyClass, propertyClassScope, value);
 
-            var comment = new Comment(value.description);
+            var comment = Comment(value.description);
             comment = extendEnumComment(comment, propertyType);
             comment = extendAnyTypeComment(comment, propertyType);
             Identifier byteArrayAccessor;
@@ -166,24 +168,24 @@ DartSchemaTypeDB parseSchemas(
               byteArrayAccessor =
                   classScope.newIdentifier('${jsonPName}AsBytes');
             }
-            var property = new DartClassProperty(
+            var property = DartClassProperty(
                 propertyName, comment, propertyType, jsonPName,
                 byteArrayAccessor: byteArrayAccessor);
             properties.add(property);
           });
         }
-        return db.register(new ClientObjectType(imports, classId, properties,
-            comment: comment));
+        return db.register(
+            ClientObjectType(imports, classId, properties, comment: comment));
       }
     } else if (schema.type == 'array') {
-      return db.register(new UnnamedArrayType(
+      return db.register(UnnamedArrayType(
           imports, parse(className, namer.newClassScope(), schema.items)));
     } else if (schema.type == 'any') {
       return db.anyType;
     } else if (schema.P_ref != null) {
       // This is a forward or backward reference, it will be resolved in
       // another pass following the parsing.
-      return db.register(new DartSchemaForwardRef(imports, schema.P_ref));
+      return db.register(DartSchemaForwardRef(imports, schema.P_ref));
     } else {
       return parsePrimitive(imports, db, schema);
     }

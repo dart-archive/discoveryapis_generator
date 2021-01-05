@@ -38,16 +38,16 @@ class ApisFilesGenerator {
   ApisFilesGenerator(this.descriptions, this.clientFolderPath,
       {this.updatePubspec = false, this.useCorePrefixes = true}) {
     // Create the output directory.
-    var clientDirectory = new Directory(clientFolderPath);
+    var clientDirectory = Directory(clientFolderPath);
     packageRoot = findPackageRoot(path.absolute(clientDirectory.path));
     if (packageRoot == null) {
-      throw new Exception(
+      throw Exception(
           'Client folder: \'$clientFolderPath\' must be in a package.');
     }
     if (!clientDirectory.existsSync()) {
       clientDirectory.createSync(recursive: true);
     }
-    pubspecFile = new File(path.join(packageRoot, 'pubspec.yaml'));
+    pubspecFile = File(path.join(packageRoot, 'pubspec.yaml'));
     assert(pubspecFile.existsSync());
   }
 
@@ -57,31 +57,31 @@ class ApisFilesGenerator {
     var pubspec = loadYaml(pubspecFile.readAsStringSync());
     String packageName = pubspec != null ? pubspec['name'] : null;
     if (packageName == null) {
-      throw new Exception('Invalid pubspec.yaml for package $packageRoot');
+      throw Exception('Invalid pubspec.yaml for package $packageRoot');
     }
 
-    bool processPubspec = false;
+    var processPubspec = false;
     var results = <GenerateResult>[];
     descriptions.forEach((diPair) {
       var description =
-          new RestDescription.fromJson(json.decode(diPair.apiDescription));
-      String name = description.name.toLowerCase();
-      String version = description.version.toLowerCase();
-      String apiFile = path.join(clientFolderPath, '${name}.dart');
+          RestDescription.fromJson(json.decode(diPair.apiDescription));
+      var name = description.name.toLowerCase();
+      var version = description.version.toLowerCase();
+      var apiFile = path.join(clientFolderPath, '${name}.dart');
       try {
         var lib;
         if (diPair.importMap == null) {
           // Build a normal client stub file without using the same message
           // classes.
-          lib = new DartApiLibrary.build(description, packageName,
+          lib = DartApiLibrary.build(description, packageName,
               useCorePrefixes: useCorePrefixes);
         } else {
           // Build a client stub api using common message classes.
-          lib = new ClientApiLibrary.build(
+          lib = ClientApiLibrary.build(
               description, diPair.importMap, packageName, packageRoot);
         }
         writeDartSource(apiFile, lib.librarySource);
-        final result = new GenerateResult(name, version, clientFolderPath);
+        final result = GenerateResult(name, version, clientFolderPath);
         results.add(result);
         processPubspec = true;
       } catch (error, stack) {
@@ -91,7 +91,7 @@ class ApisFilesGenerator {
         } else {
           errorMessage = '$error\nstack: $stack';
         }
-        results.add(new GenerateResult.error(
+        results.add(GenerateResult.error(
             name, version, clientFolderPath, errorMessage));
       }
     });
@@ -99,7 +99,7 @@ class ApisFilesGenerator {
     // Print or add required dependencies to the pubspec.yaml file.
     if (processPubspec) {
       var msg = _processPubspec();
-      results.add(new GenerateResult.fromMessage(msg));
+      results.add(GenerateResult.fromMessage(msg));
     }
 
     return results;
@@ -109,20 +109,19 @@ class ApisFilesGenerator {
     void writeValue(StringSink sink, String key, dynamic value, String indent) {
       if (value is String) {
         // Encapsulate constraints with ''
-        if (value.contains(new RegExp('<|>')) &&
-            !value.startsWith(new RegExp('\''))) {
+        if (value.contains(RegExp('<|>')) && !value.startsWith(RegExp('\''))) {
           value = '\'$value\'';
         }
-        sink.writeln("$indent$key: $value");
+        sink.writeln('$indent$key: $value');
       } else if (value is Map) {
-        sink.writeln("$indent$key:");
+        sink.writeln('$indent$key:');
         value.forEach((key, value) {
           writeValue(sink, key, value, '$indent  ');
         });
       }
     }
 
-    const List<String> pubspecKeys = const [
+    const pubspecKeys = <String>[
       'name',
       'version',
       'description',
@@ -143,13 +142,13 @@ class ApisFilesGenerator {
     // existing pubspec.yaml file.
     YamlMap pubspec = loadYaml(pubspecFile.readAsStringSync());
     if (updatePubspec) {
-      var sink = new StringBuffer();
+      var sink = StringBuffer();
       pubspecKeys.forEach((key) {
         var value;
         if (key == 'dependencies') {
           // patch up dependencies.
           value = pubspec[key];
-          value = value != null ? value = new Map.from(value) : {};
+          value = value != null ? value = Map.from(value) : {};
           value.addAll(_computeNewDependencies(value));
         } else {
           value = pubspec[key];
@@ -160,7 +159,7 @@ class ApisFilesGenerator {
       return 'Updated pubspec.yaml file with required dependencies.';
     } else {
       var newDeps = _computeNewDependencies(pubspec['dependencies']);
-      var sink = new StringBuffer();
+      var sink = StringBuffer();
       if (newDeps.isNotEmpty) {
         sink.writeln('Please update your pubspec.yaml file with the following '
             'dependencies:');

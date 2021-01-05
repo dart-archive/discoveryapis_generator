@@ -9,15 +9,18 @@ import 'package:discoveryapis_generator/src'
 import 'package:discoveryapis_generator/src/namer.dart';
 import 'package:test/test.dart';
 
-withImports(function) {
-  var namer = new ApiLibraryNamer();
-  var imports = new DartApiImports.fromNamer(namer);
+void withImports(void Function(DartApiImports, ApiLibraryNamer) function) {
+  var namer = ApiLibraryNamer();
+  var imports = DartApiImports.fromNamer(namer);
   return function(imports, namer);
 }
 
-withParsedDB(json, function) {
+void withParsedDB(
+  Map<String, dynamic> json,
+  void Function(DartSchemaTypeDB) function,
+) {
   return withImports((imports, namer) {
-    var description = new RestDescription.fromJson(json);
+    var description = RestDescription.fromJson(json);
     var db = parseSchemas(imports, description);
 
     namer.nameAllIdentifiers();
@@ -26,7 +29,7 @@ withParsedDB(json, function) {
   });
 }
 
-main() {
+void main() {
   group('dart-schemas', () {
     test('empty', () {
       withParsedDB({}, (DartSchemaTypeDB db) {
@@ -489,7 +492,7 @@ main() {
 
           // Unnamed complex types
           var C = db.namedSchemaTypes['C'] as ObjectType;
-          findPropertyType(String name) {
+          DartSchemaType findPropertyType(String name) {
             for (var property in C.properties) {
               if (property.name.preferredName == name) return property.type;
             }

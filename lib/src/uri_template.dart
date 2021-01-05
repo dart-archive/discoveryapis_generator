@@ -26,6 +26,7 @@ class StringPart extends Part {
 
   StringPart(DartApiImports imports, this.staticString) : super(imports, null);
 
+  @override
   String stringExpression(Identifier _) => "'${escapeString(staticString)}'";
 }
 
@@ -34,6 +35,7 @@ class VariableExpression extends Part {
   VariableExpression(DartApiImports imports, String templateVar)
       : super(imports, templateVar);
 
+  @override
   String stringExpression(Identifier variable) {
     return "${imports.commons}.Escaper.ecapeVariable('\$$variable')";
   }
@@ -44,6 +46,7 @@ class PathVariableExpression extends Part {
   PathVariableExpression(DartApiImports imports, String templateVar)
       : super(imports, templateVar);
 
+  @override
   String stringExpression(Identifier variable) {
     return "'/' + ($variable).map((item) => "
         "${imports.commons}.Escaper.ecapePathComponent(item)).join('/')";
@@ -55,6 +58,7 @@ class ReservedExpansionExpression extends Part {
   ReservedExpansionExpression(DartApiImports imports, String templateVar)
       : super(imports, templateVar);
 
+  @override
   String stringExpression(Identifier variable) {
     return "${imports.commons}.Escaper.ecapeVariableReserved('\$$variable')";
   }
@@ -83,7 +87,7 @@ class UriTemplate {
       }
       var identifier = identifiers[part.templateVar];
       if (identifier == null) {
-        throw new ArgumentError(
+        throw ArgumentError(
             'Could not find entry ${part.templateVar} in identifier map.');
       }
       return part.stringExpression(identifier);
@@ -91,67 +95,67 @@ class UriTemplate {
   }
 
   static UriTemplate parse(DartApiImports imports, String pattern) {
-    List<Part> parts = [];
+    var parts = <Part>[];
 
     var offset = 0;
     while (offset < pattern.length) {
-      var open = pattern.indexOf("{", offset);
+      var open = pattern.indexOf('{', offset);
       // If we have no more URI template expressions, we append the remaining
       // string as a literal and we're done.
       if (open < 0) {
         var rest = pattern.substring(offset);
-        parts.add(new StringPart(imports, rest));
+        parts.add(StringPart(imports, rest));
         break;
       }
 
       // We append the static string prefix as a literal (if necessary).
       if (open > offset) {
         var stringPrefix = pattern.substring(offset, open);
-        parts.add(new StringPart(imports, stringPrefix));
+        parts.add(StringPart(imports, stringPrefix));
       }
 
-      var close = pattern.indexOf("}", open);
+      var close = pattern.indexOf('}', open);
       if (close < 0) {
-        throw new ArgumentError("Invalid URI template pattern, "
+        throw ArgumentError('Invalid URI template pattern, '
             "expected closing brace: '$pattern'");
       }
 
       // We extract the URI template expression and generate an expression
       // object for it.
-      String templateExpression = pattern.substring(open + 1, close);
+      var templateExpression = pattern.substring(open + 1, close);
       if (templateExpression.startsWith('/') &&
           templateExpression.endsWith('*')) {
         var variable =
             templateExpression.substring(1, templateExpression.length - 1);
         _ensureValidVariable(variable);
-        parts.add(new PathVariableExpression(imports, variable));
+        parts.add(PathVariableExpression(imports, variable));
       } else if (templateExpression.startsWith('+')) {
         var variable = templateExpression.substring(1);
         _ensureValidVariable(variable);
-        parts.add(new ReservedExpansionExpression(imports, variable));
+        parts.add(ReservedExpansionExpression(imports, variable));
       } else {
         var variable = templateExpression;
         _ensureValidVariable(variable);
-        parts.add(new VariableExpression(imports, variable));
+        parts.add(VariableExpression(imports, variable));
       }
       offset = close + 1;
     }
-    return new UriTemplate(parts);
+    return UriTemplate(parts);
   }
 
   static void _ensureValidVariable(String name) {
     var codeUnites = name.codeUnits;
     for (var i = 0; i < codeUnites.length; i++) {
       var char = codeUnites[i];
-      bool isLetter = (65 <= char && char <= 90) || (97 <= char && char <= 122);
-      bool isNumber = (48 <= char && char <= 57);
-      bool isUnderscore = char == 0x5F;
+      var isLetter = (65 <= char && char <= 90) || (97 <= char && char <= 122);
+      var isNumber = (48 <= char && char <= 57);
+      var isUnderscore = char == 0x5F;
       if (i == 0 && !isLetter) {
-        throw new ArgumentError('Variables can only begin with an upper or '
+        throw ArgumentError('Variables can only begin with an upper or '
             'lowercase letter: "$name".');
       }
       if (!isLetter && !isNumber && !isUnderscore) {
-        throw new ArgumentError('Variables can only consist of uppercase '
+        throw ArgumentError('Variables can only consist of uppercase '
             'letters, lowercase letters, underscores and '
             'numbers: "$name".');
       }

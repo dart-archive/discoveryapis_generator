@@ -18,7 +18,7 @@ export 'src/utils.dart' show GenerateResult, findPackageRoot;
 List<GenerateResult> generateClientStubs(
     List<DescriptionImportPair> descriptions, String outputDirectory,
     {bool updatePubspec = false}) {
-  final clientGenerator = new ApisFilesGenerator(descriptions, outputDirectory,
+  final clientGenerator = ApisFilesGenerator(descriptions, outputDirectory,
       updatePubspec: updatePubspec);
   return clientGenerator.generate();
 }

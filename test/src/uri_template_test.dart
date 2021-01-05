@@ -7,13 +7,13 @@ import 'package:discoveryapis_generator/src/namer.dart';
 import 'package:discoveryapis_generator/src/uri_template.dart';
 import 'package:test/test.dart';
 
-main() {
+void main() {
   group('url-pattern', () {
-    var namer = new ApiLibraryNamer();
-    var imports = new DartApiImports.fromNamer(namer);
+    var namer = ApiLibraryNamer();
+    var imports = DartApiImports.fromNamer(namer);
     namer.nameAllIdentifiers();
 
-    id(String s) => new Identifier(s)..sealWithName(s);
+    Identifier id(String s) => Identifier(s)..sealWithName(s);
 
     test('string', () {
       var template = UriTemplate.parse(imports, 'abc');
@@ -46,7 +46,7 @@ main() {
       expect(
           template.stringExpression({'myvar': id('abc')}),
           equals("'/' + (abc).map((item) => "
-              "commons.Escaper.ecapePathComponent(item))"
+              'commons.Escaper.ecapePathComponent(item))'
               ".join('/')"));
     });
 

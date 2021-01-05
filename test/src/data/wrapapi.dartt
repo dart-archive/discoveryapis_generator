@@ -1,6 +1,6 @@
 // This is a generated file (see the discoveryapis_generator project).
 
-// ignore_for_file: unused_import, unnecessary_cast
+// ignore_for_file: directives_ordering, omit_local_variable_types, prefer_single_quotes, unnecessary_cast, unused_import
 
 library wrapapi.wrapApi.D0_1;
 
@@ -21,7 +21,7 @@ class WrapApiApi {
   final commons.ApiRequester _requester;
 
   WrapApiApi(http.Client client, {core.String rootUrl = "http://localhost:9090/", core.String servicePath = "api/wrapApi/0.1/"}) :
-      _requester = new commons.ApiRequester(client, rootUrl, servicePath, USER_AGENT);
+      _requester = commons.ApiRequester(client, rootUrl, servicePath, USER_AGENT);
 
   /// [request] - The metadata request object.
   ///
@@ -36,7 +36,7 @@ class WrapApiApi {
   /// this method will complete with the same error.
   async.Future<WrapResponse> helloPost(WrapRequest request) {
     var _url;
-    var _queryParams = new core.Map<core.String, core.List<core.String>>();
+    var _queryParams = <core.String, core.List<core.String>>{};
     var _uploadMedia;
     var _uploadOptions;
     var _downloadOptions = commons.DownloadOptions.Metadata;
@@ -55,7 +55,7 @@ class WrapApiApi {
                                        uploadOptions: _uploadOptions,
                                        uploadMedia: _uploadMedia,
                                        downloadOptions: _downloadOptions);
-    return _response.then((data) => new WrapResponse.fromJson(data['data']));
+    return _response.then((data) => WrapResponse.fromJson(data['data']));
   }
 
 }
@@ -78,7 +78,7 @@ class WrapRequest {
   }
 
   core.Map<core.String, core.Object> toJson() {
-    final core.Map<core.String, core.Object> _json = new core.Map<core.String, core.Object>();
+    final core.Map<core.String, core.Object> _json = <core.String, core.Object>{};
     if (age != null) {
       _json["age"] = age;
     }
@@ -101,7 +101,7 @@ class WrapResponse {
   }
 
   core.Map<core.String, core.Object> toJson() {
-    final core.Map<core.String, core.Object> _json = new core.Map<core.String, core.Object>();
+    final core.Map<core.String, core.Object> _json = <core.String, core.Object>{};
     if (result != null) {
       _json["result"] = result;
     }

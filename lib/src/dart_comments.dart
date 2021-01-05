@@ -8,7 +8,7 @@ import 'utils.dart';
 
 /// Represents a comment of a dart element (e.g. class, method, ...)
 class Comment {
-  static final Comment Empty = new Comment('');
+  static final Comment Empty = Comment('');
   final String rawComment;
 
   Comment(String raw)
@@ -25,9 +25,9 @@ class Comment {
     final spaces = ' ' * indentationLevel;
 
     String multilineComment() {
-      final result = new StringBuffer();
+      final result = StringBuffer();
 
-      final int maxCommentLine = 80 - (indentationLevel + '/// '.length);
+      final maxCommentLine = 80 - (indentationLevel + '/// '.length);
       final expandedLines = commentString.split('\n').expand((String s) {
         if (s.length < maxCommentLine) {
           return [s];
@@ -35,7 +35,7 @@ class Comment {
 
         // Try to break the line into several lines.
         final splitted = <String>[];
-        final sb = new StringBuffer();
+        final sb = StringBuffer();
 
         for (var part in s.split(' ')) {
           if ((sb.length + part.length + 1) > maxCommentLine) {
@@ -52,7 +52,7 @@ class Comment {
         return splitted;
       });
 
-      for (String line in expandedLines) {
+      for (var line in expandedLines) {
         line = line.trimRight();
         result.write('$spaces///');
         if (line.isNotEmpty) {
