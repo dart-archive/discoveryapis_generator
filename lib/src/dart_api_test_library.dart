@@ -88,6 +88,8 @@ class DartApiTestLibrary extends TestHelper {
 
   String get libraryHeader {
     return """
+// ignore_for_file: unused_local_variable, unused_element
+
 library ${apiLibrary.libraryName}.test;
 
 import "dart:core" as core;
