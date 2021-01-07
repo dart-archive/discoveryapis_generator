@@ -62,7 +62,8 @@ class ApisFilesGenerator {
 
     var processPubspec = false;
     var results = <GenerateResult>[];
-    descriptions.forEach((diPair) {
+
+    for (var diPair in descriptions) {
       var description =
           RestDescription.fromJson(json.decode(diPair.apiDescription));
       var name = description.name.toLowerCase();
@@ -78,7 +79,11 @@ class ApisFilesGenerator {
         } else {
           // Build a client stub api using common message classes.
           lib = ClientApiLibrary.build(
-              description, diPair.importMap, packageName, packageRoot);
+            description,
+            diPair.importMap,
+            packageName,
+            packageRoot,
+          );
         }
         writeDartSource(apiFile, lib.librarySource);
         final result = GenerateResult(name, version, clientFolderPath);
@@ -91,10 +96,11 @@ class ApisFilesGenerator {
         } else {
           errorMessage = '$error\nstack: $stack';
         }
-        results.add(GenerateResult.error(
-            name, version, clientFolderPath, errorMessage));
+        results.add(
+          GenerateResult.error(name, version, clientFolderPath, errorMessage),
+        );
       }
-    });
+    }
 
     // Print or add required dependencies to the pubspec.yaml file.
     if (processPubspec) {

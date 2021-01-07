@@ -1,6 +1,24 @@
 // This is a generated file (see the discoveryapis_generator project).
 
-// ignore_for_file: directives_ordering, omit_local_variable_types, prefer_single_quotes, unnecessary_cast, unused_import
+// ignore_for_file: avoid_unused_constructor_parameters
+// ignore_for_file: camel_case_types
+// ignore_for_file: comment_references
+// ignore_for_file: constant_identifier_names
+// ignore_for_file: directives_ordering
+// ignore_for_file: empty_constructor_bodies
+// ignore_for_file: library_names
+// ignore_for_file: lines_longer_than_80_chars
+// ignore_for_file: non_constant_identifier_names
+// ignore_for_file: omit_local_variable_types
+// ignore_for_file: prefer_final_locals
+// ignore_for_file: prefer_interpolation_to_compose_strings
+// ignore_for_file: prefer_single_quotes
+// ignore_for_file: unnecessary_brace_in_string_interps
+// ignore_for_file: unnecessary_cast
+// ignore_for_file: unnecessary_parenthesis
+// ignore_for_file: unnecessary_string_interpolations
+// ignore_for_file: unused_field
+// ignore_for_file: unused_import
 
 library discoveryapis_tests.toyApi.D0_1;
 
@@ -39,13 +57,15 @@ class ToyApiApi {
   ///
   /// If the used [http.Client] completes with an error when making a REST call,
   /// this method will complete with the same error.
-  async.Future failing({core.String $fields}) {
-    var _url;
-    var _queryParams = <core.String, core.List<core.String>>{};
-    var _uploadMedia;
-    var _uploadOptions;
+  async.Future failing({
+    core.String $fields,
+  }) {
+    core.String _url;
+    final _queryParams = <core.String, core.List<core.String>>{};
+    commons.Media _uploadMedia;
+    commons.UploadOptions _uploadOptions;
     var _downloadOptions = commons.DownloadOptions.Metadata;
-    var _body;
+    core.String _body;
 
     if ($fields != null) {
       _queryParams["fields"] = [$fields];
@@ -55,12 +75,15 @@ class ToyApiApi {
 
     _url = 'failing';
 
-    var _response = _requester.request(_url, "GET",
-        body: _body,
-        queryParams: _queryParams,
-        uploadOptions: _uploadOptions,
-        uploadMedia: _uploadMedia,
-        downloadOptions: _downloadOptions);
+    final _response = _requester.request(
+      _url,
+      "GET",
+      body: _body,
+      queryParams: _queryParams,
+      uploadOptions: _uploadOptions,
+      uploadMedia: _uploadMedia,
+      downloadOptions: _downloadOptions,
+    );
     return _response.then((data) => null);
   }
 
@@ -76,13 +99,15 @@ class ToyApiApi {
   ///
   /// If the used [http.Client] completes with an error when making a REST call,
   /// this method will complete with the same error.
-  async.Future<ToyResponse> hello({core.String $fields}) {
-    var _url;
-    var _queryParams = <core.String, core.List<core.String>>{};
-    var _uploadMedia;
-    var _uploadOptions;
+  async.Future<ToyResponse> hello({
+    core.String $fields,
+  }) {
+    core.String _url;
+    final _queryParams = <core.String, core.List<core.String>>{};
+    commons.Media _uploadMedia;
+    commons.UploadOptions _uploadOptions;
     var _downloadOptions = commons.DownloadOptions.Metadata;
-    var _body;
+    core.String _body;
 
     if ($fields != null) {
       _queryParams["fields"] = [$fields];
@@ -90,12 +115,15 @@ class ToyApiApi {
 
     _url = 'hello';
 
-    var _response = _requester.request(_url, "GET",
-        body: _body,
-        queryParams: _queryParams,
-        uploadOptions: _uploadOptions,
-        uploadMedia: _uploadMedia,
-        downloadOptions: _downloadOptions);
+    final _response = _requester.request(
+      _url,
+      "GET",
+      body: _body,
+      queryParams: _queryParams,
+      uploadOptions: _uploadOptions,
+      uploadMedia: _uploadMedia,
+      downloadOptions: _downloadOptions,
+    );
     return _response.then((data) => ToyResponse.fromJson(data));
   }
 
@@ -113,17 +141,19 @@ class ToyApiApi {
   ///
   /// If the used [http.Client] completes with an error when making a REST call,
   /// this method will complete with the same error.
-  async.Future<MapOfToyResponse> helloListOfClass(ListOfToyRequest request,
-      {core.String $fields}) {
-    var _url;
-    var _queryParams = <core.String, core.List<core.String>>{};
-    var _uploadMedia;
-    var _uploadOptions;
+  async.Future<MapOfToyResponse> helloListOfClass(
+    ListOfToyRequest request, {
+    core.String $fields,
+  }) {
+    core.String _url;
+    final _queryParams = <core.String, core.List<core.String>>{};
+    commons.Media _uploadMedia;
+    commons.UploadOptions _uploadOptions;
     var _downloadOptions = commons.DownloadOptions.Metadata;
-    var _body;
+    core.String _body;
 
     if (request != null) {
-      _body = convert.json.encode((request).toJson());
+      _body = convert.json.encode(request.toJson());
     }
     if ($fields != null) {
       _queryParams["fields"] = [$fields];
@@ -131,12 +161,15 @@ class ToyApiApi {
 
     _url = 'helloListOfClass';
 
-    var _response = _requester.request(_url, "POST",
-        body: _body,
-        queryParams: _queryParams,
-        uploadOptions: _uploadOptions,
-        uploadMedia: _uploadMedia,
-        downloadOptions: _downloadOptions);
+    final _response = _requester.request(
+      _url,
+      "POST",
+      body: _body,
+      queryParams: _queryParams,
+      uploadOptions: _uploadOptions,
+      uploadMedia: _uploadMedia,
+      downloadOptions: _downloadOptions,
+    );
     return _response.then((data) => MapOfToyResponse.fromJson(data));
   }
 
@@ -155,17 +188,18 @@ class ToyApiApi {
   /// If the used [http.Client] completes with an error when making a REST call,
   /// this method will complete with the same error.
   async.Future<MapOfToyResponse> helloListOfListOfClass(
-      ListOfListOfToyRequest request,
-      {core.String $fields}) {
-    var _url;
-    var _queryParams = <core.String, core.List<core.String>>{};
-    var _uploadMedia;
-    var _uploadOptions;
+    ListOfListOfToyRequest request, {
+    core.String $fields,
+  }) {
+    core.String _url;
+    final _queryParams = <core.String, core.List<core.String>>{};
+    commons.Media _uploadMedia;
+    commons.UploadOptions _uploadOptions;
     var _downloadOptions = commons.DownloadOptions.Metadata;
-    var _body;
+    core.String _body;
 
     if (request != null) {
-      _body = convert.json.encode((request).toJson());
+      _body = convert.json.encode(request.toJson());
     }
     if ($fields != null) {
       _queryParams["fields"] = [$fields];
@@ -173,12 +207,15 @@ class ToyApiApi {
 
     _url = 'helloListOfListOfClass';
 
-    var _response = _requester.request(_url, "POST",
-        body: _body,
-        queryParams: _queryParams,
-        uploadOptions: _uploadOptions,
-        uploadMedia: _uploadMedia,
-        downloadOptions: _downloadOptions);
+    final _response = _requester.request(
+      _url,
+      "POST",
+      body: _body,
+      queryParams: _queryParams,
+      uploadOptions: _uploadOptions,
+      uploadMedia: _uploadMedia,
+      downloadOptions: _downloadOptions,
+    );
     return _response.then((data) => MapOfToyResponse.fromJson(data));
   }
 
@@ -196,13 +233,16 @@ class ToyApiApi {
   ///
   /// If the used [http.Client] completes with an error when making a REST call,
   /// this method will complete with the same error.
-  async.Future<MapOfint> helloMap(MapOfint request, {core.String $fields}) {
-    var _url;
-    var _queryParams = <core.String, core.List<core.String>>{};
-    var _uploadMedia;
-    var _uploadOptions;
+  async.Future<MapOfint> helloMap(
+    MapOfint request, {
+    core.String $fields,
+  }) {
+    core.String _url;
+    final _queryParams = <core.String, core.List<core.String>>{};
+    commons.Media _uploadMedia;
+    commons.UploadOptions _uploadOptions;
     var _downloadOptions = commons.DownloadOptions.Metadata;
-    var _body;
+    core.String _body;
 
     if (request != null) {
       _body = convert.json.encode(request);
@@ -213,12 +253,15 @@ class ToyApiApi {
 
     _url = 'helloMap';
 
-    var _response = _requester.request(_url, "POST",
-        body: _body,
-        queryParams: _queryParams,
-        uploadOptions: _uploadOptions,
-        uploadMedia: _uploadMedia,
-        downloadOptions: _downloadOptions);
+    final _response = _requester.request(
+      _url,
+      "POST",
+      body: _body,
+      queryParams: _queryParams,
+      uploadOptions: _uploadOptions,
+      uploadMedia: _uploadMedia,
+      downloadOptions: _downloadOptions,
+    );
     return _response.then((data) => MapOfint.fromJson(data));
   }
 
@@ -238,14 +281,17 @@ class ToyApiApi {
   ///
   /// If the used [http.Client] completes with an error when making a REST call,
   /// this method will complete with the same error.
-  async.Future<ToyResponse> helloNameAge(core.String name, core.int age,
-      {core.String $fields}) {
-    var _url;
-    var _queryParams = <core.String, core.List<core.String>>{};
-    var _uploadMedia;
-    var _uploadOptions;
+  async.Future<ToyResponse> helloNameAge(
+    core.String name,
+    core.int age, {
+    core.String $fields,
+  }) {
+    core.String _url;
+    final _queryParams = <core.String, core.List<core.String>>{};
+    commons.Media _uploadMedia;
+    commons.UploadOptions _uploadOptions;
     var _downloadOptions = commons.DownloadOptions.Metadata;
-    var _body;
+    core.String _body;
 
     if (name == null) {
       throw core.ArgumentError("Parameter name is required.");
@@ -262,12 +308,15 @@ class ToyApiApi {
         '/age/' +
         commons.Escaper.ecapeVariable('$age');
 
-    var _response = _requester.request(_url, "GET",
-        body: _body,
-        queryParams: _queryParams,
-        uploadOptions: _uploadOptions,
-        uploadMedia: _uploadMedia,
-        downloadOptions: _downloadOptions);
+    final _response = _requester.request(
+      _url,
+      "GET",
+      body: _body,
+      queryParams: _queryParams,
+      uploadOptions: _uploadOptions,
+      uploadMedia: _uploadMedia,
+      downloadOptions: _downloadOptions,
+    );
     return _response.then((data) => ToyResponse.fromJson(data));
   }
 
@@ -288,17 +337,19 @@ class ToyApiApi {
   /// If the used [http.Client] completes with an error when making a REST call,
   /// this method will complete with the same error.
   async.Future<ToyResponse> helloNamePostAge(
-      ToyAgeRequest request, core.String name,
-      {core.String $fields}) {
-    var _url;
-    var _queryParams = <core.String, core.List<core.String>>{};
-    var _uploadMedia;
-    var _uploadOptions;
+    ToyAgeRequest request,
+    core.String name, {
+    core.String $fields,
+  }) {
+    core.String _url;
+    final _queryParams = <core.String, core.List<core.String>>{};
+    commons.Media _uploadMedia;
+    commons.UploadOptions _uploadOptions;
     var _downloadOptions = commons.DownloadOptions.Metadata;
-    var _body;
+    core.String _body;
 
     if (request != null) {
-      _body = convert.json.encode((request).toJson());
+      _body = convert.json.encode(request.toJson());
     }
     if (name == null) {
       throw core.ArgumentError("Parameter name is required.");
@@ -309,12 +360,15 @@ class ToyApiApi {
 
     _url = 'helloPost/' + commons.Escaper.ecapeVariable('$name');
 
-    var _response = _requester.request(_url, "POST",
-        body: _body,
-        queryParams: _queryParams,
-        uploadOptions: _uploadOptions,
-        uploadMedia: _uploadMedia,
-        downloadOptions: _downloadOptions);
+    final _response = _requester.request(
+      _url,
+      "POST",
+      body: _body,
+      queryParams: _queryParams,
+      uploadOptions: _uploadOptions,
+      uploadMedia: _uploadMedia,
+      downloadOptions: _downloadOptions,
+    );
     return _response.then((data) => ToyResponse.fromJson(data));
   }
 
@@ -336,14 +390,18 @@ class ToyApiApi {
   ///
   /// If the used [http.Client] completes with an error when making a REST call,
   /// this method will complete with the same error.
-  async.Future<ToyResponse> helloNameQueryAgeFoo(core.String name,
-      {core.String foo, core.int age, core.String $fields}) {
-    var _url;
-    var _queryParams = <core.String, core.List<core.String>>{};
-    var _uploadMedia;
-    var _uploadOptions;
+  async.Future<ToyResponse> helloNameQueryAgeFoo(
+    core.String name, {
+    core.String foo,
+    core.int age,
+    core.String $fields,
+  }) {
+    core.String _url;
+    final _queryParams = <core.String, core.List<core.String>>{};
+    commons.Media _uploadMedia;
+    commons.UploadOptions _uploadOptions;
     var _downloadOptions = commons.DownloadOptions.Metadata;
-    var _body;
+    core.String _body;
 
     if (name == null) {
       throw core.ArgumentError("Parameter name is required.");
@@ -360,12 +418,15 @@ class ToyApiApi {
 
     _url = 'helloQuery/' + commons.Escaper.ecapeVariable('$name');
 
-    var _response = _requester.request(_url, "GET",
-        body: _body,
-        queryParams: _queryParams,
-        uploadOptions: _uploadOptions,
-        uploadMedia: _uploadMedia,
-        downloadOptions: _downloadOptions);
+    final _response = _requester.request(
+      _url,
+      "GET",
+      body: _body,
+      queryParams: _queryParams,
+      uploadOptions: _uploadOptions,
+      uploadMedia: _uploadMedia,
+      downloadOptions: _downloadOptions,
+    );
     return _response.then((data) => ToyResponse.fromJson(data));
   }
 
@@ -383,14 +444,16 @@ class ToyApiApi {
   ///
   /// If the used [http.Client] completes with an error when making a REST call,
   /// this method will complete with the same error.
-  async.Future<ListOfListOfString> helloNestedListList(ListOfListOfint request,
-      {core.String $fields}) {
-    var _url;
-    var _queryParams = <core.String, core.List<core.String>>{};
-    var _uploadMedia;
-    var _uploadOptions;
+  async.Future<ListOfListOfString> helloNestedListList(
+    ListOfListOfint request, {
+    core.String $fields,
+  }) {
+    core.String _url;
+    final _queryParams = <core.String, core.List<core.String>>{};
+    commons.Media _uploadMedia;
+    commons.UploadOptions _uploadOptions;
     var _downloadOptions = commons.DownloadOptions.Metadata;
-    var _body;
+    core.String _body;
 
     if (request != null) {
       _body = convert.json.encode(request);
@@ -401,12 +464,15 @@ class ToyApiApi {
 
     _url = 'helloNestedListList';
 
-    var _response = _requester.request(_url, "POST",
-        body: _body,
-        queryParams: _queryParams,
-        uploadOptions: _uploadOptions,
-        uploadMedia: _uploadMedia,
-        downloadOptions: _downloadOptions);
+    final _response = _requester.request(
+      _url,
+      "POST",
+      body: _body,
+      queryParams: _queryParams,
+      uploadOptions: _uploadOptions,
+      uploadMedia: _uploadMedia,
+      downloadOptions: _downloadOptions,
+    );
     return _response.then((data) => ListOfListOfString.fromJson(data));
   }
 
@@ -425,14 +491,15 @@ class ToyApiApi {
   /// If the used [http.Client] completes with an error when making a REST call,
   /// this method will complete with the same error.
   async.Future<ListOfMapOfListOfString> helloNestedListMapList(
-      ListOfMapOfListOfint request,
-      {core.String $fields}) {
-    var _url;
-    var _queryParams = <core.String, core.List<core.String>>{};
-    var _uploadMedia;
-    var _uploadOptions;
+    ListOfMapOfListOfint request, {
+    core.String $fields,
+  }) {
+    core.String _url;
+    final _queryParams = <core.String, core.List<core.String>>{};
+    commons.Media _uploadMedia;
+    commons.UploadOptions _uploadOptions;
     var _downloadOptions = commons.DownloadOptions.Metadata;
-    var _body;
+    core.String _body;
 
     if (request != null) {
       _body = convert.json.encode(request);
@@ -443,12 +510,15 @@ class ToyApiApi {
 
     _url = 'helloNestedListMapList';
 
-    var _response = _requester.request(_url, "POST",
-        body: _body,
-        queryParams: _queryParams,
-        uploadOptions: _uploadOptions,
-        uploadMedia: _uploadMedia,
-        downloadOptions: _downloadOptions);
+    final _response = _requester.request(
+      _url,
+      "POST",
+      body: _body,
+      queryParams: _queryParams,
+      uploadOptions: _uploadOptions,
+      uploadMedia: _uploadMedia,
+      downloadOptions: _downloadOptions,
+    );
     return _response.then((data) => ListOfMapOfListOfString.fromJson(data));
   }
 
@@ -464,13 +534,15 @@ class ToyApiApi {
   ///
   /// If the used [http.Client] completes with an error when making a REST call,
   /// this method will complete with the same error.
-  async.Future<ToyMapResponse> helloNestedMap({core.String $fields}) {
-    var _url;
-    var _queryParams = <core.String, core.List<core.String>>{};
-    var _uploadMedia;
-    var _uploadOptions;
+  async.Future<ToyMapResponse> helloNestedMap({
+    core.String $fields,
+  }) {
+    core.String _url;
+    final _queryParams = <core.String, core.List<core.String>>{};
+    commons.Media _uploadMedia;
+    commons.UploadOptions _uploadOptions;
     var _downloadOptions = commons.DownloadOptions.Metadata;
-    var _body;
+    core.String _body;
 
     if ($fields != null) {
       _queryParams["fields"] = [$fields];
@@ -478,12 +550,15 @@ class ToyApiApi {
 
     _url = 'helloNestedMap';
 
-    var _response = _requester.request(_url, "GET",
-        body: _body,
-        queryParams: _queryParams,
-        uploadOptions: _uploadOptions,
-        uploadMedia: _uploadMedia,
-        downloadOptions: _downloadOptions);
+    final _response = _requester.request(
+      _url,
+      "GET",
+      body: _body,
+      queryParams: _queryParams,
+      uploadOptions: _uploadOptions,
+      uploadMedia: _uploadMedia,
+      downloadOptions: _downloadOptions,
+    );
     return _response.then((data) => ToyMapResponse.fromJson(data));
   }
 
@@ -502,14 +577,15 @@ class ToyApiApi {
   /// If the used [http.Client] completes with an error when making a REST call,
   /// this method will complete with the same error.
   async.Future<MapOfListOfMapOfbool> helloNestedMapListMap(
-      MapOfListOfMapOfint request,
-      {core.String $fields}) {
-    var _url;
-    var _queryParams = <core.String, core.List<core.String>>{};
-    var _uploadMedia;
-    var _uploadOptions;
+    MapOfListOfMapOfint request, {
+    core.String $fields,
+  }) {
+    core.String _url;
+    final _queryParams = <core.String, core.List<core.String>>{};
+    commons.Media _uploadMedia;
+    commons.UploadOptions _uploadOptions;
     var _downloadOptions = commons.DownloadOptions.Metadata;
-    var _body;
+    core.String _body;
 
     if (request != null) {
       _body = convert.json.encode(request);
@@ -520,12 +596,15 @@ class ToyApiApi {
 
     _url = 'helloNestedMapListMap';
 
-    var _response = _requester.request(_url, "POST",
-        body: _body,
-        queryParams: _queryParams,
-        uploadOptions: _uploadOptions,
-        uploadMedia: _uploadMedia,
-        downloadOptions: _downloadOptions);
+    final _response = _requester.request(
+      _url,
+      "POST",
+      body: _body,
+      queryParams: _queryParams,
+      uploadOptions: _uploadOptions,
+      uploadMedia: _uploadMedia,
+      downloadOptions: _downloadOptions,
+    );
     return _response.then((data) => MapOfListOfMapOfbool.fromJson(data));
   }
 
@@ -543,14 +622,16 @@ class ToyApiApi {
   ///
   /// If the used [http.Client] completes with an error when making a REST call,
   /// this method will complete with the same error.
-  async.Future<MapOfMapOfbool> helloNestedMapMap(MapOfMapOfint request,
-      {core.String $fields}) {
-    var _url;
-    var _queryParams = <core.String, core.List<core.String>>{};
-    var _uploadMedia;
-    var _uploadOptions;
+  async.Future<MapOfMapOfbool> helloNestedMapMap(
+    MapOfMapOfint request, {
+    core.String $fields,
+  }) {
+    core.String _url;
+    final _queryParams = <core.String, core.List<core.String>>{};
+    commons.Media _uploadMedia;
+    commons.UploadOptions _uploadOptions;
     var _downloadOptions = commons.DownloadOptions.Metadata;
-    var _body;
+    core.String _body;
 
     if (request != null) {
       _body = convert.json.encode(request);
@@ -561,12 +642,15 @@ class ToyApiApi {
 
     _url = 'helloNestedMapMap';
 
-    var _response = _requester.request(_url, "POST",
-        body: _body,
-        queryParams: _queryParams,
-        uploadOptions: _uploadOptions,
-        uploadMedia: _uploadMedia,
-        downloadOptions: _downloadOptions);
+    final _response = _requester.request(
+      _url,
+      "POST",
+      body: _body,
+      queryParams: _queryParams,
+      uploadOptions: _uploadOptions,
+      uploadMedia: _uploadMedia,
+      downloadOptions: _downloadOptions,
+    );
     return _response.then((data) => MapOfMapOfbool.fromJson(data));
   }
 
@@ -584,17 +668,19 @@ class ToyApiApi {
   ///
   /// If the used [http.Client] completes with an error when making a REST call,
   /// this method will complete with the same error.
-  async.Future<ToyResponse> helloPost(ToyRequest request,
-      {core.String $fields}) {
-    var _url;
-    var _queryParams = <core.String, core.List<core.String>>{};
-    var _uploadMedia;
-    var _uploadOptions;
+  async.Future<ToyResponse> helloPost(
+    ToyRequest request, {
+    core.String $fields,
+  }) {
+    core.String _url;
+    final _queryParams = <core.String, core.List<core.String>>{};
+    commons.Media _uploadMedia;
+    commons.UploadOptions _uploadOptions;
     var _downloadOptions = commons.DownloadOptions.Metadata;
-    var _body;
+    core.String _body;
 
     if (request != null) {
-      _body = convert.json.encode((request).toJson());
+      _body = convert.json.encode(request.toJson());
     }
     if ($fields != null) {
       _queryParams["fields"] = [$fields];
@@ -602,12 +688,15 @@ class ToyApiApi {
 
     _url = 'helloPost';
 
-    var _response = _requester.request(_url, "POST",
-        body: _body,
-        queryParams: _queryParams,
-        uploadOptions: _uploadOptions,
-        uploadMedia: _uploadMedia,
-        downloadOptions: _downloadOptions);
+    final _response = _requester.request(
+      _url,
+      "POST",
+      body: _body,
+      queryParams: _queryParams,
+      uploadOptions: _uploadOptions,
+      uploadMedia: _uploadMedia,
+      downloadOptions: _downloadOptions,
+    );
     return _response.then((data) => ToyResponse.fromJson(data));
   }
 
@@ -623,13 +712,15 @@ class ToyApiApi {
   ///
   /// If the used [http.Client] completes with an error when making a REST call,
   /// this method will complete with the same error.
-  async.Future<ToyResponse> helloReturnNull({core.String $fields}) {
-    var _url;
-    var _queryParams = <core.String, core.List<core.String>>{};
-    var _uploadMedia;
-    var _uploadOptions;
+  async.Future<ToyResponse> helloReturnNull({
+    core.String $fields,
+  }) {
+    core.String _url;
+    final _queryParams = <core.String, core.List<core.String>>{};
+    commons.Media _uploadMedia;
+    commons.UploadOptions _uploadOptions;
     var _downloadOptions = commons.DownloadOptions.Metadata;
-    var _body;
+    core.String _body;
 
     if ($fields != null) {
       _queryParams["fields"] = [$fields];
@@ -637,12 +728,15 @@ class ToyApiApi {
 
     _url = 'helloReturnNull';
 
-    var _response = _requester.request(_url, "GET",
-        body: _body,
-        queryParams: _queryParams,
-        uploadOptions: _uploadOptions,
-        uploadMedia: _uploadMedia,
-        downloadOptions: _downloadOptions);
+    final _response = _requester.request(
+      _url,
+      "GET",
+      body: _body,
+      queryParams: _queryParams,
+      uploadOptions: _uploadOptions,
+      uploadMedia: _uploadMedia,
+      downloadOptions: _downloadOptions,
+    );
     return _response.then((data) => ToyResponse.fromJson(data));
   }
 
@@ -658,13 +752,15 @@ class ToyApiApi {
   ///
   /// If the used [http.Client] completes with an error when making a REST call,
   /// this method will complete with the same error.
-  async.Future<ToyResponse> helloVoid({core.String $fields}) {
-    var _url;
-    var _queryParams = <core.String, core.List<core.String>>{};
-    var _uploadMedia;
-    var _uploadOptions;
+  async.Future<ToyResponse> helloVoid({
+    core.String $fields,
+  }) {
+    core.String _url;
+    final _queryParams = <core.String, core.List<core.String>>{};
+    commons.Media _uploadMedia;
+    commons.UploadOptions _uploadOptions;
     var _downloadOptions = commons.DownloadOptions.Metadata;
-    var _body;
+    core.String _body;
 
     if ($fields != null) {
       _queryParams["fields"] = [$fields];
@@ -672,12 +768,15 @@ class ToyApiApi {
 
     _url = 'helloVoid';
 
-    var _response = _requester.request(_url, "POST",
-        body: _body,
-        queryParams: _queryParams,
-        uploadOptions: _uploadOptions,
-        uploadMedia: _uploadMedia,
-        downloadOptions: _downloadOptions);
+    final _response = _requester.request(
+      _url,
+      "POST",
+      body: _body,
+      queryParams: _queryParams,
+      uploadOptions: _uploadOptions,
+      uploadMedia: _uploadMedia,
+      downloadOptions: _downloadOptions,
+    );
     return _response.then((data) => ToyResponse.fromJson(data));
   }
 
@@ -691,13 +790,15 @@ class ToyApiApi {
   ///
   /// If the used [http.Client] completes with an error when making a REST call,
   /// this method will complete with the same error.
-  async.Future noop({core.String $fields}) {
-    var _url;
-    var _queryParams = <core.String, core.List<core.String>>{};
-    var _uploadMedia;
-    var _uploadOptions;
+  async.Future noop({
+    core.String $fields,
+  }) {
+    core.String _url;
+    final _queryParams = <core.String, core.List<core.String>>{};
+    commons.Media _uploadMedia;
+    commons.UploadOptions _uploadOptions;
     var _downloadOptions = commons.DownloadOptions.Metadata;
-    var _body;
+    core.String _body;
 
     if ($fields != null) {
       _queryParams["fields"] = [$fields];
@@ -707,12 +808,15 @@ class ToyApiApi {
 
     _url = 'noop';
 
-    var _response = _requester.request(_url, "GET",
-        body: _body,
-        queryParams: _queryParams,
-        uploadOptions: _uploadOptions,
-        uploadMedia: _uploadMedia,
-        downloadOptions: _downloadOptions);
+    final _response = _requester.request(
+      _url,
+      "GET",
+      body: _body,
+      queryParams: _queryParams,
+      uploadOptions: _uploadOptions,
+      uploadMedia: _uploadMedia,
+      downloadOptions: _downloadOptions,
+    );
     return _response.then((data) => null);
   }
 
@@ -730,14 +834,16 @@ class ToyApiApi {
   ///
   /// If the used [http.Client] completes with an error when making a REST call,
   /// this method will complete with the same error.
-  async.Future<ListOfString> reverseList(ListOfString request,
-      {core.String $fields}) {
-    var _url;
-    var _queryParams = <core.String, core.List<core.String>>{};
-    var _uploadMedia;
-    var _uploadOptions;
+  async.Future<ListOfString> reverseList(
+    ListOfString request, {
+    core.String $fields,
+  }) {
+    core.String _url;
+    final _queryParams = <core.String, core.List<core.String>>{};
+    commons.Media _uploadMedia;
+    commons.UploadOptions _uploadOptions;
     var _downloadOptions = commons.DownloadOptions.Metadata;
-    var _body;
+    core.String _body;
 
     if (request != null) {
       _body = convert.json.encode(request);
@@ -748,12 +854,15 @@ class ToyApiApi {
 
     _url = 'reverseList';
 
-    var _response = _requester.request(_url, "POST",
-        body: _body,
-        queryParams: _queryParams,
-        uploadOptions: _uploadOptions,
-        uploadMedia: _uploadMedia,
-        downloadOptions: _downloadOptions);
+    final _response = _requester.request(
+      _url,
+      "POST",
+      body: _body,
+      queryParams: _queryParams,
+      uploadOptions: _uploadOptions,
+      uploadMedia: _uploadMedia,
+      downloadOptions: _downloadOptions,
+    );
     return _response.then((data) => ListOfString.fromJson(data));
   }
 }
@@ -780,14 +889,16 @@ class ComputeResourceApi {
   /// If the used [http.Client] completes with an error when making a REST call,
   /// this method will complete with the same error.
   async.Future<ToyResourceResponse> get(
-      core.String resource, core.String compute,
-      {core.String $fields}) {
-    var _url;
-    var _queryParams = <core.String, core.List<core.String>>{};
-    var _uploadMedia;
-    var _uploadOptions;
+    core.String resource,
+    core.String compute, {
+    core.String $fields,
+  }) {
+    core.String _url;
+    final _queryParams = <core.String, core.List<core.String>>{};
+    commons.Media _uploadMedia;
+    commons.UploadOptions _uploadOptions;
     var _downloadOptions = commons.DownloadOptions.Metadata;
-    var _body;
+    core.String _body;
 
     if (resource == null) {
       throw core.ArgumentError("Parameter resource is required.");
@@ -804,12 +915,15 @@ class ComputeResourceApi {
         '/compute/' +
         commons.Escaper.ecapeVariable('$compute');
 
-    var _response = _requester.request(_url, "GET",
-        body: _body,
-        queryParams: _queryParams,
-        uploadOptions: _uploadOptions,
-        uploadMedia: _uploadMedia,
-        downloadOptions: _downloadOptions);
+    final _response = _requester.request(
+      _url,
+      "GET",
+      body: _body,
+      queryParams: _queryParams,
+      uploadOptions: _uploadOptions,
+      uploadMedia: _uploadMedia,
+      downloadOptions: _downloadOptions,
+    );
     return _response.then((data) => ToyResourceResponse.fromJson(data));
   }
 }
@@ -836,14 +950,16 @@ class StorageResourceApi {
   /// If the used [http.Client] completes with an error when making a REST call,
   /// this method will complete with the same error.
   async.Future<ToyResourceResponse> get(
-      core.String resource, core.String storage,
-      {core.String $fields}) {
-    var _url;
-    var _queryParams = <core.String, core.List<core.String>>{};
-    var _uploadMedia;
-    var _uploadOptions;
+    core.String resource,
+    core.String storage, {
+    core.String $fields,
+  }) {
+    core.String _url;
+    final _queryParams = <core.String, core.List<core.String>>{};
+    commons.Media _uploadMedia;
+    commons.UploadOptions _uploadOptions;
     var _downloadOptions = commons.DownloadOptions.Metadata;
-    var _body;
+    core.String _body;
 
     if (resource == null) {
       throw core.ArgumentError("Parameter resource is required.");
@@ -860,12 +976,15 @@ class StorageResourceApi {
         '/storage/' +
         commons.Escaper.ecapeVariable('$storage');
 
-    var _response = _requester.request(_url, "GET",
-        body: _body,
-        queryParams: _queryParams,
-        uploadOptions: _uploadOptions,
-        uploadMedia: _uploadMedia,
-        downloadOptions: _downloadOptions);
+    final _response = _requester.request(
+      _url,
+      "GET",
+      body: _body,
+      queryParams: _queryParams,
+      uploadOptions: _uploadOptions,
+      uploadMedia: _uploadMedia,
+      downloadOptions: _downloadOptions,
+    );
     return _response.then((data) => ToyResourceResponse.fromJson(data));
   }
 }
@@ -884,14 +1003,18 @@ class ListOfListOfString extends collection.ListBase<core.List<core.String>> {
     return _inner.map((value) => value).toList();
   }
 
+  @core.override
   core.List<core.String> operator [](core.int key) => _inner[key];
 
+  @core.override
   void operator []=(core.int key, core.List<core.String> value) {
     _inner[key] = value;
   }
 
+  @core.override
   core.int get length => _inner.length;
 
+  @core.override
   set length(core.int newLength) {
     _inner.length = newLength;
   }
@@ -912,18 +1035,22 @@ class ListOfListOfToyRequest
 
   core.List<core.List<core.Map<core.String, core.Object>>> toJson() {
     return _inner
-        .map((value) => value.map((value) => (value).toJson()).toList())
+        .map((value) => value.map((value) => value.toJson()).toList())
         .toList();
   }
 
+  @core.override
   core.List<ToyRequest> operator [](core.int key) => _inner[key];
 
+  @core.override
   void operator []=(core.int key, core.List<ToyRequest> value) {
     _inner[key] = value;
   }
 
+  @core.override
   core.int get length => _inner.length;
 
+  @core.override
   set length(core.int newLength) {
     _inner.length = newLength;
   }
@@ -942,14 +1069,18 @@ class ListOfListOfint extends collection.ListBase<core.List<core.int>> {
     return _inner.map((value) => value).toList();
   }
 
+  @core.override
   core.List<core.int> operator [](core.int key) => _inner[key];
 
+  @core.override
   void operator []=(core.int key, core.List<core.int> value) {
     _inner[key] = value;
   }
 
+  @core.override
   core.int get length => _inner.length;
 
+  @core.override
   set length(core.int newLength) {
     _inner.length = newLength;
   }
@@ -972,16 +1103,20 @@ class ListOfMapOfListOfString
     return _inner.map((value) => value).toList();
   }
 
+  @core.override
   core.Map<core.String, core.List<core.String>> operator [](core.int key) =>
       _inner[key];
 
+  @core.override
   void operator []=(
       core.int key, core.Map<core.String, core.List<core.String>> value) {
     _inner[key] = value;
   }
 
+  @core.override
   core.int get length => _inner.length;
 
+  @core.override
   set length(core.int newLength) {
     _inner.length = newLength;
   }
@@ -1004,16 +1139,20 @@ class ListOfMapOfListOfint
     return _inner.map((value) => value).toList();
   }
 
+  @core.override
   core.Map<core.String, core.List<core.int>> operator [](core.int key) =>
       _inner[key];
 
+  @core.override
   void operator []=(
       core.int key, core.Map<core.String, core.List<core.int>> value) {
     _inner[key] = value;
   }
 
+  @core.override
   core.int get length => _inner.length;
 
+  @core.override
   set length(core.int newLength) {
     _inner.length = newLength;
   }
@@ -1031,14 +1170,18 @@ class ListOfString extends collection.ListBase<core.String> {
     return _inner.map((value) => value).toList();
   }
 
+  @core.override
   core.String operator [](core.int key) => _inner[key];
 
+  @core.override
   void operator []=(core.int key, core.String value) {
     _inner[key] = value;
   }
 
+  @core.override
   core.int get length => _inner.length;
 
+  @core.override
   set length(core.int newLength) {
     _inner.length = newLength;
   }
@@ -1053,17 +1196,21 @@ class ListOfToyRequest extends collection.ListBase<ToyRequest> {
       : _inner = json.map((value) => ToyRequest.fromJson(value)).toList();
 
   core.List<core.Map<core.String, core.Object>> toJson() {
-    return _inner.map((value) => (value).toJson()).toList();
+    return _inner.map((value) => value.toJson()).toList();
   }
 
+  @core.override
   ToyRequest operator [](core.int key) => _inner[key];
 
+  @core.override
   void operator []=(core.int key, ToyRequest value) {
     _inner[key] = value;
   }
 
+  @core.override
   core.int get length => _inner.length;
 
+  @core.override
   set length(core.int newLength) {
     _inner.length = newLength;
   }
@@ -1085,29 +1232,28 @@ class MapOfListOfMapOfbool extends collection
     });
   }
 
-  core.Map<core.String, core.List<core.Map<core.String, core.bool>>> toJson() {
-    final core.Map<core.String, core.List<core.Map<core.String, core.bool>>>
-        _json = <core.String, core.List<core.Map<core.String, core.bool>>>{};
-    this.forEach((core.String key, value) {
-      _json[key] = value;
-    });
-    return _json;
-  }
+  core.Map<core.String, core.List<core.Map<core.String, core.bool>>> toJson() =>
+      core.Map<core.String, core.List<core.Map<core.String, core.bool>>>.of(
+          this);
 
   core.List<core.Map<core.String, core.bool>> operator [](core.Object key) =>
       _innerMap[key];
 
-  operator []=(
+  @core.override
+  void operator []=(
       core.String key, core.List<core.Map<core.String, core.bool>> value) {
     _innerMap[key] = value;
   }
 
+  @core.override
   void clear() {
     _innerMap.clear();
   }
 
+  @core.override
   core.Iterable<core.String> get keys => _innerMap.keys;
 
+  @core.override
   core.List<core.Map<core.String, core.bool>> remove(core.Object key) =>
       _innerMap.remove(key);
 }
@@ -1127,29 +1273,28 @@ class MapOfListOfMapOfint extends collection
     });
   }
 
-  core.Map<core.String, core.List<core.Map<core.String, core.int>>> toJson() {
-    final core.Map<core.String, core.List<core.Map<core.String, core.int>>>
-        _json = <core.String, core.List<core.Map<core.String, core.int>>>{};
-    this.forEach((core.String key, value) {
-      _json[key] = value;
-    });
-    return _json;
-  }
+  core.Map<core.String, core.List<core.Map<core.String, core.int>>> toJson() =>
+      core.Map<core.String, core.List<core.Map<core.String, core.int>>>.of(
+          this);
 
   core.List<core.Map<core.String, core.int>> operator [](core.Object key) =>
       _innerMap[key];
 
-  operator []=(
+  @core.override
+  void operator []=(
       core.String key, core.List<core.Map<core.String, core.int>> value) {
     _innerMap[key] = value;
   }
 
+  @core.override
   void clear() {
     _innerMap.clear();
   }
 
+  @core.override
   core.Iterable<core.String> get keys => _innerMap.keys;
 
+  @core.override
   core.List<core.Map<core.String, core.int>> remove(core.Object key) =>
       _innerMap.remove(key);
 }
@@ -1166,28 +1311,26 @@ class MapOfMapOfbool
     });
   }
 
-  core.Map<core.String, core.Map<core.String, core.bool>> toJson() {
-    final core.Map<core.String, core.Map<core.String, core.bool>> _json =
-        <core.String, core.Map<core.String, core.bool>>{};
-    this.forEach((core.String key, value) {
-      _json[key] = value;
-    });
-    return _json;
-  }
+  core.Map<core.String, core.Map<core.String, core.bool>> toJson() =>
+      core.Map<core.String, core.Map<core.String, core.bool>>.of(this);
 
   core.Map<core.String, core.bool> operator [](core.Object key) =>
       _innerMap[key];
 
-  operator []=(core.String key, core.Map<core.String, core.bool> value) {
+  @core.override
+  void operator []=(core.String key, core.Map<core.String, core.bool> value) {
     _innerMap[key] = value;
   }
 
+  @core.override
   void clear() {
     _innerMap.clear();
   }
 
+  @core.override
   core.Iterable<core.String> get keys => _innerMap.keys;
 
+  @core.override
   core.Map<core.String, core.bool> remove(core.Object key) =>
       _innerMap.remove(key);
 }
@@ -1204,28 +1347,26 @@ class MapOfMapOfint
     });
   }
 
-  core.Map<core.String, core.Map<core.String, core.int>> toJson() {
-    final core.Map<core.String, core.Map<core.String, core.int>> _json =
-        <core.String, core.Map<core.String, core.int>>{};
-    this.forEach((core.String key, value) {
-      _json[key] = value;
-    });
-    return _json;
-  }
+  core.Map<core.String, core.Map<core.String, core.int>> toJson() =>
+      core.Map<core.String, core.Map<core.String, core.int>>.of(this);
 
   core.Map<core.String, core.int> operator [](core.Object key) =>
       _innerMap[key];
 
-  operator []=(core.String key, core.Map<core.String, core.int> value) {
+  @core.override
+  void operator []=(core.String key, core.Map<core.String, core.int> value) {
     _innerMap[key] = value;
   }
 
+  @core.override
   void clear() {
     _innerMap.clear();
   }
 
+  @core.override
   core.Iterable<core.String> get keys => _innerMap.keys;
 
+  @core.override
   core.Map<core.String, core.int> remove(core.Object key) =>
       _innerMap.remove(key);
 }
@@ -1241,27 +1382,25 @@ class MapOfToyResponse extends collection.MapBase<core.String, ToyResponse> {
     });
   }
 
-  core.Map<core.String, core.Map<core.String, core.Object>> toJson() {
-    final core.Map<core.String, core.Map<core.String, core.Object>> _json =
-        <core.String, core.Map<core.String, core.Object>>{};
-    this.forEach((core.String key, value) {
-      _json[key] = (value).toJson();
-    });
-    return _json;
-  }
+  core.Map<core.String, core.Map<core.String, core.Object>> toJson() =>
+      core.Map<core.String, core.Map<core.String, core.Object>>.of(this);
 
   ToyResponse operator [](core.Object key) => _innerMap[key];
 
-  operator []=(core.String key, ToyResponse value) {
+  @core.override
+  void operator []=(core.String key, ToyResponse value) {
     _innerMap[key] = value;
   }
 
+  @core.override
   void clear() {
     _innerMap.clear();
   }
 
+  @core.override
   core.Iterable<core.String> get keys => _innerMap.keys;
 
+  @core.override
   ToyResponse remove(core.Object key) => _innerMap.remove(key);
 }
 
@@ -1276,26 +1415,25 @@ class MapOfint extends collection.MapBase<core.String, core.int> {
     });
   }
 
-  core.Map<core.String, core.int> toJson() {
-    final core.Map<core.String, core.int> _json = <core.String, core.int>{};
-    this.forEach((core.String key, value) {
-      _json[key] = value;
-    });
-    return _json;
-  }
+  core.Map<core.String, core.int> toJson() =>
+      core.Map<core.String, core.int>.of(this);
 
   core.int operator [](core.Object key) => _innerMap[key];
 
-  operator []=(core.String key, core.int value) {
+  @core.override
+  void operator []=(core.String key, core.int value) {
     _innerMap[key] = value;
   }
 
+  @core.override
   void clear() {
     _innerMap.clear();
   }
 
+  @core.override
   core.Iterable<core.String> get keys => _innerMap.keys;
 
+  @core.override
   core.int remove(core.Object key) => _innerMap.remove(key);
 }
 
@@ -1364,7 +1502,7 @@ class ToyMapResponse {
     if (mapResult != null) {
       _json["mapResult"] =
           commons.mapMap<NestedResponse, core.Map<core.String, core.Object>>(
-              mapResult, (NestedResponse item) => (item).toJson());
+              mapResult, (NestedResponse item) => item.toJson());
     }
     if (result != null) {
       _json["result"] = result;

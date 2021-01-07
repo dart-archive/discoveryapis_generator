@@ -539,18 +539,18 @@ ${comment.asDartDoc(0)}class $className
 $decode
 $encode
 
-  @${core}.override
+  @${core}override
   $type operator [](${imports.core.ref()}int key) => _inner[key];
 
-  @${core}.override
+  @${core}override
   void operator []=(${imports.core.ref()}int key, $type value) {
     _inner[key] = value;
   }
 
-  @${core}.override
+  @${core}override
   ${imports.core.ref()}int get length => _inner.length;
 
-  @${core}.override
+  @${core}override
   set length(${imports.core.ref()}int newLength) {
     _inner.length = newLength;
   }
@@ -701,20 +701,20 @@ $encode
   ${toType.declaration} operator [](${core}Object key)
       => _innerMap[key];
 
-  @${core}.override
+  @${core}override
   void operator []=($fromT key, $toT value) {
     _innerMap[key] = value;
   }
 
-  @${core}.override
+  @${core}override
   void clear() {
     _innerMap.clear();
   }
 
-  @${core}.override
+  @${core}override
   ${core}Iterable<$fromT> get keys => _innerMap.keys;
 
-  @${core}.override
+  @${core}override
   $toT remove(${core}Object key) => _innerMap.remove(key);
 }
 ''';
