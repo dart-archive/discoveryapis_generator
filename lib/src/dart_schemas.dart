@@ -558,7 +558,7 @@ $encode
   @override
   String jsonEncode(String value) {
     if (innerType.needsJsonEncoding) {
-      return '(${value}).toJson()';
+      return '${value}.toJson()';
     } else {
       // NOTE: The List from the user can be encoded directly. We have a big
       // ASSUMPTION here: The user does not modify the list while we're
@@ -723,7 +723,7 @@ $encode
   @override
   String jsonEncode(String value) {
     if (fromType.needsJsonEncoding || toType.needsJsonEncoding) {
-      return '(${value}).toJson()';
+      return '${value}.toJson()';
     } else {
       // NOTE: The Map from the user can be encoded directly. We have a big
       // ASSUMPTION here: The user does not modify the map while we're
@@ -787,11 +787,9 @@ class ObjectType extends ComplexDartSchemaType {
       if (property.byteArrayAccessor != null) {
         propertyString.writeln(
             '  ${imports.core.ref()}List<${imports.core.ref()}int> get '
-            '${property.byteArrayAccessor} {');
-        propertyString.writeln('    return '
-            '${imports.convert.ref()}base64.decode'
+            '${property.byteArrayAccessor} =>');
+        propertyString.writeln('${imports.convert.ref()}base64.decode'
             '(${property.name});');
-        propertyString.writeln('  }');
 
         propertyString.writeln();
 
@@ -854,7 +852,7 @@ $toJsonString
 
   @override
   String jsonEncode(String value) {
-    return '(${value}).toJson()';
+    return '${value}.toJson()';
   }
 
   @override
@@ -923,7 +921,7 @@ class AbstractVariantType extends ComplexDartSchemaType {
     fromJsonString.writeln('    var discriminant = json["$discriminant"];');
     map.forEach((String name, DartSchemaType type) {
       fromJsonString.writeln('    if (discriminant == "$name") {');
-      fromJsonString.writeln('      return new ${type.declaration}'
+      fromJsonString.writeln('      return ${type.declaration}'
           '.fromJson(json);');
       fromJsonString.writeln('    }');
     });
@@ -948,7 +946,7 @@ $toJsonString
 
   @override
   String jsonEncode(String value) {
-    return '(${value}).toJson()';
+    return '${value}.toJson()';
   }
 
   @override

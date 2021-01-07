@@ -140,7 +140,7 @@ class DartResourceMethod {
                 '${imports.commons}.DownloadOptions.Metadata');
       }
 
-      parameterString.write('{$namedString}');
+      parameterString.write('{$namedString,}');
     }
 
     var genericReturnType = '';
@@ -346,13 +346,13 @@ class DartResourceMethod {
 
 $urlPatternCode
 
-    var _response = _requester.request(_url,
+    final _response = _requester.request(_url,
                                        "$httpMethod",
                                        body: _body,
                                        queryParams: _queryParams,
                                        uploadOptions: _uploadOptions,
                                        uploadMedia: _uploadMedia,
-                                       downloadOptions: _downloadOptions);
+                                       downloadOptions: _downloadOptions,);
 ''');
 
     final data = enableDataWrapper ? "data['data']" : 'data';
@@ -379,12 +379,12 @@ $urlPatternCode
 
     final core = imports.core.ref();
     methodString.write('''
-    var _url;
-    var _queryParams = <${core}String, ${core}List<${core}String>>{};
-    var _uploadMedia;
-    var _uploadOptions;
+    ${core}String _url;
+    final _queryParams = <${core}String, ${core}List<${core}String>>{};
+    ${imports.commons}.Media _uploadMedia;
+    ${imports.commons}.UploadOptions _uploadOptions;
     var _downloadOptions = ${imports.commons}.DownloadOptions.Metadata;
-    var _body;
+    ${core}String _body;
 
 $params$requestCode''');
 
