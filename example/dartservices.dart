@@ -1,6 +1,24 @@
 // This is a generated file (see the discoveryapis_generator project).
 
-// ignore_for_file: directives_ordering, omit_local_variable_types, prefer_single_quotes, unnecessary_cast, unused_import
+// ignore_for_file: avoid_unused_constructor_parameters
+// ignore_for_file: camel_case_types
+// ignore_for_file: comment_references
+// ignore_for_file: constant_identifier_names
+// ignore_for_file: directives_ordering
+// ignore_for_file: empty_constructor_bodies
+// ignore_for_file: library_names
+// ignore_for_file: lines_longer_than_80_chars
+// ignore_for_file: non_constant_identifier_names
+// ignore_for_file: omit_local_variable_types
+// ignore_for_file: prefer_final_locals
+// ignore_for_file: prefer_interpolation_to_compose_strings
+// ignore_for_file: prefer_single_quotes
+// ignore_for_file: unnecessary_brace_in_string_interps
+// ignore_for_file: unnecessary_cast
+// ignore_for_file: unnecessary_parenthesis
+// ignore_for_file: unnecessary_string_interpolations
+// ignore_for_file: unused_field
+// ignore_for_file: unused_import
 
 library discoveryapis_generator.dartservices.v1;
 
@@ -37,25 +55,28 @@ class DartservicesApi {
   /// If the used [http.Client] completes with an error when making a REST call,
   /// this method will complete with the same error.
   async.Future<AnalysisResults> analyze(SourceRequest request) {
-    var _url;
-    var _queryParams = <core.String, core.List<core.String>>{};
-    var _uploadMedia;
-    var _uploadOptions;
+    core.String _url;
+    final _queryParams = <core.String, core.List<core.String>>{};
+    commons.Media _uploadMedia;
+    commons.UploadOptions _uploadOptions;
     var _downloadOptions = commons.DownloadOptions.Metadata;
-    var _body;
+    core.String _body;
 
     if (request != null) {
-      _body = convert.json.encode((request).toJson());
+      _body = convert.json.encode(request.toJson());
     }
 
     _url = 'analyze';
 
-    var _response = _requester.request(_url, "POST",
-        body: _body,
-        queryParams: _queryParams,
-        uploadOptions: _uploadOptions,
-        uploadMedia: _uploadMedia,
-        downloadOptions: _downloadOptions);
+    final _response = _requester.request(
+      _url,
+      "POST",
+      body: _body,
+      queryParams: _queryParams,
+      uploadOptions: _uploadOptions,
+      uploadMedia: _uploadMedia,
+      downloadOptions: _downloadOptions,
+    );
     return _response.then((data) => AnalysisResults.fromJson(data));
   }
 
@@ -70,13 +91,15 @@ class DartservicesApi {
   ///
   /// If the used [http.Client] completes with an error when making a REST call,
   /// this method will complete with the same error.
-  async.Future<AnalysisResults> analyzeGet({core.String source}) {
-    var _url;
-    var _queryParams = <core.String, core.List<core.String>>{};
-    var _uploadMedia;
-    var _uploadOptions;
+  async.Future<AnalysisResults> analyzeGet({
+    core.String source,
+  }) {
+    core.String _url;
+    final _queryParams = <core.String, core.List<core.String>>{};
+    commons.Media _uploadMedia;
+    commons.UploadOptions _uploadOptions;
     var _downloadOptions = commons.DownloadOptions.Metadata;
-    var _body;
+    core.String _body;
 
     if (source != null) {
       _queryParams["source"] = [source];
@@ -84,12 +107,15 @@ class DartservicesApi {
 
     _url = 'analyze';
 
-    var _response = _requester.request(_url, "GET",
-        body: _body,
-        queryParams: _queryParams,
-        uploadOptions: _uploadOptions,
-        uploadMedia: _uploadMedia,
-        downloadOptions: _downloadOptions);
+    final _response = _requester.request(
+      _url,
+      "GET",
+      body: _body,
+      queryParams: _queryParams,
+      uploadOptions: _uploadOptions,
+      uploadMedia: _uploadMedia,
+      downloadOptions: _downloadOptions,
+    );
     return _response.then((data) => AnalysisResults.fromJson(data));
   }
 
@@ -105,25 +131,28 @@ class DartservicesApi {
   /// If the used [http.Client] completes with an error when making a REST call,
   /// this method will complete with the same error.
   async.Future<CompileResponse> compile(SourceRequest request) {
-    var _url;
-    var _queryParams = <core.String, core.List<core.String>>{};
-    var _uploadMedia;
-    var _uploadOptions;
+    core.String _url;
+    final _queryParams = <core.String, core.List<core.String>>{};
+    commons.Media _uploadMedia;
+    commons.UploadOptions _uploadOptions;
     var _downloadOptions = commons.DownloadOptions.Metadata;
-    var _body;
+    core.String _body;
 
     if (request != null) {
-      _body = convert.json.encode((request).toJson());
+      _body = convert.json.encode(request.toJson());
     }
 
     _url = 'compile';
 
-    var _response = _requester.request(_url, "POST",
-        body: _body,
-        queryParams: _queryParams,
-        uploadOptions: _uploadOptions,
-        uploadMedia: _uploadMedia,
-        downloadOptions: _downloadOptions);
+    final _response = _requester.request(
+      _url,
+      "POST",
+      body: _body,
+      queryParams: _queryParams,
+      uploadOptions: _uploadOptions,
+      uploadMedia: _uploadMedia,
+      downloadOptions: _downloadOptions,
+    );
     return _response.then((data) => CompileResponse.fromJson(data));
   }
 
@@ -138,13 +167,15 @@ class DartservicesApi {
   ///
   /// If the used [http.Client] completes with an error when making a REST call,
   /// this method will complete with the same error.
-  async.Future<CompileResponse> compileGet({core.String source}) {
-    var _url;
-    var _queryParams = <core.String, core.List<core.String>>{};
-    var _uploadMedia;
-    var _uploadOptions;
+  async.Future<CompileResponse> compileGet({
+    core.String source,
+  }) {
+    core.String _url;
+    final _queryParams = <core.String, core.List<core.String>>{};
+    commons.Media _uploadMedia;
+    commons.UploadOptions _uploadOptions;
     var _downloadOptions = commons.DownloadOptions.Metadata;
-    var _body;
+    core.String _body;
 
     if (source != null) {
       _queryParams["source"] = [source];
@@ -152,12 +183,15 @@ class DartservicesApi {
 
     _url = 'compile';
 
-    var _response = _requester.request(_url, "GET",
-        body: _body,
-        queryParams: _queryParams,
-        uploadOptions: _uploadOptions,
-        uploadMedia: _uploadMedia,
-        downloadOptions: _downloadOptions);
+    final _response = _requester.request(
+      _url,
+      "GET",
+      body: _body,
+      queryParams: _queryParams,
+      uploadOptions: _uploadOptions,
+      uploadMedia: _uploadMedia,
+      downloadOptions: _downloadOptions,
+    );
     return _response.then((data) => CompileResponse.fromJson(data));
   }
 
@@ -171,27 +205,30 @@ class DartservicesApi {
   /// If the used [http.Client] completes with an error when making a REST call,
   /// this method will complete with the same error.
   async.Future complete(SourceRequest request) {
-    var _url;
-    var _queryParams = <core.String, core.List<core.String>>{};
-    var _uploadMedia;
-    var _uploadOptions;
+    core.String _url;
+    final _queryParams = <core.String, core.List<core.String>>{};
+    commons.Media _uploadMedia;
+    commons.UploadOptions _uploadOptions;
     var _downloadOptions = commons.DownloadOptions.Metadata;
-    var _body;
+    core.String _body;
 
     if (request != null) {
-      _body = convert.json.encode((request).toJson());
+      _body = convert.json.encode(request.toJson());
     }
 
     _downloadOptions = null;
 
     _url = 'complete';
 
-    var _response = _requester.request(_url, "POST",
-        body: _body,
-        queryParams: _queryParams,
-        uploadOptions: _uploadOptions,
-        uploadMedia: _uploadMedia,
-        downloadOptions: _downloadOptions);
+    final _response = _requester.request(
+      _url,
+      "POST",
+      body: _body,
+      queryParams: _queryParams,
+      uploadOptions: _uploadOptions,
+      uploadMedia: _uploadMedia,
+      downloadOptions: _downloadOptions,
+    );
     return _response.then((data) => null);
   }
 
@@ -206,13 +243,16 @@ class DartservicesApi {
   ///
   /// If the used [http.Client] completes with an error when making a REST call,
   /// this method will complete with the same error.
-  async.Future completeGet({core.String source, core.int offset}) {
-    var _url;
-    var _queryParams = <core.String, core.List<core.String>>{};
-    var _uploadMedia;
-    var _uploadOptions;
+  async.Future completeGet({
+    core.String source,
+    core.int offset,
+  }) {
+    core.String _url;
+    final _queryParams = <core.String, core.List<core.String>>{};
+    commons.Media _uploadMedia;
+    commons.UploadOptions _uploadOptions;
     var _downloadOptions = commons.DownloadOptions.Metadata;
-    var _body;
+    core.String _body;
 
     if (source != null) {
       _queryParams["source"] = [source];
@@ -225,12 +265,15 @@ class DartservicesApi {
 
     _url = 'complete';
 
-    var _response = _requester.request(_url, "GET",
-        body: _body,
-        queryParams: _queryParams,
-        uploadOptions: _uploadOptions,
-        uploadMedia: _uploadMedia,
-        downloadOptions: _downloadOptions);
+    final _response = _requester.request(
+      _url,
+      "GET",
+      body: _body,
+      queryParams: _queryParams,
+      uploadOptions: _uploadOptions,
+      uploadMedia: _uploadMedia,
+      downloadOptions: _downloadOptions,
+    );
     return _response.then((data) => null);
   }
 
@@ -246,25 +289,28 @@ class DartservicesApi {
   /// If the used [http.Client] completes with an error when making a REST call,
   /// this method will complete with the same error.
   async.Future<DocumentResponse> document(SourceRequest request) {
-    var _url;
-    var _queryParams = <core.String, core.List<core.String>>{};
-    var _uploadMedia;
-    var _uploadOptions;
+    core.String _url;
+    final _queryParams = <core.String, core.List<core.String>>{};
+    commons.Media _uploadMedia;
+    commons.UploadOptions _uploadOptions;
     var _downloadOptions = commons.DownloadOptions.Metadata;
-    var _body;
+    core.String _body;
 
     if (request != null) {
-      _body = convert.json.encode((request).toJson());
+      _body = convert.json.encode(request.toJson());
     }
 
     _url = 'document';
 
-    var _response = _requester.request(_url, "POST",
-        body: _body,
-        queryParams: _queryParams,
-        uploadOptions: _uploadOptions,
-        uploadMedia: _uploadMedia,
-        downloadOptions: _downloadOptions);
+    final _response = _requester.request(
+      _url,
+      "POST",
+      body: _body,
+      queryParams: _queryParams,
+      uploadOptions: _uploadOptions,
+      uploadMedia: _uploadMedia,
+      downloadOptions: _downloadOptions,
+    );
     return _response.then((data) => DocumentResponse.fromJson(data));
   }
 
@@ -281,14 +327,16 @@ class DartservicesApi {
   ///
   /// If the used [http.Client] completes with an error when making a REST call,
   /// this method will complete with the same error.
-  async.Future<DocumentResponse> documentGet(
-      {core.String source, core.int offset}) {
-    var _url;
-    var _queryParams = <core.String, core.List<core.String>>{};
-    var _uploadMedia;
-    var _uploadOptions;
+  async.Future<DocumentResponse> documentGet({
+    core.String source,
+    core.int offset,
+  }) {
+    core.String _url;
+    final _queryParams = <core.String, core.List<core.String>>{};
+    commons.Media _uploadMedia;
+    commons.UploadOptions _uploadOptions;
     var _downloadOptions = commons.DownloadOptions.Metadata;
-    var _body;
+    core.String _body;
 
     if (source != null) {
       _queryParams["source"] = [source];
@@ -299,12 +347,15 @@ class DartservicesApi {
 
     _url = 'document';
 
-    var _response = _requester.request(_url, "GET",
-        body: _body,
-        queryParams: _queryParams,
-        uploadOptions: _uploadOptions,
-        uploadMedia: _uploadMedia,
-        downloadOptions: _downloadOptions);
+    final _response = _requester.request(
+      _url,
+      "GET",
+      body: _body,
+      queryParams: _queryParams,
+      uploadOptions: _uploadOptions,
+      uploadMedia: _uploadMedia,
+      downloadOptions: _downloadOptions,
+    );
     return _response.then((data) => DocumentResponse.fromJson(data));
   }
 }
@@ -382,7 +433,7 @@ class AnalysisResults {
     final core.Map<core.String, core.Object> _json =
         <core.String, core.Object>{};
     if (issues != null) {
-      _json["issues"] = issues.map((value) => (value).toJson()).toList();
+      _json["issues"] = issues.map((value) => value.toJson()).toList();
     }
     return _json;
   }
