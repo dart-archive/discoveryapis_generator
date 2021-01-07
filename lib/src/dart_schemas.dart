@@ -526,6 +526,8 @@ class NamedArrayType extends ComplexDartSchemaType {
         '${innerType.jsonEncode('value')}).toList();');
     encode.write('  }');
 
+    var core = imports.core.ref();
+
     var type = innerType.declaration;
     return '''
 ${comment.asDartDoc(0)}class $className
@@ -537,14 +539,18 @@ ${comment.asDartDoc(0)}class $className
 $decode
 $encode
 
+  @${core}.override
   $type operator [](${imports.core.ref()}int key) => _inner[key];
 
+  @${core}.override
   void operator []=(${imports.core.ref()}int key, $type value) {
     _inner[key] = value;
   }
 
+  @${core}.override
   ${imports.core.ref()}int get length => _inner.length;
 
+  @${core}.override
   set length(${imports.core.ref()}int newLength) {
     _inner.length = newLength;
   }
@@ -676,15 +682,8 @@ class NamedMapType extends ComplexDartSchemaType {
     decode.writeln('  }');
 
     var encode = StringBuffer();
-    encode.writeln('  ${jsonType.declaration} toJson() {');
-    encode.writeln('    final ${jsonType.declaration} _json = '
-        '<${fromType.jsonType.declaration}, '
-        '${toType.jsonType.declaration}>{};');
-    encode.writeln('    this.forEach((${core}String key, value) {');
-    encode.writeln('      _json[key] = ${toType.jsonEncode('value')};');
-    encode.writeln('    });');
-    encode.writeln('    return _json;');
-    encode.write('  }');
+    encode.writeln('  ${jsonType.declaration} toJson() =>');
+    encode.writeln('    ${jsonType.declaration}.of(this);');
 
     var fromT = fromType.declaration;
     var toT = toType.declaration;
@@ -702,16 +701,20 @@ $encode
   ${toType.declaration} operator [](${core}Object key)
       => _innerMap[key];
 
-  operator []=($fromT key, $toT value) {
+  @${core}.override
+  void operator []=($fromT key, $toT value) {
     _innerMap[key] = value;
   }
 
+  @${core}.override
   void clear() {
     _innerMap.clear();
   }
 
+  @${core}.override
   ${core}Iterable<$fromT> get keys => _innerMap.keys;
 
+  @${core}.override
   $toT remove(${core}Object key) => _innerMap.remove(key);
 }
 ''';

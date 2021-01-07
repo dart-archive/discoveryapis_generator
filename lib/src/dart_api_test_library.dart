@@ -91,7 +91,6 @@ class DartApiTestLibrary extends TestHelper {
 $ignoreForFileComments
 // ignore_for_file: avoid_returning_null
 // ignore_for_file: cascade_invocations
-// ignore_for_file: non_constant_identifier_names
 // ignore_for_file: unnecessary_lambdas
 // ignore_for_file: unused_local_variable
 

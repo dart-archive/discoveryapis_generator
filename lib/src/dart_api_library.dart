@@ -11,11 +11,14 @@ import 'namer.dart';
 
 const _ignoreForFileSet = {
   'avoid_unused_constructor_parameters',
+  'camel_case_types', // violated by `container` v1 API,
   'comment_references',
   'constant_identifier_names',
   'directives_ordering',
   'empty_constructor_bodies',
+  'library_names',
   'lines_longer_than_80_chars',
+  'non_constant_identifier_names',
   'omit_local_variable_types',
   'prefer_final_locals',
   'prefer_interpolation_to_compose_strings',
@@ -24,6 +27,7 @@ const _ignoreForFileSet = {
   'unnecessary_cast',
   'unnecessary_parenthesis',
   'unnecessary_string_interpolations',
+  'unused_field', // violated by youtubeanalytics/v1
   'unused_import',
 };
 
