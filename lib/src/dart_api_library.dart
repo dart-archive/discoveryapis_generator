@@ -9,13 +9,30 @@ import 'dart_schemas.dart';
 import 'generated_googleapis/discovery/v1.dart';
 import 'namer.dart';
 
-const ignoreForFileSet = {
+const _ignoreForFileSet = {
+  'avoid_unused_constructor_parameters',
+  'camel_case_types', // violated by `container` v1 API,
+  'comment_references',
+  'constant_identifier_names',
   'directives_ordering',
+  'empty_constructor_bodies',
+  'library_names',
+  'lines_longer_than_80_chars',
+  'non_constant_identifier_names',
   'omit_local_variable_types',
+  'prefer_final_locals',
+  'prefer_interpolation_to_compose_strings',
   'prefer_single_quotes',
+  'unnecessary_brace_in_string_interps',
   'unnecessary_cast',
+  'unnecessary_parenthesis',
+  'unnecessary_string_interpolations',
+  'unused_field', // violated by youtubeanalytics/v1
   'unused_import',
 };
+
+String get ignoreForFileComments =>
+    _ignoreForFileSet.map((e) => '// ignore_for_file: $e').join('\n');
 
 /// Encapsulates names of prefix-imported libraries.
 class DartApiImports {
@@ -98,7 +115,7 @@ class DartApiLibrary extends BaseApiLibrary {
     var result = '''
 // This is a generated file (see the discoveryapis_generator project).
 
-// ignore_for_file: ${ignoreForFileSet.join(', ')}
+$ignoreForFileComments
 
 library $libraryName;
 

@@ -31,9 +31,9 @@ String fileDate(DateTime date) =>
     "${date.year}${(date.month < 10) ? 0 : ""}${date.month}${(date.day < 10) ? 0 : ""}${date.day}_${(date.hour < 10) ? 0 : ""}${date.hour}${(date.minute < 10) ? 0 : ""}${date.minute}${(date.second < 10) ? 0 : ""}${date.second}";
 String cleanName(String name) => name.replaceAll(_cleanRegEx, '_');
 
-final DartFormatter formatter = DartFormatter(lineEnding: '\n', pageWidth: 80);
+final DartFormatter _formatter = DartFormatter(lineEnding: '\n', pageWidth: 80);
 
-String formatSource(String source) => formatter.format(source);
+String _formatSource(String source) => _formatter.format(source);
 
 // TODO: Is this all we have to do?
 String escapeString(String string) {
@@ -60,7 +60,7 @@ void orderedForEach(Map map, Function fun) {
 }
 
 void writeDartSource(String path, String content) {
-  writeString(path, formatSource(content));
+  writeString(path, _formatSource(content));
 }
 
 void writeString(String path, String content) {

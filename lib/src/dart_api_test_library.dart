@@ -76,7 +76,7 @@ class DartApiTestLibrary extends TestHelper {
 
     sink.writeln();
 
-    withFunc(0, sink, 'main', '', () {
+    withFunc(0, sink, 'void main', '', () {
       schemaTests.forEach((DartSchemaType schema, SchemaTest test) {
         sink.write(test.schemaTest);
       });
@@ -88,6 +88,12 @@ class DartApiTestLibrary extends TestHelper {
 
   String get libraryHeader {
     return """
+$ignoreForFileComments
+// ignore_for_file: avoid_returning_null
+// ignore_for_file: cascade_invocations
+// ignore_for_file: unnecessary_lambdas
+// ignore_for_file: unused_local_variable
+
 library ${apiLibrary.libraryName}.test;
 
 import "dart:core" as core;
@@ -108,26 +114,23 @@ class HttpServerMock extends http.BaseClient {
     _expectJson = expectJson;
   }
 
-  async.Future<http.StreamedResponse> send(http.BaseRequest request) {
+  @core.override
+  async.Future<http.StreamedResponse> send(http.BaseRequest request) async {
     if (_expectJson) {
-      return request.finalize()
-          .transform(convert.utf8.decoder)
-          .join('')
-          .then((core.String jsonString) {
-        if (jsonString.isEmpty) {
-          return _callback(request, null);
-        } else {
-          return _callback(request, convert.json.decode(jsonString));
-        }
-      });
+      final jsonString =
+          await request.finalize().transform(convert.utf8.decoder).join('');
+      if (jsonString.isEmpty) {
+        return _callback(request, null);
+      } else {
+        return _callback(request, convert.json.decode(jsonString));
+      }
     } else {
       var stream = request.finalize();
       if (stream == null) {
         return _callback(request, []);
       } else {
-        return stream.toBytes().then((data) {
-          return _callback(request, data);
-        });
+        final data = await stream.toBytes();
+        return _callback(request, data);
       }
     }
   }
@@ -135,8 +138,8 @@ class HttpServerMock extends http.BaseClient {
 
 http.StreamedResponse stringResponse(
     core.int status, core.Map<core.String, core.String> headers, core.String body) {
-  var stream = new async.Stream.fromIterable([convert.utf8.encode(body)]);
-  return new http.StreamedResponse(stream, status, headers: headers);
+  var stream = async.Stream.fromIterable([convert.utf8.encode(body)]);
+  return http.StreamedResponse(stream, status, headers: headers);
 }
 """;
   }
@@ -182,7 +185,7 @@ class ResourceTest extends TestHelper {
             if (method.requestParameter != null) {
               var t = apiTestLibrary.schemaTests[method.requestParameter.type];
               var name = method.requestParameter.type.className;
-              sb.writeln('        var obj = new api.${name}.fromJson(json);');
+              sb.writeln('        var obj = api.${name}.fromJson(json);');
               sb.writeln('        ${t.checkSchemaStatement('obj')}');
               sb.writeln();
             }
@@ -208,7 +211,7 @@ class ResourceTest extends TestHelper {
                     'convert.json.encode(${t.newSchemaExpr});');
               }
             }
-            sb.writeln('        return new async.Future.value('
+            sb.writeln('        return async.Future.value('
                 'stringResponse(200, h, resp));');
             sb.writeln('      }), true);');
           }
@@ -239,7 +242,7 @@ class ResourceTest extends TestHelper {
           sb.writeln();
 
           // Construct http request handler mock.
-          sb.writeln('      var mock = new HttpServerMock();');
+          sb.writeln('      var mock = HttpServerMock();');
           // Construct resource class
           sb.writeln('      api.${resource.className} res = '
               '${apiConstruction('mock')};');
@@ -307,8 +310,8 @@ class MethodArgsTest extends TestHelper {
 
     ln('var path = ${uriExpr}.path;');
     ln('var pathOffset = 0;');
-    ln('var index;');
-    ln('var subPart;');
+    ln('core.int index;');
+    ln('core.String subPart;');
 
     // The path starts with the path of the rootUrl ending with a '/'.
     // The remaining path is either
@@ -386,18 +389,18 @@ class MethodArgsTest extends TestHelper {
     ln('var query = ${uriExpr}.query;');
     ln('var queryOffset = 0;');
     ln('var queryMap = <core.String, core.List<core.String>>{};');
-    ln('addQueryParam(n, v) => queryMap.putIfAbsent(n, () => []).add(v);');
-    ln('parseBool(n) {');
+    ln('void addQueryParam(n, v) => queryMap.putIfAbsent(n, () => []).add(v);');
+    ln('core.bool parseBool(n) {');
     ln('  if (n == "true") return true;');
     ln('  if (n == "false") return false;');
     ln('  if (n == null) return null;');
-    ln('  throw new core.ArgumentError("Invalid boolean: \$n");');
+    ln('  throw core.ArgumentError("Invalid boolean: \$n");');
     ln('}');
-    ln('if (query.length > 0) {');
+    ln('if (query.isNotEmpty) {');
     ln('  for (var part in query.split("&")) {');
-    ln('    var keyvalue = part.split("=");');
-    ln('    addQueryParam(core.Uri.decodeQueryComponent(keyvalue[0]), '
-        'core.Uri.decodeQueryComponent(keyvalue[1]));');
+    ln('    var keyValue = part.split("=");');
+    ln('    addQueryParam(core.Uri.decodeQueryComponent(keyValue[0]), '
+        'core.Uri.decodeQueryComponent(keyValue[1]),);');
     ln('  }');
     ln('}');
 
@@ -652,10 +655,11 @@ class UnnamedMapTest extends UnnamedSchemaTest<UnnamedMapType> {
   @override
   String get buildSchemaFunction {
     var innerTest = apiTestLibrary.schemaTests[schema.toType];
+    var toType = apiTestLibrary.schemaTests[schema.toType].declaration;
 
     var sb = StringBuffer();
-    withFunc(0, sb, 'buildUnnamed$_id', '', () {
-      sb.writeln('  var o = new $declaration();');
+    withFunc(0, sb, '$declaration buildUnnamed$_id', '', () {
+      sb.writeln('  var o = <core.String, $toType>{};');
       sb.writeln('  o["x"] = ${innerTest.newSchemaExpr};');
       sb.writeln('  o["y"] = ${innerTest.newSchemaExpr};');
       sb.writeln('  return o;');
@@ -668,7 +672,7 @@ class UnnamedMapTest extends UnnamedSchemaTest<UnnamedMapType> {
     var innerTest = apiTestLibrary.schemaTests[schema.toType];
 
     var sb = StringBuffer();
-    withFunc(0, sb, 'checkUnnamed$_id', '$declaration o', () {
+    withFunc(0, sb, 'void checkUnnamed$_id', '$declaration o', () {
       sb.writeln('  ${expectHasLength('o', '2')}');
       sb.writeln('  ${innerTest.checkSchemaStatement('o["x"]')}');
       sb.writeln('  ${innerTest.checkSchemaStatement('o["y"]')}');
@@ -691,12 +695,18 @@ class UnnamedArrayTest<T> extends UnnamedSchemaTest<UnnamedArrayType> {
     var innerTest = apiTestLibrary.schemaTests[schema.innerType];
 
     var sb = StringBuffer();
-    withFunc(0, sb, 'buildUnnamed$_id', '', () {
-      sb.writeln('  var o = <${innerTest.declaration}>[];');
-      sb.writeln('  o.add(${innerTest.newSchemaExpr});');
-      sb.writeln('  o.add(${innerTest.newSchemaExpr});');
-      sb.writeln('  return o;');
-    });
+    withFunc(
+      0,
+      sb,
+      'core.List<${innerTest.declaration}> buildUnnamed$_id',
+      '',
+      () {
+        sb.writeln('  var o = <${innerTest.declaration}>[];');
+        sb.writeln('  o.add(${innerTest.newSchemaExpr});');
+        sb.writeln('  o.add(${innerTest.newSchemaExpr});');
+        sb.writeln('  return o;');
+      },
+    );
     return '$sb';
   }
 
@@ -705,7 +715,7 @@ class UnnamedArrayTest<T> extends UnnamedSchemaTest<UnnamedArrayType> {
     var innerTest = apiTestLibrary.schemaTests[schema.innerType];
 
     var sb = StringBuffer();
-    withFunc(0, sb, 'checkUnnamed$_id', '$declaration o', () {
+    withFunc(0, sb, 'void checkUnnamed$_id', '$declaration o', () {
       sb.writeln('  ${expectHasLength('o', '2')}');
       sb.writeln('  ${innerTest.checkSchemaStatement('o[0]')}');
       sb.writeln('  ${innerTest.checkSchemaStatement('o[1]')}');
@@ -727,7 +737,7 @@ abstract class NamedSchemaTest<T extends ComplexDartSchemaType>
     withTestGroup(2, sb, 'obj-schema-${schema.className}', () {
       withTest(4, sb, 'to-json--from-json', () {
         sb.writeln('      var o = ${newSchemaExpr};');
-        sb.writeln('      var od = new api.${schema.className.name}'
+        sb.writeln('      var od = api.${schema.className.name}'
             '.fromJson(o.toJson());');
         sb.writeln('      ${checkSchemaStatement('od')}');
       });
@@ -758,8 +768,8 @@ class ObjectSchemaTest extends NamedSchemaTest<ObjectType> {
     // Assumption: Every cycle will contain normal object schemas.
     sb.writeln('core.int $counterName = 0;');
 
-    withFunc(0, sb, 'build${schema.className.name}', '', () {
-      sb.writeln('  var o = new $declaration();');
+    withFunc(0, sb, '$declaration build${schema.className.name}', '', () {
+      sb.writeln('  var o = $declaration();');
       sb.writeln('  $counterName++;');
       sb.writeln('  if ($counterName < 3) {');
       for (var prop in schema.properties) {
@@ -779,7 +789,7 @@ class ObjectSchemaTest extends NamedSchemaTest<ObjectType> {
   @override
   String get checkSchemaFunction {
     var sb = StringBuffer();
-    withFunc(0, sb, 'check${schema.className.name}', '$declaration o', () {
+    withFunc(0, sb, 'void check${schema.className.name}', '$declaration o', () {
       sb.writeln('  $counterName++;');
       sb.writeln('  if ($counterName < 3) {');
       for (var prop in schema.properties) {
@@ -804,8 +814,8 @@ class NamedArraySchemaTest extends NamedSchemaTest<NamedArrayType> {
     var innerTest = apiTestLibrary.schemaTests[schema.innerType];
 
     var sb = StringBuffer();
-    withFunc(0, sb, 'build${schema.className.name}', '', () {
-      sb.writeln('  var o = new $declaration();');
+    withFunc(0, sb, '$declaration build${schema.className.name}', '', () {
+      sb.writeln('  var o = $declaration();');
       sb.writeln('  o.add(${innerTest.newSchemaExpr});');
       sb.writeln('  o.add(${innerTest.newSchemaExpr});');
       sb.writeln('  return o;');
@@ -818,7 +828,7 @@ class NamedArraySchemaTest extends NamedSchemaTest<NamedArrayType> {
     var innerTest = apiTestLibrary.schemaTests[schema.innerType];
 
     var sb = StringBuffer();
-    withFunc(0, sb, 'check${schema.className.name}', '$declaration o', () {
+    withFunc(0, sb, 'void check${schema.className.name}', '$declaration o', () {
       sb.writeln('  ${expectHasLength('o', '2')}');
       sb.writeln('  ${innerTest.checkSchemaStatement('o[0]')}');
       sb.writeln('  ${innerTest.checkSchemaStatement('o[1]')}');
@@ -835,8 +845,8 @@ class NamedMapSchemaTest extends NamedSchemaTest<NamedMapType> {
     var innerTest = apiTestLibrary.schemaTests[schema.toType];
 
     var sb = StringBuffer();
-    withFunc(0, sb, 'build${schema.className.name}', '', () {
-      sb.writeln('  var o = new $declaration();');
+    withFunc(0, sb, '$declaration build${schema.className.name}', '', () {
+      sb.writeln('  var o = $declaration();');
       sb.writeln('  o["a"] = ${innerTest.newSchemaExpr};');
       sb.writeln('  o["b"] = ${innerTest.newSchemaExpr};');
       sb.writeln('  return o;');
@@ -849,7 +859,7 @@ class NamedMapSchemaTest extends NamedSchemaTest<NamedMapType> {
     var innerTest = apiTestLibrary.schemaTests[schema.toType];
 
     var sb = StringBuffer();
-    withFunc(0, sb, 'check${schema.className.name}', '$declaration o', () {
+    withFunc(0, sb, 'void check${schema.className.name}', '$declaration o', () {
       sb.writeln('  ${expectHasLength('o', '2')}');
       sb.writeln('  ${innerTest.checkSchemaStatement('o["a"]')}');
       sb.writeln('  ${innerTest.checkSchemaStatement('o["b"]')}');
@@ -888,7 +898,7 @@ class AbstractVariantSchemaTest extends NamedSchemaTest<AbstractVariantType> {
     _init();
 
     var sb = StringBuffer();
-    withFunc(0, sb, 'check${schema.className.name}', '$declaration o', () {
+    withFunc(0, sb, 'void check${schema.className.name}', '$declaration o', () {
       sb.writeln('  ${subSchemaTest.checkSchemaFunction}(o);');
     });
     return '$sb';
