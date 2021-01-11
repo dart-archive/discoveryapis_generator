@@ -8,6 +8,7 @@ import 'dart_resources.dart';
 import 'dart_schemas.dart';
 import 'generated_googleapis/discovery/v1.dart';
 import 'namer.dart';
+import 'utils.dart';
 
 const _ignoreForFileSet = {
   'avoid_unused_constructor_parameters',
@@ -97,7 +98,7 @@ class DartApiLibrary extends BaseApiLibrary {
     } else {
       sink.write('$schemas');
     }
-    return '${sink.toString().trimRight()}\n';
+    return formatSource(sink.toString());
   }
 
   /// Create the library header. Note, this must be called after the library
