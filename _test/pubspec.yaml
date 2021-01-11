@@ -7,3 +7,6 @@ environment:
 dependencies:
   _discoveryapis_commons: any
   http: any
+
+dev_dependencies:
+  pedantic: any

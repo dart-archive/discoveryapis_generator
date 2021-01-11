@@ -28,7 +28,7 @@ class ClientObjectType extends ObjectType {
     var fromJsonString = StringBuffer();
     fromJsonString
         .writeln('  static $className fromJson(${imports.core}.Map _json) {');
-    fromJsonString.writeln('    var message = new $className();');
+    fromJsonString.writeln('    var message = $className();');
     properties.forEach((DartClassProperty property) {
       // The super variant fromJson() will call this subclass constructor
       // and the variant discriminator is final.
@@ -48,7 +48,7 @@ class ClientObjectType extends ObjectType {
     var toJsonString = StringBuffer();
     toJsonString
         .writeln('  static ${imports.core}.Map toJson($className message) {');
-    toJsonString.writeln('    var _json = new ${imports.core}.Map();');
+    toJsonString.writeln('    var _json = {};');
 
     properties.forEach((DartClassProperty property) {
       toJsonString.writeln('    if (message.${property.name} != null) {');

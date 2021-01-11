@@ -928,7 +928,7 @@ class AbstractVariantType extends ComplexDartSchemaType {
           '.fromJson(json);');
       fromJsonString.writeln('    }');
     });
-    fromJsonString.writeln('    throw new ${imports.core.ref()}ArgumentError'
+    fromJsonString.writeln('    throw ${imports.core.ref()}ArgumentError'
         '("Invalid discriminant: \$discriminant!");');
     fromJsonString.writeln('  }');
 
