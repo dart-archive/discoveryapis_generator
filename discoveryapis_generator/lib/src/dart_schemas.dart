@@ -675,15 +675,15 @@ class NamedMapType extends ComplexDartSchemaType {
     var core = imports.core.ref();
     var decode = StringBuffer();
     decode.writeln('  $className.fromJson(');
-    decode.writeln('      ${core}Map<${core}String, ${core}dynamic> _json) {');
+    decode.writeln('      ${imports.coreJsonMap} _json) {');
     decode.writeln('    _json.forEach((${core}String key, value) {');
     decode.writeln('      this[key] = ${toType.jsonDecode('value')};');
     decode.writeln('    });');
     decode.writeln('  }');
 
     var encode = StringBuffer();
-    encode.writeln('  ${jsonType.declaration} toJson() =>');
-    encode.writeln('    ${jsonType.declaration}.of(this);');
+    encode.writeln('  ${imports.coreJsonMap} toJson() =>');
+    encode.writeln('    ${imports.coreJsonMap}.of(this);');
 
     var fromT = fromType.declaration;
     var toT = toType.declaration;
@@ -1020,17 +1020,28 @@ DartSchemaTypeDB parseSchemas(
         var anonValueClassName = namer.schemaClassName('${className}Value');
         var anonClassScope = namer.newClassScope();
         var valueType = parse(
-            anonValueClassName, anonClassScope, schema.additionalProperties);
+          anonValueClassName,
+          anonClassScope,
+          schema.additionalProperties,
+        );
         if (topLevel) {
           if (schema.additionalProperties.description != null) {
-            comment = Comment('${comment.rawComment}\n\n'
-                '${schema.additionalProperties.description}');
+            comment = Comment(
+              '${comment.rawComment}\n\n'
+              '${schema.additionalProperties.description}',
+            );
           }
           // This is a named map type.
           var classId = namer.schemaClass(className);
-          return db.register(NamedMapType(
-              imports, classId, db.stringType, valueType,
-              comment: comment));
+          return db.register(
+            NamedMapType(
+              imports,
+              classId,
+              db.stringType,
+              valueType,
+              comment: comment,
+            ),
+          );
         } else {
           // This is an unnamed map type.
           return db.register(UnnamedMapType(imports, db.stringType, valueType));
