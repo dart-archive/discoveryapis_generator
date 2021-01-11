@@ -698,6 +698,7 @@ ${comment.asDartDoc(0)}class $className
 $decode
 $encode
 
+  @${core}override
   ${toType.declaration} operator [](${core}Object key)
       => _innerMap[key];
 
