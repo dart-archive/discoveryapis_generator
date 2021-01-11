@@ -1232,10 +1232,10 @@ class MapOfListOfMapOfbool extends collection
     });
   }
 
-  core.Map<core.String, core.List<core.Map<core.String, core.bool>>> toJson() =>
-      core.Map<core.String, core.List<core.Map<core.String, core.bool>>>.of(
-          this);
+  core.Map<core.String, core.dynamic> toJson() =>
+      core.Map<core.String, core.dynamic>.of(this);
 
+  @core.override
   core.List<core.Map<core.String, core.bool>> operator [](core.Object key) =>
       _innerMap[key];
 
@@ -1273,10 +1273,10 @@ class MapOfListOfMapOfint extends collection
     });
   }
 
-  core.Map<core.String, core.List<core.Map<core.String, core.int>>> toJson() =>
-      core.Map<core.String, core.List<core.Map<core.String, core.int>>>.of(
-          this);
+  core.Map<core.String, core.dynamic> toJson() =>
+      core.Map<core.String, core.dynamic>.of(this);
 
+  @core.override
   core.List<core.Map<core.String, core.int>> operator [](core.Object key) =>
       _innerMap[key];
 
@@ -1311,9 +1311,10 @@ class MapOfMapOfbool
     });
   }
 
-  core.Map<core.String, core.Map<core.String, core.bool>> toJson() =>
-      core.Map<core.String, core.Map<core.String, core.bool>>.of(this);
+  core.Map<core.String, core.dynamic> toJson() =>
+      core.Map<core.String, core.dynamic>.of(this);
 
+  @core.override
   core.Map<core.String, core.bool> operator [](core.Object key) =>
       _innerMap[key];
 
@@ -1347,9 +1348,10 @@ class MapOfMapOfint
     });
   }
 
-  core.Map<core.String, core.Map<core.String, core.int>> toJson() =>
-      core.Map<core.String, core.Map<core.String, core.int>>.of(this);
+  core.Map<core.String, core.dynamic> toJson() =>
+      core.Map<core.String, core.dynamic>.of(this);
 
+  @core.override
   core.Map<core.String, core.int> operator [](core.Object key) =>
       _innerMap[key];
 
@@ -1382,9 +1384,10 @@ class MapOfToyResponse extends collection.MapBase<core.String, ToyResponse> {
     });
   }
 
-  core.Map<core.String, core.Map<core.String, core.Object>> toJson() =>
-      core.Map<core.String, core.Map<core.String, core.Object>>.of(this);
+  core.Map<core.String, core.dynamic> toJson() =>
+      core.Map<core.String, core.dynamic>.of(this);
 
+  @core.override
   ToyResponse operator [](core.Object key) => _innerMap[key];
 
   @core.override
@@ -1415,9 +1418,10 @@ class MapOfint extends collection.MapBase<core.String, core.int> {
     });
   }
 
-  core.Map<core.String, core.int> toJson() =>
-      core.Map<core.String, core.int>.of(this);
+  core.Map<core.String, core.dynamic> toJson() =>
+      core.Map<core.String, core.dynamic>.of(this);
 
+  @core.override
   core.int operator [](core.Object key) => _innerMap[key];
 
   @core.override

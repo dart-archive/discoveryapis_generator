@@ -28,7 +28,7 @@ import 'dart:convert' as convert;
 
 import 'package:_discoveryapis_commons/_discoveryapis_commons.dart' as commons;
 import 'package:http/http.dart' as http;
-import 'package:discoveryapis-tests/messages.dart';
+import 'package:discoveryapis_tests/messages.dart';
 export 'package:_discoveryapis_commons/_discoveryapis_commons.dart'
     show ApiRequestError, DetailedApiRequestError;
 
@@ -1024,7 +1024,7 @@ class StorageResourceApi {
 
 class NestedResponseFactory {
   static NestedResponse fromJson(core.Map _json) {
-    var message = new NestedResponse();
+    var message = NestedResponse();
     if (_json.containsKey("nestedResult")) {
       message.nestedResult = _json["nestedResult"];
     }
@@ -1032,7 +1032,7 @@ class NestedResponseFactory {
   }
 
   static core.Map toJson(NestedResponse message) {
-    var _json = new core.Map();
+    var _json = {};
     if (message.nestedResult != null) {
       _json["nestedResult"] = message.nestedResult;
     }
@@ -1042,7 +1042,7 @@ class NestedResponseFactory {
 
 class ToyAgeRequestFactory {
   static ToyAgeRequest fromJson(core.Map _json) {
-    var message = new ToyAgeRequest();
+    var message = ToyAgeRequest();
     if (_json.containsKey("age")) {
       message.age = _json["age"];
     }
@@ -1050,7 +1050,7 @@ class ToyAgeRequestFactory {
   }
 
   static core.Map toJson(ToyAgeRequest message) {
-    var _json = new core.Map();
+    var _json = {};
     if (message.age != null) {
       _json["age"] = message.age;
     }
@@ -1060,7 +1060,7 @@ class ToyAgeRequestFactory {
 
 class ToyMapResponseFactory {
   static ToyMapResponse fromJson(core.Map _json) {
-    var message = new ToyMapResponse();
+    var message = ToyMapResponse();
     if (_json.containsKey("mapResult")) {
       message.mapResult = commons.mapMap<core.Map, NestedResponse>(
           _json["mapResult"].cast<core.String, core.Map>(),
@@ -1073,7 +1073,7 @@ class ToyMapResponseFactory {
   }
 
   static core.Map toJson(ToyMapResponse message) {
-    var _json = new core.Map();
+    var _json = {};
     if (message.mapResult != null) {
       _json["mapResult"] =
           commons.mapMap<NestedResponse, core.Map<core.String, core.Object>>(
@@ -1089,7 +1089,7 @@ class ToyMapResponseFactory {
 
 class ToyRequestFactory {
   static ToyRequest fromJson(core.Map _json) {
-    var message = new ToyRequest();
+    var message = ToyRequest();
     if (_json.containsKey("age")) {
       message.age = _json["age"];
     }
@@ -1100,7 +1100,7 @@ class ToyRequestFactory {
   }
 
   static core.Map toJson(ToyRequest message) {
-    var _json = new core.Map();
+    var _json = {};
     if (message.age != null) {
       _json["age"] = message.age;
     }
@@ -1113,7 +1113,7 @@ class ToyRequestFactory {
 
 class ToyResourceResponseFactory {
   static ToyResourceResponse fromJson(core.Map _json) {
-    var message = new ToyResourceResponse();
+    var message = ToyResourceResponse();
     if (_json.containsKey("result")) {
       message.result = _json["result"];
     }
@@ -1121,7 +1121,7 @@ class ToyResourceResponseFactory {
   }
 
   static core.Map toJson(ToyResourceResponse message) {
-    var _json = new core.Map();
+    var _json = {};
     if (message.result != null) {
       _json["result"] = message.result;
     }
@@ -1131,7 +1131,7 @@ class ToyResourceResponseFactory {
 
 class ToyResponseFactory {
   static ToyResponse fromJson(core.Map _json) {
-    var message = new ToyResponse();
+    var message = ToyResponse();
     if (_json.containsKey("result")) {
       message.result = _json["result"];
     }
@@ -1139,7 +1139,7 @@ class ToyResponseFactory {
   }
 
   static core.Map toJson(ToyResponse message) {
-    var _json = new core.Map();
+    var _json = {};
     if (message.result != null) {
       _json["result"] = message.result;
     }

@@ -941,8 +941,13 @@ class AnySchemaTest extends SchemaTest<AnyType> {
 
 /// Helps generating unittests.
 class TestHelper {
-  void withFunc(int indentation, StringBuffer buffer, String name, String args,
-      Function f) {
+  void withFunc(
+    int indentation,
+    StringBuffer buffer,
+    String name,
+    String args,
+    void Function() f,
+  ) {
     var spaces = ' ' * indentation;
     buffer.write(spaces);
     buffer.writeln('$name($args) {');
@@ -952,7 +957,11 @@ class TestHelper {
   }
 
   void withTestGroup(
-      int indentation, StringBuffer buffer, String name, Function f) {
+    int indentation,
+    StringBuffer buffer,
+    String name,
+    void Function() f,
+  ) {
     var spaces = ' ' * indentation;
     buffer.write(spaces);
     buffer.writeln('unittest.group("$name", () {');
@@ -961,7 +970,12 @@ class TestHelper {
     buffer.writeln('});\n\n');
   }
 
-  void withTest(int indentation, StringBuffer buffer, String name, Function f) {
+  void withTest(
+    int indentation,
+    StringBuffer buffer,
+    String name,
+    void Function() f,
+  ) {
     var spaces = ' ' * indentation;
     buffer.write(spaces);
     buffer.writeln('unittest.test("$name", () {');

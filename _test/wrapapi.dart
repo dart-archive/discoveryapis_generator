@@ -29,17 +29,19 @@ import 'dart:convert' as convert;
 import 'package:_discoveryapis_commons/_discoveryapis_commons.dart' as commons;
 import 'package:http/http.dart' as http;
 
-export 'package:_discoveryapis_commons/_discoveryapis_commons.dart' show
-    ApiRequestError, DetailedApiRequestError;
+export 'package:_discoveryapis_commons/_discoveryapis_commons.dart'
+    show ApiRequestError, DetailedApiRequestError;
 
 const core.String USER_AGENT = 'dart-api-client wrapApi/0.1';
 
 class WrapApiApi {
-
   final commons.ApiRequester _requester;
 
-  WrapApiApi(http.Client client, {core.String rootUrl = "http://localhost:9090/", core.String servicePath = "api/wrapApi/0.1/"}) :
-      _requester = commons.ApiRequester(client, rootUrl, servicePath, USER_AGENT);
+  WrapApiApi(http.Client client,
+      {core.String rootUrl = "http://localhost:9090/",
+      core.String servicePath = "api/wrapApi/0.1/"})
+      : _requester =
+            commons.ApiRequester(client, rootUrl, servicePath, USER_AGENT);
 
   /// [request] - The metadata request object.
   ///
@@ -66,19 +68,18 @@ class WrapApiApi {
 
     _url = 'helloPost';
 
-    final _response = _requester.request(_url,
-                                       "POST",
-                                       body: _body,
-                                       queryParams: _queryParams,
-                                       uploadOptions: _uploadOptions,
-                                       uploadMedia: _uploadMedia,
-                                       downloadOptions: _downloadOptions,);
+    final _response = _requester.request(
+      _url,
+      "POST",
+      body: _body,
+      queryParams: _queryParams,
+      uploadOptions: _uploadOptions,
+      uploadMedia: _uploadMedia,
+      downloadOptions: _downloadOptions,
+    );
     return _response.then((data) => WrapResponse.fromJson(data['data']));
   }
-
 }
-
-
 
 class WrapRequest {
   core.int age;
@@ -96,7 +97,8 @@ class WrapRequest {
   }
 
   core.Map<core.String, core.Object> toJson() {
-    final core.Map<core.String, core.Object> _json = <core.String, core.Object>{};
+    final core.Map<core.String, core.Object> _json =
+        <core.String, core.Object>{};
     if (age != null) {
       _json["age"] = age;
     }
@@ -119,7 +121,8 @@ class WrapResponse {
   }
 
   core.Map<core.String, core.Object> toJson() {
-    final core.Map<core.String, core.Object> _json = <core.String, core.Object>{};
+    final core.Map<core.String, core.Object> _json =
+        <core.String, core.Object>{};
     if (result != null) {
       _json["result"] = result;
     }

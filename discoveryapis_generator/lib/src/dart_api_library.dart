@@ -8,6 +8,7 @@ import 'dart_resources.dart';
 import 'dart_schemas.dart';
 import 'generated_googleapis/discovery/v1.dart';
 import 'namer.dart';
+import 'utils.dart';
 
 const _ignoreForFileSet = {
   'avoid_unused_constructor_parameters',
@@ -38,21 +39,23 @@ String get ignoreForFileComments =>
 class DartApiImports {
   final ApiLibraryNamer namer;
 
-  Identifier core;
-  Identifier collection;
-  Identifier async;
-  Identifier convert;
-  Identifier http;
-  Identifier commons;
+  final Identifier core;
+  final Identifier collection;
+  final Identifier async;
+  final Identifier convert;
+  final Identifier http;
+  final Identifier commons;
 
-  DartApiImports.fromNamer(this.namer, {bool useCorePrefixes = true}) {
-    core = useCorePrefixes ? namer.import('core') : namer.noPrefix();
-    collection = namer.import('collection');
-    async = useCorePrefixes ? namer.import('async') : namer.noPrefix();
-    convert = namer.import('convert');
-    http = namer.import('http');
-    commons = namer.import('commons');
-  }
+  DartApiImports.fromNamer(this.namer, {bool useCorePrefixes = true})
+      : core = useCorePrefixes ? namer.import('core') : namer.noPrefix(),
+        collection = namer.import('collection'),
+        async = useCorePrefixes ? namer.import('async') : namer.noPrefix(),
+        convert = namer.import('convert'),
+        http = namer.import('http'),
+        commons = namer.import('commons');
+
+  String get coreJsonMap =>
+      '${core.ref()}Map<${core.ref()}String, ${core.ref()}dynamic>';
 }
 
 abstract class BaseApiLibrary {
@@ -97,7 +100,7 @@ class DartApiLibrary extends BaseApiLibrary {
     } else {
       sink.write('$schemas');
     }
-    return '${sink.toString().trimRight()}\n';
+    return formatSource(sink.toString());
   }
 
   /// Create the library header. Note, this must be called after the library
