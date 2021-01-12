@@ -7,5 +7,3 @@ stages:
   - group:
     - dartfmt
     - dartanalyzer: --fatal-infos .
-- unittest:
-  - test:

@@ -37,16 +37,16 @@ jobs:
       - name: mono_repo self validate
         run: pub global run mono_repo generate --validate
   job_002:
-    name: "analyze_and_format; Dart 2.10.0; PKGS: _test, discoveryapis_generator; `dartfmt -n --set-exit-if-changed .`, `dartanalyzer --fatal-infos .`"
+    name: "analyze_and_format; Dart 2.10.0; PKGS: _test, _test_package, discoveryapis_generator; `dartfmt -n --set-exit-if-changed .`, `dartanalyzer --fatal-infos .`"
     runs-on: ubuntu-latest
     steps:
       - name: Cache Pub hosted dependencies
         uses: actions/cache@v2
         with:
           path: "~/.pub-cache/hosted"
-          key: "os:ubuntu-latest;pub-cache-hosted;dart:2.10.0;packages:_test-discoveryapis_generator;commands:dartfmt-dartanalyzer"
+          key: "os:ubuntu-latest;pub-cache-hosted;dart:2.10.0;packages:_test-_test_package-discoveryapis_generator;commands:dartfmt-dartanalyzer"
           restore-keys: |
-            os:ubuntu-latest;pub-cache-hosted;dart:2.10.0;packages:_test-discoveryapis_generator
+            os:ubuntu-latest;pub-cache-hosted;dart:2.10.0;packages:_test-_test_package-discoveryapis_generator
             os:ubuntu-latest;pub-cache-hosted;dart:2.10.0
             os:ubuntu-latest;pub-cache-hosted
             os:ubuntu-latest
@@ -68,6 +68,18 @@ jobs:
         if: "always() && steps._test_pub_upgrade.conclusion == 'success'"
         working-directory: _test
         run: dartanalyzer --fatal-infos .
+      - id: _test_package_pub_upgrade
+        name: "_test_package; pub upgrade --no-precompile"
+        working-directory: _test_package
+        run: pub upgrade --no-precompile
+      - name: "_test_package; dartfmt -n --set-exit-if-changed ."
+        if: "always() && steps._test_package_pub_upgrade.conclusion == 'success'"
+        working-directory: _test_package
+        run: dartfmt -n --set-exit-if-changed .
+      - name: "_test_package; dartanalyzer --fatal-infos ."
+        if: "always() && steps._test_package_pub_upgrade.conclusion == 'success'"
+        working-directory: _test_package
+        run: dartanalyzer --fatal-infos .
       - id: discoveryapis_generator_pub_upgrade
         name: "discoveryapis_generator; pub upgrade --no-precompile"
         working-directory: discoveryapis_generator
@@ -81,16 +93,16 @@ jobs:
         working-directory: discoveryapis_generator
         run: dartanalyzer --fatal-infos .
   job_003:
-    name: "analyze_and_format; Dart dev; PKGS: _test, discoveryapis_generator; `dartfmt -n --set-exit-if-changed .`, `dartanalyzer --fatal-infos .`"
+    name: "analyze_and_format; Dart dev; PKGS: _test, _test_package, discoveryapis_generator; `dartfmt -n --set-exit-if-changed .`, `dartanalyzer --fatal-infos .`"
     runs-on: ubuntu-latest
     steps:
       - name: Cache Pub hosted dependencies
         uses: actions/cache@v2
         with:
           path: "~/.pub-cache/hosted"
-          key: "os:ubuntu-latest;pub-cache-hosted;dart:dev;packages:_test-discoveryapis_generator;commands:dartfmt-dartanalyzer"
+          key: "os:ubuntu-latest;pub-cache-hosted;dart:dev;packages:_test-_test_package-discoveryapis_generator;commands:dartfmt-dartanalyzer"
           restore-keys: |
-            os:ubuntu-latest;pub-cache-hosted;dart:dev;packages:_test-discoveryapis_generator
+            os:ubuntu-latest;pub-cache-hosted;dart:dev;packages:_test-_test_package-discoveryapis_generator
             os:ubuntu-latest;pub-cache-hosted;dart:dev
             os:ubuntu-latest;pub-cache-hosted
             os:ubuntu-latest
@@ -110,6 +122,18 @@ jobs:
       - name: "_test; dartanalyzer --fatal-infos ."
         if: "always() && steps._test_pub_upgrade.conclusion == 'success'"
         working-directory: _test
+        run: dartanalyzer --fatal-infos .
+      - id: _test_package_pub_upgrade
+        name: "_test_package; pub upgrade --no-precompile"
+        working-directory: _test_package
+        run: pub upgrade --no-precompile
+      - name: "_test_package; dartfmt -n --set-exit-if-changed ."
+        if: "always() && steps._test_package_pub_upgrade.conclusion == 'success'"
+        working-directory: _test_package
+        run: dartfmt -n --set-exit-if-changed .
+      - name: "_test_package; dartanalyzer --fatal-infos ."
+        if: "always() && steps._test_package_pub_upgrade.conclusion == 'success'"
+        working-directory: _test_package
         run: dartanalyzer --fatal-infos .
       - id: discoveryapis_generator_pub_upgrade
         name: "discoveryapis_generator; pub upgrade --no-precompile"
