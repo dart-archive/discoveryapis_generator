@@ -16,9 +16,6 @@ env:
 jobs:
   verify_examples:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: discoveryapis_generator
     steps:
     - name: Cache Pub hosted dependencies
       uses: actions/cache@v2
@@ -34,7 +31,10 @@ jobs:
         release-channel: dev
     - uses: actions/checkout@v2
     - run: dart --version
-    - run: pub upgrade
+    - run: |
+        pushd discoveryapis_generator
+        pub upgrade
+        popd
     - run: ../tool/verify_examples_setup.sh
     - name: verify output
       run: |
