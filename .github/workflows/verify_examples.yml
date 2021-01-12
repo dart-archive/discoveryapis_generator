@@ -35,7 +35,7 @@ jobs:
         pushd discoveryapis_generator
         pub upgrade
         popd
-    - run: ../tool/verify_examples_setup.sh
+    - run: tool/verify_examples_setup.sh
     - name: verify output
       run: |
         export DIFF_OUTPUT="$(git diff)"

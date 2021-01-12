@@ -5,7 +5,7 @@ environment:
   sdk: '>=2.10.0 <3.0.0'
 
 dependencies:
-  _discoveryapis_commons: any
+  _discoveryapis_commons: '>=0.1.0 <0.3.0'
   http: any
 
 dev_dependencies:
