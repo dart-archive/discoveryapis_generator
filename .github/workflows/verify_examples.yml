@@ -37,12 +37,9 @@ jobs:
     - id: pub_upgrade
       run: pub upgrade
     - name: Generate Code
-      working
       run: |
-
         dart discoveryapis_generator/bin/generate.dart package -i _test/rest -o _test_package
         dart bin/generate.dart files -i example -o example
-
     - name: verify output
       run: |
         export DIFF_OUTPUT="$(git diff)"
