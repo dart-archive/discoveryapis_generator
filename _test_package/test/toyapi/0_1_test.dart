@@ -716,12 +716,6 @@ void main() {
         var queryOffset = 0;
         var queryMap = <core.String, core.List<core.String>>{};
         void addQueryParam(n, v) => queryMap.putIfAbsent(n, () => []).add(v);
-        core.bool parseBool(n) {
-          if (n == "true") return true;
-          if (n == "false") return false;
-          if (n == null) return null;
-          throw core.ArgumentError("Invalid boolean: $n");
-        }
 
         if (query.isNotEmpty) {
           for (var part in query.split("&")) {
@@ -766,12 +760,6 @@ void main() {
         var queryOffset = 0;
         var queryMap = <core.String, core.List<core.String>>{};
         void addQueryParam(n, v) => queryMap.putIfAbsent(n, () => []).add(v);
-        core.bool parseBool(n) {
-          if (n == "true") return true;
-          if (n == "false") return false;
-          if (n == null) return null;
-          throw core.ArgumentError("Invalid boolean: $n");
-        }
 
         if (query.isNotEmpty) {
           for (var part in query.split("&")) {
@@ -822,12 +810,6 @@ void main() {
         var queryOffset = 0;
         var queryMap = <core.String, core.List<core.String>>{};
         void addQueryParam(n, v) => queryMap.putIfAbsent(n, () => []).add(v);
-        core.bool parseBool(n) {
-          if (n == "true") return true;
-          if (n == "false") return false;
-          if (n == null) return null;
-          throw core.ArgumentError("Invalid boolean: $n");
-        }
 
         if (query.isNotEmpty) {
           for (var part in query.split("&")) {
@@ -880,12 +862,6 @@ void main() {
         var queryOffset = 0;
         var queryMap = <core.String, core.List<core.String>>{};
         void addQueryParam(n, v) => queryMap.putIfAbsent(n, () => []).add(v);
-        core.bool parseBool(n) {
-          if (n == "true") return true;
-          if (n == "false") return false;
-          if (n == null) return null;
-          throw core.ArgumentError("Invalid boolean: $n");
-        }
 
         if (query.isNotEmpty) {
           for (var part in query.split("&")) {
@@ -938,12 +914,6 @@ void main() {
         var queryOffset = 0;
         var queryMap = <core.String, core.List<core.String>>{};
         void addQueryParam(n, v) => queryMap.putIfAbsent(n, () => []).add(v);
-        core.bool parseBool(n) {
-          if (n == "true") return true;
-          if (n == "false") return false;
-          if (n == null) return null;
-          throw core.ArgumentError("Invalid boolean: $n");
-        }
 
         if (query.isNotEmpty) {
           for (var part in query.split("&")) {
@@ -1006,12 +976,6 @@ void main() {
         var queryOffset = 0;
         var queryMap = <core.String, core.List<core.String>>{};
         void addQueryParam(n, v) => queryMap.putIfAbsent(n, () => []).add(v);
-        core.bool parseBool(n) {
-          if (n == "true") return true;
-          if (n == "false") return false;
-          if (n == null) return null;
-          throw core.ArgumentError("Invalid boolean: $n");
-        }
 
         if (query.isNotEmpty) {
           for (var part in query.split("&")) {
@@ -1068,12 +1032,6 @@ void main() {
         var queryOffset = 0;
         var queryMap = <core.String, core.List<core.String>>{};
         void addQueryParam(n, v) => queryMap.putIfAbsent(n, () => []).add(v);
-        core.bool parseBool(n) {
-          if (n == "true") return true;
-          if (n == "false") return false;
-          if (n == null) return null;
-          throw core.ArgumentError("Invalid boolean: $n");
-        }
 
         if (query.isNotEmpty) {
           for (var part in query.split("&")) {
@@ -1128,12 +1086,6 @@ void main() {
         var queryOffset = 0;
         var queryMap = <core.String, core.List<core.String>>{};
         void addQueryParam(n, v) => queryMap.putIfAbsent(n, () => []).add(v);
-        core.bool parseBool(n) {
-          if (n == "true") return true;
-          if (n == "false") return false;
-          if (n == null) return null;
-          throw core.ArgumentError("Invalid boolean: $n");
-        }
 
         if (query.isNotEmpty) {
           for (var part in query.split("&")) {
@@ -1190,12 +1142,6 @@ void main() {
         var queryOffset = 0;
         var queryMap = <core.String, core.List<core.String>>{};
         void addQueryParam(n, v) => queryMap.putIfAbsent(n, () => []).add(v);
-        core.bool parseBool(n) {
-          if (n == "true") return true;
-          if (n == "false") return false;
-          if (n == null) return null;
-          throw core.ArgumentError("Invalid boolean: $n");
-        }
 
         if (query.isNotEmpty) {
           for (var part in query.split("&")) {
@@ -1248,12 +1194,6 @@ void main() {
         var queryOffset = 0;
         var queryMap = <core.String, core.List<core.String>>{};
         void addQueryParam(n, v) => queryMap.putIfAbsent(n, () => []).add(v);
-        core.bool parseBool(n) {
-          if (n == "true") return true;
-          if (n == "false") return false;
-          if (n == null) return null;
-          throw core.ArgumentError("Invalid boolean: $n");
-        }
 
         if (query.isNotEmpty) {
           for (var part in query.split("&")) {
@@ -1302,12 +1242,6 @@ void main() {
         var queryOffset = 0;
         var queryMap = <core.String, core.List<core.String>>{};
         void addQueryParam(n, v) => queryMap.putIfAbsent(n, () => []).add(v);
-        core.bool parseBool(n) {
-          if (n == "true") return true;
-          if (n == "false") return false;
-          if (n == null) return null;
-          throw core.ArgumentError("Invalid boolean: $n");
-        }
 
         if (query.isNotEmpty) {
           for (var part in query.split("&")) {
@@ -1360,12 +1294,6 @@ void main() {
         var queryOffset = 0;
         var queryMap = <core.String, core.List<core.String>>{};
         void addQueryParam(n, v) => queryMap.putIfAbsent(n, () => []).add(v);
-        core.bool parseBool(n) {
-          if (n == "true") return true;
-          if (n == "false") return false;
-          if (n == null) return null;
-          throw core.ArgumentError("Invalid boolean: $n");
-        }
 
         if (query.isNotEmpty) {
           for (var part in query.split("&")) {
@@ -1418,12 +1346,6 @@ void main() {
         var queryOffset = 0;
         var queryMap = <core.String, core.List<core.String>>{};
         void addQueryParam(n, v) => queryMap.putIfAbsent(n, () => []).add(v);
-        core.bool parseBool(n) {
-          if (n == "true") return true;
-          if (n == "false") return false;
-          if (n == null) return null;
-          throw core.ArgumentError("Invalid boolean: $n");
-        }
 
         if (query.isNotEmpty) {
           for (var part in query.split("&")) {
@@ -1476,12 +1398,6 @@ void main() {
         var queryOffset = 0;
         var queryMap = <core.String, core.List<core.String>>{};
         void addQueryParam(n, v) => queryMap.putIfAbsent(n, () => []).add(v);
-        core.bool parseBool(n) {
-          if (n == "true") return true;
-          if (n == "false") return false;
-          if (n == null) return null;
-          throw core.ArgumentError("Invalid boolean: $n");
-        }
 
         if (query.isNotEmpty) {
           for (var part in query.split("&")) {
@@ -1530,12 +1446,6 @@ void main() {
         var queryOffset = 0;
         var queryMap = <core.String, core.List<core.String>>{};
         void addQueryParam(n, v) => queryMap.putIfAbsent(n, () => []).add(v);
-        core.bool parseBool(n) {
-          if (n == "true") return true;
-          if (n == "false") return false;
-          if (n == null) return null;
-          throw core.ArgumentError("Invalid boolean: $n");
-        }
 
         if (query.isNotEmpty) {
           for (var part in query.split("&")) {
@@ -1584,12 +1494,6 @@ void main() {
         var queryOffset = 0;
         var queryMap = <core.String, core.List<core.String>>{};
         void addQueryParam(n, v) => queryMap.putIfAbsent(n, () => []).add(v);
-        core.bool parseBool(n) {
-          if (n == "true") return true;
-          if (n == "false") return false;
-          if (n == null) return null;
-          throw core.ArgumentError("Invalid boolean: $n");
-        }
 
         if (query.isNotEmpty) {
           for (var part in query.split("&")) {
@@ -1638,12 +1542,6 @@ void main() {
         var queryOffset = 0;
         var queryMap = <core.String, core.List<core.String>>{};
         void addQueryParam(n, v) => queryMap.putIfAbsent(n, () => []).add(v);
-        core.bool parseBool(n) {
-          if (n == "true") return true;
-          if (n == "false") return false;
-          if (n == null) return null;
-          throw core.ArgumentError("Invalid boolean: $n");
-        }
 
         if (query.isNotEmpty) {
           for (var part in query.split("&")) {
@@ -1692,12 +1590,6 @@ void main() {
         var queryOffset = 0;
         var queryMap = <core.String, core.List<core.String>>{};
         void addQueryParam(n, v) => queryMap.putIfAbsent(n, () => []).add(v);
-        core.bool parseBool(n) {
-          if (n == "true") return true;
-          if (n == "false") return false;
-          if (n == null) return null;
-          throw core.ArgumentError("Invalid boolean: $n");
-        }
 
         if (query.isNotEmpty) {
           for (var part in query.split("&")) {
@@ -1762,12 +1654,6 @@ void main() {
         var queryOffset = 0;
         var queryMap = <core.String, core.List<core.String>>{};
         void addQueryParam(n, v) => queryMap.putIfAbsent(n, () => []).add(v);
-        core.bool parseBool(n) {
-          if (n == "true") return true;
-          if (n == "false") return false;
-          if (n == null) return null;
-          throw core.ArgumentError("Invalid boolean: $n");
-        }
 
         if (query.isNotEmpty) {
           for (var part in query.split("&")) {
@@ -1832,12 +1718,6 @@ void main() {
         var queryOffset = 0;
         var queryMap = <core.String, core.List<core.String>>{};
         void addQueryParam(n, v) => queryMap.putIfAbsent(n, () => []).add(v);
-        core.bool parseBool(n) {
-          if (n == "true") return true;
-          if (n == "false") return false;
-          if (n == null) return null;
-          throw core.ArgumentError("Invalid boolean: $n");
-        }
 
         if (query.isNotEmpty) {
           for (var part in query.split("&")) {

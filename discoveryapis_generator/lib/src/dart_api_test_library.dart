@@ -386,16 +386,13 @@ class MethodArgsTest extends TestHelper {
     var spaces = ' ' * indentationLevel;
     void ln(x) => sb.writeln(spaces + x);
 
+    const parseBoolPlaceholder = '/// PARSE_BOOL';
+
     ln('var query = ${uriExpr}.query;');
     ln('var queryOffset = 0;');
     ln('var queryMap = <core.String, core.List<core.String>>{};');
     ln('void addQueryParam(n, v) => queryMap.putIfAbsent(n, () => []).add(v);');
-    ln('core.bool parseBool(n) {');
-    ln('  if (n == "true") return true;');
-    ln('  if (n == "false") return false;');
-    ln('  if (n == null) return null;');
-    ln('  throw core.ArgumentError("Invalid boolean: \$n");');
-    ln('}');
+    ln(parseBoolPlaceholder);
     ln('if (query.isNotEmpty) {');
     ln('  for (var part in query.split("&")) {');
     ln('    var keyValue = part.split("=");');
@@ -403,6 +400,15 @@ class MethodArgsTest extends TestHelper {
         'core.Uri.decodeQueryComponent(keyValue[1]),);');
     ln('  }');
     ln('}');
+
+    const parseBoolFunc = 'core.bool parseBool(n) {'
+        '  if (n == "true") return true;'
+        '  if (n == "false") return false;'
+        '  if (n == null) return null;'
+        '  throw core.ArgumentError("Invalid boolean: \$n");'
+        '}';
+
+    var parseBoolUsed = false;
 
     void checkParameter(MethodParameter p) {
       var name = parameterValues[p];
@@ -420,6 +426,7 @@ class MethodArgsTest extends TestHelper {
           } else if (innerType is StringType) {
             ln(expectEqual('${queryMapValue}', name));
           } else if (innerType is BooleanType) {
+            parseBoolUsed = true;
             ln(expectEqual('${queryMapValue}.map(parseBool).toList()', name));
           } else {
             throw 'unsupported inner type ${innerType}';
@@ -443,7 +450,10 @@ class MethodArgsTest extends TestHelper {
     method.parameters.forEach(checkParameter);
     method.namedParameters.forEach(checkParameter);
 
-    return '$sb';
+    return '$sb'.replaceAll(
+      parseBoolPlaceholder,
+      parseBoolUsed ? parseBoolFunc : '',
+    );
   }
 
   MethodParameter _findMethodParameter(String varname) {
