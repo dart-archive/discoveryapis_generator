@@ -34,12 +34,8 @@ jobs:
         release-channel: dev
     - uses: actions/checkout@v2
     - run: dart --version
-    - id: pub_upgrade
-      run: pub upgrade
-    - name: Generate Code
-      run: |
-        dart bin/generate.dart files -i example -o example
-        dart bin/generate.dart package -i ../_test/rest -o ../_test_package
+    - run: pub upgrade
+    - run: ../tool/verify_examples_setup.sh
     - name: verify output
       run: |
         export DIFF_OUTPUT="$(git diff)"
