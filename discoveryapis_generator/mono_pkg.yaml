@@ -9,4 +9,3 @@ stages:
     - dartanalyzer: --fatal-infos .
 - unittest:
   - test:
-  # TODO: test generation of example!

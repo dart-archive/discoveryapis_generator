@@ -401,12 +401,13 @@ class MethodArgsTest extends TestHelper {
     ln('  }');
     ln('}');
 
-    const parseBoolFunc = 'core.bool parseBool(n) {'
-        '  if (n == "true") return true;'
-        '  if (n == "false") return false;'
-        '  if (n == null) return null;'
-        '  throw core.ArgumentError("Invalid boolean: \$n");'
-        '}';
+    const parseBoolFunc = '''
+core.bool parseBool(n) {
+  if (n == "true") return true;
+  if (n == "false") return false;
+  if (n == null) return null;
+  throw core.ArgumentError("Invalid boolean: \$n");
+}''';
 
     var parseBoolUsed = false;
 
