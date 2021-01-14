@@ -27,7 +27,8 @@ class StringPart extends Part {
   StringPart(DartApiImports imports, this.staticString) : super(imports, null);
 
   @override
-  String stringExpression(Identifier _) => "'${escapeString(staticString)}'";
+  String stringExpression(Identifier variable) =>
+      "'${escapeString(staticString)}'";
 }
 
 /// Represents a URI Template variable expression of the form {var}

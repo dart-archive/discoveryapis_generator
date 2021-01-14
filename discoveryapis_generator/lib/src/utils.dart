@@ -108,27 +108,24 @@ class GenerateResult {
 
   GenerateResult(this.apiName, this.apiVersion, this.packagePath)
       : success = true,
-        message = null {
-    assert(apiName != null);
-    assert(apiVersion != null);
-    assert(packagePath != null);
-  }
+        message = null,
+        assert(apiName != null),
+        assert(apiVersion != null),
+        assert(packagePath != null);
 
-  GenerateResult.fromMessage(String message)
+  GenerateResult.fromMessage(this.message)
       : info = true,
         apiName = null,
         apiVersion = null,
-        packagePath = null,
-        message = message;
+        packagePath = null;
 
   GenerateResult.error(
       this.apiName, this.apiVersion, this.packagePath, this.message)
-      : success = false {
-    assert(apiName != null);
-    assert(apiVersion != null);
-    assert(packagePath != null);
-    assert(message != null);
-  }
+      : success = false,
+        assert(apiName != null),
+        assert(apiVersion != null),
+        assert(packagePath != null),
+        assert(message != null);
 
   String get shortName =>
       cleanName('${apiName}_${apiVersion}_api').toLowerCase();

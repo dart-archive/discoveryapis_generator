@@ -63,8 +63,8 @@ class Identifier {
 
 /// Allocate [Identifier]s for a lexical scope.
 class Scope {
-  static final RegExp _StartsWithDigit = RegExp('^[0-9]');
-  static final RegExp _NonAscii = RegExp('[^a-zA-z0-9]');
+  static final RegExp _startsWithDigit = RegExp('^[0-9]');
+  static final RegExp _nonAscii = RegExp('[^a-zA-z0-9]');
 
   final Scope parentScope;
   final List<Scope> childScopes = <Scope>[];
@@ -99,9 +99,9 @@ class Scope {
     }
 
     preferredName = preferredName.replaceAll('-', '_').replaceAll('.', '_');
-    preferredName = preferredName.replaceAll(_NonAscii, '_');
+    preferredName = preferredName.replaceAll(_nonAscii, '_');
 
-    if (preferredName.startsWith(_StartsWithDigit)) {
+    if (preferredName.startsWith(_startsWithDigit)) {
       preferredName = 'D$preferredName';
     } else if (preferredName.startsWith('_')) {
       preferredName = 'P$preferredName';

@@ -88,7 +88,7 @@ void main() {
           File(p.join(dataPath, 'wrapapi.json')).readAsStringSync();
       final description = RestDescription.fromJson(jsonDecode(descriptionJson));
       final generatedLib =
-          DartApiLibrary.build(description, 'wrapapi', useCorePrefixes: true);
+          DartApiLibrary.build(description, 'wrapapi');
 
       _expectFilesMatch(
         p.join(dataPath, 'wrapapi.dart'),

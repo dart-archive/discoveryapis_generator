@@ -12,14 +12,14 @@ import 'namer.dart';
 import 'uri_template.dart';
 import 'utils.dart';
 
-const RESERVED_METHOD_PARAMETER_NAMES = [
+const reservedMethodParameterNames = [
   'uploadMedia',
   'uploadOptions',
   'downloadOptions',
   'callOptions'
 ];
 
-const WHITELISTED_GLOBAL_PARAMETER_NAMES = [
+const whitelistedGlobalParameterNames = [
   'fields',
 ];
 
@@ -105,14 +105,14 @@ class DartResourceMethod {
 
     // If a request object was defined, it is always the first parameter.
     if (requestParameter != null) {
-      parameterString.write('${requestParameter.declaration}');
+      parameterString.write(requestParameter.declaration);
     }
 
     // Normal positional parameters are following.
     if (parameters.isNotEmpty) {
       if (parameterString.isNotEmpty) parameterString.write(', ');
       parameterString
-          .write(parameters.map((param) => '${param.declaration}').join(', '));
+          .write(parameters.map((param) => param.declaration).join(', '));
     }
 
     // Optional parameters come last (including the media parameters).
@@ -120,8 +120,7 @@ class DartResourceMethod {
       if (parameterString.isNotEmpty) parameterString.write(', ');
 
       var namedString = StringBuffer()
-        ..write(
-            namedParameters.map((param) => '${param.declaration}').join(', '));
+        ..write(namedParameters.map((param) => param.declaration).join(', '));
 
       if (mediaUpload) {
         if (namedString.isNotEmpty) namedString.write(', ');
@@ -234,11 +233,11 @@ class DartResourceMethod {
           params.writeln('    if (${param.name} == null) {');
         }
         params.writeln('      throw ${imports.core.ref()}ArgumentError'
-            '("Parameter ${param.name} is required.");');
+            "('Parameter ${param.name} is required.');");
         params.writeln('    }');
       } else {
         // Is this an error?
-        throw 'non-required path parameter';
+        throw ArgumentError('non-required path parameter');
       }
     }
 
@@ -257,11 +256,11 @@ class DartResourceMethod {
         }
 
         propertyAssignment =
-            '_queryParams["${escapeString(param.jsonName)}"] = $expr;';
+            "_queryParams['${escapeString(param.jsonName)}'] = $expr;";
       } else {
         var expr = param.type.primitiveEncoding(param.name.name);
         propertyAssignment =
-            '_queryParams["${escapeString(param.jsonName)}"] = [$expr];';
+            "_queryParams['${escapeString(param.jsonName)}'] = [$expr];";
       }
 
       if (param.required) {
@@ -347,7 +346,7 @@ class DartResourceMethod {
 $urlPatternCode
 
     final _response = _requester.request(_url,
-                                       "$httpMethod",
+                                       '$httpMethod',
                                        body: _body,
                                        queryParams: _queryParams,
                                        uploadOptions: _uploadOptions,
@@ -486,8 +485,8 @@ class DartApiClass extends DartResourceClass {
     var str = StringBuffer();
 
     var parameters = [
-      '${imports.core.ref()}String rootUrl = "${escapeString(rootUrl)}"',
-      '${imports.core.ref()}String servicePath = "${escapeString(servicePath)}"',
+      "${imports.core.ref()}String rootUrl = '${escapeString(rootUrl)}'",
+      "${imports.core.ref()}String servicePath = '${escapeString(servicePath)}'",
     ].join(', ');
 
     str.writeln('  $className(${imports.http}.Client client, {$parameters}) :');
@@ -528,7 +527,7 @@ DartResourceMethod _parseMethod(
   var methodName = classScope.newIdentifier(jsonName);
   var parameterScope = classScope.newChildScope();
 
-  for (var reserved in RESERVED_METHOD_PARAMETER_NAMES) {
+  for (var reserved in reservedMethodParameterNames) {
     // We allocate all identifiers in [RESERVED_METHOD_PARAMETER_NAMES]
     // at the beginning of the parameter scope, so they'll get the correct
     // name.
@@ -624,7 +623,7 @@ DartResourceMethod _parseMethod(
       final jsonSchema = description.parameters[jsonName];
       assert(jsonSchema != null);
       final comment = parameterComment(jsonSchema);
-      if (WHITELISTED_GLOBAL_PARAMETER_NAMES.contains(jsonName)) {
+      if (whitelistedGlobalParameterNames.contains(jsonName)) {
         enqueueOptionalParameter(jsonName, comment, jsonSchema, global: true);
       }
     }
@@ -642,7 +641,7 @@ DartResourceMethod _parseMethod(
 
   DartSchemaType dartResponseType;
   if (method.response != null) {
-    dartResponseType = getValidReference(method.response.P_ref);
+    dartResponseType = getValidReference(method.response.ref);
   }
 
   var comment = Comment(method.description);
@@ -837,9 +836,7 @@ String generateResources(DartApiClass apiClass) {
   void writeResourceClass(DartResourceClass resource) {
     sb.writeln(resource.getClassDefinition());
     sb.writeln();
-    resource.subResources.forEach((subResource) {
-      writeResourceClass(subResource);
-    });
+    resource.subResources.forEach(writeResourceClass);
   }
 
   writeResourceClass(apiClass);

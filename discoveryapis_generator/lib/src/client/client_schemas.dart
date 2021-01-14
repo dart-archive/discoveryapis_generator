@@ -34,9 +34,9 @@ class ClientObjectType extends ObjectType {
       // and the variant discriminator is final.
       if (!isVariantDiscriminator(property)) {
         var decodeString = property.type
-            .jsonDecode('_json["${escapeString(property.jsonName)}"]');
+            .jsonDecode("_json['${escapeString(property.jsonName)}']");
         fromJsonString.writeln('    if (_json.containsKey'
-            '("${escapeString(property.jsonName)}")) {');
+            "('${escapeString(property.jsonName)}')) {");
         fromJsonString
             .writeln('      message.${property.name} = ${decodeString};');
         fromJsonString.writeln('    }');
@@ -53,7 +53,7 @@ class ClientObjectType extends ObjectType {
     properties.forEach((DartClassProperty property) {
       toJsonString.writeln('    if (message.${property.name} != null) {');
       toJsonString
-          .writeln('      _json["${escapeString(property.jsonName)}"] = '
+          .writeln("      _json['${escapeString(property.jsonName)}'] = "
               '${property.type.jsonEncode('message.${property.name}')};');
       toJsonString.writeln('    }');
     });

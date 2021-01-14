@@ -20,7 +20,7 @@ void withParsedDB(json, function) {
 
   namer.nameAllIdentifiers();
 
-  return function(db);
+  function(db);
 }
 
 void withParsedApiResource(db, json, function) {
@@ -32,7 +32,7 @@ void withParsedApiResource(db, json, function) {
 
   namer.nameAllIdentifiers();
 
-  return function(apiClass);
+  function(apiClass);
 }
 
 void main() {
@@ -112,7 +112,7 @@ void main() {
           },
         },
       };
-      for (var reserved in RESERVED_METHOD_PARAMETER_NAMES) {
+      for (var reserved in reservedMethodParameterNames) {
         (map['foo$i']['parameters'] as Map<String, dynamic>)[reserved] = {
           'type': 'string',
           'required': true,
@@ -134,7 +134,7 @@ void main() {
       expect(foo.urlPattern.parts[1].templateVar, equals('id$i'));
       expect(foo.httpMethod, equals('GET'));
       expect(foo.parameters,
-          hasLength(3 + RESERVED_METHOD_PARAMETER_NAMES.length));
+          hasLength(3 + reservedMethodParameterNames.length));
 
       var id = foo.parameters[0];
       expect(id, isNotNull);
@@ -162,7 +162,7 @@ void main() {
       expect(repeatedQueryParam.encodedInPath, isFalse);
 
       var rest = foo.parameters.skip(3).toList();
-      for (var reserved in RESERVED_METHOD_PARAMETER_NAMES) {
+      for (var reserved in reservedMethodParameterNames) {
         var found = false;
         for (var p in rest) {
           if ('${reserved}_1' == p.name.name) {

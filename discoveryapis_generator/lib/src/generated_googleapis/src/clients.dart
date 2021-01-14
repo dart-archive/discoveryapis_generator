@@ -12,7 +12,7 @@ import 'package:meta/meta.dart';
 
 import 'requests.dart' as client_requests;
 
-const CONTENT_TYPE_JSON_UTF8 = 'application/json; charset=utf-8';
+const _contentTypeJsonUtf8 = 'application/json; charset=utf-8';
 
 /// Base class for all API clients, offering generic methods for
 /// HTTP Requests to the API
@@ -22,19 +22,17 @@ class ApiRequester {
   final String _basePath;
   final String _userAgent;
 
-  ApiRequester(
-      this._httpClient, this._rootUrl, this._basePath, this._userAgent) {
-    assert(_rootUrl.endsWith('/'));
-  }
+  ApiRequester(this._httpClient, this._rootUrl, this._basePath, this._userAgent)
+      : assert(_rootUrl.endsWith('/'));
 
   /// Sends a HTTPRequest using [method] (usually GET or POST) to [requestUrl]
   /// using the specified [urlParams] and [queryParams]. Optionally include a
   /// [body] and/or [uploadMedia] in the request.
   ///
   /// If [uploadMedia] was specified [downloadOptions] must be
-  /// [DownloadOptions.Metadata] or `null`.
+  /// [DownloadOptions.metadata] or `null`.
   ///
-  /// If [downloadOptions] is [DownloadOptions.Metadata] the result will be
+  /// If [downloadOptions] is [DownloadOptions.metadata] the result will be
   /// decoded as JSON.
   ///
   /// If [downloadOptions] is `null` the result will be a Future completing with
@@ -47,9 +45,9 @@ class ApiRequester {
       client_requests.Media uploadMedia,
       client_requests.UploadOptions uploadOptions,
       client_requests.DownloadOptions downloadOptions =
-          client_requests.DownloadOptions.Metadata}) {
+          client_requests.DownloadOptions.metadata}) {
     if (uploadMedia != null &&
-        downloadOptions != client_requests.DownloadOptions.Metadata) {
+        downloadOptions != client_requests.DownloadOptions.metadata) {
       throw ArgumentError('When uploading a [Media] you cannot download a '
           '[Media] at the same time!');
     }
@@ -68,7 +66,7 @@ class ApiRequester {
         // If no download options are given, the response is of no interest
         // and we will drain the stream.
         return response.stream.drain();
-      } else if (downloadOptions == client_requests.DownloadOptions.Metadata) {
+      } else if (downloadOptions == client_requests.DownloadOptions.metadata) {
         // Downloading JSON Metadata
         var stringStream = _decodeStreamAsText(response);
         if (stringStream != null) {
@@ -129,7 +127,7 @@ class ApiRequester {
       client_requests.DownloadOptions downloadOptions,
       client_requests.ByteRange downloadRange) {
     var downloadAsMedia = downloadOptions != null &&
-        downloadOptions != client_requests.DownloadOptions.Metadata;
+        downloadOptions != client_requests.DownloadOptions.metadata;
 
     queryParams ??= {};
 
@@ -201,14 +199,14 @@ class ApiRequester {
       if (downloadRange != null) {
         headers = {
           'user-agent': _userAgent,
-          'content-type': CONTENT_TYPE_JSON_UTF8,
+          'content-type': _contentTypeJsonUtf8,
           'content-length': '$length',
           'range': 'bytes=${downloadRange.start}-${downloadRange.end}',
         };
       } else {
         headers = {
           'user-agent': _userAgent,
-          'content-type': CONTENT_TYPE_JSON_UTF8,
+          'content-type': _contentTypeJsonUtf8,
           'content-length': '$length',
         };
       }
@@ -248,7 +246,7 @@ class ApiRequester {
 
 /// Does media uploads using the multipart upload protocol.
 class MultipartMediaUploader {
-  static final _boundary = '314159265358979323846';
+  static const _boundary = '314159265358979323846';
   static final _base64Encoder = Base64Encoder();
 
   final http.Client _httpClient;
@@ -271,7 +269,7 @@ class MultipartMediaUploader {
     // This guarantees us that [_body] cannot contain a valid multipart
     // boundary.
     var bodyHead = '--$_boundary\r\n'
-            'Content-Type: $CONTENT_TYPE_JSON_UTF8\r\n\r\n' +
+            'Content-Type: $_contentTypeJsonUtf8\r\n\r\n' +
         _body +
         '\r\n--$_boundary\r\n'
             'Content-Type: ${_uploadMedia.contentType}\r\n'
@@ -615,7 +613,7 @@ Stream<String> _decodeStreamAsText(http.StreamedResponse response) {
   var contentType = response.headers['content-type'];
   if (contentType != null &&
       contentType.toLowerCase().startsWith('application/json')) {
-    return response.stream.transform(Utf8Decoder(allowMalformed: true));
+    return response.stream.transform(const Utf8Decoder(allowMalformed: true));
   } else {
     return null;
   }

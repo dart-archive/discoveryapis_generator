@@ -12,7 +12,6 @@
 // ignore_for_file: omit_local_variable_types
 // ignore_for_file: prefer_final_locals
 // ignore_for_file: prefer_interpolation_to_compose_strings
-// ignore_for_file: prefer_single_quotes
 // ignore_for_file: unnecessary_brace_in_string_interps
 // ignore_for_file: unnecessary_cast
 // ignore_for_file: unnecessary_parenthesis
@@ -38,8 +37,8 @@ class DartservicesApi {
   final commons.ApiRequester _requester;
 
   DartservicesApi(http.Client client,
-      {core.String rootUrl = "http://localhost/",
-      core.String servicePath = "api/dartservices/v1/"})
+      {core.String rootUrl = 'http://localhost/',
+      core.String servicePath = 'api/dartservices/v1/'})
       : _requester =
             commons.ApiRequester(client, rootUrl, servicePath, USER_AGENT);
 
@@ -70,7 +69,7 @@ class DartservicesApi {
 
     final _response = _requester.request(
       _url,
-      "POST",
+      'POST',
       body: _body,
       queryParams: _queryParams,
       uploadOptions: _uploadOptions,
@@ -102,14 +101,14 @@ class DartservicesApi {
     core.String _body;
 
     if (source != null) {
-      _queryParams["source"] = [source];
+      _queryParams['source'] = [source];
     }
 
     _url = 'analyze';
 
     final _response = _requester.request(
       _url,
-      "GET",
+      'GET',
       body: _body,
       queryParams: _queryParams,
       uploadOptions: _uploadOptions,
@@ -146,7 +145,7 @@ class DartservicesApi {
 
     final _response = _requester.request(
       _url,
-      "POST",
+      'POST',
       body: _body,
       queryParams: _queryParams,
       uploadOptions: _uploadOptions,
@@ -178,14 +177,14 @@ class DartservicesApi {
     core.String _body;
 
     if (source != null) {
-      _queryParams["source"] = [source];
+      _queryParams['source'] = [source];
     }
 
     _url = 'compile';
 
     final _response = _requester.request(
       _url,
-      "GET",
+      'GET',
       body: _body,
       queryParams: _queryParams,
       uploadOptions: _uploadOptions,
@@ -222,7 +221,7 @@ class DartservicesApi {
 
     final _response = _requester.request(
       _url,
-      "POST",
+      'POST',
       body: _body,
       queryParams: _queryParams,
       uploadOptions: _uploadOptions,
@@ -255,10 +254,10 @@ class DartservicesApi {
     core.String _body;
 
     if (source != null) {
-      _queryParams["source"] = [source];
+      _queryParams['source'] = [source];
     }
     if (offset != null) {
-      _queryParams["offset"] = ["${offset}"];
+      _queryParams['offset'] = ['${offset}'];
     }
 
     _downloadOptions = null;
@@ -267,7 +266,7 @@ class DartservicesApi {
 
     final _response = _requester.request(
       _url,
-      "GET",
+      'GET',
       body: _body,
       queryParams: _queryParams,
       uploadOptions: _uploadOptions,
@@ -304,7 +303,7 @@ class DartservicesApi {
 
     final _response = _requester.request(
       _url,
-      "POST",
+      'POST',
       body: _body,
       queryParams: _queryParams,
       uploadOptions: _uploadOptions,
@@ -339,17 +338,17 @@ class DartservicesApi {
     core.String _body;
 
     if (source != null) {
-      _queryParams["source"] = [source];
+      _queryParams['source'] = [source];
     }
     if (offset != null) {
-      _queryParams["offset"] = ["${offset}"];
+      _queryParams['offset'] = ['${offset}'];
     }
 
     _url = 'document';
 
     final _response = _requester.request(
       _url,
-      "GET",
+      'GET',
       body: _body,
       queryParams: _queryParams,
       uploadOptions: _uploadOptions,
@@ -371,23 +370,23 @@ class AnalysisIssue {
   AnalysisIssue();
 
   AnalysisIssue.fromJson(core.Map _json) {
-    if (_json.containsKey("charLength")) {
-      charLength = _json["charLength"];
+    if (_json.containsKey('charLength')) {
+      charLength = _json['charLength'];
     }
-    if (_json.containsKey("charStart")) {
-      charStart = _json["charStart"];
+    if (_json.containsKey('charStart')) {
+      charStart = _json['charStart'];
     }
-    if (_json.containsKey("kind")) {
-      kind = _json["kind"];
+    if (_json.containsKey('kind')) {
+      kind = _json['kind'];
     }
-    if (_json.containsKey("line")) {
-      line = _json["line"];
+    if (_json.containsKey('line')) {
+      line = _json['line'];
     }
-    if (_json.containsKey("location")) {
-      location = _json["location"];
+    if (_json.containsKey('location')) {
+      location = _json['location'];
     }
-    if (_json.containsKey("message")) {
-      message = _json["message"];
+    if (_json.containsKey('message')) {
+      message = _json['message'];
     }
   }
 
@@ -395,22 +394,22 @@ class AnalysisIssue {
     final core.Map<core.String, core.Object> _json =
         <core.String, core.Object>{};
     if (charLength != null) {
-      _json["charLength"] = charLength;
+      _json['charLength'] = charLength;
     }
     if (charStart != null) {
-      _json["charStart"] = charStart;
+      _json['charStart'] = charStart;
     }
     if (kind != null) {
-      _json["kind"] = kind;
+      _json['kind'] = kind;
     }
     if (line != null) {
-      _json["line"] = line;
+      _json['line'] = line;
     }
     if (location != null) {
-      _json["location"] = location;
+      _json['location'] = location;
     }
     if (message != null) {
-      _json["message"] = message;
+      _json['message'] = message;
     }
     return _json;
   }
@@ -422,8 +421,8 @@ class AnalysisResults {
   AnalysisResults();
 
   AnalysisResults.fromJson(core.Map _json) {
-    if (_json.containsKey("issues")) {
-      issues = (_json["issues"] as core.List)
+    if (_json.containsKey('issues')) {
+      issues = (_json['issues'] as core.List)
           .map<AnalysisIssue>((value) => AnalysisIssue.fromJson(value))
           .toList();
     }
@@ -433,7 +432,7 @@ class AnalysisResults {
     final core.Map<core.String, core.Object> _json =
         <core.String, core.Object>{};
     if (issues != null) {
-      _json["issues"] = issues.map((value) => value.toJson()).toList();
+      _json['issues'] = issues.map((value) => value.toJson()).toList();
     }
     return _json;
   }
@@ -445,8 +444,8 @@ class CompileResponse {
   CompileResponse();
 
   CompileResponse.fromJson(core.Map _json) {
-    if (_json.containsKey("result")) {
-      result = _json["result"];
+    if (_json.containsKey('result')) {
+      result = _json['result'];
     }
   }
 
@@ -454,7 +453,7 @@ class CompileResponse {
     final core.Map<core.String, core.Object> _json =
         <core.String, core.Object>{};
     if (result != null) {
-      _json["result"] = result;
+      _json['result'] = result;
     }
     return _json;
   }
@@ -466,8 +465,8 @@ class DocumentResponse {
   DocumentResponse();
 
   DocumentResponse.fromJson(core.Map _json) {
-    if (_json.containsKey("info")) {
-      info = (_json["info"] as core.Map).cast<core.String, core.String>();
+    if (_json.containsKey('info')) {
+      info = (_json['info'] as core.Map).cast<core.String, core.String>();
     }
   }
 
@@ -475,7 +474,7 @@ class DocumentResponse {
     final core.Map<core.String, core.Object> _json =
         <core.String, core.Object>{};
     if (info != null) {
-      _json["info"] = info;
+      _json['info'] = info;
     }
     return _json;
   }
@@ -488,11 +487,11 @@ class SourceRequest {
   SourceRequest();
 
   SourceRequest.fromJson(core.Map _json) {
-    if (_json.containsKey("offset")) {
-      offset = _json["offset"];
+    if (_json.containsKey('offset')) {
+      offset = _json['offset'];
     }
-    if (_json.containsKey("source")) {
-      source = _json["source"];
+    if (_json.containsKey('source')) {
+      source = _json['source'];
     }
   }
 
@@ -500,10 +499,10 @@ class SourceRequest {
     final core.Map<core.String, core.Object> _json =
         <core.String, core.Object>{};
     if (offset != null) {
-      _json["offset"] = offset;
+      _json['offset'] = offset;
     }
     if (source != null) {
-      _json["source"] = source;
+      _json['source'] = source;
     }
     return _json;
   }
