@@ -271,7 +271,7 @@ class DartResourceMethod {
           params.writeln('    if (${param.name} == null) {');
         }
         params.writeln('      throw ${imports.core.ref()}ArgumentError'
-            '("Parameter ${param.name} is required.");');
+            "('Parameter ${param.name} is required.');");
         params.writeln('    }');
         params.writeln('    $propertyAssignment');
       } else {
@@ -473,7 +473,7 @@ class DartApiClass extends DartResourceClass {
     scopes.forEach((OAuth2Scope scope) {
       var doc = scope.comment.asDartDoc(2);
       sb.writeln('$doc  static const ${scope.identifier} = '
-          '"${escapeString(scope.url)}";');
+          "'${escapeString(scope.url)}';");
       sb.writeln('');
     });
     sb.writeln('');

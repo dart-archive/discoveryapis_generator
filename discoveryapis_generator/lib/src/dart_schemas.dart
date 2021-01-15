@@ -801,7 +801,7 @@ class ObjectType extends ComplexDartSchemaType {
         propertyString.writeln(
             '(${imports.core.ref()}List<${imports.core.ref()}int> _bytes) {');
         propertyString.writeln('    ${property.name} = ${imports.convert.ref()}'
-            'base64.encode(_bytes).replaceAll("/", "_").replaceAll("+", "-");');
+            "base64.encode(_bytes).replaceAll('/', '_').replaceAll('+', '-');");
         propertyString.writeln('  }');
       }
     });
