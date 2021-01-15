@@ -133,8 +133,8 @@ void main() {
       expect(foo.urlPattern.parts[1] is VariableExpression, isTrue);
       expect(foo.urlPattern.parts[1].templateVar, equals('id$i'));
       expect(foo.httpMethod, equals('GET'));
-      expect(foo.parameters,
-          hasLength(3 + reservedMethodParameterNames.length));
+      expect(
+          foo.parameters, hasLength(3 + reservedMethodParameterNames.length));
 
       var id = foo.parameters[0];
       expect(id, isNotNull);

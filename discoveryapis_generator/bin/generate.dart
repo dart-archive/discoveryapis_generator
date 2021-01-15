@@ -43,8 +43,7 @@ ArgParser filesCommandArgParser() {
             'change the layout of the pubspec.yaml file.',
         defaultsTo: 'false')
     ..addFlag('core-prefixes',
-        defaultsTo: true,
-        help: 'Use or remove an import prefix for dart:core');
+        defaultsTo: true, help: 'Use or remove an import prefix for dart:core');
 }
 
 ArgParser globalArgParser() {
