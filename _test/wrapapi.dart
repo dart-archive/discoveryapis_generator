@@ -1,11 +1,9 @@
 // This is a generated file (see the discoveryapis_generator project).
 
-// ignore_for_file: avoid_unused_constructor_parameters
 // ignore_for_file: camel_case_types
 // ignore_for_file: comment_references
 // ignore_for_file: constant_identifier_names
 // ignore_for_file: directives_ordering
-// ignore_for_file: empty_constructor_bodies
 // ignore_for_file: library_names
 // ignore_for_file: lines_longer_than_80_chars
 // ignore_for_file: non_constant_identifier_names
@@ -77,6 +75,23 @@ class WrapApiApi {
       downloadOptions: _downloadOptions,
     );
     return _response.then((data) => WrapResponse.fromJson(data['data']));
+  }
+}
+
+/// A generic empty message that you can re-use to avoid defining duplicated
+/// empty messages in your APIs. A typical example is to use it as the request
+/// or the response type of an API method. For instance: service Foo { rpc
+/// Bar(google.protobuf.Empty) returns (google.protobuf.Empty); } The JSON
+/// representation for `Empty` is empty JSON object `{}`.
+class Empty {
+  Empty();
+
+  Empty.fromJson(core.Map _json) : assert(_json.isEmpty);
+
+  core.Map<core.String, core.Object> toJson() {
+    final core.Map<core.String, core.Object> _json =
+        <core.String, core.Object>{};
+    return _json;
   }
 }
 
