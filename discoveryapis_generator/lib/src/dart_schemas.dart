@@ -272,7 +272,7 @@ abstract class PrimitiveDartSchemaType extends DartSchemaType {
   DartSchemaType _resolve(DartSchemaTypeDB db) => this;
 
   @override
-  String primitiveEncoding(String value) => '"\${${value}}"';
+  String primitiveEncoding(String value) => "'\${${value}}'";
 
   @override
   String jsonEncode(String value) => value;
@@ -559,7 +559,7 @@ $encode
   }
 
   @override
-  String get declaration => '${className.name}';
+  String get declaration => className.name;
 
   @override
   String jsonEncode(String value) {
@@ -801,7 +801,7 @@ class ObjectType extends ComplexDartSchemaType {
         propertyString.writeln(
             '(${imports.core.ref()}List<${imports.core.ref()}int> _bytes) {');
         propertyString.writeln('    ${property.name} = ${imports.convert.ref()}'
-            'base64.encode(_bytes).replaceAll("/", "_").replaceAll("+", "-");');
+            "base64.encode(_bytes).replaceAll('/', '_').replaceAll('+', '-');");
         propertyString.writeln('  }');
       }
     });
@@ -814,9 +814,9 @@ class ObjectType extends ComplexDartSchemaType {
       // and the variant descriminator is final.
       if (!isVariantDiscriminator(property)) {
         var decodeString = property.type
-            .jsonDecode('_json["${escapeString(property.jsonName)}"]');
+            .jsonDecode("_json['${escapeString(property.jsonName)}']");
         fromJsonString.writeln('    if (_json.containsKey'
-            '("${escapeString(property.jsonName)}")) {');
+            "('${escapeString(property.jsonName)}')) {");
         fromJsonString.writeln('      ${property.name} = ${decodeString};');
         fromJsonString.writeln('    }');
       }
@@ -833,7 +833,7 @@ class ObjectType extends ComplexDartSchemaType {
     properties.forEach((DartClassProperty property) {
       toJsonString.writeln('    if (${property.name} != null) {');
       toJsonString
-          .writeln('      _json["${escapeString(property.jsonName)}"] = '
+          .writeln("      _json['${escapeString(property.jsonName)}'] = "
               '${property.type.jsonEncode('${property.name}')};');
       toJsonString.writeln('    }');
     });
@@ -922,7 +922,7 @@ class AbstractVariantType extends ComplexDartSchemaType {
     var fromJsonString = StringBuffer();
     fromJsonString.writeln(
         '  factory $className.fromJson(${imports.core.ref()}Map json) {');
-    fromJsonString.writeln('    var discriminant = json["$discriminant"];');
+    fromJsonString.writeln("    var discriminant = json['$discriminant'];");
     map.forEach((String name, DartSchemaType type) {
       fromJsonString.writeln('    if (discriminant == "$name") {');
       fromJsonString.writeln('      return ${type.declaration}'
@@ -1217,7 +1217,7 @@ Comment extendEnumComment(Comment baseComment, DartSchemaType type) {
 
 Comment extendAnyTypeComment(Comment baseComment, DartSchemaType type,
     {bool includeNamedTypes = false}) {
-  const AnyTypeComment =
+  const _anyTypeComment =
       'The values for Object must be JSON objects. It can consist of `num`, '
       '`String`, `bool` and `null` as well as `Map` and `List` values.';
 
@@ -1245,7 +1245,7 @@ Comment extendAnyTypeComment(Comment baseComment, DartSchemaType type,
   }
 
   if (traverseType(type)) {
-    return Comment('${baseComment.rawComment}\n\n$AnyTypeComment');
+    return Comment('${baseComment.rawComment}\n\n$_anyTypeComment');
   }
   return baseComment;
 }

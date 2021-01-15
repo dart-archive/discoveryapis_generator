@@ -13,7 +13,7 @@ import '../common/common.dart' as commons;
 
 export '../common/common.dart' show ApiRequestError, DetailedApiRequestError;
 
-const core.String USER_AGENT = 'dart-api-client discovery/v1';
+const core.String _userAgent = 'dart-api-client discovery/v1';
 
 /// Provides information about other Google APIs, such as what APIs are
 /// available, the resource, and method details for each API.
@@ -26,7 +26,7 @@ class DiscoveryApi {
       {core.String rootUrl = 'https://www.googleapis.com/',
       core.String servicePath = 'discovery/v1/'})
       : _requester =
-            commons.ApiRequester(client, rootUrl, servicePath, USER_AGENT);
+            commons.ApiRequester(client, rootUrl, servicePath, _userAgent);
 }
 
 class ApisResourceApi {
@@ -58,7 +58,7 @@ class ApisResourceApi {
     var _queryParams = <core.String, core.List<core.String>>{};
     var _uploadMedia;
     var _uploadOptions;
-    var _downloadOptions = commons.DownloadOptions.Metadata;
+    var _downloadOptions = commons.DownloadOptions.metadata;
     var _body;
 
     if (api == null) {
@@ -72,9 +72,9 @@ class ApisResourceApi {
     }
 
     _url = 'apis/' +
-        commons.Escaper.ecapeVariable('$api') +
+        commons.Escaper.ecapeVariable(api) +
         '/' +
-        commons.Escaper.ecapeVariable('$version') +
+        commons.Escaper.ecapeVariable(version) +
         '/rest';
 
     var _response = _requester.request(_url, 'GET',
@@ -110,7 +110,7 @@ class ApisResourceApi {
     var _queryParams = <core.String, core.List<core.String>>{};
     var _uploadMedia;
     var _uploadOptions;
-    var _downloadOptions = commons.DownloadOptions.Metadata;
+    var _downloadOptions = commons.DownloadOptions.metadata;
     var _body;
 
     if (name != null) {
@@ -1195,20 +1195,20 @@ class RestMethodRequest {
 /// The schema for the response.
 class RestMethodResponse {
   /// Schema ID for the response schema.
-  core.String P_ref;
+  core.String ref;
 
   RestMethodResponse();
 
   RestMethodResponse.fromJson(core.Map _json) {
     if (_json.containsKey('\$ref')) {
-      P_ref = _json['\$ref'];
+      ref = _json['\$ref'];
     }
   }
 
   core.Map<core.String, core.Object> toJson() {
     final _json = <core.String, core.Object>{};
-    if (P_ref != null) {
-      _json['\$ref'] = P_ref;
+    if (ref != null) {
+      _json['\$ref'] = ref;
     }
     return _json;
   }

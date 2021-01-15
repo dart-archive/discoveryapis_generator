@@ -91,6 +91,7 @@ class DartApiTestLibrary extends TestHelper {
 $ignoreForFileComments
 // ignore_for_file: avoid_returning_null
 // ignore_for_file: cascade_invocations
+// ignore_for_file: prefer_single_quotes
 // ignore_for_file: unnecessary_lambdas
 // ignore_for_file: unused_local_variable
 
@@ -197,10 +198,10 @@ class ResourceTest extends TestHelper {
             sb.writeln();
             sb.writeln('        var h = {');
             sb.writeln('          '
-                '"content-type" : "application/json; charset=utf-8",');
+                "'content-type' : 'application/json; charset=utf-8',");
             sb.writeln('        };');
             if (method.returnType == null) {
-              sb.writeln('        var resp = "";');
+              sb.writeln("        var resp = '';");
             } else {
               var t = apiTestLibrary.schemaTests[method.returnType];
               if (method.enableDataWrapper) {
@@ -345,11 +346,13 @@ class MethodArgsTest extends TestHelper {
         if (!isLast) {
           var nextPart = parts[i + 1];
           if (nextPart is! StringPart) {
-            throw 'two variable expansions in a row not supported';
+            throw UnsupportedError(
+              'two variable expansions in a row not supported',
+            );
           }
           var stringPart = nextPart as StringPart;
           ln('index = path.indexOf('
-              '"${escapeString(stringPart.staticString)}", pathOffset);');
+              "'${escapeString(stringPart.staticString)}', pathOffset);");
           ln(expectIsTrue('index >= 0'));
           ln('subPart = core.Uri.decodeQueryComponent'
               '(path.substring(pathOffset, index));');
@@ -360,16 +363,18 @@ class MethodArgsTest extends TestHelper {
           ln('pathOffset = path.length;');
         }
         var name = parameterValues[_findMethodParameter(part.templateVar)];
-        ln(expectEqual('subPart', '"\$$name"'));
+        ln(expectEqual('subPart', "'\$$name'"));
       } else if (part is PathVariableExpression) {
         if (!isLast) {
-          throw 'path variable expansions are only supported at the end';
+          throw StateError(
+            'path variable expansions are only supported at the end',
+          );
         }
         var name = parameterValues[_findMethodParameter(part.templateVar)];
-        ln('var parts = path.substring(pathOffset).split("/")'
+        ln("var parts = path.substring(pathOffset).split('/')"
             '.map(core.Uri.decodeQueryComponent).where((p) => p.length > 0)'
             '.toList();');
-        ln(expectEqual('parts', '$name'));
+        ln(expectEqual('parts', name));
       } else {
         // This is probably pub sub with the broken usage of the reserved
         // variable expansions
@@ -394,8 +399,8 @@ class MethodArgsTest extends TestHelper {
     ln('void addQueryParam(n, v) => queryMap.putIfAbsent(n, () => []).add(v);');
     ln(parseBoolPlaceholder);
     ln('if (query.isNotEmpty) {');
-    ln('  for (var part in query.split("&")) {');
-    ln('    var keyValue = part.split("=");');
+    ln("  for (var part in query.split('&')) {");
+    ln("    var keyValue = part.split('=');");
     ln('    addQueryParam(core.Uri.decodeQueryComponent(keyValue[0]), '
         'core.Uri.decodeQueryComponent(keyValue[1]),);');
     ln('  }');
@@ -425,12 +430,12 @@ core.bool parseBool(n) {
             ln(expectEqual(
                 '${queryMapValue}.map(core.int.parse).toList()', name));
           } else if (innerType is StringType) {
-            ln(expectEqual('${queryMapValue}', name));
+            ln(expectEqual(queryMapValue, name));
           } else if (innerType is BooleanType) {
             parseBoolUsed = true;
             ln(expectEqual('${queryMapValue}.map(parseBool).toList()', name));
           } else {
-            throw 'unsupported inner type ${innerType}';
+            throw UnsupportedError('unsupported inner type ${innerType}');
           }
         } else if (type is DateType) {
           ln(expectEqual('core.DateTime.parse(${queryMapValue}.first)', name));
@@ -443,7 +448,7 @@ core.bool parseBool(n) {
         } else if (type is BooleanType) {
           ln(expectEqual('${queryMapValue}.first', '"\$$name"'));
         } else {
-          throw 'unsupported parameter type ${p.type}';
+          throw UnsupportedError('unsupported parameter type ${p.type}');
         }
       }
     }
@@ -462,8 +467,9 @@ core.bool parseBool(n) {
         .where((parameter) => parameter.jsonName == varname)
         .toList();
     if (parameters.length != 1) {
-      throw 'Invalid generator. Expected exactly one parameter of name '
-          '$varname';
+      throw ArgumentError(
+        'Invalid generator. Expected exactly one parameter of name $varname',
+      );
     }
     return parameters[0];
   }
@@ -600,7 +606,7 @@ class StringSchemaTest extends PrimitiveSchemaTest<StringType> {
   String get declaration => 'core.String';
 
   @override
-  String get newSchemaExpr => '"foo"';
+  String get newSchemaExpr => "'foo'";
 
   @override
   String checkSchemaStatement(String o) => expectEqual(o, "'foo'");
@@ -613,7 +619,7 @@ class DateSchemaTest extends PrimitiveSchemaTest<DateType> {
   String get declaration => 'core.DateTime';
 
   @override
-  String get newSchemaExpr => 'core.DateTime.parse("2002-02-27T14:01:02Z")';
+  String get newSchemaExpr => "core.DateTime.parse('2002-02-27T14:01:02Z')";
 
   @override
   String checkSchemaStatement(String o) =>
@@ -651,7 +657,7 @@ abstract class UnnamedSchemaTest<T> extends SchemaTest<T> {
   String get newSchemaExpr => 'buildUnnamed$_id()';
 
   @override
-  String checkSchemaStatement(String obj) => 'checkUnnamed$_id($obj);';
+  String checkSchemaStatement(String o) => 'checkUnnamed$_id($o);';
 }
 
 class UnnamedMapTest extends UnnamedSchemaTest<UnnamedMapType> {
@@ -671,8 +677,8 @@ class UnnamedMapTest extends UnnamedSchemaTest<UnnamedMapType> {
     var sb = StringBuffer();
     withFunc(0, sb, '$declaration buildUnnamed$_id', '', () {
       sb.writeln('  var o = <core.String, $toType>{};');
-      sb.writeln('  o["x"] = ${innerTest.newSchemaExpr};');
-      sb.writeln('  o["y"] = ${innerTest.newSchemaExpr};');
+      sb.writeln("  o['x'] = ${innerTest.newSchemaExpr};");
+      sb.writeln("  o['y'] = ${innerTest.newSchemaExpr};");
       sb.writeln('  return o;');
     });
     return '$sb';
@@ -685,8 +691,8 @@ class UnnamedMapTest extends UnnamedSchemaTest<UnnamedMapType> {
     var sb = StringBuffer();
     withFunc(0, sb, 'void checkUnnamed$_id', '$declaration o', () {
       sb.writeln('  ${expectHasLength('o', '2')}');
-      sb.writeln('  ${innerTest.checkSchemaStatement('o["x"]')}');
-      sb.writeln('  ${innerTest.checkSchemaStatement('o["y"]')}');
+      sb.writeln('  ${innerTest.checkSchemaStatement("o['x']")}');
+      sb.writeln('  ${innerTest.checkSchemaStatement("o['y']")}');
     });
     return '$sb';
   }
@@ -760,8 +766,7 @@ abstract class NamedSchemaTest<T extends ComplexDartSchemaType>
   String get newSchemaExpr => 'build${schema.className.name}()';
 
   @override
-  String checkSchemaStatement(String obj) =>
-      'check${schema.className.name}($obj);';
+  String checkSchemaStatement(String o) => 'check${schema.className.name}($o);';
 }
 
 class ObjectSchemaTest extends NamedSchemaTest<ObjectType> {
@@ -944,9 +949,9 @@ class AnySchemaTest extends SchemaTest<AnyType> {
     var name = 'casted$_counter';
     return 'var $name = ($o) as core.Map; '
         "${expectHasLength(name, '3')} "
-        "${expectEqual('$name["list"]', [1, 2, 3])} "
-        "${expectEqual('$name["bool"]', true)} "
-        "${expectEqual('$name["string"]', "'foo'")} ";
+        "${expectEqual("$name['list']", [1, 2, 3])} "
+        "${expectEqual("$name['bool']", true)} "
+        "${expectEqual("$name['string']", "'foo'")} ";
   }
 }
 
@@ -975,7 +980,7 @@ class TestHelper {
   ) {
     var spaces = ' ' * indentation;
     buffer.write(spaces);
-    buffer.writeln('unittest.group("$name", () {');
+    buffer.writeln("unittest.group('$name', () {");
     f();
     buffer.write(spaces);
     buffer.writeln('});\n\n');
@@ -989,20 +994,21 @@ class TestHelper {
   ) {
     var spaces = ' ' * indentation;
     buffer.write(spaces);
-    buffer.writeln('unittest.test("$name", () {');
+    buffer.writeln("unittest.test('$name', () {");
     f();
     buffer.write(spaces);
     buffer.writeln('});');
   }
 
-  String expectEqual(a, b) => 'unittest.expect($a, unittest.equals($b));';
+  String expectEqual(String a, Object b) =>
+      'unittest.expect($a, unittest.equals($b));';
 
-  String expectIsTrue(a) => 'unittest.expect($a, unittest.isTrue);';
+  String expectIsTrue(String a) => 'unittest.expect($a, unittest.isTrue);';
 
-  String expectHasLength(a, b) =>
+  String expectHasLength(String a, String b) =>
       'unittest.expect($a, unittest.hasLength($b));';
 
-  String intParse(arg) => 'core.int.parse($arg)';
+  String intParse(String arg) => 'core.int.parse($arg)';
 
-  String numParse(arg) => 'core.num.parse($arg)';
+  String numParse(String arg) => 'core.num.parse($arg)';
 }

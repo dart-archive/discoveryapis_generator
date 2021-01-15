@@ -12,7 +12,6 @@
 // ignore_for_file: omit_local_variable_types
 // ignore_for_file: prefer_final_locals
 // ignore_for_file: prefer_interpolation_to_compose_strings
-// ignore_for_file: prefer_single_quotes
 // ignore_for_file: unnecessary_brace_in_string_interps
 // ignore_for_file: unnecessary_cast
 // ignore_for_file: unnecessary_parenthesis
@@ -41,8 +40,8 @@ class ToyApi {
   StorageResourceApi get storage => StorageResourceApi(_requester);
 
   ToyApi(http.Client client,
-      {core.String rootUrl = "http://localhost:9090/",
-      core.String servicePath = "api/toyApi/0.1/"})
+      {core.String rootUrl = 'http://localhost:9090/',
+      core.String servicePath = 'api/toyApi/0.1/'})
       : _requester =
             commons.ApiRequester(client, rootUrl, servicePath, USER_AGENT);
 
@@ -67,7 +66,7 @@ class ToyApi {
     core.String _body;
 
     if ($fields != null) {
-      _queryParams["fields"] = [$fields];
+      _queryParams['fields'] = [$fields];
     }
 
     _downloadOptions = null;
@@ -76,7 +75,7 @@ class ToyApi {
 
     final _response = _requester.request(
       _url,
-      "GET",
+      'GET',
       body: _body,
       queryParams: _queryParams,
       uploadOptions: _uploadOptions,
@@ -109,14 +108,14 @@ class ToyApi {
     core.String _body;
 
     if ($fields != null) {
-      _queryParams["fields"] = [$fields];
+      _queryParams['fields'] = [$fields];
     }
 
     _url = 'hello';
 
     final _response = _requester.request(
       _url,
-      "GET",
+      'GET',
       body: _body,
       queryParams: _queryParams,
       uploadOptions: _uploadOptions,
@@ -156,14 +155,14 @@ class ToyApi {
           request.map((value) => ToyRequestFactory.toJson(value)).toList());
     }
     if ($fields != null) {
-      _queryParams["fields"] = [$fields];
+      _queryParams['fields'] = [$fields];
     }
 
     _url = 'helloListOfClass';
 
     final _response = _requester.request(
       _url,
-      "POST",
+      'POST',
       body: _body,
       queryParams: _queryParams,
       uploadOptions: _uploadOptions,
@@ -207,14 +206,14 @@ class ToyApi {
           .toList());
     }
     if ($fields != null) {
-      _queryParams["fields"] = [$fields];
+      _queryParams['fields'] = [$fields];
     }
 
     _url = 'helloListOfListOfClass';
 
     final _response = _requester.request(
       _url,
-      "POST",
+      'POST',
       body: _body,
       queryParams: _queryParams,
       uploadOptions: _uploadOptions,
@@ -255,14 +254,14 @@ class ToyApi {
       _body = convert.json.encode(request);
     }
     if ($fields != null) {
-      _queryParams["fields"] = [$fields];
+      _queryParams['fields'] = [$fields];
     }
 
     _url = 'helloMap';
 
     final _response = _requester.request(
       _url,
-      "POST",
+      'POST',
       body: _body,
       queryParams: _queryParams,
       uploadOptions: _uploadOptions,
@@ -302,13 +301,13 @@ class ToyApi {
     core.String _body;
 
     if (name == null) {
-      throw core.ArgumentError("Parameter name is required.");
+      throw core.ArgumentError('Parameter name is required.');
     }
     if (age == null) {
-      throw core.ArgumentError("Parameter age is required.");
+      throw core.ArgumentError('Parameter age is required.');
     }
     if ($fields != null) {
-      _queryParams["fields"] = [$fields];
+      _queryParams['fields'] = [$fields];
     }
 
     _url = 'hello/' +
@@ -318,7 +317,7 @@ class ToyApi {
 
     final _response = _requester.request(
       _url,
-      "GET",
+      'GET',
       body: _body,
       queryParams: _queryParams,
       uploadOptions: _uploadOptions,
@@ -360,17 +359,17 @@ class ToyApi {
       _body = convert.json.encode(ToyAgeRequestFactory.toJson(request));
     }
     if (name == null) {
-      throw core.ArgumentError("Parameter name is required.");
+      throw core.ArgumentError('Parameter name is required.');
     }
     if ($fields != null) {
-      _queryParams["fields"] = [$fields];
+      _queryParams['fields'] = [$fields];
     }
 
     _url = 'helloPost/' + commons.Escaper.ecapeVariable('$name');
 
     final _response = _requester.request(
       _url,
-      "POST",
+      'POST',
       body: _body,
       queryParams: _queryParams,
       uploadOptions: _uploadOptions,
@@ -412,23 +411,23 @@ class ToyApi {
     core.String _body;
 
     if (name == null) {
-      throw core.ArgumentError("Parameter name is required.");
+      throw core.ArgumentError('Parameter name is required.');
     }
     if (foo != null) {
-      _queryParams["foo"] = [foo];
+      _queryParams['foo'] = [foo];
     }
     if (age != null) {
-      _queryParams["age"] = ["${age}"];
+      _queryParams['age'] = ['${age}'];
     }
     if ($fields != null) {
-      _queryParams["fields"] = [$fields];
+      _queryParams['fields'] = [$fields];
     }
 
     _url = 'helloQuery/' + commons.Escaper.ecapeVariable('$name');
 
     final _response = _requester.request(
       _url,
-      "GET",
+      'GET',
       body: _body,
       queryParams: _queryParams,
       uploadOptions: _uploadOptions,
@@ -467,14 +466,14 @@ class ToyApi {
       _body = convert.json.encode(request);
     }
     if ($fields != null) {
-      _queryParams["fields"] = [$fields];
+      _queryParams['fields'] = [$fields];
     }
 
     _url = 'helloNestedListList';
 
     final _response = _requester.request(
       _url,
-      "POST",
+      'POST',
       body: _body,
       queryParams: _queryParams,
       uploadOptions: _uploadOptions,
@@ -518,14 +517,14 @@ class ToyApi {
       _body = convert.json.encode(request);
     }
     if ($fields != null) {
-      _queryParams["fields"] = [$fields];
+      _queryParams['fields'] = [$fields];
     }
 
     _url = 'helloNestedListMapList';
 
     final _response = _requester.request(
       _url,
-      "POST",
+      'POST',
       body: _body,
       queryParams: _queryParams,
       uploadOptions: _uploadOptions,
@@ -563,14 +562,14 @@ class ToyApi {
     core.String _body;
 
     if ($fields != null) {
-      _queryParams["fields"] = [$fields];
+      _queryParams['fields'] = [$fields];
     }
 
     _url = 'helloNestedMap';
 
     final _response = _requester.request(
       _url,
-      "GET",
+      'GET',
       body: _body,
       queryParams: _queryParams,
       uploadOptions: _uploadOptions,
@@ -612,14 +611,14 @@ class ToyApi {
       _body = convert.json.encode(request);
     }
     if ($fields != null) {
-      _queryParams["fields"] = [$fields];
+      _queryParams['fields'] = [$fields];
     }
 
     _url = 'helloNestedMapListMap';
 
     final _response = _requester.request(
       _url,
-      "POST",
+      'POST',
       body: _body,
       queryParams: _queryParams,
       uploadOptions: _uploadOptions,
@@ -666,14 +665,14 @@ class ToyApi {
       _body = convert.json.encode(request);
     }
     if ($fields != null) {
-      _queryParams["fields"] = [$fields];
+      _queryParams['fields'] = [$fields];
     }
 
     _url = 'helloNestedMapMap';
 
     final _response = _requester.request(
       _url,
-      "POST",
+      'POST',
       body: _body,
       queryParams: _queryParams,
       uploadOptions: _uploadOptions,
@@ -716,14 +715,14 @@ class ToyApi {
       _body = convert.json.encode(ToyRequestFactory.toJson(request));
     }
     if ($fields != null) {
-      _queryParams["fields"] = [$fields];
+      _queryParams['fields'] = [$fields];
     }
 
     _url = 'helloPost';
 
     final _response = _requester.request(
       _url,
-      "POST",
+      'POST',
       body: _body,
       queryParams: _queryParams,
       uploadOptions: _uploadOptions,
@@ -756,14 +755,14 @@ class ToyApi {
     core.String _body;
 
     if ($fields != null) {
-      _queryParams["fields"] = [$fields];
+      _queryParams['fields'] = [$fields];
     }
 
     _url = 'helloReturnNull';
 
     final _response = _requester.request(
       _url,
-      "GET",
+      'GET',
       body: _body,
       queryParams: _queryParams,
       uploadOptions: _uploadOptions,
@@ -796,14 +795,14 @@ class ToyApi {
     core.String _body;
 
     if ($fields != null) {
-      _queryParams["fields"] = [$fields];
+      _queryParams['fields'] = [$fields];
     }
 
     _url = 'helloVoid';
 
     final _response = _requester.request(
       _url,
-      "POST",
+      'POST',
       body: _body,
       queryParams: _queryParams,
       uploadOptions: _uploadOptions,
@@ -834,7 +833,7 @@ class ToyApi {
     core.String _body;
 
     if ($fields != null) {
-      _queryParams["fields"] = [$fields];
+      _queryParams['fields'] = [$fields];
     }
 
     _downloadOptions = null;
@@ -843,7 +842,7 @@ class ToyApi {
 
     final _response = _requester.request(
       _url,
-      "GET",
+      'GET',
       body: _body,
       queryParams: _queryParams,
       uploadOptions: _uploadOptions,
@@ -882,14 +881,14 @@ class ToyApi {
       _body = convert.json.encode(request);
     }
     if ($fields != null) {
-      _queryParams["fields"] = [$fields];
+      _queryParams['fields'] = [$fields];
     }
 
     _url = 'reverseList';
 
     final _response = _requester.request(
       _url,
-      "POST",
+      'POST',
       body: _body,
       queryParams: _queryParams,
       uploadOptions: _uploadOptions,
@@ -934,13 +933,13 @@ class ComputeResourceApi {
     core.String _body;
 
     if (resource == null) {
-      throw core.ArgumentError("Parameter resource is required.");
+      throw core.ArgumentError('Parameter resource is required.');
     }
     if (compute == null) {
-      throw core.ArgumentError("Parameter compute is required.");
+      throw core.ArgumentError('Parameter compute is required.');
     }
     if ($fields != null) {
-      _queryParams["fields"] = [$fields];
+      _queryParams['fields'] = [$fields];
     }
 
     _url = 'toyresource/' +
@@ -950,7 +949,7 @@ class ComputeResourceApi {
 
     final _response = _requester.request(
       _url,
-      "GET",
+      'GET',
       body: _body,
       queryParams: _queryParams,
       uploadOptions: _uploadOptions,
@@ -995,13 +994,13 @@ class StorageResourceApi {
     core.String _body;
 
     if (resource == null) {
-      throw core.ArgumentError("Parameter resource is required.");
+      throw core.ArgumentError('Parameter resource is required.');
     }
     if (storage == null) {
-      throw core.ArgumentError("Parameter storage is required.");
+      throw core.ArgumentError('Parameter storage is required.');
     }
     if ($fields != null) {
-      _queryParams["fields"] = [$fields];
+      _queryParams['fields'] = [$fields];
     }
 
     _url = 'toyresource/' +
@@ -1011,7 +1010,7 @@ class StorageResourceApi {
 
     final _response = _requester.request(
       _url,
-      "GET",
+      'GET',
       body: _body,
       queryParams: _queryParams,
       uploadOptions: _uploadOptions,
@@ -1025,8 +1024,8 @@ class StorageResourceApi {
 class NestedResponseFactory {
   static NestedResponse fromJson(core.Map _json) {
     var message = NestedResponse();
-    if (_json.containsKey("nestedResult")) {
-      message.nestedResult = _json["nestedResult"];
+    if (_json.containsKey('nestedResult')) {
+      message.nestedResult = _json['nestedResult'];
     }
     return message;
   }
@@ -1034,7 +1033,7 @@ class NestedResponseFactory {
   static core.Map toJson(NestedResponse message) {
     var _json = {};
     if (message.nestedResult != null) {
-      _json["nestedResult"] = message.nestedResult;
+      _json['nestedResult'] = message.nestedResult;
     }
     return _json;
   }
@@ -1043,8 +1042,8 @@ class NestedResponseFactory {
 class ToyAgeRequestFactory {
   static ToyAgeRequest fromJson(core.Map _json) {
     var message = ToyAgeRequest();
-    if (_json.containsKey("age")) {
-      message.age = _json["age"];
+    if (_json.containsKey('age')) {
+      message.age = _json['age'];
     }
     return message;
   }
@@ -1052,7 +1051,7 @@ class ToyAgeRequestFactory {
   static core.Map toJson(ToyAgeRequest message) {
     var _json = {};
     if (message.age != null) {
-      _json["age"] = message.age;
+      _json['age'] = message.age;
     }
     return _json;
   }
@@ -1061,13 +1060,13 @@ class ToyAgeRequestFactory {
 class ToyMapResponseFactory {
   static ToyMapResponse fromJson(core.Map _json) {
     var message = ToyMapResponse();
-    if (_json.containsKey("mapResult")) {
+    if (_json.containsKey('mapResult')) {
       message.mapResult = commons.mapMap<core.Map, NestedResponse>(
-          _json["mapResult"].cast<core.String, core.Map>(),
+          _json['mapResult'].cast<core.String, core.Map>(),
           (core.Map item) => NestedResponseFactory.fromJson(item));
     }
-    if (_json.containsKey("result")) {
-      message.result = _json["result"];
+    if (_json.containsKey('result')) {
+      message.result = _json['result'];
     }
     return message;
   }
@@ -1075,13 +1074,13 @@ class ToyMapResponseFactory {
   static core.Map toJson(ToyMapResponse message) {
     var _json = {};
     if (message.mapResult != null) {
-      _json["mapResult"] =
+      _json['mapResult'] =
           commons.mapMap<NestedResponse, core.Map<core.String, core.Object>>(
               message.mapResult,
               (NestedResponse item) => NestedResponseFactory.toJson(item));
     }
     if (message.result != null) {
-      _json["result"] = message.result;
+      _json['result'] = message.result;
     }
     return _json;
   }
@@ -1090,11 +1089,11 @@ class ToyMapResponseFactory {
 class ToyRequestFactory {
   static ToyRequest fromJson(core.Map _json) {
     var message = ToyRequest();
-    if (_json.containsKey("age")) {
-      message.age = _json["age"];
+    if (_json.containsKey('age')) {
+      message.age = _json['age'];
     }
-    if (_json.containsKey("name")) {
-      message.name = _json["name"];
+    if (_json.containsKey('name')) {
+      message.name = _json['name'];
     }
     return message;
   }
@@ -1102,10 +1101,10 @@ class ToyRequestFactory {
   static core.Map toJson(ToyRequest message) {
     var _json = {};
     if (message.age != null) {
-      _json["age"] = message.age;
+      _json['age'] = message.age;
     }
     if (message.name != null) {
-      _json["name"] = message.name;
+      _json['name'] = message.name;
     }
     return _json;
   }
@@ -1114,8 +1113,8 @@ class ToyRequestFactory {
 class ToyResourceResponseFactory {
   static ToyResourceResponse fromJson(core.Map _json) {
     var message = ToyResourceResponse();
-    if (_json.containsKey("result")) {
-      message.result = _json["result"];
+    if (_json.containsKey('result')) {
+      message.result = _json['result'];
     }
     return message;
   }
@@ -1123,7 +1122,7 @@ class ToyResourceResponseFactory {
   static core.Map toJson(ToyResourceResponse message) {
     var _json = {};
     if (message.result != null) {
-      _json["result"] = message.result;
+      _json['result'] = message.result;
     }
     return _json;
   }
@@ -1132,8 +1131,8 @@ class ToyResourceResponseFactory {
 class ToyResponseFactory {
   static ToyResponse fromJson(core.Map _json) {
     var message = ToyResponse();
-    if (_json.containsKey("result")) {
-      message.result = _json["result"];
+    if (_json.containsKey('result')) {
+      message.result = _json['result'];
     }
     return message;
   }
@@ -1141,7 +1140,7 @@ class ToyResponseFactory {
   static core.Map toJson(ToyResponse message) {
     var _json = {};
     if (message.result != null) {
-      _json["result"] = message.result;
+      _json['result'] = message.result;
     }
     return _json;
   }

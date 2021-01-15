@@ -496,7 +496,7 @@ void main() {
             for (var property in C.properties) {
               if (property.name.preferredName == name) return property.type;
             }
-            throw 'not found';
+            throw StateError('not found');
           }
 
           // Unnamed complex types

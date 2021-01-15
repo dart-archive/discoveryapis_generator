@@ -12,7 +12,6 @@
 // ignore_for_file: omit_local_variable_types
 // ignore_for_file: prefer_final_locals
 // ignore_for_file: prefer_interpolation_to_compose_strings
-// ignore_for_file: prefer_single_quotes
 // ignore_for_file: unnecessary_brace_in_string_interps
 // ignore_for_file: unnecessary_cast
 // ignore_for_file: unnecessary_parenthesis
@@ -38,8 +37,8 @@ class WrapApiApi {
   final commons.ApiRequester _requester;
 
   WrapApiApi(http.Client client,
-      {core.String rootUrl = "http://localhost:9090/",
-      core.String servicePath = "api/wrapApi/0.1/"})
+      {core.String rootUrl = 'http://localhost:9090/',
+      core.String servicePath = 'api/wrapApi/0.1/'})
       : _requester =
             commons.ApiRequester(client, rootUrl, servicePath, USER_AGENT);
 
@@ -70,7 +69,7 @@ class WrapApiApi {
 
     final _response = _requester.request(
       _url,
-      "POST",
+      'POST',
       body: _body,
       queryParams: _queryParams,
       uploadOptions: _uploadOptions,
@@ -88,11 +87,11 @@ class WrapRequest {
   WrapRequest();
 
   WrapRequest.fromJson(core.Map _json) {
-    if (_json.containsKey("age")) {
-      age = _json["age"];
+    if (_json.containsKey('age')) {
+      age = _json['age'];
     }
-    if (_json.containsKey("name")) {
-      name = _json["name"];
+    if (_json.containsKey('name')) {
+      name = _json['name'];
     }
   }
 
@@ -100,10 +99,10 @@ class WrapRequest {
     final core.Map<core.String, core.Object> _json =
         <core.String, core.Object>{};
     if (age != null) {
-      _json["age"] = age;
+      _json['age'] = age;
     }
     if (name != null) {
-      _json["name"] = name;
+      _json['name'] = name;
     }
     return _json;
   }
@@ -115,8 +114,8 @@ class WrapResponse {
   WrapResponse();
 
   WrapResponse.fromJson(core.Map _json) {
-    if (_json.containsKey("result")) {
-      result = _json["result"];
+    if (_json.containsKey('result')) {
+      result = _json['result'];
     }
   }
 
@@ -124,7 +123,7 @@ class WrapResponse {
     final core.Map<core.String, core.Object> _json =
         <core.String, core.Object>{};
     if (result != null) {
-      _json["result"] = result;
+      _json['result'] = result;
     }
     return _json;
   }

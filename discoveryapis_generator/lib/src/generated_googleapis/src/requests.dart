@@ -33,9 +33,6 @@ class Media {
 
 /// Represents options for uploading a [Media].
 class UploadOptions {
-  /// Use either simple uploads (only media) or multipart for media+metadata */
-  static const UploadOptions Default = UploadOptions();
-
   /// Make resumable uploads */
   static final ResumableUploadOptions Resumable = ResumableUploadOptions();
 
@@ -44,15 +41,6 @@ class UploadOptions {
 
 /// Specifies options for resumable uploads.
 class ResumableUploadOptions extends UploadOptions {
-  static final core.Function ExponentialBackoff = (core.int failedAttempts) {
-    // Do not retry more than 5 times.
-    if (failedAttempts > 5) return null;
-
-    // Wait for 2^(failedAttempts-1) seconds, before retrying.
-    // i.e. 1 second, 2 seconds, 4 seconds, ...
-    return core.Duration(seconds: 1 << (failedAttempts - 1));
-  };
-
   /// Maximum number of upload attempts per chunk.
   final core.int numberOfAttempts;
 
@@ -62,15 +50,10 @@ class ResumableUploadOptions extends UploadOptions {
   /// The default is 1 MB.
   final core.int chunkSize;
 
-  /// Function for determining the [core.Duration] to wait before making the
-  /// next attempt. See [ExponentialBackoff] for an example.
-  final core.Function backoffFunction;
-
-  ResumableUploadOptions(
-      {this.numberOfAttempts = 3,
-      this.chunkSize = 1024 * 1024,
-      core.Function backoffFunction})
-      : backoffFunction = backoffFunction ?? ExponentialBackoff {
+  ResumableUploadOptions({
+    this.numberOfAttempts = 3,
+    this.chunkSize = 1024 * 1024,
+  }) {
     // See e.g. here:
     // https://developers.google.com/maps-engine/documentation/resumable-upload
     //
@@ -94,7 +77,7 @@ class ResumableUploadOptions extends UploadOptions {
 /// For partial downloads, see [PartialDownloadOptions].
 class DownloadOptions {
   /// Download only metadata. */
-  static const DownloadOptions Metadata = DownloadOptions();
+  static const metadata = DownloadOptions();
 
   /// Download full media. */
   static final PartialDownloadOptions FullMedia =
@@ -213,15 +196,24 @@ class ApiRequestErrorDetail {
       this.sendReport})
       : originalJson = null;
 
-  ApiRequestErrorDetail.fromJson(core.Map json)
-      : originalJson = json,
-        domain = json.containsKey('domain') ? json['domain'] : null,
-        reason = json.containsKey('reason') ? json['reason'] : null,
-        message = json.containsKey('message') ? json['message'] : null,
-        location = json.containsKey('location') ? json['location'] : null,
-        locationType =
-            json.containsKey('locationType') ? json['locationType'] : null,
-        extendedHelp =
-            json.containsKey('extendedHelp') ? json['extendedHelp'] : null,
-        sendReport = json.containsKey('sendReport') ? json['sendReport'] : null;
+  ApiRequestErrorDetail.fromJson(this.originalJson)
+      : domain =
+            originalJson.containsKey('domain') ? originalJson['domain'] : null,
+        reason =
+            originalJson.containsKey('reason') ? originalJson['reason'] : null,
+        message = originalJson.containsKey('message')
+            ? originalJson['message']
+            : null,
+        location = originalJson.containsKey('location')
+            ? originalJson['location']
+            : null,
+        locationType = originalJson.containsKey('locationType')
+            ? originalJson['locationType']
+            : null,
+        extendedHelp = originalJson.containsKey('extendedHelp')
+            ? originalJson['extendedHelp']
+            : null,
+        sendReport = originalJson.containsKey('sendReport')
+            ? originalJson['sendReport']
+            : null;
 }

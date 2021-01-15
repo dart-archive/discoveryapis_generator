@@ -23,7 +23,7 @@ const _ignoreForFileSet = {
   'omit_local_variable_types',
   'prefer_final_locals',
   'prefer_interpolation_to_compose_strings',
-  'prefer_single_quotes',
+  //'prefer_single_quotes',
   'unnecessary_brace_in_string_interps',
   'unnecessary_cast',
   'unnecessary_parenthesis',
@@ -98,7 +98,7 @@ class DartApiLibrary extends BaseApiLibrary {
     if (resources.isNotEmpty) {
       sink.write('$resources\n$schemas');
     } else {
-      sink.write('$schemas');
+      sink.write(schemas);
     }
     return formatSource(sink.toString());
   }
