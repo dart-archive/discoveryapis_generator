@@ -52,9 +52,11 @@ String escapeComment(String comment) {
       .trimRight();
 }
 
-void orderedForEach(Map map, Function fun) {
-  var keys = List.from(map.keys);
-  keys.sort();
+void orderedForEach<K extends Comparable<K>, V>(
+  Map<K, V> map,
+  void Function(K, V) fun,
+) {
+  var keys = List<K>.from(map.keys)..sort();
   for (var key in keys) {
     fun(key, map[key]);
   }

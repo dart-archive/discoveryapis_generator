@@ -74,9 +74,11 @@ class DartApiLibrary extends BaseApiLibrary {
   String libraryName;
 
   /// Generates a API library for [description].
-  DartApiLibrary.build(RestDescription description, String packageName,
-      {bool useCorePrefixes = true})
-      : super(description, 'Api', useCorePrefixes: useCorePrefixes) {
+  DartApiLibrary.build(
+    RestDescription description,
+    String packageName, {
+    bool useCorePrefixes = true,
+  }) : super(description, 'Api', useCorePrefixes: useCorePrefixes) {
     libraryName =
         namer.libraryName(packageName, description.name, description.version);
     schemaDB = parseSchemas(imports, description);

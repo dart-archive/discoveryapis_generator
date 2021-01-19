@@ -1,6 +1,7 @@
 ## 0.9.16-dev
 
 - Require Dart `2.10` or greater.
+- Optional, named parameters are now sorted by name. 
 
 ## v0.9.15
  - Add support for scopes defined in
