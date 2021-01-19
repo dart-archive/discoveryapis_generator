@@ -86,7 +86,8 @@ class WrapApiApi {
 class Empty {
   Empty();
 
-  Empty.fromJson(core.Map _json) : assert(_json.isEmpty);
+  // ignore: avoid_unused_constructor_parameters
+  Empty.fromJson(core.Map _json);
 
   core.Map<core.String, core.Object> toJson() {
     final core.Map<core.String, core.Object> _json =
