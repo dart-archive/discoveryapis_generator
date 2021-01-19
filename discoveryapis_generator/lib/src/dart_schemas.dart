@@ -807,13 +807,12 @@ class ObjectType extends ComplexDartSchemaType {
     });
 
     var fromJsonString = StringBuffer();
-    if (properties.isEmpty) {
-      fromJsonString.writeln(
-        '  // ignore: avoid_unused_constructor_parameters',
-      );
-    }
-    fromJsonString
-        .writeln('  $className.fromJson(${imports.core.ref()}Map _json)');
+
+    final emptyPropertiesComment = properties.isEmpty
+        ? '  // ignore: avoid_unused_constructor_parameters\n'
+        : '';
+    fromJsonString.writeln(
+        '  $className.fromJson($emptyPropertiesComment ${imports.core.ref()}Map _json)');
     if (properties.isEmpty) {
       fromJsonString.writeln(';');
     } else {
