@@ -12,8 +12,6 @@
 // ignore_for_file: unnecessary_cast
 // ignore_for_file: unnecessary_parenthesis
 // ignore_for_file: unnecessary_string_interpolations
-// ignore_for_file: unused_field
-// ignore_for_file: unused_import
 // ignore_for_file: avoid_returning_null
 // ignore_for_file: cascade_invocations
 // ignore_for_file: prefer_single_quotes

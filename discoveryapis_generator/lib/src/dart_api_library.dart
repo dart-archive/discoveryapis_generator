@@ -25,8 +25,6 @@ const _ignoreForFileSet = {
   'unnecessary_cast',
   'unnecessary_parenthesis',
   'unnecessary_string_interpolations',
-  'unused_field', // violated by youtubeanalytics/v1
-  'unused_import', // violated by youtubeanalytics/v1
 };
 
 String get ignoreForFileComments =>
