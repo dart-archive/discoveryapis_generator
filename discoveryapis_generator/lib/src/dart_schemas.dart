@@ -807,21 +807,31 @@ class ObjectType extends ComplexDartSchemaType {
     });
 
     var fromJsonString = StringBuffer();
+    if (properties.isEmpty) {
+      fromJsonString.writeln(
+        '  // ignore: avoid_unused_constructor_parameters',
+      );
+    }
     fromJsonString
-        .writeln('  $className.fromJson(${imports.core.ref()}Map _json) {');
-    properties.forEach((DartClassProperty property) {
-      // The super variant fromJson() will call this subclass constructor
-      // and the variant descriminator is final.
-      if (!isVariantDiscriminator(property)) {
-        var decodeString = property.type
-            .jsonDecode("_json['${escapeString(property.jsonName)}']");
-        fromJsonString.writeln('    if (_json.containsKey'
-            "('${escapeString(property.jsonName)}')) {");
-        fromJsonString.writeln('      ${property.name} = ${decodeString};');
-        fromJsonString.writeln('    }');
+        .writeln('  $className.fromJson(${imports.core.ref()}Map _json)');
+    if (properties.isEmpty) {
+      fromJsonString.writeln(';');
+    } else {
+      fromJsonString.write('{');
+      for (var property in properties) {
+        // The super variant fromJson() will call this subclass constructor
+        // and the variant descriminator is final.
+        if (!isVariantDiscriminator(property)) {
+          var decodeString = property.type
+              .jsonDecode("_json['${escapeString(property.jsonName)}']");
+          fromJsonString.writeln('    if (_json.containsKey'
+              "('${escapeString(property.jsonName)}')) {");
+          fromJsonString.writeln('      ${property.name} = ${decodeString};');
+          fromJsonString.writeln('    }');
+        }
       }
-    });
-    fromJsonString.writeln('  }');
+      fromJsonString.writeln('  }');
+    }
 
     var toJsonString = StringBuffer();
     toJsonString.writeln('  ${jsonType.declaration} toJson() {');
@@ -830,13 +840,13 @@ class ObjectType extends ComplexDartSchemaType {
       '<${jsonType.keyJsonType.declaration}, '
       '${jsonType.valueJsonType.declaration}>{};',
     );
-    properties.forEach((DartClassProperty property) {
+    for (var property in properties) {
       toJsonString.writeln('    if (${property.name} != null) {');
       toJsonString
           .writeln("      _json['${escapeString(property.jsonName)}'] = "
               '${property.type.jsonEncode('${property.name}')};');
       toJsonString.writeln('    }');
-    });
+    }
     toJsonString.writeln('    return _json;');
     toJsonString.write('  }');
 
