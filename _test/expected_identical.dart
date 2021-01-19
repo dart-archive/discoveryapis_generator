@@ -379,9 +379,9 @@ class ToyApi {
   ///
   /// [name] - Path parameter: 'name'.
   ///
-  /// [foo] - Query parameter: 'foo'.
-  ///
   /// [age] - Query parameter: 'age'.
+  ///
+  /// [foo] - Query parameter: 'foo'.
   ///
   /// [$fields] - Selector specifying which fields to include in a partial
   /// response.
@@ -395,8 +395,8 @@ class ToyApi {
   /// this method will complete with the same error.
   async.Future<ToyResponse> helloNameQueryAgeFoo(
     core.String name, {
-    core.String foo,
     core.int age,
+    core.String foo,
     core.String $fields,
   }) {
     core.String _url;
@@ -409,11 +409,11 @@ class ToyApi {
     if (name == null) {
       throw core.ArgumentError('Parameter name is required.');
     }
-    if (foo != null) {
-      _queryParams['foo'] = [foo];
-    }
     if (age != null) {
       _queryParams['age'] = ['${age}'];
+    }
+    if (foo != null) {
+      _queryParams['foo'] = [foo];
     }
     if ($fields != null) {
       _queryParams['fields'] = [$fields];

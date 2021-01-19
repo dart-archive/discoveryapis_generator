@@ -4,6 +4,8 @@
 
 library discoveryapis_generator.dart_resources;
 
+import 'dart:collection';
+
 import 'dart_api_library.dart';
 import 'dart_comments.dart';
 import 'dart_schemas.dart';
@@ -48,8 +50,14 @@ class MethodParameter {
   ///   - `null` otherwise.
   final bool encodedInPath;
 
-  MethodParameter(this.name, this.comment, this.required, this.type,
-      this.jsonName, this.encodedInPath);
+  MethodParameter(
+    this.name,
+    this.comment,
+    this.required,
+    this.type,
+    this.jsonName,
+    this.encodedInPath,
+  );
 
   /// Returns the declaration "Type name" of this method parameter.
   String get declaration => '${type.declaration} $name';
@@ -84,21 +92,22 @@ class DartResourceMethod {
   final bool enableDataWrapper;
 
   DartResourceMethod(
-      this.imports,
-      this.name,
-      this.comment,
-      this.requestParameter,
-      this.parameters,
-      this.namedParameters,
-      this.returnType,
-      this.jsonName,
-      this.urlPattern,
-      this.httpMethod,
-      this.mediaUpload,
-      this.mediaUploadResumable,
-      this.mediaDownload,
-      this.mediaUploadPatterns,
-      this.enableDataWrapper);
+    this.imports,
+    this.name,
+    this.comment,
+    this.requestParameter,
+    this.parameters,
+    this.namedParameters,
+    this.returnType,
+    this.jsonName,
+    this.urlPattern,
+    this.httpMethod,
+    this.mediaUpload,
+    this.mediaUploadResumable,
+    this.mediaDownload,
+    this.mediaUploadPatterns,
+    this.enableDataWrapper,
+  );
 
   String get signature {
     var parameterString = StringBuffer();
@@ -455,17 +464,23 @@ class DartApiClass extends DartResourceClass {
   final List<OAuth2Scope> scopes;
 
   DartApiClass(
-      DartApiImports imports,
-      Identifier name,
-      Comment comment,
-      List<DartResourceMethod> methods,
-      List<Identifier> subResourceIdentifiers,
-      List<DartResourceClass> subResources,
-      this.rootUrl,
-      this.servicePath,
-      this.scopes)
-      : super(imports, name, comment, methods, subResourceIdentifiers,
-            subResources);
+    DartApiImports imports,
+    Identifier name,
+    Comment comment,
+    List<DartResourceMethod> methods,
+    List<Identifier> subResourceIdentifiers,
+    List<DartResourceClass> subResources,
+    this.rootUrl,
+    this.servicePath,
+    this.scopes,
+  ) : super(
+          imports,
+          name,
+          comment,
+          methods,
+          subResourceIdentifiers,
+          subResources,
+        );
 
   @override
   String get preamble {
@@ -535,8 +550,8 @@ DartResourceMethod _parseMethod(
   }
 
   // This set will be reduced to all optional parameters.
-  var pendingParameterNames =
-      method.parameters != null ? method.parameters.keys.toSet() : <String>{};
+  var pendingParameterNames = SplayTreeSet.of(
+      method.parameters != null ? method.parameters.keys.toSet() : <String>{});
 
   var positionalParameters = <MethodParameter>[];
   void tryEnqueuePositionalParameter(
@@ -557,14 +572,23 @@ DartResourceMethod _parseMethod(
 
   var optionalParameters = <MethodParameter>[];
   void enqueueOptionalParameter(
-      String jsonName, Comment comment, JsonSchema schema,
-      {bool global = false}) {
+    String jsonName,
+    Comment comment,
+    JsonSchema schema, {
+    bool global = false,
+  }) {
     var name = parameterScope.newIdentifier(jsonName, global: global);
     var type = parseResolved(imports, db, schema);
     comment = extendEnumComment(comment, type);
     comment = extendAnyTypeComment(comment, type);
     optionalParameters.add(MethodParameter(
-        name, comment, false, type, jsonName, schema.location != 'query'));
+      name,
+      comment,
+      false,
+      type,
+      jsonName,
+      schema.location != 'query',
+    ));
   }
 
   Comment parameterComment(JsonSchema parameter) {
@@ -679,21 +703,22 @@ DartResourceMethod _parseMethod(
   }
 
   return DartResourceMethod(
-      imports,
-      methodName,
-      comment,
-      dartRequestParameter,
-      positionalParameters,
-      optionalParameters,
-      dartResponseType,
-      jsonName,
-      UriTemplate.parse(imports, restPath),
-      method.httpMethod,
-      makeBoolean(method.supportsMediaUpload),
-      mediaUploadResumable,
-      makeBoolean(method.supportsMediaDownload),
-      mediaUploadPatterns,
-      enableDataWrapper ?? false);
+    imports,
+    methodName,
+    comment,
+    dartRequestParameter,
+    positionalParameters,
+    optionalParameters,
+    dartResponseType,
+    jsonName,
+    UriTemplate.parse(imports, restPath),
+    method.httpMethod,
+    makeBoolean(method.supportsMediaUpload),
+    mediaUploadResumable,
+    makeBoolean(method.supportsMediaDownload),
+    mediaUploadPatterns,
+    enableDataWrapper ?? false,
+  );
 }
 
 DartResourceClass _parseResource(
@@ -741,14 +766,22 @@ DartResourceClass _parseResource(
   if (subResources != null) {
     orderedForEach(subResources, (String jsonName, RestResource resource) {
       var instanceName = classScope.newIdentifier(jsonName);
-      var dartResource = _parseResource(imports, db, description, jsonName, '',
-          resource.methods, resource.resources, className.preferredName);
+      var dartResource = _parseResource(
+        imports,
+        db,
+        description,
+        jsonName,
+        '',
+        resource.methods,
+        resource.resources,
+        className.preferredName,
+      );
       dartSubResourceIdentifiers.add(instanceName);
       dartSubResource.add(dartResource);
     });
   }
 
-  var coment = Comment(resourceDescription);
+  var comment = Comment(resourceDescription);
   if (topLevel) {
     var scopes = <OAuth2Scope>[];
 
@@ -803,10 +836,10 @@ DartResourceClass _parseResource(
 
     var rootUrl = description.rootUrl;
     var restPath = description.servicePath;
-    return DartApiClass(imports, className, coment, dartMethods,
+    return DartApiClass(imports, className, comment, dartMethods,
         dartSubResourceIdentifiers, dartSubResource, rootUrl, restPath, scopes);
   } else {
-    return DartResourceClass(imports, className, coment, dartMethods,
+    return DartResourceClass(imports, className, comment, dartMethods,
         dartSubResourceIdentifiers, dartSubResource);
   }
 }

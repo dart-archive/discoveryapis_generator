@@ -1057,8 +1057,8 @@ void main() {
       var mock = HttpServerMock();
       api.ToyApiApi res = api.ToyApiApi(mock);
       var arg_name = 'foo';
-      var arg_foo = 'foo';
       var arg_age = 42;
+      var arg_foo = 'foo';
       var arg_$fields = 'foo';
       mock.register(unittest.expectAsync2((http.BaseRequest req, json) {
         var path = (req.url).path;
@@ -1092,9 +1092,9 @@ void main() {
             );
           }
         }
-        unittest.expect(queryMap["foo"].first, unittest.equals(arg_foo));
         unittest.expect(
             core.int.parse(queryMap["age"].first), unittest.equals(arg_age));
+        unittest.expect(queryMap["foo"].first, unittest.equals(arg_foo));
         unittest.expect(queryMap["fields"].first, unittest.equals(arg_$fields));
 
         var h = {
@@ -1105,7 +1105,7 @@ void main() {
       }), true);
       res
           .helloNameQueryAgeFoo(arg_name,
-              foo: arg_foo, age: arg_age, $fields: arg_$fields)
+              age: arg_age, foo: arg_foo, $fields: arg_$fields)
           .then(unittest.expectAsync1(((response) {
         checkToyResponse(response);
       })));
