@@ -41,13 +41,13 @@ class ApisPackageGenerator {
   /// If the output directory already exists it will delete everything in it
   /// except ".git" folders.
   List<GenerateResult> generateApiPackage() {
-    var libFolderPath = '$packageFolderPath/lib';
-    var testFolderPath = '$packageFolderPath/test';
-    var pubspecYamlPath = '$packageFolderPath/pubspec.yaml';
-    var gitIgnorePath = '$packageFolderPath/.gitignore';
+    final libFolderPath = '$packageFolderPath/lib';
+    final testFolderPath = '$packageFolderPath/test';
+    final pubspecYamlPath = '$packageFolderPath/pubspec.yaml';
+    final gitIgnorePath = '$packageFolderPath/.gitignore';
 
     // Clean contents of directory (except for .git folder)
-    var packageDirectory = Directory(packageFolderPath);
+    final packageDirectory = Directory(packageFolderPath);
     if (packageDirectory.existsSync()) {
       print('Emptying folder before library generation.');
       packageDirectory.listSync().forEach((FileSystemEntity fse) {
@@ -65,32 +65,32 @@ class ApisPackageGenerator {
     writeFile(pubspecYamlPath, _writePubspec);
     writeString(gitIgnorePath, gitIgnore);
 
-    var results = <GenerateResult>[];
+    final results = <GenerateResult>[];
     for (var description in descriptions) {
-      var name = description.name.toLowerCase();
-      var version = description.version
+      final name = description.name.toLowerCase();
+      final version = description.version
           .toLowerCase()
           .replaceAll('.', '_')
           .replaceAll('-', '_');
 
-      var apiFolderPath = '$libFolderPath/$name';
-      var apiTestFolderPath = '$testFolderPath/$name';
+      final apiFolderPath = '$libFolderPath/$name';
+      final apiTestFolderPath = '$testFolderPath/$name';
 
-      var apiVersionFile = '$libFolderPath/$name/$version.dart';
-      var apiTestVersionFile = '$testFolderPath/$name/${version}_test.dart';
+      final apiVersionFile = '$libFolderPath/$name/$version.dart';
+      final apiTestVersionFile = '$testFolderPath/$name/${version}_test.dart';
 
-      var packagePath = 'package:${config.name}/$name/$version.dart';
+      final packagePath = 'package:${config.name}/$name/$version.dart';
 
       try {
         // Create API itself.
         Directory(apiFolderPath).createSync();
-        var apiLibrary = _generateApiLibrary(apiVersionFile, description);
+        final apiLibrary = _generateApiLibrary(apiVersionFile, description);
 
         // Create Test for API.
         Directory(apiTestFolderPath).createSync();
         _generateApiTestLibrary(apiTestVersionFile, packagePath, apiLibrary);
 
-        var result = GenerateResult(name, version, packagePath);
+        final result = GenerateResult(name, version, packagePath);
         results.add(result);
       } catch (error, stack) {
         var errorMessage = '';

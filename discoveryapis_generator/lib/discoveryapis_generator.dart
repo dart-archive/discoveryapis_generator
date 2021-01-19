@@ -41,7 +41,7 @@ class Pubspec {
 
 List<GenerateResult> generateApiPackage(List<RestDescription> descriptions,
     String outputDirectory, Pubspec pubspec) {
-  var apisPackageGenerator =
+  final apisPackageGenerator =
       ApisPackageGenerator(descriptions, pubspec, outputDirectory);
 
   return apisPackageGenerator.generateApiPackage();
@@ -52,29 +52,28 @@ List<GenerateResult> generateAllLibraries(
     {bool generateNullSafe = false}) {
   null_safety.generateNullSafeCode = generateNullSafe;
 
-  var apiDescriptions = Directory(inputDirectory)
+  final apiDescriptions = Directory(inputDirectory)
       .listSync()
       .where((fse) => fse is File && fse.path.endsWith('.json'))
-      .map((FileSystemEntity entity) {
-    return RestDescription.fromJson(
-        json.decode((entity as File).readAsStringSync()));
-  }).toList();
+      .map((FileSystemEntity entity) => RestDescription.fromJson(
+          json.decode((entity as File).readAsStringSync())))
+      .toList();
   return generateApiPackage(apiDescriptions, outputDirectory, pubspec);
 }
 
 List<GenerateResult> generateApiFiles(
     String inputDirectory, String outputDirectory,
     {bool updatePubspec = false, bool useCorePrefixes = true}) {
-  var descriptions = <DescriptionImportPair>[];
+  final descriptions = <DescriptionImportPair>[];
   Directory(inputDirectory)
       .listSync()
       .where((fse) => fse is File && fse.path.endsWith('.json'))
       .forEach((FileSystemEntity entity) {
-    var diPair =
+    final diPair =
         DescriptionImportPair((entity as File).readAsStringSync(), null);
     descriptions.add(diPair);
   });
-  var clientFileGenerator = ApisFilesGenerator(descriptions, outputDirectory,
+  final clientFileGenerator = ApisFilesGenerator(descriptions, outputDirectory,
       updatePubspec: updatePubspec, useCorePrefixes: useCorePrefixes);
   return clientFileGenerator.generate();
 }

@@ -51,7 +51,7 @@ void main() {
     });
 
     test('identifier', () {
-      var identifier = Identifier('x');
+      final identifier = Identifier('x');
 
       expect(identifier.preferredName, equals('x'));
       expect(identifier.name, isNull);
@@ -65,12 +65,12 @@ void main() {
 
     group('scope', () {
       test('new-identifier', () {
-        var scope = Scope();
+        final scope = Scope();
         expect(scope.parentScope, isNull);
         expect(scope.childScopes, isEmpty);
         expect(scope.identifiers, isEmpty);
 
-        var tuples = [
+        final tuples = [
           ['a', 'a'],
           ['B', 'B'],
           ['abc', 'abc'],
@@ -78,8 +78,8 @@ void main() {
           ['A-c', 'A_c'],
         ];
         for (var tuple in tuples) {
-          var name = tuple[0];
-          var target = tuple[1];
+          final name = tuple[0];
+          final target = tuple[1];
           expect(scope.newIdentifier(name), equals(scope.identifiers.last));
           expect(scope.identifiers.last.preferredName, equals(target));
           expect(scope.identifiers.last.name, isNull);
@@ -87,9 +87,9 @@ void main() {
       });
 
       test('new-child-scope', () {
-        var scope = Scope();
+        final scope = Scope();
 
-        var child1 = scope.newChildScope();
+        final child1 = scope.newChildScope();
         expect(scope.parentScope, isNull);
         expect(scope.childScopes, hasLength(1));
         expect(scope.childScopes.last, equals(child1));
@@ -112,12 +112,12 @@ void main() {
 
     group('identifier-namer', () {
       test('flat', () {
-        var a = Identifier('a');
-        var a2 = Identifier('a');
-        var a3 = Identifier('a');
-        var b = Identifier('b');
+        final a = Identifier('a');
+        final a2 = Identifier('a');
+        final a3 = Identifier('a');
+        final b = Identifier('b');
 
-        var namer = IdentifierNamer();
+        final namer = IdentifierNamer();
 
         namer.nameIdentifier(a);
         expect(a.name, equals('a'));
@@ -134,11 +134,11 @@ void main() {
       });
 
       test('flat-preallocated', () {
-        var a = Identifier('a');
-        var a2 = Identifier('a');
-        var b = Identifier('b');
+        final a = Identifier('a');
+        final a2 = Identifier('a');
+        final b = Identifier('b');
 
-        var namer = IdentifierNamer.fromNameSet({'a'});
+        final namer = IdentifierNamer.fromNameSet({'a'});
 
         namer.nameIdentifier(a);
         expect(a.name, equals('a_1'));
@@ -152,12 +152,12 @@ void main() {
 
       test('tree-preallocated', () {
         // [rootNamer] will contain 'a' and 'b'
-        var rootNamer = IdentifierNamer.fromNameSet({'a'});
+        final rootNamer = IdentifierNamer.fromNameSet({'a'});
         rootNamer.nameIdentifier(Identifier('b'));
 
-        var childNamer = IdentifierNamer(parentNamer: rootNamer);
-        var a = Identifier('a');
-        var b = Identifier('b');
+        final childNamer = IdentifierNamer(parentNamer: rootNamer);
+        final a = Identifier('a');
+        final b = Identifier('b');
 
         childNamer.nameIdentifier(a);
         expect(a.name, equals('a_1'));
@@ -167,14 +167,14 @@ void main() {
       });
 
       test('wasCalled', () {
-        var id = Identifier('foo');
+        final id = Identifier('foo');
         expect(id.wasCalled, false);
         id.ref();
         expect(id.wasCalled, true);
       });
 
       test('Identifier.noPrefix()', () {
-        var id = Identifier.noPrefix();
+        final id = Identifier.noPrefix();
         expect(id.ref(), '');
         // Test that toString() doesn't throw.
         expect(id.toString(), null);
@@ -183,17 +183,17 @@ void main() {
 
     group('api-namer', () {
       test('library-name', () {
-        var namer = ApiLibraryNamer();
+        final namer = ApiLibraryNamer();
         expect(namer.libraryName('x y', '9a', '\$a'), equals('x_y.D9a.P_a'));
         expect(namer.libraryName('googleapis', 'drive', 'v1'),
             equals('googleapis.drive.v1'));
       });
 
       test('scope-tree', () {
-        var namer = ApiLibraryNamer();
-        var rootScope = namer.importScope;
-        var libScope = namer.libraryScope;
-        var classScope = namer.newClassScope();
+        final namer = ApiLibraryNamer();
+        final rootScope = namer.importScope;
+        final libScope = namer.libraryScope;
+        final classScope = namer.newClassScope();
 
         expect(rootScope.parentScope, isNull);
         expect(libScope.parentScope, equals(rootScope));
@@ -201,24 +201,24 @@ void main() {
       });
 
       test('schema-class', () {
-        var namer = ApiLibraryNamer();
-        var libraryScope = namer.libraryScope;
+        final namer = ApiLibraryNamer();
+        final libraryScope = namer.libraryScope;
 
         // Naming classes is split into two parts:
         // - getting a preffered name with [namer.schemaClassName]
         // - making an indentifier with [namer.schemaClass]
         //   => which will add it to the library scope
 
-        var chapter = namer.schemaClassName('chapter');
-        var bookChapter = namer.schemaClassName('chapter', parent: 'book');
+        final chapter = namer.schemaClassName('chapter');
+        final bookChapter = namer.schemaClassName('chapter', parent: 'book');
         expect(chapter, equals('Chapter'));
         expect(bookChapter, equals('BookChapter'));
 
         expect(libraryScope.childScopes, isEmpty);
         expect(libraryScope.identifiers, isEmpty);
 
-        var chapterId = namer.schemaClass(chapter);
-        var bookChapterId = namer.schemaClass(bookChapter);
+        final chapterId = namer.schemaClass(chapter);
+        final bookChapterId = namer.schemaClass(bookChapter);
 
         expect(chapterId.preferredName, equals('Chapter'));
         expect(bookChapterId.preferredName, equals('BookChapter'));
@@ -230,7 +230,7 @@ void main() {
       });
 
       test('identifier-naming', () {
-        var namer = ApiLibraryNamer();
+        final namer = ApiLibraryNamer();
         namer.import('foo');
         namer.import('method'); // will collide with method name
         namer.import('BookApi'); // will collide with api class, schema class
@@ -247,18 +247,18 @@ void main() {
         namer.resourceClass('FooBar');
         namer.resourceClass('Books');
 
-        var subscope = namer.newClassScope();
+        final subscope = namer.newClassScope();
         subscope.newIdentifier('method');
 
         namer.nameAllIdentifiers();
 
-        var iscope = namer.importScope;
+        final iscope = namer.importScope;
         expect(iscope.identifiers[0].name, equals('foo'));
         expect(iscope.identifiers[1].name, equals('method_1'));
         expect(iscope.identifiers[2].name, equals('BookApi_2'));
         expect(iscope.identifiers[3].name, equals('FooBarResourceApi_1'));
 
-        var lscope = namer.libraryScope;
+        final lscope = namer.libraryScope;
         expect(lscope.identifiers[0].name, equals('BookApi'));
         expect(lscope.identifiers[1].name, equals('Book'));
         expect(lscope.identifiers[2].name, equals('Chapter'));

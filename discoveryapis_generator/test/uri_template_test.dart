@@ -9,14 +9,14 @@ import 'package:test/test.dart';
 
 void main() {
   group('url-pattern', () {
-    var namer = ApiLibraryNamer();
-    var imports = DartApiImports.fromNamer(namer);
+    final namer = ApiLibraryNamer();
+    final imports = DartApiImports.fromNamer(namer);
     namer.nameAllIdentifiers();
 
     Identifier id(String s) => Identifier(s)..sealWithName(s);
 
     test('string', () {
-      var template = UriTemplate.parse(imports, 'abc');
+      final template = UriTemplate.parse(imports, 'abc');
       expect(template.parts, hasLength(1));
       expect(template.parts.first is StringPart, isTrue);
       expect(template.parts.first.templateVar, isNull);
@@ -26,7 +26,7 @@ void main() {
     });
 
     test('variable', () {
-      var template = UriTemplate.parse(imports, '{My_var123}');
+      final template = UriTemplate.parse(imports, '{My_var123}');
       expect(template.parts, hasLength(1));
       expect(template.parts.first is VariableExpression, isTrue);
       expect(template.parts.first.templateVar, equals('My_var123'));
@@ -37,7 +37,7 @@ void main() {
     });
 
     test('path-variable-expr', () {
-      var template = UriTemplate.parse(imports, '{/myvar*}');
+      final template = UriTemplate.parse(imports, '{/myvar*}');
       expect(template.parts, hasLength(1));
       expect(template.parts.first is PathVariableExpression, isTrue);
       expect(template.parts.first.templateVar, equals('myvar'));
@@ -51,7 +51,7 @@ void main() {
     });
 
     test('reserved-expansion-expr', () {
-      var template = UriTemplate.parse(imports, '{+myvar}');
+      final template = UriTemplate.parse(imports, '{+myvar}');
       expect(template.parts, hasLength(1));
       expect(template.parts.first is ReservedExpansionExpression, isTrue);
       expect(template.parts.first.templateVar, equals('myvar'));
@@ -62,7 +62,7 @@ void main() {
     });
 
     test('reserved-expansion-expr', () {
-      var template = UriTemplate.parse(imports, '/a/{b}/{+c}{/d*}');
+      final template = UriTemplate.parse(imports, '/a/{b}/{+c}{/d*}');
       expect(template.parts, hasLength(5));
 
       expect(template.parts[0] is StringPart, isTrue);

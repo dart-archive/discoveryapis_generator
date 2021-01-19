@@ -8,7 +8,7 @@ import 'utils.dart';
 
 /// Represents a comment of a dart element (e.g. class, method, ...)
 class Comment {
-  static final Comment Empty = Comment('');
+  static final empty = Comment('');
   final String rawComment;
 
   Comment(String raw)

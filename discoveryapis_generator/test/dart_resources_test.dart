@@ -11,24 +11,31 @@ import 'package:discoveryapis_generator/src/namer.dart';
 import 'package:discoveryapis_generator/src/uri_template.dart';
 import 'package:test/test.dart';
 
-void withParsedDB(json, function) {
-  var namer = ApiLibraryNamer();
-  var imports = DartApiImports.fromNamer(namer);
+void withParsedDB(
+  Map<String, dynamic> json,
+  void Function(DartSchemaTypeDB) function,
+) {
+  final namer = ApiLibraryNamer();
+  final imports = DartApiImports.fromNamer(namer);
 
-  var description = RestDescription.fromJson(json);
-  var db = parseSchemas(imports, description);
+  final description = RestDescription.fromJson(json);
+  final db = parseSchemas(imports, description);
 
   namer.nameAllIdentifiers();
 
   function(db);
 }
 
-void withParsedApiResource(db, json, function) {
-  var namer = ApiLibraryNamer();
-  var imports = DartApiImports.fromNamer(namer);
+void withParsedApiResource(
+  DartSchemaTypeDB db,
+  Map<String, dynamic> json,
+  void Function(DartApiClass) function,
+) {
+  final namer = ApiLibraryNamer();
+  final imports = DartApiImports.fromNamer(namer);
 
-  var description = RestDescription.fromJson(json);
-  var apiClass = parseResources(imports, db, description);
+  final description = RestDescription.fromJson(json);
+  final apiClass = parseResources(imports, db, description);
 
   namer.nameAllIdentifiers();
 
@@ -36,7 +43,7 @@ void withParsedApiResource(db, json, function) {
 }
 
 void main() {
-  var schema = {
+  final schema = {
     'schemas': {
       'Task': {
         'type': 'object',
@@ -64,7 +71,7 @@ void main() {
 
   withParsedDB(schema, (DartSchemaTypeDB db) {
     Map buildApi(String i, {Map methods, Map resources}) {
-      var api = <String, dynamic>{
+      final api = <String, dynamic>{
         'name': 'apiname$i',
         'version': 'apiversion$i',
         'rootUrl': 'https://www.googleapis.com/',
@@ -87,7 +94,7 @@ void main() {
     }
 
     Map buildMethods(String i) {
-      var map = {
+      final map = {
         'foo$i': {
           'path': 'foo$i/{id$i}',
           'httpMethod': 'GET',
@@ -124,7 +131,7 @@ void main() {
 
     void checkMethods(String i, List<DartResourceMethod> methods) {
       expect(methods, hasLength(1));
-      var foo = methods.first;
+      final foo = methods.first;
       expect(foo, isNotNull);
       expect(foo.urlPattern.parts, hasLength(2));
       expect(foo.urlPattern.parts[0] is StringPart, isTrue);
@@ -136,14 +143,14 @@ void main() {
       expect(
           foo.parameters, hasLength(3 + reservedMethodParameterNames.length));
 
-      var id = foo.parameters[0];
+      final id = foo.parameters[0];
       expect(id, isNotNull);
       expect(id.name.name, equals('id$i'));
       expect(id.type, equals(db.stringType));
       expect(id.required, isTrue);
       expect(id.encodedInPath, isTrue);
 
-      var repeatedPathParam = foo.parameters[1];
+      final repeatedPathParam = foo.parameters[1];
       expect(repeatedPathParam, isNotNull);
       expect(repeatedPathParam.name.name, equals('reapetedPathParam$i'));
       expect(repeatedPathParam.type is UnnamedArrayType, isTrue);
@@ -152,7 +159,7 @@ void main() {
       expect(repeatedPathParam.required, isTrue);
       expect(repeatedPathParam.encodedInPath, isTrue);
 
-      var repeatedQueryParam = foo.parameters[2];
+      final repeatedQueryParam = foo.parameters[2];
       expect(repeatedQueryParam, isNotNull);
       expect(repeatedQueryParam.name.name, equals('reapetedQueryParam$i'));
       expect(repeatedQueryParam.type is UnnamedArrayType, isTrue);
@@ -161,7 +168,7 @@ void main() {
       expect(repeatedQueryParam.required, isTrue);
       expect(repeatedQueryParam.encodedInPath, isFalse);
 
-      var rest = foo.parameters.skip(3).toList();
+      final rest = foo.parameters.skip(3).toList();
       for (var reserved in reservedMethodParameterNames) {
         var found = false;
         for (var p in rest) {
@@ -177,10 +184,10 @@ void main() {
       if (level > 3) {
         return null;
       } else {
-        var methods = buildMethods('${i}M$level');
-        var subResources = buildResources('${i}L$level', level: level + 1);
+        final methods = buildMethods('${i}M$level');
+        final subResources = buildResources('${i}L$level', level: level + 1);
 
-        var resources = {
+        final resources = {
           'resA$i': {
             'methods': methods,
           },
@@ -206,18 +213,18 @@ void main() {
         expect(resources, isEmpty);
       } else {
         expect(resources, hasLength(2));
-        var abc = resources.first;
+        final abc = resources.first;
         expect(abc, isNotNull);
         expect(abc.className.name, equals('${parent}ResA${i}ResourceApi'));
         checkMethods('${i}M$level', abc.methods);
-        checkResources('${i}L$level', '${parent}ResA${i}', abc.subResources,
+        checkResources('${i}L$level', '${parent}ResA$i', abc.subResources,
             level: level + 1);
 
-        var def = resources.last;
+        final def = resources.last;
         expect(def.className.name, equals('${parent}ResB${i}ResourceApi'));
         expect(def, isNotNull);
         checkMethods('${i}M$level', def.methods);
-        checkResources('${i}L$level', '${parent}ResB${i}', def.subResources,
+        checkResources('${i}L$level', '${parent}ResB$i', def.subResources,
             level: level + 1);
       }
     }

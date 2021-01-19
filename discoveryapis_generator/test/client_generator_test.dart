@@ -25,22 +25,22 @@ void main() {
   });
 
   // Common path to the necessary test data.
-  var dataPath = p.normalize(p.join(findPackageRoot('.'), '..', '_test'));
+  final dataPath = p.normalize(p.join(findPackageRoot('.'), '..', '_test'));
 
   group('files', () {
     test('non-identical-messages', () {
-      var inputPath = p.join(dataPath, 'rest');
-      var outputDir = tmpDir.createTempSync();
+      final inputPath = p.join(dataPath, 'rest');
+      final outputDir = tmpDir.createTempSync();
       // Make sure there is a pubspec.yaml file in the directory.
-      var pubspecFile = File(p.join(dataPath, 'pubspec.yaml'));
+      final pubspecFile = File(p.join(dataPath, 'pubspec.yaml'));
       pubspecFile.copySync(p.join(outputDir.path, 'pubspec.yaml'));
       // Generate the client stubs.
-      var results = generateApiFiles(inputPath, outputDir.path);
+      final results = generateApiFiles(inputPath, outputDir.path);
       expect(results.length, 2);
       expect(results[0].success, isTrue);
       expect(results[1].info, isTrue);
       // The generated client stub file is named toyapi.dart.
-      var stubFile = File(p.join(outputDir.path, 'toyapi.dart'));
+      final stubFile = File(p.join(outputDir.path, 'toyapi.dart'));
       _expectFilesMatch(
         p.join(dataPath, 'expected_nonidentical.dart'),
         stubFile.readAsStringSync(),
@@ -48,16 +48,16 @@ void main() {
     });
 
     test('identical-messages', () {
-      var outputDir = tmpDir.createTempSync();
+      final outputDir = tmpDir.createTempSync();
       // Make sure there is a pubspec.yaml file in the directory.
-      var pubspecFile = File(p.join(dataPath, 'pubspec.yaml'));
+      final pubspecFile = File(p.join(dataPath, 'pubspec.yaml'));
       pubspecFile.copySync(p.join(outputDir.path, 'pubspec.yaml'));
       // Make sure we have a dart file with the message classes
-      var libDir = Directory(p.join(outputDir.path, 'lib'))..createSync();
-      var messageFile = File(p.join(libDir.path, 'messages.dart'));
+      final libDir = Directory(p.join(outputDir.path, 'lib'))..createSync();
+      final messageFile = File(p.join(libDir.path, 'messages.dart'));
       // Build import map
-      var importUri = p.toUri(messageFile.path);
-      var importMap = {
+      final importUri = p.toUri(messageFile.path);
+      final importMap = {
         'ToyResponse': importUri.toString(),
         'ToyResourceResponse': importUri.toString(),
         'NestedResponse': importUri.toString(),
@@ -65,16 +65,16 @@ void main() {
         'ToyRequest': importUri.toString(),
         'ToyAgeRequest': importUri.toString()
       };
-      var description =
+      final description =
           File(p.join(dataPath, 'rest', 'toyapi.json')).readAsStringSync();
-      var diPair = DescriptionImportPair(description, importMap);
+      final diPair = DescriptionImportPair(description, importMap);
       // Generate the client stubs.
-      var results = generateClientStubs([diPair], outputDir.path);
+      final results = generateClientStubs([diPair], outputDir.path);
       expect(results.length, 2);
       expect(results[0].success, isTrue);
       expect(results[1].info, isTrue);
       // The generated client stub file is named toyapi.dart.
-      var stubFile = File(p.join(outputDir.path, 'toyapi.dart'));
+      final stubFile = File(p.join(outputDir.path, 'toyapi.dart'));
       _expectFilesMatch(
         p.join(dataPath, 'expected_identical.dart'),
         stubFile.readAsStringSync(),
@@ -98,7 +98,7 @@ void main() {
 }
 
 void _expectFilesMatch(String expectedFilePath, String actualValue) {
-  var expectedStubFile = File(expectedFilePath);
+  final expectedStubFile = File(expectedFilePath);
   if (!expectedStubFile.existsSync()) {
     expectedStubFile.create(recursive: true);
     expectedStubFile.writeAsStringSync(actualValue);

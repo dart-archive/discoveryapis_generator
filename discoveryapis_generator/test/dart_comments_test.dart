@@ -15,11 +15,11 @@ void main() {
 
       expectUndocumented(Comment(null));
       expectUndocumented(Comment(''));
-      expectUndocumented(Comment.Empty);
+      expectUndocumented(Comment.empty);
     });
 
     test('escape-comment', () {
-      var comment = Comment('/* foobar */');
+      final comment = Comment('/* foobar */');
       expect(comment.asDartDoc(0), equals('///  / *  foobar  * /\n'));
     });
 
@@ -48,8 +48,8 @@ void main() {
     });
 
     test('break-lines', () {
-      var chars = ('A ' * ((80 - 7) ~/ 2)).trimRight();
-      var charsShortened = chars.substring(0, chars.length - 4);
+      final chars = ('A ' * ((80 - 7) ~/ 2)).trimRight();
+      final charsShortened = chars.substring(0, chars.length - 4);
       var comment = Comment(chars);
 
       // [chars] fit on one line with indentation=0.
