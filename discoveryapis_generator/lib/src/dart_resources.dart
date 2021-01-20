@@ -11,6 +11,7 @@ import 'dart_comments.dart';
 import 'dart_schemas.dart';
 import 'generated_googleapis/discovery/v1.dart';
 import 'namer.dart';
+import 'null_safety.dart';
 import 'uri_template.dart';
 import 'utils.dart';
 
@@ -60,7 +61,8 @@ class MethodParameter {
   );
 
   /// Returns the declaration "Type name" of this method parameter.
-  String get declaration => '${type.declaration} $name';
+  String get declaration =>
+      '${type.declaration}${required ? '' : orNull} $name';
 }
 
 /// Represents a method on a resource class.
@@ -138,7 +140,7 @@ class DartResourceMethod {
           namedString.write('${imports.commons}.UploadOptions uploadOptions = '
               '${imports.commons}.UploadOptions.Default, ');
         }
-        namedString.write('${imports.commons}.Media uploadMedia');
+        namedString.write('${imports.commons}.Media$orNull uploadMedia');
       }
 
       if (mediaDownload) {
@@ -235,15 +237,26 @@ class DartResourceMethod {
       templateVars[param.jsonName] = param.name;
 
       if (param.required) {
-        if (param.type is UnnamedArrayType) {
-          params.writeln(
-              '    if (${param.name} == null || ${param.name}.isEmpty) {');
+        if (generateNullSafeCode) {
+          // In null safe code these are required, no need to check for nulls.
+          // Still check for empty arrays that should not be empty.
+          if (param.type is UnnamedArrayType) {
+            params.writeln('    if (${param.name}.isEmpty) {');
+            params.writeln('      throw ${imports.core.ref()}ArgumentError'
+                "('Parameter ${param.name} is required.');");
+            params.writeln('    }');
+          }
         } else {
-          params.writeln('    if (${param.name} == null) {');
+          if (param.type is UnnamedArrayType) {
+            params.writeln(
+                '    if (${param.name} == null || ${param.name}.isEmpty) {');
+          } else {
+            params.writeln('    if (${param.name} == null) {');
+          }
+          params.writeln('      throw ${imports.core.ref()}ArgumentError'
+              "('Parameter ${param.name} is required.');");
+          params.writeln('    }');
         }
-        params.writeln('      throw ${imports.core.ref()}ArgumentError'
-            "('Parameter ${param.name} is required.');");
-        params.writeln('    }');
       } else {
         // Is this an error?
         throw ArgumentError('non-required path parameter');
@@ -386,13 +399,18 @@ $urlPatternCode
     methodString.writeln('  $signature {');
 
     final core = imports.core.ref();
+    // For null safe code need an explicit type since `var` will infer as
+    // non-nullable and we need nullable.
+    final downloadOptionsType = generateNullSafeCode
+        ? imports.commons.toString() + '.DownloadOptions?'
+        : 'var';
     methodString.write('''
     ${core}String _url;
     final _queryParams = <${core}String, ${core}List<${core}String>>{};
-    ${imports.commons}.Media _uploadMedia;
-    ${imports.commons}.UploadOptions _uploadOptions;
-    var _downloadOptions = ${imports.commons}.DownloadOptions.Metadata;
-    ${core}String _body;
+    ${imports.commons}.Media$orNull _uploadMedia;
+    ${imports.commons}.UploadOptions$orNull _uploadOptions;
+    $downloadOptionsType _downloadOptions = ${imports.commons}.DownloadOptions.Metadata;
+    ${core}String$orNull _body;
 
 $params$requestCode''');
 

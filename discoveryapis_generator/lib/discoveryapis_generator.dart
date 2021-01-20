@@ -10,6 +10,7 @@ import 'dart:io';
 import 'src/apis_files_generator.dart';
 import 'src/apis_package_generator.dart';
 import 'src/generated_googleapis/discovery/v1.dart';
+import 'src/null_safety.dart' as null_safety;
 import 'src/utils.dart';
 
 export 'src/generated_googleapis/discovery/v1.dart';
@@ -47,7 +48,10 @@ List<GenerateResult> generateApiPackage(List<RestDescription> descriptions,
 }
 
 List<GenerateResult> generateAllLibraries(
-    String inputDirectory, String outputDirectory, Pubspec pubspec) {
+    String inputDirectory, String outputDirectory, Pubspec pubspec,
+    {bool generateNullSafe = false}) {
+  null_safety.generateNullSafeCode = generateNullSafe;
+
   var apiDescriptions = Directory(inputDirectory)
       .listSync()
       .where((fse) => fse is File && fse.path.endsWith('.json'))
