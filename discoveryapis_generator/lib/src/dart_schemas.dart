@@ -8,6 +8,7 @@ import 'dart_api_library.dart';
 import 'dart_comments.dart';
 import 'generated_googleapis/discovery/v1.dart';
 import 'namer.dart';
+import 'null_safety.dart';
 import 'utils.dart';
 
 /// Class for keeping all named schemas. This is used for
@@ -122,7 +123,7 @@ class MapJsonType extends JsonType {
   @override
   String get declaration {
     return '${imports.core.ref()}Map'
-        '<${keyJsonType.declaration}, ${valueJsonType.declaration}>';
+        '<${keyJsonType.declaration}, ${valueJsonType.declaration}$orNull>';
   }
 
   @override
@@ -540,7 +541,7 @@ $decode
 $encode
 
   @${core}override
-  $type operator [](${imports.core.ref()}int key) => _inner[key];
+  $type$orNull operator [](${imports.core.ref()}int key) => _inner[key];
 
   @${core}override
   void operator []=(${imports.core.ref()}int key, $type value) {
@@ -631,10 +632,17 @@ class UnnamedMapType extends ComplexDartSchemaType {
   @override
   String jsonDecode(String json) {
     if (fromType.needsJsonDecoding || toType.needsJsonDecoding) {
+      // Null safe code is strict about types, so be more precise about generics.
+      // This should also work in legacy mode, but keep as before to avoid churn.
+      var toTypeJsonDeclaration = generateNullSafeCode
+          ? toType.jsonType.declaration
+          : toType.jsonType.baseDeclaration;
       return '${imports.commons}.mapMap'
-          '<${toType.jsonType.baseDeclaration}, ${toType.declaration}>'
-          '($json.cast<${fromType.jsonType.baseDeclaration}, ${toType.jsonType.baseDeclaration}>(), '
-          '(${toType.jsonType.baseDeclaration} item) '
+          '<$toTypeJsonDeclaration, ${toType.declaration}>'
+          '($json.cast<${fromType.jsonType.baseDeclaration}, $toTypeJsonDeclaration>(), '
+          // More precise about generics in null safe mode, so just infer the
+          // type.
+          '(${generateNullSafeCode ? '' : toTypeJsonDeclaration} item) '
           '=> ${toType.jsonDecode('item')})';
     } else {
       // NOTE: The Map returned from JSON.decode() transfers ownership to the
@@ -699,7 +707,7 @@ $decode
 $encode
 
   @${core}override
-  ${toType.declaration} operator [](${core}Object key)
+  ${toType.declaration}$orNull operator [](${core}Object$orNull key)
       => _innerMap[key];
 
   @${core}override
@@ -716,7 +724,7 @@ $encode
   ${core}Iterable<$fromT> get keys => _innerMap.keys;
 
   @${core}override
-  $toT remove(${core}Object key) => _innerMap.remove(key);
+  $toT$orNull remove(${core}Object$orNull key) => _innerMap.remove(key);
 }
 ''';
   }
@@ -785,7 +793,7 @@ class ObjectType extends ComplexDartSchemaType {
         postfix = ' = "${escapeString(discriminatorValue())}"';
       }
       propertyString.writeln(
-          '$comment  $prefix${property.type.declaration} ${property.name}'
+          '$comment  $prefix${property.type.declaration}$orNull ${property.name}'
           '$postfix;');
 
       if (property.byteArrayAccessor != null) {
@@ -793,7 +801,7 @@ class ObjectType extends ComplexDartSchemaType {
             '  ${imports.core.ref()}List<${imports.core.ref()}int> get '
             '${property.byteArrayAccessor} =>');
         propertyString.writeln('${imports.convert.ref()}base64.decode'
-            '(${property.name});');
+            '(${property.name}$notNull);');
 
         propertyString.writeln();
 
@@ -837,13 +845,13 @@ class ObjectType extends ComplexDartSchemaType {
     toJsonString.writeln(
       '    final ${jsonType.declaration} _json = '
       '<${jsonType.keyJsonType.declaration}, '
-      '${jsonType.valueJsonType.declaration}>{};',
+      '${jsonType.valueJsonType.declaration}$orNull>{};',
     );
     for (var property in properties) {
       toJsonString.writeln('    if (${property.name} != null) {');
       toJsonString
           .writeln("      _json['${escapeString(property.jsonName)}'] = "
-              '${property.type.jsonEncode('${property.name}')};');
+              '${property.type.jsonEncode('${property.name}$notNull')};');
       toJsonString.writeln('    }');
     }
     toJsonString.writeln('    return _json;');
