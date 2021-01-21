@@ -37,9 +37,8 @@ class VariableExpression extends Part {
       : super(imports, templateVar);
 
   @override
-  String stringExpression(Identifier variable) {
-    return "${imports.commons}.Escaper.ecapeVariable('\$$variable')";
-  }
+  String stringExpression(Identifier variable) =>
+      "${imports.commons}.Escaper.ecapeVariable('\$$variable')";
 }
 
 /// Represents a URI Template variable expression of the form {/var*}
@@ -48,10 +47,9 @@ class PathVariableExpression extends Part {
       : super(imports, templateVar);
 
   @override
-  String stringExpression(Identifier variable) {
-    return "'/' + ($variable).map((item) => "
-        "${imports.commons}.Escaper.ecapePathComponent(item)).join('/')";
-  }
+  String stringExpression(Identifier variable) =>
+      "'/' + ($variable).map((item) => "
+      "${imports.commons}.Escaper.ecapePathComponent(item)).join('/')";
 }
 
 /// Represents a URI Template variable expression of the form {+var}
@@ -60,9 +58,8 @@ class ReservedExpansionExpression extends Part {
       : super(imports, templateVar);
 
   @override
-  String stringExpression(Identifier variable) {
-    return "${imports.commons}.Escaper.ecapeVariableReserved('\$$variable')";
-  }
+  String stringExpression(Identifier variable) =>
+      "${imports.commons}.Escaper.ecapeVariableReserved('\$$variable')";
 }
 
 /// Represents a URI Template as defined in RFC 6570.
@@ -81,41 +78,40 @@ class UriTemplate {
   ///
   /// The key in [identifiers] are template variable names and the values are
   /// the dart [Identifier]s which contain the dart value.
-  String stringExpression(Map<String, Identifier> identifiers) {
-    return parts.map((Part part) {
-      if (part.templateVar == null) {
-        return part.stringExpression(null);
-      }
-      var identifier = identifiers[part.templateVar];
-      if (identifier == null) {
-        throw ArgumentError(
-            'Could not find entry ${part.templateVar} in identifier map.');
-      }
-      return part.stringExpression(identifier);
-    }).join(' + ');
-  }
+  String stringExpression(Map<String, Identifier> identifiers) =>
+      parts.map((Part part) {
+        if (part.templateVar == null) {
+          return part.stringExpression(null);
+        }
+        final identifier = identifiers[part.templateVar];
+        if (identifier == null) {
+          throw ArgumentError(
+              'Could not find entry ${part.templateVar} in identifier map.');
+        }
+        return part.stringExpression(identifier);
+      }).join(' + ');
 
   static UriTemplate parse(DartApiImports imports, String pattern) {
-    var parts = <Part>[];
+    final parts = <Part>[];
 
     var offset = 0;
     while (offset < pattern.length) {
-      var open = pattern.indexOf('{', offset);
+      final open = pattern.indexOf('{', offset);
       // If we have no more URI template expressions, we append the remaining
       // string as a literal and we're done.
       if (open < 0) {
-        var rest = pattern.substring(offset);
+        final rest = pattern.substring(offset);
         parts.add(StringPart(imports, rest));
         break;
       }
 
       // We append the static string prefix as a literal (if necessary).
       if (open > offset) {
-        var stringPrefix = pattern.substring(offset, open);
+        final stringPrefix = pattern.substring(offset, open);
         parts.add(StringPart(imports, stringPrefix));
       }
 
-      var close = pattern.indexOf('}', open);
+      final close = pattern.indexOf('}', open);
       if (close < 0) {
         throw ArgumentError('Invalid URI template pattern, '
             "expected closing brace: '$pattern'");
@@ -123,19 +119,19 @@ class UriTemplate {
 
       // We extract the URI template expression and generate an expression
       // object for it.
-      var templateExpression = pattern.substring(open + 1, close);
+      final templateExpression = pattern.substring(open + 1, close);
       if (templateExpression.startsWith('/') &&
           templateExpression.endsWith('*')) {
-        var variable =
+        final variable =
             templateExpression.substring(1, templateExpression.length - 1);
         _ensureValidVariable(variable);
         parts.add(PathVariableExpression(imports, variable));
       } else if (templateExpression.startsWith('+')) {
-        var variable = templateExpression.substring(1);
+        final variable = templateExpression.substring(1);
         _ensureValidVariable(variable);
         parts.add(ReservedExpansionExpression(imports, variable));
       } else {
-        var variable = templateExpression;
+        final variable = templateExpression;
         _ensureValidVariable(variable);
         parts.add(VariableExpression(imports, variable));
       }
@@ -145,12 +141,13 @@ class UriTemplate {
   }
 
   static void _ensureValidVariable(String name) {
-    var codeUnites = name.codeUnits;
+    final codeUnites = name.codeUnits;
     for (var i = 0; i < codeUnites.length; i++) {
-      var char = codeUnites[i];
-      var isLetter = (65 <= char && char <= 90) || (97 <= char && char <= 122);
-      var isNumber = (48 <= char && char <= 57);
-      var isUnderscore = char == 0x5F;
+      final char = codeUnites[i];
+      final isLetter =
+          (65 <= char && char <= 90) || (97 <= char && char <= 122);
+      final isNumber = 48 <= char && char <= 57;
+      final isUnderscore = char == 0x5F;
       if (i == 0 && !isLetter) {
         throw ArgumentError('Variables can only begin with an upper or '
             'lowercase letter: "$name".');

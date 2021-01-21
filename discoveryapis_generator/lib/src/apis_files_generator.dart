@@ -38,7 +38,7 @@ class ApisFilesGenerator {
   ApisFilesGenerator(this.descriptions, this.clientFolderPath,
       {this.updatePubspec = false, this.useCorePrefixes = true}) {
     // Create the output directory.
-    var clientDirectory = Directory(clientFolderPath);
+    final clientDirectory = Directory(clientFolderPath);
     packageRoot = findPackageRoot(path.absolute(clientDirectory.path));
     if (packageRoot == null) {
       throw Exception(
@@ -54,21 +54,21 @@ class ApisFilesGenerator {
   /// Generates the client stub code with all the APIs given in the constructor.
   List<GenerateResult> generate() {
     // Get the package name.
-    var pubspec = loadYaml(pubspecFile.readAsStringSync());
-    String packageName = pubspec != null ? pubspec['name'] : null;
+    final pubspec = loadYaml(pubspecFile.readAsStringSync());
+    final String packageName = pubspec != null ? pubspec['name'] : null;
     if (packageName == null) {
       throw Exception('Invalid pubspec.yaml for package $packageRoot');
     }
 
     var processPubspec = false;
-    var results = <GenerateResult>[];
+    final results = <GenerateResult>[];
 
     for (var diPair in descriptions) {
-      var description =
+      final description =
           RestDescription.fromJson(json.decode(diPair.apiDescription));
-      var name = description.name.toLowerCase();
-      var version = description.version.toLowerCase();
-      var apiFile = path.join(clientFolderPath, '${name}.dart');
+      final name = description.name.toLowerCase();
+      final version = description.version.toLowerCase();
+      final apiFile = path.join(clientFolderPath, '$name.dart');
       try {
         var lib;
         if (diPair.importMap == null) {
@@ -104,7 +104,7 @@ class ApisFilesGenerator {
 
     // Print or add required dependencies to the pubspec.yaml file.
     if (processPubspec) {
-      var msg = _processPubspec();
+      final msg = _processPubspec();
       results.add(GenerateResult.fromMessage(msg));
     }
 
@@ -146,10 +146,10 @@ class ApisFilesGenerator {
     // Process pubspec and either print the dependencies that has to be added
     // or if the updatePubspec flag is set add the required dependencies to the
     // existing pubspec.yaml file.
-    YamlMap pubspec = loadYaml(pubspecFile.readAsStringSync());
+    final YamlMap pubspec = loadYaml(pubspecFile.readAsStringSync());
     if (updatePubspec) {
-      var sink = StringBuffer();
-      pubspecKeys.forEach((key) {
+      final sink = StringBuffer();
+      for (var key in pubspecKeys) {
         var value;
         if (key == 'dependencies') {
           // patch up dependencies.
@@ -160,12 +160,12 @@ class ApisFilesGenerator {
           value = pubspec[key];
         }
         writeValue(sink, key, value, '');
-      });
+      }
       pubspecFile.writeAsStringSync(sink.toString());
       return 'Updated pubspec.yaml file with required dependencies.';
     } else {
-      var newDeps = _computeNewDependencies(pubspec['dependencies']);
-      var sink = StringBuffer();
+      final newDeps = _computeNewDependencies(pubspec['dependencies']);
+      final sink = StringBuffer();
       if (newDeps.isNotEmpty) {
         sink.writeln('Please update your pubspec.yaml file with the following '
             'dependencies:');

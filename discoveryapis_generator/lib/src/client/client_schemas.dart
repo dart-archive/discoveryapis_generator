@@ -25,38 +25,38 @@ class ClientObjectType extends ObjectType {
       superClassString = ' extends ${superVariantType.declaration} ';
     }
 
-    var fromJsonString = StringBuffer();
+    final fromJsonString = StringBuffer();
     fromJsonString
         .writeln('  static $className fromJson(${imports.core}.Map _json) {');
     fromJsonString.writeln('    var message = $className();');
-    properties.forEach((DartClassProperty property) {
+    for (var property in properties) {
       // The super variant fromJson() will call this subclass constructor
       // and the variant discriminator is final.
       if (!isVariantDiscriminator(property)) {
-        var decodeString = property.type
+        final decodeString = property.type
             .jsonDecode("_json['${escapeString(property.jsonName)}']");
         fromJsonString.writeln('    if (_json.containsKey'
             "('${escapeString(property.jsonName)}')) {");
         fromJsonString
-            .writeln('      message.${property.name} = ${decodeString};');
+            .writeln('      message.${property.name} = $decodeString;');
         fromJsonString.writeln('    }');
       }
-    });
+    }
     fromJsonString.writeln('    return message;');
     fromJsonString.writeln('  }');
 
-    var toJsonString = StringBuffer();
+    final toJsonString = StringBuffer();
     toJsonString
         .writeln('  static ${imports.core}.Map toJson($className message) {');
     toJsonString.writeln('    var _json = {};');
 
-    properties.forEach((DartClassProperty property) {
+    for (var property in properties) {
       toJsonString.writeln('    if (message.${property.name} != null) {');
       toJsonString
           .writeln("      _json['${escapeString(property.jsonName)}'] = "
               '${property.type.jsonEncode('message.${property.name}')};');
       toJsonString.writeln('    }');
-    });
+    }
     toJsonString.writeln('    return _json;');
     toJsonString.write('  }');
 
@@ -69,21 +69,17 @@ $toJsonString
   }
 
   @override
-  String jsonEncode(String value) {
-    return '${className}Factory.toJson(${value})';
-  }
+  String jsonEncode(String value) => '${className}Factory.toJson($value)';
 
   @override
-  String jsonDecode(String json) {
-    return '${className}Factory.fromJson($json)';
-  }
+  String jsonDecode(String json) => '${className}Factory.fromJson($json)';
 }
 
 /// Parses all schemas in [description] and returns a [DartSchemaTypeDB].
 DartSchemaTypeDB parseSchemas(
     DartApiImports imports, RestDescription description) {
-  var namer = imports.namer;
-  var db = DartSchemaTypeDB(imports);
+  final namer = imports.namer;
+  final db = DartSchemaTypeDB(imports);
 
   /*
    * Primitive types "integer"/"boolean"/"double"/"number"/"string":
@@ -131,11 +127,11 @@ DartSchemaTypeDB parseSchemas(
     }
 
     if (schema.type == 'object') {
-      var comment = Comment(schema.description);
+      final comment = Comment(schema.description);
       if (schema.additionalProperties != null) {
-        var anonValueClassName = namer.schemaClassName('${className}Value');
-        var anonClassScope = namer.newClassScope();
-        var valueType = parse(
+        final anonValueClassName = namer.schemaClassName('${className}Value');
+        final anonClassScope = namer.newClassScope();
+        final valueType = parse(
             anonValueClassName, anonClassScope, schema.additionalProperties);
         return db.register(UnnamedMapType(imports, db.stringType, valueType));
       } else if (schema.variant != null) {
@@ -148,17 +144,18 @@ DartSchemaTypeDB parseSchemas(
       } else {
         // This is a normal named schema class, we generate a normal
         // [ClientObjectType] for it with the defined properties.
-        var classId = namer.schemaClass(className);
-        var properties = <DartClassProperty>[];
+        final classId = namer.schemaClass(className);
+        final properties = <DartClassProperty>[];
         if (schema.properties != null) {
           orderedForEach(schema.properties,
               (String jsonPName, JsonSchema value) {
-            var propertyName = classScope.newIdentifier(jsonPName);
-            var propertyClass =
+            final propertyName = classScope.newIdentifier(jsonPName);
+            final propertyClass =
                 namer.schemaClassName(jsonPName, parent: className);
-            var propertyClassScope = namer.newClassScope();
+            final propertyClassScope = namer.newClassScope();
 
-            var propertyType = parse(propertyClass, propertyClassScope, value);
+            final propertyType =
+                parse(propertyClass, propertyClassScope, value);
 
             var comment = Comment(value.description);
             comment = extendEnumComment(comment, propertyType);
@@ -168,7 +165,7 @@ DartSchemaTypeDB parseSchemas(
               byteArrayAccessor =
                   classScope.newIdentifier('${jsonPName}AsBytes');
             }
-            var property = DartClassProperty(
+            final property = DartClassProperty(
                 propertyName, comment, propertyType, jsonPName,
                 byteArrayAccessor: byteArrayAccessor);
             properties.add(property);
@@ -193,8 +190,8 @@ DartSchemaTypeDB parseSchemas(
 
   if (description.schemas != null) {
     orderedForEach(description.schemas, (String name, JsonSchema schema) {
-      var className = namer.schemaClassName(name);
-      var classScope = namer.newClassScope();
+      final className = namer.schemaClassName(name);
+      final classScope = namer.newClassScope();
       db.registerTopLevel(name, parse(className, classScope, schema));
     });
 

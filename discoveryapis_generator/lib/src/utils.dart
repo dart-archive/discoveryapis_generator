@@ -37,26 +37,20 @@ final _formatter = DartFormatter(lineEnding: '\n', pageWidth: 80);
 String formatSource(String source) => _formatter.format(source);
 
 // TODO: Is this all we have to do?
-String escapeString(String string) {
-  return string
-      .replaceAll(r'$', r'\$')
-      .replaceAll("'", "\\'")
-      .replaceAll('"', '\\"');
-}
+String escapeString(String string) => string
+    .replaceAll(r'$', r'\$')
+    .replaceAll("'", "\\'")
+    .replaceAll('"', '\\"');
 
 /// Escapes [comment] to ensure it can safely be used inside a /* ... */ block.
-String escapeComment(String comment) {
-  return comment
-      .replaceAll('/*', ' / * ')
-      .replaceAll('*/', ' * / ')
-      .trimRight();
-}
+String escapeComment(String comment) =>
+    comment.replaceAll('/*', ' / * ').replaceAll('*/', ' * / ').trimRight();
 
 void orderedForEach<K extends Comparable<K>, V>(
   Map<K, V> map,
   void Function(K, V) fun,
 ) {
-  var keys = List<K>.from(map.keys)..sort();
+  final keys = List<K>.from(map.keys)..sort();
   for (var key in keys) {
     fun(key, map[key]);
   }
@@ -67,12 +61,12 @@ void writeDartSource(String path, String content) {
 }
 
 void writeString(String path, String content) {
-  var file = File(path);
+  final file = File(path);
   file.writeAsStringSync(content);
 }
 
 void writeFile(String path, void Function(StringSink sink) writer) {
-  var sink = StringBuffer();
+  final sink = StringBuffer();
   writer(sink);
   writeString(path, sink.toString());
 }
@@ -88,7 +82,7 @@ String findPackageRoot(String path) {
   while (path != dirname(path)) {
     // We use the pubspec.yaml file as an indicator of being in the package
     // root directory.
-    var pubspec = File(join(path, 'pubspec.yaml'));
+    final pubspec = File(join(path, 'pubspec.yaml'));
     if (pubspec.existsSync()) return path;
     path = dirname(path);
   }
@@ -139,8 +133,8 @@ class GenerateResult {
       return message;
     } else {
       assert(apiName != null && apiVersion != null && packagePath != null);
-      var flag = success ? '[SUCCESS]' : '[FAIL]';
-      var msg = message != null && message.isNotEmpty ? ':\n$message' : '';
+      final flag = success ? '[SUCCESS]' : '[FAIL]';
+      final msg = message != null && message.isNotEmpty ? ':\n$message' : '';
       return '$flag $apiName $apiVersion @ $packagePath $msg';
     }
   }

@@ -15,7 +15,7 @@ class Identifier {
   /// The preferred name for this [Identifier].
   final String preferredName;
 
-  /// [noPrefix] is used for naming prefix imports which will not get a name.
+  /// Used for naming prefix imports which will not get a name.
   Identifier.noPrefix() : preferredName = null {
     sealWithName(null);
   }
@@ -44,7 +44,7 @@ class Identifier {
   /// method will increment the call count; it is not idempotent.
   String ref() {
     _callCount++;
-    return name == null ? '' : '${name}.';
+    return name == null ? '' : '$name.';
   }
 
   bool get wasCalled => _callCount > 0;
@@ -76,7 +76,7 @@ class Scope {
   /// other names previously returned by this method.
   Identifier newIdentifier(String preferredName,
       {bool removeUnderscores = true, bool global = false}) {
-    var identifier = Identifier(Scope.toValidIdentifier(preferredName,
+    final identifier = Identifier(Scope.toValidIdentifier(preferredName,
         removeUnderscores: removeUnderscores, global: global));
     identifiers.add(identifier);
     return identifier;
@@ -84,7 +84,7 @@ class Scope {
 
   /// Creates a new child [Scope].
   Scope newChildScope() {
-    var child = Scope(parent: this);
+    final child = Scope(parent: this);
     childScopes.add(child);
     return child;
   }
@@ -117,8 +117,8 @@ class Scope {
   }
 
   static String toValidScopeName(String scope) {
-    var googleAuthPrefix = 'https://www.googleapis.com/auth/';
-    var httpsPrefix = 'https://';
+    const googleAuthPrefix = 'https://www.googleapis.com/auth/';
+    const httpsPrefix = 'https://';
 
     // Defined by openid-connect-core 1.0
     const openidScopes = [
@@ -133,7 +133,7 @@ class Scope {
       'offline_access',
     ];
 
-    var name;
+    String name;
     if (scope.startsWith(googleAuthPrefix)) {
       name = scope.substring(googleAuthPrefix.length);
     } else if (scope.startsWith(httpsPrefix)) {
@@ -165,9 +165,9 @@ class Scope {
         }
       } else {
         // Drop [char] and make the next character and uppercase.
-        var a = name.substring(0, index);
-        var b = name.substring(index + 1, index + 2);
-        var c = name.substring(index + 2);
+        final a = name.substring(0, index);
+        final b = name.substring(index + 1, index + 2);
+        final c = name.substring(index + 2);
         name = '$a${b.toUpperCase()}$c';
       }
     }
@@ -175,9 +175,8 @@ class Scope {
   }
 
   /// Converts the first letter of [name] to an uppercase letter.
-  static String capitalize(String name) {
-    return '${name.substring(0, 1).toUpperCase()}${name.substring(1)}';
-  }
+  static String capitalize(String name) =>
+      '${name.substring(0, 1).toUpperCase()}${name.substring(1)}';
 }
 
 /// Names [Identifier]s and avoids name collisions by renaming.
@@ -206,7 +205,7 @@ class IdentifierNamer {
   /// Gives [Identifier] a unique name amongst all previously named identifiers
   /// and amongst all identifiers of [parentNamer].
   void nameIdentifier(Identifier identifier) {
-    var preferredName = identifier.preferredName;
+    final preferredName = identifier.preferredName;
 
     var i = 0;
     var currentName = preferredName;
@@ -272,14 +271,14 @@ class ApiLibraryNamer {
         throw ArgumentError('The parent has to end with Api');
       }
 
-      var parentIsApiClass = !parent.endsWith('ResourceApi');
+      final parentIsApiClass = !parent.endsWith('ResourceApi');
       if (parentIsApiClass) {
         // We never prefix resource names with the api class name.
         parent = '';
       } else {
         parent = parent.substring(0, parent.length - 'ResourceApi'.length);
       }
-      name = '${parent}${name}';
+      name = '$parent$name';
     }
 
     return _libraryScope.newIdentifier('${Scope.capitalize(name)}ResourceApi');
@@ -287,14 +286,13 @@ class ApiLibraryNamer {
 
   String schemaClassName(String name, {String parent}) {
     if (parent != null) {
-      name = '${parent}${Scope.capitalize(name)}';
+      name = '$parent${Scope.capitalize(name)}';
     }
     return Scope.capitalize(name);
   }
 
-  Identifier schemaClass(String name) {
-    return _libraryScope.newIdentifier(Scope.capitalize(name));
-  }
+  Identifier schemaClass(String name) =>
+      _libraryScope.newIdentifier(Scope.capitalize(name));
 
   Scope newClassScope() => _libraryScope.newChildScope();
 
@@ -327,15 +325,16 @@ class ApiLibraryNamer {
     //      [e.g. if a method parameter is named 'core' we will rename the
     //            import to: import 'dart:core' as core_1;
 
-    var allAllocatedNames = <String>{};
+    final allAllocatedNames = <String>{};
 
     void nameScope(Scope scope, parentResolver) {
-      var resolver = IdentifierNamer(parentNamer: parentResolver);
+      final resolver = IdentifierNamer(parentNamer: parentResolver);
       scope.identifiers.forEach(resolver.nameIdentifier);
       // Order does not matter because child scopes are independent of each
       // other.
-      scope.childScopes
-          .forEach((childScope) => nameScope(childScope, resolver));
+      for (var childScope in scope.childScopes) {
+        nameScope(childScope, resolver);
+      }
 
       allAllocatedNames.addAll(resolver.allocatedNames);
     }
@@ -346,7 +345,7 @@ class ApiLibraryNamer {
 
     // Name all import identifiers. In case we have clashes with any of the
     // other names already assigned, we'll rename the prefixed imports.
-    var resolver = IdentifierNamer.fromNameSet(allAllocatedNames);
+    final resolver = IdentifierNamer.fromNameSet(allAllocatedNames);
     importScope.identifiers.forEach(resolver.nameIdentifier);
   }
 }

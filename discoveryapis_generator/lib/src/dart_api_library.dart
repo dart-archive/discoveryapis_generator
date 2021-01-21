@@ -88,9 +88,9 @@ class DartApiLibrary extends BaseApiLibrary {
   }
 
   String get librarySource {
-    var sink = StringBuffer();
-    var schemas = generateSchemas(schemaDB);
-    var resources = generateResources(apiClass);
+    final sink = StringBuffer();
+    final schemas = generateSchemas(schemaDB);
+    final resources = generateResources(apiClass);
     sink.write(libraryHeader());
     if (resources.isNotEmpty) {
       sink.write('$resources\n$schemas');
@@ -149,7 +149,7 @@ import 'package:_discoveryapis_commons/_discoveryapis_commons.dart' as ${imports
 import 'package:http/http.dart' as ${imports.http};
 
 export 'package:_discoveryapis_commons/_discoveryapis_commons.dart' show
-    ApiRequestError, DetailedApiRequestError${exportedMediaClasses};
+    ApiRequestError, DetailedApiRequestError$exportedMediaClasses;
 
 const ${imports.core.ref()}String USER_AGENT = 'dart-api-client ${description.name}/${description.version}';
 

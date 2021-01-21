@@ -44,21 +44,21 @@ class ClientApiLibrary extends BaseApiLibrary {
 
   List<String> _parseImports(Map<String, String> importsMap) {
     // Remove duplicate imports.
-    var imports = <String>{};
-    schemaDB.dartClassTypes.forEach((schema) {
+    final imports = <String>{};
+    for (var schema in schemaDB.dartClassTypes) {
       assert(importsMap.containsKey(schema.className.preferredName));
-      var path = importsMap[schema.className.preferredName];
+      final path = importsMap[schema.className.preferredName];
       if (path.startsWith('dart:')) {
-        return;
+        continue;
       }
       imports.add(path);
-    });
+    }
     // Make import paths relative to the package's lib directory and write them
     // out.
     final parsedImports = <String>[];
-    imports.forEach((importPath) {
+    for (var importPath in imports) {
       if (!importPath.startsWith('package:$packageName')) {
-        var pathPrefix = path.toUri(packageRoot).toString() + '/lib';
+        final pathPrefix = path.toUri(packageRoot).toString() + '/lib';
         if (!importPath.startsWith(pathPrefix)) {
           throw GeneratorError(
               description.name,
@@ -70,14 +70,14 @@ class ClientApiLibrary extends BaseApiLibrary {
             importPath.replaceFirst(pathPrefix, 'package:$packageName');
       }
       parsedImports.add('import \'$importPath\';');
-    });
+    }
     return parsedImports;
   }
 
   String get librarySource {
-    var sink = StringBuffer();
-    var schemas = generateSchemas(schemaDB);
-    var resources = generateResources(apiClass);
+    final sink = StringBuffer();
+    final schemas = generateSchemas(schemaDB);
+    final resources = generateResources(apiClass);
     sink.write(libraryHeader());
     if (resources.isNotEmpty) {
       sink.writeln(resources);
@@ -135,7 +135,7 @@ import 'package:_discoveryapis_commons/_discoveryapis_commons.dart' as ${imports
 import 'package:http/http.dart' as ${imports.http};
 $schemaImports
 export 'package:_discoveryapis_commons/_discoveryapis_commons.dart' show
-    ApiRequestError, DetailedApiRequestError${exportedMediaClasses};
+    ApiRequestError, DetailedApiRequestError$exportedMediaClasses;
 
 const ${imports.core.ref()}String USER_AGENT = 'dart-api-client ${description.name}/${description.version}';
 
